@@ -31,14 +31,6 @@ export default function BioParentsForm() {
     fields: nodeForm ?? [],
   });
 
-  const { fieldComponents: fieldComponents2 } = useProtocolForm({
-    subject: {
-      entity: 'node',
-      type: nodeType,
-    },
-    fields: nodeForm ?? [],
-  });
-
   return (
     <>
       <Paragraph>
@@ -65,6 +57,12 @@ export default function BioParentsForm() {
                 </AlertDescription>
               </Alert>
             </div>
+            <Field
+              name="is-donor"
+              label="Was this person an egg donor?"
+              component={BooleanField}
+              required
+            />
             <Field
               name="name-known"
               label="Do you know this person's name?"
@@ -120,6 +118,12 @@ export default function BioParentsForm() {
               </AlertDescription>
             </Alert>
             <Field
+              name="is-donor"
+              label="Was this person a sperm donor?"
+              component={BooleanField}
+              required
+            />
+            <Field
               name="name-known"
               label="Do you know this person's name?"
               component={BooleanField}
@@ -151,34 +155,69 @@ export default function BioParentsForm() {
               initialValue="male"
               required
             />
-            {fieldComponents2}
+            {fieldComponents}
           </FieldNamespace>
         </Surface>
-        <Surface level={1} spacing="sm">
-          <Heading level="h3">Other parents</Heading>
-          <Field
-            label="Do you have any additional parents?"
-            hint="This includes adoptive parents, stepparents, or any other parents who are not your biological parents."
-            name="hasOtherParents"
-            component={BooleanField}
-            required
-          />
-          <FieldGroup
-            watch={['hasOtherParents']}
-            condition={(values) => values.hasOtherParents === true}
-          >
-            <Field
-              label="How many additional parents do you have?"
-              name="otherParentCount"
-              component={InputField}
-              type="number"
-              min={1}
-              initialValue="1"
-              autoFocus
-              required
-            />
-          </FieldGroup>
-        </Surface>
+        <FieldGroup
+          watch={['egg-parent.gestationalCarrier']}
+          condition={(values) =>
+            values['egg-parent.gestationalCarrier'] === false
+          }
+        >
+          <Surface level={1} spacing="sm">
+            <FieldNamespace prefix="gestational-carrier">
+              <div className="mb-8">
+                <Heading level="h3">Gestational Carrier</Heading>
+                <Alert variant="info">
+                  <AlertDescription>
+                    The gestational carrier is the person who carried you during
+                    pregnancy but did not contribute the egg. This includes
+                    gestational surrogates.
+                  </AlertDescription>
+                </Alert>
+              </div>
+              <Field
+                name="is-donor"
+                label="Was this person a gestational surrogate?"
+                component={BooleanField}
+                required
+              />
+              <Field
+                name="name-known"
+                label="Do you know this person's name?"
+                component={BooleanField}
+                required
+              />
+              <FieldGroup
+                watch={['name-known']}
+                condition={(values) => values['name-known'] === true}
+              >
+                <Field
+                  name="name"
+                  label="What is their name?"
+                  component={InputField}
+                  autoFocus
+                  required
+                />
+              </FieldGroup>
+              <Field
+                name="raised-by"
+                label="Was this person involved in raising you?"
+                component={BooleanField}
+                required
+              />
+              <Field
+                name="sex-at-birth"
+                label="What was this person's sex assigned at birth?"
+                component={RadioGroupField}
+                options={sexOptions}
+                initialValue="female"
+                required
+              />
+              {fieldComponents}
+            </FieldNamespace>
+          </Surface>
+        </FieldGroup>
       </div>
     </>
   );

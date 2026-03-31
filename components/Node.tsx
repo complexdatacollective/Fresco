@@ -3,10 +3,10 @@
 import { Loader2 } from 'lucide-react';
 import { AnimatePresence, motion, useAnimate } from 'motion/react';
 import {
-  forwardRef,
   useEffect,
   type ButtonHTMLAttributes,
   type CSSProperties,
+  type Ref,
 } from 'react';
 import { useMergeRefs } from 'react-best-merge-refs';
 import { useNodeInteractions } from '~/hooks/useNodeInteractions';
@@ -133,6 +133,7 @@ type UINodeProps = {
   onPointerDown?: (e: React.PointerEvent) => void;
   /** External pointer up handler (composes with internal behavior) */
   onPointerUp?: (e: React.PointerEvent) => void;
+  ref?: Ref<HTMLButtonElement>;
 } & VariantProps<typeof nodeVariants> &
   Omit<
     ButtonHTMLAttributes<HTMLButtonElement>,
@@ -162,7 +163,7 @@ type UINodeProps = {
  * Shapes:
  * - Circle (default), square, or diamond (rotated square with counter-rotated content)
  */
-const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
+export default function Node(props: UINodeProps) {
   const {
     label = 'Node',
     ariaLabel,
@@ -176,6 +177,7 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
     size = 'md',
     className,
     style,
+    ref,
     onPointerDown: externalPointerDown,
     onPointerUp: externalPointerUp,
     onKeyDown: externalKeyDown,
@@ -189,6 +191,15 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
 
   // Infer interaction mode from props
   const hasClickHandler = !!onClick;
+
+  // aria-pressed is only valid on roles that support it (button, menuitem, etc.)
+  // When a Collection overrides role to 'option', aria-pressed is not permitted.
+  const roleFromProps = buttonProps.role;
+  const supportsAriaPressed =
+    !roleFromProps ||
+    ['button', 'menuitem', 'menuitemradio', 'menuitemcheckbox'].includes(
+      roleFromProps,
+    );
 
   // Determine cursor: external style takes precedence, then infer from props
   const cursor: CSSProperties['cursor'] = disabled
@@ -263,7 +274,9 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
       type="button"
       disabled={disabled}
       aria-label={ariaLabel ?? label}
-      aria-pressed={hasClickHandler ? selected : undefined}
+      aria-pressed={
+        hasClickHandler && supportsAriaPressed ? selected : undefined
+      }
       className={nodeVariants({
         size,
         shape,
@@ -300,7 +313,6 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
             className="pointer-events-none absolute inset-0 rounded-[inherit]"
             initial={{
               boxShadow: '0 0 0 0.08em var(--color-selected)',
-              opacity: 0.6,
             }}
             animate={{
               boxShadow: [
@@ -334,8 +346,4 @@ const Node = forwardRef<HTMLButtonElement, UINodeProps>((props, ref) => {
       )}
     </motion.button>
   );
-});
-
-Node.displayName = 'Node';
-
-export default Node;
+}

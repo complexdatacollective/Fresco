@@ -1,106 +1,22 @@
 'use client';
 
-import { useEffect, useMemo, useRef } from 'react';
-import { useSelector } from 'react-redux';
+import { useMemo } from 'react';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
-import { useWizard } from '~/lib/dialogs/useWizard';
 import useFormStore from '~/lib/form/hooks/useFormStore';
-import FormStoreProvider from '~/lib/form/store/formStoreProvider';
-import { focusFirstError } from '~/lib/form/utils/focusFirstError';
-import { extractFormFieldAttributes } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/extractFormFieldAttributes';
 import {
   getAllParents,
   getParentDisplayName,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/getAllParents';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
-import {
-  type GrandparentDetail,
-  type ParentBranch,
-} from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
-import { getNodeForm } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 
 export default function GrandparentsStep() {
-  return (
-    <FormStoreProvider>
-      <GrandparentsForm />
-    </FormStoreProvider>
+  const getFieldState = useFormStore((s) => s.getFieldState);
+
+  const allParents = useMemo(
+    () => getAllParents((name) => getFieldState(name)?.value),
+    [getFieldState],
   );
-}
-
-function GrandparentsForm() {
-  const { data, setStepData, setBeforeNext } = useWizard();
-  const validateForm = useFormStore((s) => s.validateForm);
-  const getFormValues = useFormStore((s) => s.getFormValues);
-  const errors = useFormStore((s) => s.errors);
-  const rawFormFields = useSelector(getNodeForm);
-  const formFields = useMemo(() => rawFormFields ?? [], [rawFormFields]);
-  const errorsRef = useRef(errors);
-  errorsRef.current = errors;
-
-  const allParents = useMemo(() => getAllParents(data), [data]);
-  const existingBranches = data.parentBranches as ParentBranch[] | undefined;
-
-  const findExistingGp = (
-    parentIdx: number,
-    gpIdx: 0 | 1,
-  ): GrandparentDetail | undefined =>
-    existingBranches?.find((b) => b.parentIndex === parentIdx)?.grandparents[
-      gpIdx
-    ];
-
-  useEffect(() => {
-    setBeforeNext(async () => {
-      const isValid = await validateForm();
-      if (!isValid) {
-        setTimeout(() => focusFirstError(errorsRef.current), 0);
-        return false;
-      }
-
-      const values = getFormValues();
-
-      const parentBranches: ParentBranch[] = allParents
-        .filter((_, parentIdx) => parentIdx < allParents.length)
-        .map((_, parentIdx) => {
-          const grandparents: [GrandparentDetail, GrandparentDetail] = [
-            0, 1,
-          ].map((gpIdx) => {
-            const rawName = values[`grandparent-${parentIdx}-${gpIdx}-name`];
-            const rawSex = values[`grandparent-${parentIdx}-${gpIdx}-sex`];
-
-            return {
-              name: typeof rawName === 'string' ? rawName : '',
-              biologicalSex: typeof rawSex === 'string' ? rawSex : undefined,
-              attributes: extractFormFieldAttributes(
-                values,
-                `grandparent-${parentIdx}-${gpIdx}`,
-                formFields,
-              ),
-              nameKnown: Boolean(
-                values[`grandparent-${parentIdx}-${gpIdx}-nameKnown`],
-              ),
-            };
-          }) as [GrandparentDetail, GrandparentDetail];
-
-          return {
-            parentIndex: parentIdx,
-            grandparents,
-            auntUncleCount: 0,
-            auntsUncles: [],
-          };
-        });
-
-      setStepData({ parentBranches });
-      return true;
-    });
-  }, [
-    validateForm,
-    getFormValues,
-    setStepData,
-    setBeforeNext,
-    allParents,
-    formFields,
-  ]);
 
   return (
     <div className="mt-6 flex flex-col gap-6">
@@ -111,18 +27,11 @@ function GrandparentsForm() {
           <Surface key={parentIdx} level={1} spacing="sm">
             <Heading level="h3">{parentName}&apos;s parents</Heading>
             {([0, 1] as const).map((gpIdx) => {
-              const existingGp = findExistingGp(parentIdx, gpIdx);
-
               return (
                 <Surface key={gpIdx} level={2} spacing="sm">
                   <Heading level="h4">Grandparent {gpIdx + 1}</Heading>
                   <PersonFields
                     namespace={`grandparent-${parentIdx}-${gpIdx}`}
-                    initial={{
-                      name: existingGp?.name,
-                      sex: existingGp?.biologicalSex,
-                      attributes: existingGp?.attributes,
-                    }}
                   />
                 </Surface>
               );

@@ -1,7 +1,7 @@
 import { type EdgeColor } from '@codaco/protocol-validation';
-import { type NcNode } from '@codaco/shared-consts';
+import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { motion } from 'motion/react';
-import Node from '~/lib/interviewer/components/Node';
+import Node from '~/lib/interviewer/components/ConnectedNode';
 import { edgeColorMap } from '~/lib/interviewer/utils/edgeColorMap';
 import { cx } from '~/utils/cva';
 
@@ -65,7 +65,7 @@ export default function Pair({
       exit="exit"
       className="flex w-md items-center"
     >
-      <Node {...fromNode} />
+      <Node nodeId={fromNode[entityPrimaryKeyProperty]} type={fromNode.type} />
       <motion.div
         className={cx(
           edgeColorMap[edgeColor],
@@ -76,7 +76,7 @@ export default function Pair({
         initial="hideEdge"
         animate={!hasEdge ? 'hideEdge' : 'showEdge'}
       />
-      <Node {...toNode} />
+      <Node nodeId={toNode[entityPrimaryKeyProperty]} type={toNode.type} />
     </motion.div>
   );
 }

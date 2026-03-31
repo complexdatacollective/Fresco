@@ -4,7 +4,7 @@ import {
   type NcNode,
 } from '@codaco/shared-consts';
 import { type RefObject, useCallback } from 'react';
-import Node from '~/lib/interviewer/components/Node';
+import Node from '~/lib/interviewer/components/ConnectedNode';
 import { useCanvasDrag } from '~/lib/interviewer/canvas/useCanvasDrag';
 import {
   useCanvasStore,
@@ -80,7 +80,8 @@ export default function CanvasNode({
       aria-label={`${typeof node[entityAttributesProperty].name === 'string' ? node[entityAttributesProperty].name : 'Node'} at position ${Math.round(position.x * 100)}%, ${Math.round(position.y * 100)}%`}
     >
       <Node
-        {...node}
+        nodeId={nodeId}
+        type={node.type}
         selected={selected}
         linking={linking}
         highlighted={highlighted}

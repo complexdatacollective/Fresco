@@ -11,7 +11,8 @@ import { updateNode } from '~/lib/interviewer/ducks/modules/session';
 import { getNetworkNodesForType } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { type StageProps } from '~/lib/interviewer/types';
-import Node from '../../components/Node';
+import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
+import Node from '~/lib/interviewer/components/ConnectedNode';
 import IntroPanel from '../SlidesForm/IntroPanel';
 import SlidesForm from '../SlidesForm/SlidesForm';
 
@@ -35,7 +36,13 @@ const AlterForm = (props: StageProps<'AlterForm'>) => {
 
   const renderHeader = useCallback((item: NcNode | NcEdge) => {
     if ('from' in item) return null;
-    return <Node {...item} className="shrink-0 rounded-full" />;
+    return (
+      <Node
+        nodeId={item[entityPrimaryKeyProperty]}
+        type={item.type}
+        className="shrink-0 rounded-full"
+      />
+    );
   }, []);
 
   if (showIntro) {

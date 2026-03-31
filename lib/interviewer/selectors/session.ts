@@ -358,6 +358,23 @@ export const getNodeShapeDefinition = createSelector(
   },
 );
 
+/**
+ * Selector for returning node attributes based on entityPrimaryKeyProperty
+ */
+export const makeGetNodeAttributesById = createSelector(
+  getNetworkNodes,
+  (nodes) => (nodeId: NcNode[EntityPrimaryKey]) => {
+    if (!nodes) {
+      return null;
+    }
+
+    const node = nodes.find(
+      (node) => node[entityPrimaryKeyProperty] === nodeId,
+    );
+    return node?.[entityAttributesProperty] ?? null;
+  },
+);
+
 const getEdgeColor = createSelector(
   getCodebook,
   getStageSubject,

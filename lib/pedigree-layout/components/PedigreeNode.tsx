@@ -8,13 +8,13 @@ import {
   type StoreEdge,
   type VariableConfig,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
-import { computeAllDisplayLabels } from '~/lib/pedigree-layout/utils/getDisplayLabel';
 import { getNodeShapeDefinition } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 import {
   getNodeColorSelector,
   resolveNodeShape,
 } from '~/lib/interviewer/selectors/session';
 import { useClickUnlessDragged } from '~/lib/pedigree-layout/useClickUnlessDragged';
+import { computeAllDisplayLabels } from '~/lib/pedigree-layout/utils/getDisplayLabel';
 
 export function AdoptionBrackets({
   children,
@@ -162,6 +162,7 @@ export default function PedigreeNode({
   displayLabel,
   allowDrag,
   selected,
+  ...rest
 }: PedigreeNodeProps) {
   const { id, isEgo, adoptionStatus } = node;
 
@@ -185,13 +186,14 @@ export default function PedigreeNode({
 
   const nodeElement = (
     <Node
-      className="shrink-0"
       color={nodeColor}
       size="sm"
       label={isEgo ? '' : displayLabel}
       ariaLabel={displayLabel}
       shape={shape}
       selected={selected}
+      // {...dragProps}
+      {...rest}
     >
       {isEgo && (
         <EgoIcon
@@ -208,22 +210,5 @@ export default function PedigreeNode({
     nodeElement
   );
 
-  return (
-    <div
-      onPointerDown={handlePointerDown}
-      onPointerUp={handlePointerUp}
-      onClick={(e) => {
-        if (!shouldHandleClick()) {
-          e.stopPropagation();
-        }
-      }}
-    >
-      <div
-        className="relative flex flex-col items-center gap-2 text-center"
-        {...dragProps}
-      >
-        {wrappedNode}
-      </div>
-    </div>
-  );
+  return wrappedNode;
 }

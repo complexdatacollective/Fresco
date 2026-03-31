@@ -127,7 +127,7 @@ const calculateFormValidity = (
 
 export type FormStore = {
   fields: Map<string, FieldState>;
-  dormantValues: Map<string, FieldValue>;
+  dormantValues: Map<string, FieldState>;
   errors: FlattenedErrors;
   isSubmitting: boolean;
   isValidating: boolean;
@@ -173,12 +173,10 @@ export type FormStoreApi = ReturnType<typeof createFormStore>;
 
 export type FormStoreOptions = {
   debug?: boolean;
-  persistFieldValues?: boolean;
 };
 
 export const createFormStore = (options?: FormStoreOptions) => {
   const logger = createFormLogger(options?.debug ?? false);
-  const persistFieldValues = options?.persistFieldValues ?? false;
 
   return createStore<FormStore>()(
     immer((set, get, _store) => ({
@@ -222,10 +220,9 @@ export const createFormStore = (options?: FormStoreOptions) => {
         });
 
         set((state) => {
-          const hasDormantValue = state.dormantValues.has(config.name);
-          const value = hasDormantValue
-            ? state.dormantValues.get(config.name)
-            : config.initialValue;
+          const dormant = state.dormantValues.get(config.name);
+          const hasDormantValue = dormant !== undefined;
+          const value = hasDormantValue ? dormant.value : config.initialValue;
 
           if (hasDormantValue) {
             state.dormantValues.delete(config.name);
@@ -260,11 +257,20 @@ export const createFormStore = (options?: FormStoreOptions) => {
         const currentState = get();
         if (currentState.fields.has(fieldName)) {
           set((state) => {
-            if (persistFieldValues) {
-              const field = state.fields.get(fieldName);
-              if (field) {
-                state.dormantValues.set(fieldName, field.value);
-              }
+            const field = state.fields.get(fieldName);
+            if (field) {
+              state.dormantValues.set(fieldName, {
+                initialValue: field.initialValue,
+                validation: field.validation,
+                value: field.value,
+                meta: {
+                  isValidating: false,
+                  isTouched: true,
+                  isBlurred: true,
+                  isDirty: true,
+                  isValid: field.meta.isValid,
+                },
+              });
             }
 
             state.fields.delete(fieldName);
@@ -337,17 +343,24 @@ export const createFormStore = (options?: FormStoreOptions) => {
 
       getFieldState: (fieldName) => {
         const state = get();
-        return state.fields.get(fieldName);
+        return (
+          state.fields.get(fieldName) ??
+          state.dormantValues.get(fieldName) ??
+          undefined
+        );
       },
 
       getFormValues: () => {
         const state = get();
         const values = {};
-        Array.from(state.fields.entries()).forEach(
-          ([fieldName, fieldState]) => {
-            setValue(values, fieldName, fieldState.value);
-          },
-        );
+        // Dormant values first (lower priority)
+        state.dormantValues.forEach((fieldState, fieldName) => {
+          setValue(values, fieldName, fieldState.value);
+        });
+        // Active fields override
+        state.fields.forEach((fieldState, fieldName) => {
+          setValue(values, fieldName, fieldState.value);
+        });
         return values as Record<string, FieldValue>;
       },
 

@@ -286,7 +286,7 @@ export const AllStates: Story = {
         </div>
         <div>
           <Paragraph margin="none" className="mb-2 text-sm font-medium">
-            ReadOnly:
+            ReadOnly with selection:
           </Paragraph>
           <RichSelectGroupField
             options={basicOptions}
@@ -297,13 +297,33 @@ export const AllStates: Story = {
         </div>
         <div>
           <Paragraph margin="none" className="mb-2 text-sm font-medium">
-            Disabled:
+            ReadOnly with no selection:
+          </Paragraph>
+          <RichSelectGroupField
+            options={basicOptions}
+            readOnly
+            aria-label="ReadOnly no selection"
+          />
+        </div>
+        <div>
+          <Paragraph margin="none" className="mb-2 text-sm font-medium">
+            Disabled with selection:
           </Paragraph>
           <RichSelectGroupField
             options={basicOptions}
             defaultValue="option-a"
             disabled
             aria-label="Disabled state"
+          />
+        </div>
+        <div>
+          <Paragraph margin="none" className="mb-2 text-sm font-medium">
+            Disabled with no selection:
+          </Paragraph>
+          <RichSelectGroupField
+            options={basicOptions}
+            disabled
+            aria-label="Disabled no selection"
           />
         </div>
         <div>

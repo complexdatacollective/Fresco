@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
-import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
+import { screen, userEvent, within } from 'storybook/test';
 import SuperJSON from 'superjson';
 import StoryInterviewShell from '~/.storybook/StoryInterviewShell';
 import { SyntheticInterview } from '~/lib/interviewer/utils/SyntheticInterview/SyntheticInterview';
@@ -31,6 +31,7 @@ function createFamilyPedigreeInterview(seed: number) {
     component: 'RadioGroup',
   });
   const genderVar = nodeType.addVariable({
+    id: 'gender_identity',
     name: 'Current Gender Identity',
     type: 'categorical',
     options: [
@@ -41,6 +42,7 @@ function createFamilyPedigreeInterview(seed: number) {
       { label: 'Two-Spirit', value: 'two_spirit' },
       { label: 'Other', value: 'other' },
       { label: 'Prefer not to say', value: 'prefer_not_to_say' },
+      { label: "Don't know", value: 'dont_know' },
     ],
     component: 'RadioGroup',
     validation: { required: true },
@@ -128,7 +130,7 @@ function FamilyPedigreeStoryWrapper({
 
   return (
     <div className="h-screen">
-      <StoryInterviewShell rawPayload={rawPayload} disableSync />;
+      <StoryInterviewShell rawPayload={rawPayload} disableSync />
     </div>
   );
 }
@@ -282,162 +284,115 @@ function buildScenarioInterview() {
 const STEP_TIMEOUT = { timeout: 5000 };
 
 async function clickGetStarted() {
-  const btn = await screen.findByRole(
-    'button',
-    { name: 'Get started' },
-    STEP_TIMEOUT,
-  );
+  const btn = await screen.findByRole('button', { name: 'Build family tree' });
   await userEvent.click(btn);
-  await screen.findByRole('dialog', {}, STEP_TIMEOUT);
+  await screen.findByRole('dialog', {});
 }
 
 async function clickContinue() {
-  const btn = await screen.findByRole(
-    'button',
-    { name: 'Continue' },
-    STEP_TIMEOUT,
-  );
-  await userEvent.click(btn);
-}
-
-async function clickFinish() {
   // The final button may be "Finish" (wizard default) or "Get started"
   // (custom nextLabel on OtherChildrenDetailStep)
-  const buttons = await screen.findAllByRole('button', {}, STEP_TIMEOUT);
+  const buttons = await screen.findAllByRole('button', {});
   const finishBtn = buttons.find(
-    (b) => b.textContent === 'Finish' || b.textContent === 'Get started',
+    (b) => b.textContent === 'Finish' || b.textContent === 'Continue',
   );
-  if (!finishBtn) throw new Error('No Finish or Get started button found');
+  if (!finishBtn) throw new Error('No Finish or Continue button found');
   await userEvent.click(finishBtn);
 }
 
-async function selectRadio(name: string) {
-  const radio = await screen.findByRole('radio', { name }, STEP_TIMEOUT);
-  await userEvent.click(radio);
+async function getDialog() {
+  return screen.findByRole('dialog', {}, STEP_TIMEOUT);
 }
 
-async function selectRadioByIndex(name: string | RegExp, index = 0) {
-  const radios = await screen.findAllByRole('radio', { name }, STEP_TIMEOUT);
-  const radio = radios[index];
-  if (!radio)
-    throw new Error(`No radio "${name.toString()}" at index ${index}`);
-  await userEvent.click(radio);
-}
-
-async function selectNthRadio(index: number) {
-  const radios = await screen.findAllByRole('radio', {}, STEP_TIMEOUT);
-  const radio = radios[index];
-  if (!radio) throw new Error(`No radio at index ${index}`);
-  await userEvent.click(radio);
-}
-
-async function setNumberCounter(index: number, target: number) {
-  const spinbuttons = await screen.findAllByRole(
-    'spinbutton',
-    {},
-    STEP_TIMEOUT,
+async function setFieldInput(
+  fieldName: string,
+  value: boolean | string | number,
+) {
+  const dialog = await getDialog();
+  const container = dialog.querySelector(
+    `[data-field-name="${CSS.escape(fieldName)}"]`,
   );
-  const spinbutton = spinbuttons[index];
-  if (!spinbutton) throw new Error(`No spinbutton found at index ${index}`);
-  const currentValue = Number(spinbutton.getAttribute('aria-valuenow') ?? '0');
-  const diff = target - currentValue;
 
-  if (diff > 0) {
-    const incBtn = spinbutton.querySelector(
-      'button[aria-label="Increase by 1"]',
-    );
-    if (!incBtn)
-      throw new Error(`No increment button found for spinbutton ${index}`);
-    for (let i = 0; i < diff; i++) {
-      await userEvent.click(incBtn);
+  if (!container)
+    throw new Error(`No field found with data-field-name="${fieldName}"`);
+
+  if (typeof value === 'boolean') {
+    const el = container as HTMLElement;
+
+    // ToggleField: role="switch"
+    const toggle = el.querySelector('[role="switch"]');
+    if (toggle) {
+      const isChecked = toggle.getAttribute('aria-checked') === 'true';
+      if (isChecked !== value) {
+        await userEvent.click(toggle);
+      }
+      return;
     }
-  } else if (diff < 0) {
-    const decBtn = spinbutton.querySelector(
-      'button[aria-label="Decrease by 1"]',
-    );
-    if (!decBtn)
-      throw new Error(`No decrement button found for spinbutton ${index}`);
-    for (let i = 0; i < Math.abs(diff); i++) {
-      await userEvent.click(decBtn);
+
+    // BooleanField: two radio buttons — first is "true", second is "false"
+    const radios = within(el).getAllByRole('radio');
+    const target = value ? radios[0] : radios[1];
+    if (!target)
+      throw new Error(`No radio for value=${String(value)} in "${fieldName}"`);
+    await userEvent.click(target);
+    return;
+  }
+
+  if (typeof value === 'number') {
+    // Number InputField: use stepper buttons
+    const input = within(container as HTMLElement).getByRole('spinbutton');
+    const currentValue = Number((input as HTMLInputElement).value) || 0;
+    const diff = value - currentValue;
+    if (diff === 0) return;
+
+    const wrapper = input.parentElement?.parentElement;
+    if (diff > 0) {
+      const incBtn = wrapper?.querySelector(
+        'button[aria-label="Increase value"]',
+      ) as HTMLButtonElement | null;
+      if (!incBtn) throw new Error(`No increment button in "${fieldName}"`);
+      for (let i = 0; i < diff; i++) await userEvent.click(incBtn);
+    } else {
+      const decBtn = wrapper?.querySelector(
+        'button[aria-label="Decrease value"]',
+      ) as HTMLButtonElement | null;
+      if (!decBtn) throw new Error(`No decrement button in "${fieldName}"`);
+      for (let i = 0; i < Math.abs(diff); i++) await userEvent.click(decBtn);
     }
-  }
-}
-
-async function toggleSwitch(name: string, desiredState: boolean, index = 0) {
-  const toggles = await screen.findAllByRole('switch', { name }, STEP_TIMEOUT);
-  const toggle = toggles[index];
-  if (!toggle) throw new Error(`No switch "${name}" at index ${index}`);
-  const isChecked = toggle.getAttribute('aria-checked') === 'true';
-  if (isChecked !== desiredState) {
-    await userEvent.click(toggle);
-  }
-}
-
-async function typeInTextbox(value: string, index = 0) {
-  const textboxes = await screen.findAllByRole('textbox', {}, STEP_TIMEOUT);
-  const textbox = textboxes[index];
-  if (!textbox) throw new Error(`No textbox found at index ${index}`);
-  await userEvent.click(textbox);
-  await userEvent.type(textbox, value);
-}
-
-async function waitForStepTransition() {
-  await new Promise((resolve) => setTimeout(resolve, 500));
-}
-
-async function fillGrandparents(totalParentCount: number) {
-  await screen.findAllByText(/Grandparent 1/i, {}, { timeout: 10000 });
-
-  const gpCount = totalParentCount * 2;
-
-  // Toggle all nameKnown switches off to skip name entry (faster)
-  for (let gp = 0; gp < gpCount; gp++) {
-    await toggleSwitch("I know this person's name", false, gp);
+    return;
   }
 
-  // Fill only sex + gender for each grandparent
-  for (let gp = 0; gp < gpCount; gp++) {
-    await selectRadioByIndex(gp % 2 === 0 ? 'Male' : 'Female', gp);
-    await selectRadioByIndex(gp % 2 === 0 ? 'Man' : 'Woman', gp);
+  // String value — could be RadioGroupField or text InputField
+  const radios = (container as HTMLElement).querySelectorAll('[role="radio"]');
+
+  if (radios.length > 0) {
+    // RadioGroupField: find the radio whose label matches the value
+    const target = Array.from(radios).find(
+      (r) => r.getAttribute('aria-label') === value,
+    );
+
+    if (target) {
+      await userEvent.click(target);
+      return;
+    }
+
+    // Fallback: check for a hidden input with a matching value attribute
+    const byValue = Array.from(radios).find((r) => {
+      const input = r.querySelector('input[type="radio"]');
+      return input?.getAttribute('value') === value;
+    });
+    if (byValue) {
+      await userEvent.click(byValue);
+      return;
+    }
+
+    throw new Error(`No radio option matching "${value}" in "${fieldName}"`);
   }
-  await clickContinue();
-  await waitForStepTransition();
-}
 
-async function navigateExtendedFamilySteps(totalParentCount: number) {
-  await fillGrandparents(totalParentCount);
-
-  // AuntUncleCountStep: defaults to 0 for all parents
-  await clickContinue();
-  await waitForStepTransition();
-}
-
-async function navigatePostSiblingSteps() {
-  // SiblingFamilyCountStep: just click Continue (defaults produce empty families)
-  await clickContinue();
-  await waitForStepTransition();
-}
-
-async function finishWizardAndConfirm() {
-  await clickFinish();
-
-  // After the wizard finishes, a confirmation dialog opens asking to finalize
-  await screen.findByText(/Finalize your family tree/i, {}, { timeout: 10000 });
-  const confirmBtn = await screen.findByRole(
-    'button',
-    { name: 'Continue' },
-    STEP_TIMEOUT,
-  );
-  await userEvent.click(confirmBtn);
-
-  await waitFor(
-    async () => {
-      await expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    },
-    { timeout: 10000 },
-  );
-  // Allow React to fully settle before the next story starts
-  await waitForStepTransition();
+  // Text InputField: clear and type
+  const input = within(container as HTMLElement).getByRole('textbox');
+  await userEvent.clear(input);
+  await userEvent.type(input, value);
 }
 
 // ---------------------------------------------------------------------------
@@ -456,109 +411,74 @@ export const NuclearFamily: ScenarioStory = {
   render: scenarioRender,
   play: async () => {
     await clickGetStarted();
-
-    // AdoptionStatusStep: No
-    await selectRadio('No');
     await clickContinue();
-    await waitForStepTransition();
 
-    // ParentsCountStep: 2 parents (default), 2 siblings, no partner
-    await setNumberCounter(0, 2);
-    await setNumberCounter(1, 2);
-    await selectRadio('No');
+    // Bioparents step: 2 bio parents, both with known names and
+    // genders specified
+    await setFieldInput('egg-parent.is-donor', false);
+    await setFieldInput('egg-parent.name-known', true);
+    await setFieldInput('egg-parent.name', 'Linda');
+    await setFieldInput('egg-parent.gestationalCarrier', true);
+    await setFieldInput('egg-parent.raised-by', true);
+    await setFieldInput('egg-parent.sex-at-birth', 'Female');
+    await setFieldInput('egg-parent.gender_identity', 'Woman');
+
+    await setFieldInput('sperm-parent.is-donor', false);
+    await setFieldInput('sperm-parent.name-known', true);
+    await setFieldInput('sperm-parent.name', 'Robert');
+    await setFieldInput('sperm-parent.raised-by', true);
+    await setFieldInput('sperm-parent.sex-at-birth', 'Male');
+    await setFieldInput('sperm-parent.gender_identity', 'Man');
     await clickContinue();
-    await waitForStepTransition();
 
-    // ParentsDetailStep: Parent 1 (bio, name known, "Robert", Man)
-    // Edge type defaults to "Biological Parent" — no change needed
-    await toggleSwitch("I know this person's name", true);
-    await typeInTextbox('Robert', 0);
-    const maleRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Male' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(maleRadios[0]!);
-    const manGenderRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Man' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(manGenderRadios[0]!);
-    // Parent 2 (bio, name known, "Linda", Woman)
-    // Edge type defaults to "Biological Parent" — no change needed
-    await toggleSwitch("I know this person's name", true, 1);
-    await typeInTextbox('Linda', 1);
-    const femaleRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Female' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(femaleRadios[1]!);
-    const womanGenderRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Woman' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(womanGenderRadios[1]!);
+    // Other Parents step: no other parents
+    await setFieldInput('hasOtherParents', false);
     await clickContinue();
-    await waitForStepTransition();
 
-    // ParentPartnershipsStep: current partners
-    await selectRadio('Current partner');
+    // Parent partnerships step: parents are current partners
+    await setFieldInput(
+      'partnership-egg-parent-sperm-parent',
+      'Current partners',
+    );
     await clickContinue();
-    await waitForStepTransition();
 
-    // BioParentsStep: skipped (2 bio parents already)
-
-    // GestationalCarrierStep: Parent 2 (Linda)
-    await selectNthRadio(1); // Linda = parent index 1
+    // About you step
+    await setFieldInput('siblingCount', 2);
+    await setFieldInput('hasPartner', true);
+    await setFieldInput('noChildrenWithPartner', 2);
+    await setFieldInput('noChildrenWithOther', 0);
     await clickContinue();
-    await waitForStepTransition();
 
-    // Grandparents + Aunts/uncles count (2 parents)
-    await navigateExtendedFamilySteps(2);
+    // Siblings detail
 
-    // SiblingsDetailStep: 2 siblings
-    await typeInTextbox('David', 0);
-    const sibMaleRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Male' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(sibMaleRadios[0]!);
-    const sibManGenderRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Man' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(sibManGenderRadios[0]!);
-    await typeInTextbox('Emily', 1);
-    const sibFemaleRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Female' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(sibFemaleRadios[1]!);
-    const sibWomanGenderRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Woman' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(sibWomanGenderRadios[1]!);
+    // Sibling 1: David
+    await setFieldInput('sibling[0].name-known', true);
+    await setFieldInput('sibling[0].name', 'David');
+    await setFieldInput('sibling[0].sex-at-birth', 'Male');
+    await setFieldInput('sibling[0].gender_identity', 'Man');
+
+    // Sibling 2: Emily
+    await setFieldInput('sibling[1].name-known', true);
+    await setFieldInput('sibling[1].name', 'Emily');
+    await setFieldInput('sibling[1].sex-at-birth', 'Female');
+    await setFieldInput('sibling[1].gender_identity', 'Woman');
     await clickContinue();
-    await waitForStepTransition();
 
-    // HalfSiblingParentsStep: skipped (all siblings share all parents)
+    // Partner details
+    await setFieldInput('partner.name', 'Sophia');
+    await setFieldInput('partner.sex-at-birth', 'Female');
+    await setFieldInput('partner.gender_identity', 'Woman');
+    await clickContinue();
 
-    // SiblingFamilyCountStep: 2 siblings, just Continue
-    await navigatePostSiblingSteps();
+    // children details
+    await setFieldInput('childWithPartner[0].name', 'Olivia');
+    await setFieldInput('childWithPartner[0].sex-at-birth', 'Female');
+    await setFieldInput('childWithPartner[0].gender_identity', 'Woman');
 
-    // SiblingFamilyDetailStep: skipped (no families)
-    // PartnerStep: skipped (no partner)
-
-    // OtherChildrenCountStep: 0 (default)
-    await finishWizardAndConfirm();
+    await setFieldInput('childWithPartner[1].name', 'Liam');
+    await setFieldInput('childWithPartner[1].sex-at-birth', 'Male');
+    await setFieldInput('childWithPartner[1].gender_identity', 'Man');
+    await clickContinue();
   },
 };
 
@@ -568,49 +488,41 @@ export const SingleParent: ScenarioStory = {
   play: async () => {
     await clickGetStarted();
 
-    // AdoptionStatusStep: No
-    await selectRadio('No');
     await clickContinue();
-    // await waitForStepTransition();
 
-    // ParentsCountStep: 1 parent, 0 siblings, no partner
-    await setNumberCounter(0, 1);
-    await setNumberCounter(1, 0);
-    await selectRadio('No');
+    // Bioparents step: Linda is bio mum, absent father (not a donor)
+    await setFieldInput('egg-parent.is-donor', false);
+    await setFieldInput('egg-parent.name-known', true);
+    await setFieldInput('egg-parent.name', 'Linda');
+    await setFieldInput('egg-parent.gestationalCarrier', true);
+    await setFieldInput('egg-parent.raised-by', true);
+    await setFieldInput('egg-parent.sex-at-birth', 'Female');
+    await setFieldInput('egg-parent.gender_identity', 'Woman');
+
+    await setFieldInput('sperm-parent.is-donor', false);
+    await setFieldInput('sperm-parent.name-known', false);
+    await setFieldInput('sperm-parent.raised-by', false);
+    await setFieldInput('sperm-parent.sex-at-birth', 'Male');
+    await setFieldInput('sperm-parent.gender_identity', 'Man');
+
     await clickContinue();
-    // await waitForStepTransition();
 
-    // ParentsDetailStep: Parent 1 ("Linda", Woman)
-    await toggleSwitch("I know this person's name", true);
-    await typeInTextbox('Linda', 0);
-    await selectRadio('Female');
-    await selectRadio('Woman');
+    // Other Parents step
+    await setFieldInput('hasOtherParents', false);
     await clickContinue();
-    // await waitForStepTransition();
 
-    // ParentPartnershipsStep: skipped (< 2 parents)
-
-    // BioParentsStep: 1 bio parent, need 1 more
-    // Bio parent 2 — name unknown, Man
-    await selectRadio('Male');
-    await selectRadio('Man');
+    // Parent partnerships step
+    await setFieldInput(
+      'partnership-egg-parent-sperm-parent',
+      'Never partners',
+    );
     await clickContinue();
-    // await waitForStepTransition();
 
-    // GestationalCarrierStep: Parent 1 (Linda)
-    await selectNthRadio(0); // Linda = parent index 0
+    // About you step
+    await setFieldInput('siblingCount', 0);
+    await setFieldInput('hasPartner', false);
+    await setFieldInput('noChildrenWithOther', 0);
     await clickContinue();
-    // await waitForStepTransition();
-
-    // Grandparents + Aunts/uncles count (1 named parent + 1 bio parent = 2)
-    await navigateExtendedFamilySteps(2);
-
-    // SiblingsDetailStep: skipped (0 siblings)
-    // HalfSiblingParentsStep, SiblingFamilyCountStep: skipped (0 siblings)
-    // PartnerStep: skipped (no partner)
-
-    // OtherChildrenCountStep: 0
-    await finishWizardAndConfirm();
   },
 };
 
@@ -619,74 +531,56 @@ export const SameSexMothers: ScenarioStory = {
   render: scenarioRender,
   play: async () => {
     await clickGetStarted();
-
-    // AdoptionStatusStep: No
-    await selectRadio('No');
     await clickContinue();
-    await waitForStepTransition();
 
-    // ParentsCountStep: 2 parents, 0 siblings, no partner
-    await setNumberCounter(0, 2);
-    await setNumberCounter(1, 0);
-    await selectRadio('No');
+    // BioParentsStep: Linda is egg parent + carried, anonymous sperm donor
+    await setFieldInput('egg-parent.is-donor', false);
+    await setFieldInput('egg-parent.name-known', true);
+    await setFieldInput('egg-parent.name', 'Linda');
+    await setFieldInput('egg-parent.gestationalCarrier', true);
+    await setFieldInput('egg-parent.raised-by', true);
+    await setFieldInput('egg-parent.sex-at-birth', 'Female');
+    await setFieldInput('egg-parent.gender_identity', 'Woman');
+
+    await setFieldInput('sperm-parent.is-donor', true);
+    await setFieldInput('sperm-parent.name-known', false);
+    await setFieldInput('sperm-parent.raised-by', false);
+    await setFieldInput('sperm-parent.sex-at-birth', 'Male');
+    await setFieldInput('sperm-parent.gender_identity', 'Man');
     await clickContinue();
-    await waitForStepTransition();
 
-    // ParentsDetailStep: both Woman
-    // Parent 1: "Linda", Woman
-    await toggleSwitch("I know this person's name", true);
-    await typeInTextbox('Linda', 0);
-    const femaleRadios1 = await screen.findAllByRole(
-      'radio',
-      { name: 'Female' },
-      STEP_TIMEOUT,
+    // OtherParentsStep: Patricia is a social parent
+    await setFieldInput('hasOtherParents', true);
+    await setFieldInput('otherParentCount', 1);
+    await clickContinue();
+
+    // AdditionalParentsStep: Patricia
+    await setFieldInput('additional-parent[0].role', 'Parent who raised me');
+    await setFieldInput('additional-parent[0].name', 'Patricia');
+    await setFieldInput('additional-parent[0].sex-at-birth', 'Female');
+    await setFieldInput('additional-parent[0].gender_identity', 'Woman');
+    await clickContinue();
+
+    // ParentPartnershipsStep
+    await setFieldInput(
+      'partnership-egg-parent-sperm-parent',
+      'Never partners',
     );
-    await userEvent.click(femaleRadios1[0]!);
-    const womanGenderRadios1 = await screen.findAllByRole(
-      'radio',
-      { name: 'Woman' },
-      STEP_TIMEOUT,
+    await setFieldInput(
+      'partnership-egg-parent-additional-parent-0',
+      'Current partners',
     );
-    await userEvent.click(womanGenderRadios1[0]!);
-
-    // Parent 2: "Patricia", Woman
-    await toggleSwitch("I know this person's name", true, 1);
-    await typeInTextbox('Patricia', 1);
-    const femaleRadios2 = await screen.findAllByRole(
-      'radio',
-      { name: 'Female' },
-      STEP_TIMEOUT,
+    await setFieldInput(
+      'partnership-sperm-parent-additional-parent-0',
+      'Never partners',
     );
-    await userEvent.click(femaleRadios2[1]!);
-    const womanGenderRadios2 = await screen.findAllByRole(
-      'radio',
-      { name: 'Woman' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(womanGenderRadios2[1]!);
     await clickContinue();
-    await waitForStepTransition();
 
-    // ParentPartnershipsStep: current partners
-    await selectRadio('Current partner');
+    // AboutYouStep
+    await setFieldInput('siblingCount', 0);
+    await setFieldInput('hasPartner', false);
+    await setFieldInput('noChildrenWithOther', 0);
     await clickContinue();
-    await waitForStepTransition();
-
-    // BioParentsStep: skipped (2 bio parents)
-
-    // GestationalCarrierStep: Parent 1 (Linda)
-    await selectNthRadio(0); // Linda = parent index 0
-    await clickContinue();
-    await waitForStepTransition();
-
-    // Grandparents + Aunts/uncles count (2 parents)
-    await navigateExtendedFamilySteps(2);
-
-    // SiblingsDetailStep: skipped (0 siblings)
-    // PartnerStep: skipped (no partner)
-
-    // OtherChildrenCountStep: 0
-    await finishWizardAndConfirm();
   },
 };
 
@@ -695,125 +589,64 @@ export const SpermDonor: ScenarioStory = {
   render: scenarioRender,
   play: async () => {
     await clickGetStarted();
-
-    // AdoptionStatusStep: No
-    await selectRadio('No');
     await clickContinue();
-    await waitForStepTransition();
 
-    // ParentsCountStep: 3 parents, 1 sibling, no partner
-    await setNumberCounter(0, 3);
-    await setNumberCounter(1, 1);
-    await selectRadio('No');
+    // BioParentsStep: Linda is egg parent, Carlos is known sperm donor
+    await setFieldInput('egg-parent.is-donor', false);
+    await setFieldInput('egg-parent.name-known', true);
+    await setFieldInput('egg-parent.name', 'Linda');
+    await setFieldInput('egg-parent.gestationalCarrier', true);
+    await setFieldInput('egg-parent.raised-by', true);
+    await setFieldInput('egg-parent.sex-at-birth', 'Female');
+    await setFieldInput('egg-parent.gender_identity', 'Woman');
+
+    await setFieldInput('sperm-parent.is-donor', true);
+    await setFieldInput('sperm-parent.name-known', true);
+    await setFieldInput('sperm-parent.name', 'Carlos');
+    await setFieldInput('sperm-parent.raised-by', false);
+    await setFieldInput('sperm-parent.sex-at-birth', 'Male');
+    await setFieldInput('sperm-parent.gender_identity', 'Man');
     await clickContinue();
-    await waitForStepTransition();
 
-    // ParentsDetailStep: 3 parents
-    // Parent 1: "Linda", Woman
-    await toggleSwitch("I know this person's name", true);
-    await typeInTextbox('Linda', 0);
-    const femaleRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Female' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(femaleRadios[0]!);
-    const womanGenderRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Woman' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(womanGenderRadios[0]!);
-
-    // Parent 2: "Patricia", Woman
-    await toggleSwitch("I know this person's name", true, 1);
-    await typeInTextbox('Patricia', 1);
-    const femaleRadios2 = await screen.findAllByRole(
-      'radio',
-      { name: 'Female' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(femaleRadios2[1]!);
-    const womanGenderRadios2 = await screen.findAllByRole(
-      'radio',
-      { name: 'Woman' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(womanGenderRadios2[1]!);
-
-    // Parent 3: donor, "Carlos", Man
-    await selectRadioByIndex(/Donor/, 2);
-    await waitForStepTransition();
-    await toggleSwitch("I know this person's name", true, 2);
-    await typeInTextbox('Carlos', 2);
-    await selectRadioByIndex('Male', 2);
-    await selectRadioByIndex('Man', 2);
+    // OtherParentsStep: Patricia is a social parent
+    await setFieldInput('hasOtherParents', true);
+    await setFieldInput('otherParentCount', 1);
     await clickContinue();
-    await waitForStepTransition();
 
-    // ParentPartnershipsStep: Linda + Patricia = current, rest = not partners
-    // Partnership 0-1: Current partner
-    const currentRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Current partner' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(currentRadios[0]!);
-    // Partnership 0-2: Not partners
-    const notRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Not partners' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(notRadios[1]!);
-    // Partnership 1-2: Not partners
-    const notRadios2 = await screen.findAllByRole(
-      'radio',
-      { name: 'Not partners' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(notRadios2[2]!);
+    // AdditionalParentsStep: Patricia
+    await setFieldInput('additional-parent[0].role', 'Parent who raised me');
+    await setFieldInput('additional-parent[0].name', 'Patricia');
+    await setFieldInput('additional-parent[0].sex-at-birth', 'Female');
+    await setFieldInput('additional-parent[0].gender_identity', 'Woman');
     await clickContinue();
-    await waitForStepTransition();
 
-    // BioParentsStep: skipped (2 bio parents)
-
-    // GestationalCarrierStep: Parent 1 (Linda)
-    await selectNthRadio(0); // Linda = parent index 0
-    await clickContinue();
-    await waitForStepTransition();
-
-    // Grandparents + Aunts/uncles count (3 parents)
-    await navigateExtendedFamilySteps(3);
-
-    // SiblingsDetailStep: 1 sibling, shared parents = all 3
-    await typeInTextbox('Michael', 0);
-    const sibSexRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Male' },
-      STEP_TIMEOUT,
+    // ParentPartnershipsStep
+    await setFieldInput(
+      'partnership-egg-parent-sperm-parent',
+      'Never partners',
     );
-    await userEvent.click(sibSexRadios[0]!);
-    const sibManGenderRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Man' },
-      STEP_TIMEOUT,
+    await setFieldInput(
+      'partnership-egg-parent-additional-parent-0',
+      'Current partners',
     );
-    await userEvent.click(sibManGenderRadios[0]!);
-    // All parents are shared by default — leave checkboxes as-is
+    await setFieldInput(
+      'partnership-sperm-parent-additional-parent-0',
+      'Never partners',
+    );
     await clickContinue();
-    await waitForStepTransition();
 
-    // HalfSiblingParentsStep: skipped (all siblings share all parents)
+    // AboutYouStep: 1 sibling, no partner
+    await setFieldInput('siblingCount', 1);
+    await setFieldInput('hasPartner', false);
+    await setFieldInput('noChildrenWithOther', 0);
+    await clickContinue();
 
-    // SiblingFamilyCountStep: 1 sibling, just Continue
-    await navigatePostSiblingSteps();
-
-    // SiblingFamilyDetailStep: skipped (no families)
-    // PartnerStep: skipped (no partner)
-
-    // OtherChildrenCountStep: 0
-    await finishWizardAndConfirm();
+    // SiblingsDetailStep: Michael (full sibling)
+    await setFieldInput('sibling[0].name-known', true);
+    await setFieldInput('sibling[0].name', 'Michael');
+    await setFieldInput('sibling[0].sex-at-birth', 'Male');
+    await setFieldInput('sibling[0].gender_identity', 'Man');
+    await clickContinue();
   },
 };
 
@@ -822,103 +655,54 @@ export const BlendedFamily: ScenarioStory = {
   render: scenarioRender,
   play: async () => {
     await clickGetStarted();
-
-    // AdoptionStatusStep: No
-    await selectRadio('No');
     await clickContinue();
-    await waitForStepTransition();
 
-    // ParentsCountStep: 3 parents, 0 siblings, no partner
-    await setNumberCounter(0, 3);
-    await setNumberCounter(1, 0);
-    await selectRadio('No');
+    // BioParentsStep: Susan is egg parent + carried, Robert is sperm parent
+    await setFieldInput('egg-parent.is-donor', false);
+    await setFieldInput('egg-parent.name-known', true);
+    await setFieldInput('egg-parent.name', 'Susan');
+    await setFieldInput('egg-parent.gestationalCarrier', true);
+    await setFieldInput('egg-parent.raised-by', true);
+    await setFieldInput('egg-parent.sex-at-birth', 'Female');
+    await setFieldInput('egg-parent.gender_identity', 'Woman');
+
+    await setFieldInput('sperm-parent.is-donor', false);
+    await setFieldInput('sperm-parent.name-known', true);
+    await setFieldInput('sperm-parent.name', 'Robert');
+    await setFieldInput('sperm-parent.raised-by', true);
+    await setFieldInput('sperm-parent.sex-at-birth', 'Male');
+    await setFieldInput('sperm-parent.gender_identity', 'Man');
     await clickContinue();
-    await waitForStepTransition();
 
-    // ParentsDetailStep: 3 parents
-    // Parent 1: "Robert", Man
-    await toggleSwitch("I know this person's name", true);
-    await typeInTextbox('Robert', 0);
-    const maleRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Male' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(maleRadios[0]!);
-    const manGenderRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Man' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(manGenderRadios[0]!);
-
-    // Parent 2: "Susan", Woman
-    await toggleSwitch("I know this person's name", true, 1);
-    await typeInTextbox('Susan', 1);
-    const femaleRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Female' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(femaleRadios[1]!);
-    const womanGenderRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Woman' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(womanGenderRadios[1]!);
-
-    // Parent 3: social, "Karen", Woman
-    await selectRadioByIndex(/Social Parent/, 2);
-    await waitForStepTransition();
-    await toggleSwitch("I know this person's name", true, 2);
-    await typeInTextbox('Karen', 2);
-    await selectRadioByIndex('Female', 2);
-    await selectRadioByIndex('Woman', 2);
+    // OtherParentsStep: Karen is a step-parent
+    await setFieldInput('hasOtherParents', true);
+    await setFieldInput('otherParentCount', 1);
     await clickContinue();
-    await waitForStepTransition();
 
-    // ParentPartnershipsStep:
-    // Robert + Susan = ex-partners
-    const exRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Ex-partner' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(exRadios[0]!);
-    // Robert + Karen = current partners
-    const currentRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Current partner' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(currentRadios[1]!);
-    // Susan + Karen = not partners
-    const notRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Not partners' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(notRadios[2]!);
+    // AdditionalParentsStep: Karen
+    await setFieldInput('additional-parent[0].role', 'Step-parent');
+    await setFieldInput('additional-parent[0].name', 'Karen');
+    await setFieldInput('additional-parent[0].sex-at-birth', 'Female');
+    await setFieldInput('additional-parent[0].gender_identity', 'Woman');
     await clickContinue();
-    await waitForStepTransition();
 
-    // BioParentsStep: skipped (2 bio parents)
-
-    // GestationalCarrierStep: Parent 2 (Susan)
-    await selectNthRadio(1); // Susan = parent index 1
+    // ParentPartnershipsStep: Susan + Robert = ex, Robert + Karen = current
+    await setFieldInput('partnership-egg-parent-sperm-parent', 'Ex-partners');
+    await setFieldInput(
+      'partnership-egg-parent-additional-parent-0',
+      'Never partners',
+    );
+    await setFieldInput(
+      'partnership-sperm-parent-additional-parent-0',
+      'Current partners',
+    );
     await clickContinue();
-    await waitForStepTransition();
 
-    // Grandparents + Aunts/uncles count (3 parents)
-    await navigateExtendedFamilySteps(3);
-
-    // SiblingsDetailStep: skipped (0 siblings)
-    // HalfSiblingParentsStep, SiblingFamilyCountStep: skipped (0 siblings)
-    // PartnerStep: skipped (no partner)
-
-    // OtherChildrenCountStep: 0
-    await finishWizardAndConfirm();
+    // AboutYouStep: no siblings, no partner
+    await setFieldInput('siblingCount', 0);
+    await setFieldInput('hasPartner', false);
+    await setFieldInput('noChildrenWithOther', 0);
+    await clickContinue();
   },
 };
 
@@ -927,95 +711,64 @@ export const TransParent: ScenarioStory = {
   render: scenarioRender,
   play: async () => {
     await clickGetStarted();
-
-    // AdoptionStatusStep: No
-    await selectRadio('No');
     await clickContinue();
-    await waitForStepTransition();
 
-    // ParentsCountStep: 2 parents, 1 sibling, no partner
-    await setNumberCounter(0, 2);
-    await setNumberCounter(1, 1);
-    await selectRadio('No');
+    // BioParentsStep: Alex (trans man, assigned female) is egg parent + carried,
+    // anonymous sperm donor
+    await setFieldInput('egg-parent.is-donor', false);
+    await setFieldInput('egg-parent.name-known', true);
+    await setFieldInput('egg-parent.name', 'Alex');
+    await setFieldInput('egg-parent.gestationalCarrier', true);
+    await setFieldInput('egg-parent.raised-by', true);
+    await setFieldInput('egg-parent.sex-at-birth', 'Female');
+    await setFieldInput('egg-parent.gender_identity', 'Man');
+
+    await setFieldInput('sperm-parent.is-donor', true);
+    await setFieldInput('sperm-parent.name-known', false);
+    await setFieldInput('sperm-parent.raised-by', false);
+    await setFieldInput('sperm-parent.sex-at-birth', 'Male');
+    await setFieldInput('sperm-parent.gender_identity', 'Man');
     await clickContinue();
-    await waitForStepTransition();
 
-    // ParentsDetailStep: Parent 1 ("Alex", Male — trans man)
-    await toggleSwitch("I know this person's name", true);
-    await typeInTextbox('Alex', 0);
-    const maleRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Male' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(maleRadios[0]!);
-    const transManGenderRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Trans man' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(transManGenderRadios[0]!);
-
-    // Parent 2 ("Priya", Female)
-    await toggleSwitch("I know this person's name", true, 1);
-    await typeInTextbox('Priya', 1);
-    const femaleRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Female' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(femaleRadios[1]!);
-    const womanGenderRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Woman' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(womanGenderRadios[1]!);
+    // OtherParentsStep: Priya is a social parent
+    await setFieldInput('hasOtherParents', true);
+    await setFieldInput('otherParentCount', 1);
     await clickContinue();
-    await waitForStepTransition();
 
-    // ParentPartnershipsStep: current partners
-    await selectRadio('Current partner');
+    // AdditionalParentsStep: Priya
+    await setFieldInput('additional-parent[0].role', 'Parent who raised me');
+    await setFieldInput('additional-parent[0].name', 'Priya');
+    await setFieldInput('additional-parent[0].sex-at-birth', 'Female');
+    await setFieldInput('additional-parent[0].gender_identity', 'Woman');
     await clickContinue();
-    await waitForStepTransition();
 
-    // BioParentsStep: skipped (2 bio parents)
-
-    // GestationalCarrierStep: Parent 1 (Alex - trans man who carried)
-    await selectNthRadio(0);
-    await clickContinue();
-    await waitForStepTransition();
-
-    // Grandparents + Aunts/uncles count (2 parents)
-    await navigateExtendedFamilySteps(2);
-
-    // SiblingsDetailStep: 1 sibling (River, Intersex)
-    await typeInTextbox('River', 0);
-    const intersexRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Intersex' },
-      STEP_TIMEOUT,
+    // ParentPartnershipsStep
+    await setFieldInput(
+      'partnership-egg-parent-sperm-parent',
+      'Never partners',
     );
-    await userEvent.click(intersexRadios[0]!);
-    const nbGenderRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Non-binary' },
-      STEP_TIMEOUT,
+    await setFieldInput(
+      'partnership-egg-parent-additional-parent-0',
+      'Current partners',
     );
-    await userEvent.click(nbGenderRadios[0]!);
+    await setFieldInput(
+      'partnership-sperm-parent-additional-parent-0',
+      'Never partners',
+    );
     await clickContinue();
-    await waitForStepTransition();
 
-    // HalfSiblingParentsStep: skipped (all siblings share all parents)
+    // AboutYouStep: 1 sibling, no partner
+    await setFieldInput('siblingCount', 1);
+    await setFieldInput('hasPartner', false);
+    await setFieldInput('noChildrenWithOther', 0);
+    await clickContinue();
 
-    // SiblingFamilyCountStep: 1 sibling, just Continue
-    await navigatePostSiblingSteps();
-
-    // SiblingFamilyDetailStep: skipped (no families)
-    // PartnerStep: skipped (no partner)
-
-    // OtherChildrenCountStep: 0
-    await finishWizardAndConfirm();
+    // SiblingsDetailStep: River (intersex, non-binary)
+    await setFieldInput('sibling[0].name-known', true);
+    await setFieldInput('sibling[0].name', 'River');
+    await setFieldInput('sibling[0].sex-at-birth', 'Intersex');
+    await setFieldInput('sibling[0].gender_identity', 'Non-binary');
+    await clickContinue();
   },
 };
 
@@ -1024,99 +777,54 @@ export const NonBinaryEgo: ScenarioStory = {
   render: scenarioRender,
   play: async () => {
     await clickGetStarted();
-
-    // AdoptionStatusStep: No
-    await selectRadio('No');
     await clickContinue();
-    await waitForStepTransition();
 
-    // ParentsCountStep: 2 parents, 0 siblings, has partner
-    await setNumberCounter(0, 2);
-    await setNumberCounter(1, 0);
-    await selectRadio('Yes');
+    // BioParentsStep: Tomoko is egg parent + carried, Kenji is sperm parent
+    await setFieldInput('egg-parent.is-donor', false);
+    await setFieldInput('egg-parent.name-known', true);
+    await setFieldInput('egg-parent.name', 'Tomoko');
+    await setFieldInput('egg-parent.gestationalCarrier', true);
+    await setFieldInput('egg-parent.raised-by', true);
+    await setFieldInput('egg-parent.sex-at-birth', 'Female');
+    await setFieldInput('egg-parent.gender_identity', 'Woman');
+
+    await setFieldInput('sperm-parent.is-donor', false);
+    await setFieldInput('sperm-parent.name-known', true);
+    await setFieldInput('sperm-parent.name', 'Kenji');
+    await setFieldInput('sperm-parent.raised-by', true);
+    await setFieldInput('sperm-parent.sex-at-birth', 'Male');
+    await setFieldInput('sperm-parent.gender_identity', 'Man');
     await clickContinue();
-    await waitForStepTransition();
 
-    // ParentsDetailStep: 2 parents
-    // Parent 1: "Tomoko", Female
-    await toggleSwitch("I know this person's name", true);
-    await typeInTextbox('Tomoko', 0);
-    const femaleRadios1 = await screen.findAllByRole(
-      'radio',
-      { name: 'Female' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(femaleRadios1[0]!);
-    const womanGenderRadios1 = await screen.findAllByRole(
-      'radio',
-      { name: 'Woman' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(womanGenderRadios1[0]!);
-
-    // Parent 2: "Kenji", Male
-    await toggleSwitch("I know this person's name", true, 1);
-    await typeInTextbox('Kenji', 1);
-    const maleRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Male' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(maleRadios[1]!);
-    const manGenderRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Man' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(manGenderRadios[1]!);
+    // OtherParentsStep: no other parents
+    await setFieldInput('hasOtherParents', false);
     await clickContinue();
-    await waitForStepTransition();
 
     // ParentPartnershipsStep: current partners
-    await selectRadio('Current partner');
-    await clickContinue();
-    await waitForStepTransition();
-
-    // BioParentsStep: skipped (2 bio parents)
-
-    // GestationalCarrierStep: Parent 1 (Tomoko)
-    await selectNthRadio(0);
-    await clickContinue();
-    await waitForStepTransition();
-
-    // Grandparents + Aunts/uncles count (2 parents)
-    await navigateExtendedFamilySteps(2);
-
-    // SiblingsDetailStep: skipped (0 siblings)
-    // HalfSiblingParentsStep, SiblingFamilyCountStep: skipped (0 siblings)
-
-    // PartnerStep: "Sam", Intersex (non-binary partner), 1 child with partner
-    await typeInTextbox('Sam', 0);
-    await selectRadio('Intersex');
-    await selectRadio('Non-binary');
-    await setNumberCounter(0, 1);
-    await clickContinue();
-    await waitForStepTransition();
-
-    // ChildrenWithPartnerDetailStep: 1 child
-    await typeInTextbox('Kai', 0);
-    const childNbRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Intersex' },
-      STEP_TIMEOUT,
+    await setFieldInput(
+      'partnership-egg-parent-sperm-parent',
+      'Current partners',
     );
-    await userEvent.click(childNbRadios[0]!);
-    const childNbGenderRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Non-binary' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(childNbGenderRadios[0]!);
     await clickContinue();
-    await waitForStepTransition();
 
-    // OtherChildrenCountStep: 0
-    await finishWizardAndConfirm();
+    // AboutYouStep: no siblings, has partner, 1 child with partner
+    await setFieldInput('siblingCount', 0);
+    await setFieldInput('hasPartner', true);
+    await setFieldInput('noChildrenWithPartner', 1);
+    await setFieldInput('noChildrenWithOther', 0);
+    await clickContinue();
+
+    // PartnerStep: Sam (intersex, non-binary)
+    await setFieldInput('partner.name', 'Sam');
+    await setFieldInput('partner.sex-at-birth', 'Intersex');
+    await setFieldInput('partner.gender_identity', 'Non-binary');
+    await clickContinue();
+
+    // ChildrenWithPartnerDetailStep: Kai (intersex, non-binary)
+    await setFieldInput('childWithPartner[0].name', 'Kai');
+    await setFieldInput('childWithPartner[0].sex-at-birth', 'Intersex');
+    await setFieldInput('childWithPartner[0].gender_identity', 'Non-binary');
+    await clickContinue();
   },
 };
 
@@ -1125,254 +833,132 @@ export const AdoptedIn: ScenarioStory = {
   render: scenarioRender,
   play: async () => {
     await clickGetStarted();
-
-    // AdoptionStatusStep: adopted in
-    await selectRadio('Yes, I was adopted into my family');
     await clickContinue();
-    await waitForStepTransition();
 
-    // ParentsCountStep: 2 parents, 0 siblings, no partner
-    await setNumberCounter(0, 2);
-    await setNumberCounter(1, 0);
-    await selectRadio('No');
+    // BioParentsStep: unknown bio parents (not donors, just absent)
+    await setFieldInput('egg-parent.is-donor', false);
+    await setFieldInput('egg-parent.name-known', false);
+    await setFieldInput('egg-parent.gestationalCarrier', true);
+    await setFieldInput('egg-parent.raised-by', false);
+    await setFieldInput('egg-parent.sex-at-birth', 'Female');
+    await setFieldInput('egg-parent.gender_identity', 'Woman');
+
+    await setFieldInput('sperm-parent.is-donor', false);
+    await setFieldInput('sperm-parent.name-known', false);
+    await setFieldInput('sperm-parent.raised-by', false);
+    await setFieldInput('sperm-parent.sex-at-birth', 'Male');
+    await setFieldInput('sperm-parent.gender_identity', 'Man');
     await clickContinue();
-    await waitForStepTransition();
 
-    // ParentsDetailStep: both social
-    // Parent 1: social, "James", Man
-    await selectRadioByIndex(/Social Parent/, 0);
-    await waitForStepTransition();
-    await toggleSwitch("I know this person's name", true);
-    await typeInTextbox('James', 0);
-    await selectRadioByIndex('Male', 0);
-    await selectRadioByIndex('Man', 0);
-
-    // Parent 2: social, "Barbara", Woman
-    await selectRadioByIndex(/Social Parent/, 1);
-    await waitForStepTransition();
-    await toggleSwitch("I know this person's name", true, 1);
-    await typeInTextbox('Barbara', 1);
-    await selectRadioByIndex('Female', 1);
-    await selectRadioByIndex('Woman', 1);
+    // OtherParentsStep: 2 adoptive parents
+    await setFieldInput('hasOtherParents', true);
+    await setFieldInput('otherParentCount', 2);
     await clickContinue();
-    await waitForStepTransition();
 
-    // ParentPartnershipsStep: current partners
-    await selectRadio('Current partner');
+    // AdditionalParentsStep: James and Barbara
+    await setFieldInput('additional-parent[0].role', 'Adoptive parent');
+    await setFieldInput('additional-parent[0].name', 'James');
+    await setFieldInput('additional-parent[0].sex-at-birth', 'Male');
+    await setFieldInput('additional-parent[0].gender_identity', 'Man');
+
+    await setFieldInput('additional-parent[1].role', 'Adoptive parent');
+    await setFieldInput('additional-parent[1].name', 'Barbara');
+    await setFieldInput('additional-parent[1].sex-at-birth', 'Female');
+    await setFieldInput('additional-parent[1].gender_identity', 'Woman');
     await clickContinue();
-    await waitForStepTransition();
 
-    // BioParentsStep: 0 bio parents, need 2
-    // Bio parent 1: name unknown, Man
-    const bioManRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Male' },
-      STEP_TIMEOUT,
+    // ParentPartnershipsStep: bio parents unknown to each other, adoptive parents
+    // are current partners, no relationships between bio and adoptive
+    await setFieldInput(
+      'partnership-egg-parent-sperm-parent',
+      'Never partners',
     );
-    await userEvent.click(bioManRadios[0]!);
-    const bioManGenderRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Man' },
-      STEP_TIMEOUT,
+    await setFieldInput(
+      'partnership-egg-parent-additional-parent-0',
+      'Never partners',
     );
-    await userEvent.click(bioManGenderRadios[0]!);
-    // Bio parent 2: name unknown, Woman
-    const bioWomaleRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Female' },
-      STEP_TIMEOUT,
+    await setFieldInput(
+      'partnership-egg-parent-additional-parent-1',
+      'Never partners',
     );
-    await userEvent.click(bioWomaleRadios[1]!);
-    const bioWomanGenderRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Woman' },
-      STEP_TIMEOUT,
+    await setFieldInput(
+      'partnership-sperm-parent-additional-parent-0',
+      'Never partners',
     );
-    await userEvent.click(bioWomanGenderRadios[1]!);
+    await setFieldInput(
+      'partnership-sperm-parent-additional-parent-1',
+      'Never partners',
+    );
+    await setFieldInput(
+      'partnership-additional-parent-0-additional-parent-1',
+      'Current partners',
+    );
     await clickContinue();
-    await waitForStepTransition();
 
-    // GestationalCarrierStep: bio parent 2 (Woman)
-    // Bio parents are appended after regular parents in the options list
-    // Parents: [James (0), Barbara (1), Bio parent 1 (2), Bio parent 2 (3)]
-    // Bio parent 2 = index 3, but label is "Parent 4" since no name known
-    await selectNthRadio(3); // Bio parent 2 (Woman) = index 3
+    // AboutYouStep: no siblings, no partner
+    await setFieldInput('siblingCount', 0);
+    await setFieldInput('hasPartner', false);
+    await setFieldInput('noChildrenWithOther', 0);
     await clickContinue();
-    await waitForStepTransition();
-
-    // Grandparents + Aunts/uncles count (2 social + 2 bio = 4 parents)
-    await navigateExtendedFamilySteps(4);
-
-    // SiblingsDetailStep: skipped (0 siblings)
-    // HalfSiblingParentsStep, SiblingFamilyCountStep: skipped (0 siblings)
-    // PartnerStep: skipped (no partner)
-
-    // OtherChildrenCountStep: 0
-    await finishWizardAndConfirm();
   },
 };
 
-// Skipped in vitest: the Storybook vitest runner exhausts browser resources
-// (WebGL contexts) after 9 heavy interaction stories, preventing this story's
-// component from mounting. The story works fine in the Storybook UI.
 export const SingleParentTwoDonors: ScenarioStory = {
   tags: ['!test'],
   args: { scaffoldingText: '' },
   render: scenarioRender,
   play: async () => {
     await clickGetStarted();
-
-    // AdoptionStatusStep: No
-    await selectRadio('No');
     await clickContinue();
-    await waitForStepTransition();
 
-    // ParentsCountStep: 3 parents, 1 sibling, no partner
-    await setNumberCounter(0, 3);
-    await setNumberCounter(1, 1);
-    await selectRadio('No');
+    // BioParentsStep: anonymous egg donor + anonymous sperm donor
+    // Egg donor did NOT carry — Mum (gestational carrier) carried
+    await setFieldInput('egg-parent.is-donor', true);
+    await setFieldInput('egg-parent.name-known', false);
+    await setFieldInput('egg-parent.gestationalCarrier', false);
+    await setFieldInput('egg-parent.raised-by', false);
+    await setFieldInput('egg-parent.sex-at-birth', 'Female');
+    await setFieldInput('egg-parent.gender_identity', 'Woman');
+
+    await setFieldInput('sperm-parent.is-donor', true);
+    await setFieldInput('sperm-parent.name-known', false);
+    await setFieldInput('sperm-parent.raised-by', false);
+    await setFieldInput('sperm-parent.sex-at-birth', 'Male');
+    await setFieldInput('sperm-parent.gender_identity', 'Man');
+
+    // Gestational carrier: Mum (not a surrogate — she is the intended mother)
+    await setFieldInput('gestational-carrier.is-donor', false);
+    await setFieldInput('gestational-carrier.name-known', true);
+    await setFieldInput('gestational-carrier.name', 'Mum');
+    await setFieldInput('gestational-carrier.raised-by', true);
+    await setFieldInput('gestational-carrier.sex-at-birth', 'Female');
+    await setFieldInput('gestational-carrier.gender_identity', 'Woman');
     await clickContinue();
-    await waitForStepTransition();
 
-    // ParentsDetailStep: 3 parents
-    // Parent 1: biological, "Linda", Woman
-    // Edge type defaults to "Biological Parent" — no change needed
-    await toggleSwitch("I know this person's name", true);
-    await typeInTextbox('Linda', 0);
-    const femaleRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Female' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(femaleRadios[0]!);
-    const womanGenderRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Woman' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(womanGenderRadios[0]!);
-
-    // Parent 2: donor, "Carlos", Man
-    await selectRadioByIndex(/Donor/, 1);
-    await waitForStepTransition();
-    await toggleSwitch("I know this person's name", true, 1);
-    await typeInTextbox('Carlos', 1);
-    await selectRadioByIndex('Male', 1);
-    await selectRadioByIndex('Man', 1);
-
-    // Parent 3: donor, "Marco", Man
-    await selectRadioByIndex(/Donor/, 2);
-    await waitForStepTransition();
-    await toggleSwitch("I know this person's name", true, 2);
-    await typeInTextbox('Marco', 2);
-    await selectRadioByIndex('Male', 2);
-    await selectRadioByIndex('Man', 2);
+    // OtherParentsStep: no additional parents (Mum is the gestational carrier)
+    await setFieldInput('hasOtherParents', false);
     await clickContinue();
-    await waitForStepTransition();
 
-    // ParentPartnershipsStep: all not partners
-    const notRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Not partners' },
-      STEP_TIMEOUT,
+    // ParentPartnershipsStep: none are partners
+    await setFieldInput(
+      'partnership-egg-parent-sperm-parent',
+      'Never partners',
     );
-    for (const radio of notRadios) {
-      await userEvent.click(radio);
-    }
+    await setFieldInput(
+      'partnership-egg-parent-gestational-carrier',
+      'Never partners',
+    );
+    await setFieldInput(
+      'partnership-sperm-parent-gestational-carrier',
+      'Never partners',
+    );
     await clickContinue();
-    await waitForStepTransition();
 
-    // BioParentsStep: skipped (2 bio parents)
-
-    // GestationalCarrierStep: Parent 1 (Linda)
-    await selectNthRadio(0); // Linda = parent index 0
+    // AboutYouStep: no siblings, no partner
+    await setFieldInput('siblingCount', 0);
+    await setFieldInput('hasPartner', false);
+    await setFieldInput('noChildrenWithOther', 0);
     await clickContinue();
-    await waitForStepTransition();
-
-    // Grandparents + Aunts/uncles count (3 parents)
-    await navigateExtendedFamilySteps(3);
-
-    // SiblingsDetailStep: ego's parents + 1 sibling
-
-    // Uncheck Marco from ego's parents
-    const egoParentsContainer = await screen.findByTestId(
-      'ego-parents-checkboxes',
-      {},
-      STEP_TIMEOUT,
-    );
-    const egoScope = within(egoParentsContainer);
-    const marcoCb = await egoScope.findByRole(
-      'checkbox',
-      { name: 'Marco' },
-      STEP_TIMEOUT,
-    );
-    marcoCb.scrollIntoView();
-    await userEvent.click(marcoCb);
-
-    // Verify the checkbox actually unchecked
-    await waitFor(async () => {
-      await expect(marcoCb).toHaveAttribute('aria-checked', 'false');
-    });
-
-    // Fill sibling details
-    await typeInTextbox('Sarah', 0);
-    const sibSexRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Female' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(sibSexRadios[0]!);
-    const sibWomanGenderRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Woman' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(sibWomanGenderRadios[0]!);
-
-    // Uncheck Carlos from sibling's shared parents
-    const carlosCbs = await screen.findAllByRole(
-      'checkbox',
-      { name: 'Carlos' },
-      STEP_TIMEOUT,
-    );
-    // Index 1 is the sibling's "Carlos" checkbox
-    carlosCbs[1]!.scrollIntoView();
-    await userEvent.click(carlosCbs[1]!);
-
-    // Verify the checkbox actually unchecked
-    await waitFor(async () => {
-      await expect(carlosCbs[1]).toHaveAttribute('aria-checked', 'false');
-    });
-
-    await clickContinue();
-    await waitForStepTransition();
-
-    // HalfSiblingParentsStep: Sarah shares {0,2} (Linda, Marco) but ego's set
-    // is {0,1} (Linda, Carlos). The strict-subset check requires
-    // sharedSet.size < egoSet.size, which is 2 < 2 = false. So Sarah is NOT
-    // detected as a half-sibling and the step shows the empty message.
-    await clickContinue();
-    await waitForStepTransition();
-
-    // SiblingFamilyCountStep: 1 sibling, just Continue
-    await navigatePostSiblingSteps();
-
-    // SiblingFamilyDetailStep: skipped (no families)
-    // PartnerStep: skipped (no partner)
-
-    // OtherChildrenCountStep: 0
-    await finishWizardAndConfirm();
-
-    // Verify both donors appear in the pedigree
-    await waitFor(
-      async () => {
-        const carlosElements = screen.getAllByText('Carlos');
-        const marcoElements = screen.getAllByText('Marco');
-        await expect(carlosElements.length).toBeGreaterThan(0);
-        await expect(marcoElements.length).toBeGreaterThan(0);
-      },
-      { timeout: 5000 },
-    );
   },
 };
 
@@ -1381,119 +967,63 @@ export const WithPartnerAndChildren: ScenarioStory = {
   render: scenarioRender,
   play: async () => {
     await clickGetStarted();
-
-    // AdoptionStatusStep: No
-    await selectRadio('No');
     await clickContinue();
-    await waitForStepTransition();
 
-    // ParentsCountStep: 2 parents, 0 siblings, has partner
-    await setNumberCounter(0, 2);
-    await setNumberCounter(1, 0);
-    await selectRadio('Yes');
+    // BioParentsStep: Linda is egg parent + carried, Robert is sperm parent
+    await setFieldInput('egg-parent.is-donor', false);
+    await setFieldInput('egg-parent.name-known', true);
+    await setFieldInput('egg-parent.name', 'Linda');
+    await setFieldInput('egg-parent.gestationalCarrier', true);
+    await setFieldInput('egg-parent.raised-by', true);
+    await setFieldInput('egg-parent.sex-at-birth', 'Female');
+    await setFieldInput('egg-parent.gender_identity', 'Woman');
+
+    await setFieldInput('sperm-parent.is-donor', false);
+    await setFieldInput('sperm-parent.name-known', true);
+    await setFieldInput('sperm-parent.name', 'Robert');
+    await setFieldInput('sperm-parent.raised-by', true);
+    await setFieldInput('sperm-parent.sex-at-birth', 'Male');
+    await setFieldInput('sperm-parent.gender_identity', 'Man');
     await clickContinue();
-    await waitForStepTransition();
 
-    // ParentsDetailStep: 2 parents
-    // Parent 1: "Robert", Man
-    await toggleSwitch("I know this person's name", true);
-    await typeInTextbox('Robert', 0);
-    const maleRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Male' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(maleRadios[0]!);
-    const manGenderRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Man' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(manGenderRadios[0]!);
-
-    // Parent 2: "Linda", Woman
-    await toggleSwitch("I know this person's name", true, 1);
-    await typeInTextbox('Linda', 1);
-    const femaleRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Female' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(femaleRadios[1]!);
-    const womanGenderRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Woman' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(womanGenderRadios[1]!);
+    // OtherParentsStep: no other parents
+    await setFieldInput('hasOtherParents', false);
     await clickContinue();
-    await waitForStepTransition();
 
     // ParentPartnershipsStep: current partners
-    await selectRadio('Current partner');
-    await clickContinue();
-    await waitForStepTransition();
-
-    // BioParentsStep: skipped (2 bio parents)
-
-    // GestationalCarrierStep: Parent 2 (Linda)
-    await selectNthRadio(1); // Linda = parent index 1
-    await clickContinue();
-    await waitForStepTransition();
-
-    // Grandparents + Aunts/uncles count (2 parents)
-    await navigateExtendedFamilySteps(2);
-
-    // SiblingsDetailStep: skipped (0 siblings)
-    // HalfSiblingParentsStep, SiblingFamilyCountStep: skipped (0 siblings)
-
-    // PartnerStep: "Jennifer", Woman, 2 children with partner
-    await typeInTextbox('Jennifer', 0);
-    await selectRadio('Female');
-    await selectRadio('Woman');
-    await setNumberCounter(0, 2);
-    await clickContinue();
-    await waitForStepTransition();
-
-    // ChildrenWithPartnerDetailStep: 2 children
-    await typeInTextbox('Daniel', 0);
-    const childMaleRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Male' },
-      STEP_TIMEOUT,
+    await setFieldInput(
+      'partnership-egg-parent-sperm-parent',
+      'Current partners',
     );
-    await userEvent.click(childMaleRadios[0]!);
-    const childManGenderRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Man' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(childManGenderRadios[0]!);
-    await typeInTextbox('Emma', 1);
-    const childFemaleRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Female' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(childFemaleRadios[1]!);
-    const childWomanGenderRadios = await screen.findAllByRole(
-      'radio',
-      { name: 'Woman' },
-      STEP_TIMEOUT,
-    );
-    await userEvent.click(childWomanGenderRadios[1]!);
     await clickContinue();
-    await waitForStepTransition();
 
-    // OtherChildrenCountStep: 1
-    await setNumberCounter(0, 1);
+    // AboutYouStep: no siblings, has partner, 2 children with partner, 1 other
+    await setFieldInput('siblingCount', 0);
+    await setFieldInput('hasPartner', true);
+    await setFieldInput('noChildrenWithPartner', 2);
+    await setFieldInput('noChildrenWithOther', 1);
     await clickContinue();
-    await waitForStepTransition();
 
-    // OtherChildrenDetailStep: 1 child
-    await typeInTextbox('Noah', 0);
-    await selectRadio('Male');
-    await selectRadio('Man');
-    await finishWizardAndConfirm();
+    // PartnerStep: Jennifer
+    await setFieldInput('partner.name', 'Jennifer');
+    await setFieldInput('partner.sex-at-birth', 'Female');
+    await setFieldInput('partner.gender_identity', 'Woman');
+    await clickContinue();
+
+    // ChildrenWithPartnerDetailStep: Daniel and Emma
+    await setFieldInput('childWithPartner[0].name', 'Daniel');
+    await setFieldInput('childWithPartner[0].sex-at-birth', 'Male');
+    await setFieldInput('childWithPartner[0].gender_identity', 'Man');
+
+    await setFieldInput('childWithPartner[1].name', 'Emma');
+    await setFieldInput('childWithPartner[1].sex-at-birth', 'Female');
+    await setFieldInput('childWithPartner[1].gender_identity', 'Woman');
+    await clickContinue();
+
+    // OtherChildrenDetailStep: Noah
+    await setFieldInput('otherChild[0].name', 'Noah');
+    await setFieldInput('otherChild[0].sex-at-birth', 'Male');
+    await setFieldInput('otherChild[0].gender_identity', 'Man');
+    await clickContinue();
   },
 };

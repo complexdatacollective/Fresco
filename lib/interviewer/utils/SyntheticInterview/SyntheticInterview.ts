@@ -260,7 +260,7 @@ export class SyntheticInterview {
       throw new Error(`Node type "${nodeTypeId}" not found`);
     }
 
-    const varId = this.nextId('var');
+    const varId = opts?.id ?? this.nextId('var');
     const type = this.resolveVariableType(opts);
     const options = this.resolveOptions(type, opts?.options);
 
@@ -286,7 +286,7 @@ export class SyntheticInterview {
       throw new Error(`Edge type "${edgeTypeId}" not found`);
     }
 
-    const varId = this.nextId('var');
+    const varId = opts?.id ?? this.nextId('var');
     const type = this.resolveVariableType(opts);
     const options = this.resolveOptions(type, opts?.options);
 

@@ -4,7 +4,7 @@ import {
   type NcNode,
 } from '@codaco/shared-consts';
 import { useDragSource } from '~/lib/dnd';
-import { MotionNode } from '~/lib/interviewer/components/Node';
+import { ConnectedMotionNode } from '~/lib/interviewer/components/ConnectedNode';
 
 type DrawerNodeProps = {
   node: NcNode;
@@ -28,10 +28,11 @@ export default function DrawerNode({
   });
 
   return (
-    <MotionNode
+    <ConnectedMotionNode
       layout
       onLayoutAnimationComplete={onLayoutAnimationComplete}
-      {...node}
+      nodeId={nodeId}
+      type={node.type}
       {...dragProps}
       size="sm"
     />

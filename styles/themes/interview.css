@@ -55,16 +55,8 @@
     --success: oklch(var(--sea-green));
     --success-contrast: oklch(var(--white));
 
-    --info: color-mix(
-      in oklch,
-      oklch(from var(--color-cerulean-blue) l calc(c + 0.3) h),
-      white 45%
-    );
-    --info-contrast: color-mix(
-      in oklab,
-      oklch(var(--cerulean-blue)),
-      black 60%
-    );
+    --info: oklch(var(--cerulean-blue));
+    --info-contrast: oklch(var(--white));
 
     --selected: oklch(var(--white));
 
@@ -173,4 +165,3 @@
     }
   }
 }
-

@@ -11,10 +11,10 @@ import { useDragAndDrop } from '~/lib/collection/dnd/useDragAndDrop';
 import { InlineGridLayout } from '~/lib/collection/layout/InlineGridLayout';
 import { type CollectionProps, type ItemProps } from '~/lib/collection/types';
 import { type DragMetadata, type DropCallback } from '~/lib/dnd/types';
+import Node from '~/lib/interviewer/components/ConnectedNode';
 import { makeGetCodebookVariablesForNodeType } from '~/lib/interviewer/selectors/protocol';
 import { getNodeLabelAttribute } from '~/lib/interviewer/utils/getNodeLabelAttribute';
 import { cx } from '~/utils/cva';
-import Node from './Node';
 
 // Props that NodeList always provides internally — consumers can't override these
 type InternalCollectionProps =
@@ -195,8 +195,9 @@ const NodeList = memo(
     const renderItem = useCallback(
       (node: NcNode, itemProps: ItemProps) => (
         <Node
-          {...node}
           {...itemProps}
+          nodeId={node[entityPrimaryKeyProperty]}
+          type={node.type}
           size={nodeSize}
           onClick={() => onItemClick?.(node)}
         />

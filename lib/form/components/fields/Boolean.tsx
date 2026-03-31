@@ -51,6 +51,11 @@ const optionCardVariants = compose(
         state: 'invalid',
         className: 'border-destructive',
       },
+      {
+        selected: false,
+        state: 'readOnly',
+        className: 'opacity-40',
+      },
     ],
     defaultVariants: {
       selected: false,
@@ -89,9 +94,15 @@ type BooleanFieldProps = CreateFormFieldProps<
   }
 >;
 
-function BooleanIndicator({ isSelected }: { isSelected: boolean }) {
+function BooleanIndicator({
+  isSelected,
+  state,
+}: {
+  isSelected: boolean;
+  state?: 'normal' | 'disabled' | 'readOnly' | 'invalid';
+}) {
   return (
-    <span aria-hidden className={booleanIndicatorVariants()}>
+    <span aria-hidden className={booleanIndicatorVariants({ state })}>
       <svg
         viewBox="0 0 24 24"
         fill="currentColor"
@@ -184,6 +195,7 @@ export default function BooleanField(props: BooleanFieldProps) {
         className="flex w-full items-stretch gap-2 border-0 p-0 *:flex-1"
         disabled={disabled}
         aria-label={label ?? rest['aria-label']}
+        aria-readonly={readOnly ?? undefined}
         aria-invalid={rest['aria-invalid'] ?? undefined}
       >
         {label && <legend className="sr-only">{label}</legend>}
@@ -224,7 +236,7 @@ export default function BooleanField(props: BooleanFieldProps) {
               whileTap={disabled || readOnly ? undefined : { scale: 0.98 }}
               transition={selectionSpring}
             >
-              <BooleanIndicator isSelected={isSelected} />
+              <BooleanIndicator isSelected={isSelected} state={optionState} />
               <span
                 className={headingVariants({ level: 'label', margin: 'none' })}
               >

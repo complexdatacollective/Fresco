@@ -102,19 +102,22 @@ const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
     const isNumber = type === 'number';
     const isInteractive = !disabled && !readOnly;
 
-    const handleStep = useCallback((direction: 'up' | 'down') => {
-      const input = internalRef.current;
-      if (!input) return;
+    const handleStep = useCallback(
+      (direction: 'up' | 'down') => {
+        const input = internalRef.current;
+        if (!input) return;
 
-      if (direction === 'up') {
-        input.stepUp();
-      } else {
-        input.stepDown();
-      }
+        if (direction === 'up') {
+          input.stepUp();
+        } else {
+          input.stepDown();
+        }
 
-      // stepUp/stepDown don't fire change events, so dispatch one
-      input.dispatchEvent(new Event('input', { bubbles: true }));
-    }, []);
+        // stepUp/stepDown don't fire change events, so notify React directly
+        onChange?.(input.value);
+      },
+      [onChange],
+    );
 
     const wrapperClassName = cx(
       inputWrapperVariants({ size, state: getInputState(props) }),

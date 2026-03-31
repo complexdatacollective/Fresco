@@ -1,94 +1,25 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
-import { useWizard } from '~/lib/dialogs/useWizard';
-import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
+import { useCallback, useMemo } from 'react';
+import Field from '~/lib/form/components/Field/Field';
+import FieldGroup from '~/lib/form/components/FieldGroup';
 import BooleanField from '~/lib/form/components/fields/Boolean';
 import InputField from '~/lib/form/components/fields/InputField';
-import {
-  type PersonDetail,
-  type SiblingDetail,
-  type SiblingFamily,
-} from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import { useFormValue } from '~/lib/form/hooks/useFormValue';
+
+const MAX_SIBLINGS = 20;
+
+const SIBLING_NAME_FIELDS = Array.from(
+  { length: MAX_SIBLINGS },
+  (_, i) => `sibling-${i}-name`,
+);
 
 export default function SiblingFamilyCountStep() {
-  const { data, setStepData, setBeforeNext } = useWizard();
-  const siblings = useMemo(
-    () => (data.siblings as SiblingDetail[] | undefined) ?? [],
-    [data.siblings],
-  );
-  const existingFamilies = data.siblingFamilies as SiblingFamily[] | undefined;
+  const { siblingCount: rawSiblingCount } = useFormValue(['siblingCount']);
+  const siblingCount = Number(rawSiblingCount ?? 0);
+  const siblingNameValues = useFormValue(SIBLING_NAME_FIELDS);
 
-  const [hasChildrenMap, setHasChildrenMap] = useState<
-    Record<number, boolean | undefined>
-  >(() => {
-    const initial: Record<number, boolean | undefined> = {};
-    siblings.forEach((_, i) => {
-      const existing = existingFamilies?.find((f) => f.siblingIndex === i);
-      initial[i] = existing !== undefined ? true : undefined;
-    });
-    return initial;
-  });
-
-  const [childCounts, setChildCounts] = useState<Record<number, number>>(() => {
-    const initial: Record<number, number> = {};
-    siblings.forEach((_, i) => {
-      const existing = existingFamilies?.find((f) => f.siblingIndex === i);
-      initial[i] = existing?.children.length ?? 1;
-    });
-    return initial;
-  });
-
-  const [hasPartnerMap, setHasPartnerMap] = useState<
-    Record<number, boolean | undefined>
-  >(() => {
-    const initial: Record<number, boolean | undefined> = {};
-    siblings.forEach((_, i) => {
-      const existing = existingFamilies?.find((f) => f.siblingIndex === i);
-      initial[i] = existing?.hasPartner;
-    });
-    return initial;
-  });
-
-  const hasChildrenMapRef = useRef(hasChildrenMap);
-  hasChildrenMapRef.current = hasChildrenMap;
-
-  const childCountsRef = useRef(childCounts);
-  childCountsRef.current = childCounts;
-
-  const hasPartnerMapRef = useRef(hasPartnerMap);
-  hasPartnerMapRef.current = hasPartnerMap;
-
-  useEffect(() => {
-    setBeforeNext(() => {
-      const currentHasChildren = hasChildrenMapRef.current;
-      const currentChildCounts = childCountsRef.current;
-      const currentHasPartner = hasPartnerMapRef.current;
-
-      const siblingFamilies: SiblingFamily[] = siblings
-        .map((_, i) => {
-          if (!currentHasChildren[i]) return null;
-          const family: SiblingFamily = {
-            siblingIndex: i,
-            hasPartner: currentHasPartner[i] ?? false,
-            children: [] as PersonDetail[],
-          };
-          return family;
-        })
-        .filter((f): f is SiblingFamily => f !== null);
-
-      const siblingFamilyChildCounts = Object.fromEntries(
-        siblings
-          .filter((_, i) => currentHasChildren[i])
-          .map((_, i) => [i, currentChildCounts[i] ?? 1]),
-      );
-
-      setStepData({ siblingFamilies, siblingFamilyChildCounts });
-      return true;
-    });
-  }, [setBeforeNext, setStepData, siblings]);
-
-  if (siblings.length === 0) {
+  if (siblingCount === 0) {
     return (
       <div className="pt-4">
         <p className="text-muted-foreground text-sm">No siblings to detail.</p>
@@ -98,54 +29,62 @@ export default function SiblingFamilyCountStep() {
 
   return (
     <div className="flex flex-col gap-6 pt-4">
-      {siblings.map((sibling, i) => {
-        const siblingName = sibling.name || `Sibling ${i + 1}`;
-        const hasChildren = hasChildrenMap[i];
-        const childCount = childCounts[i] ?? 1;
+      {Array.from({ length: siblingCount }, (_, i) => {
+        const siblingName =
+          (siblingNameValues[`sibling-${i}-name`] as string | undefined) ??
+          `Sibling ${i + 1}`;
 
         return (
-          <div key={i} className="flex flex-col gap-3">
-            <UnconnectedField
-              name={`sibling-${i}-hasChildren`}
-              label={`Does ${siblingName} have children?`}
-              component={BooleanField}
-              value={hasChildren}
-              onChange={(v: boolean | undefined) => {
-                setHasChildrenMap((prev) => ({ ...prev, [i]: v }));
-              }}
-            />
-            {hasChildren && (
-              <>
-                <UnconnectedField
-                  name={`sibling-${i}-childCount`}
-                  inline
-                  label="How many?"
-                  component={InputField}
-                  type="number"
-                  value={String(childCount)}
-                  min={1}
-                  max={20}
-                  onChange={(v) => {
-                    setChildCounts((prev) => ({
-                      ...prev,
-                      [i]: Number(v) || 1,
-                    }));
-                  }}
-                />
-                <UnconnectedField
-                  name={`sibling-${i}-hasPartner`}
-                  label={`Does ${siblingName} have a partner?`}
-                  component={BooleanField}
-                  value={hasPartnerMap[i]}
-                  onChange={(v: boolean | undefined) => {
-                    setHasPartnerMap((prev) => ({ ...prev, [i]: v }));
-                  }}
-                />
-              </>
-            )}
-          </div>
+          <SiblingFamilyEntry key={i} index={i} siblingName={siblingName} />
         );
       })}
+    </div>
+  );
+}
+
+function SiblingFamilyEntry({
+  index,
+  siblingName,
+}: {
+  index: number;
+  siblingName: string;
+}) {
+  const hasChildrenFieldName = `sibling-${index}-hasChildren`;
+
+  const hasChildrenCondition = useCallback(
+    (values: Record<string, unknown>) => values[hasChildrenFieldName] === true,
+    [hasChildrenFieldName],
+  );
+
+  const watchFields = useMemo(
+    () => [hasChildrenFieldName],
+    [hasChildrenFieldName],
+  );
+
+  return (
+    <div className="flex flex-col gap-3">
+      <Field
+        name={hasChildrenFieldName}
+        label={`Does ${siblingName} have children?`}
+        component={BooleanField}
+      />
+      <FieldGroup watch={watchFields} condition={hasChildrenCondition}>
+        <Field
+          name={`sibling-${index}-childCount`}
+          inline
+          label="How many?"
+          component={InputField}
+          type="number"
+          initialValue="1"
+          min={1}
+          max={20}
+        />
+        <Field
+          name={`sibling-${index}-hasPartner`}
+          label={`Does ${siblingName} have a partner?`}
+          component={BooleanField}
+        />
+      </FieldGroup>
     </div>
   );
 }

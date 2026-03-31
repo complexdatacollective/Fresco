@@ -135,7 +135,7 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
           currentPromptId={allPrompts[currentStepIndex]?.id}
           className="shrink-0"
         />
-        <div className="relative flex grow items-center justify-center">
+        <div className="relative flex size-full grow items-center justify-center">
           {showQuickStart ? (
             <>
               <div className="flex flex-col items-center gap-6">
@@ -180,12 +180,7 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
           )}
         </div>
         {showQuickStart && (
-          <QuickStartForm
-            onSubmit={(data) => {
-              generateQuickStartNetwork(data);
-              void handleConfirmAndAdvance();
-            }}
-          />
+          <QuickStartForm onSubmit={generateQuickStartNetwork} />
         )}
       </div>
 

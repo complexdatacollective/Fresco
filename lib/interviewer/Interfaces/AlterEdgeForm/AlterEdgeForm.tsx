@@ -18,7 +18,7 @@ import {
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { type StageProps } from '~/lib/interviewer/types';
 import { cx } from '~/utils/cva';
-import Node from '../../components/Node';
+import Node from '~/lib/interviewer/components/ConnectedNode';
 import { edgeColorMap } from '../../utils/edgeColorMap';
 import IntroPanel from '../SlidesForm/IntroPanel';
 import SlidesForm from '../SlidesForm/SlidesForm';
@@ -33,14 +33,26 @@ function EdgeHeader({ item }: { item: NcEdge }) {
 
   return (
     <div className="flex shrink-0 items-center">
-      {fromNode && <Node {...fromNode} className="rounded-full" />}
+      {fromNode && (
+        <Node
+          nodeId={fromNode[entityPrimaryKeyProperty]}
+          type={fromNode.type}
+          className="rounded-full"
+        />
+      )}
       <div
         className={cx(
           edgeColorMap[edgeColor],
           'mx-[-1.5rem] h-2 w-32 bg-(--edge-color)',
         )}
       />
-      {toNode && <Node {...toNode} className="rounded-full" />}
+      {toNode && (
+        <Node
+          nodeId={toNode[entityPrimaryKeyProperty]}
+          type={toNode.type}
+          className="rounded-full"
+        />
+      )}
     </div>
   );
 }

@@ -14,7 +14,7 @@ import { type ItemProps } from '~/lib/collection/types';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import { type StageProps } from '~/lib/interviewer/types';
-import { MotionNode } from '../../components/Node';
+import { ConnectedMotionNode } from '~/lib/interviewer/components/ConnectedNode';
 import Prompts from '../../components/Prompts';
 import { edgeExists, toggleEdge } from '../../ducks/modules/session';
 import useSortedNodeList from '../../hooks/useSortedNodeList';
@@ -180,9 +180,10 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
         createEdge,
       );
       return (
-        <MotionNode
-          {...node}
+        <ConnectedMotionNode
           {...itemProps}
+          nodeId={node[entityPrimaryKeyProperty]}
+          type={node.type}
           selected={selected}
           onClick={handleNodeClick(source, node)}
           layoutId={node[entityPrimaryKeyProperty]}
@@ -197,8 +198,9 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
       <Prompts />
       <AnimatePresence mode="popLayout">
         {source ? (
-          <MotionNode
-            {...source}
+          <ConnectedMotionNode
+            nodeId={source[entityPrimaryKeyProperty]}
+            type={source.type}
             size="sm"
             className="z-10"
             layoutId={source[entityPrimaryKeyProperty]}

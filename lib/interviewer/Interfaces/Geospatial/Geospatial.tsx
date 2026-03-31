@@ -13,7 +13,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { type ThunkDispatch } from 'redux-thunk';
 import { MotionSurface } from '~/components/layout/Surface';
 import Button, { IconButton } from '~/components/ui/Button';
-import Node from '~/lib/interviewer/components/Node';
+import Node from '~/lib/interviewer/components/ConnectedNode';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import { getAssetUrlFromId } from '~/lib/interviewer/ducks/modules/protocol';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
@@ -281,7 +281,7 @@ export default function GeospatialInterface({
           level={0}
           spacing="none"
           elevation="none"
-          className="bg-surface/60 absolute right-4 bottom-4 z-5 flex flex-col gap-2 rounded-xl p-2 shadow-2xl backdrop-blur-md"
+          className="bg-surface/80 absolute right-4 bottom-4 z-5 flex flex-col gap-2 rounded-xl p-2 shadow-2xl backdrop-blur-md"
           data-testid="map-toolbar"
           variants={{
             initial: {
@@ -336,7 +336,13 @@ export default function GeospatialInterface({
               className="[--base-node-size:calc(var(--nc-base-font-size)*6.6)]"
             >
               {stageNodes[navState.activeIndex] && (
-                <Node size="sm" {...stageNodes[navState.activeIndex]!} />
+                <Node
+                  size="sm"
+                  nodeId={
+                    stageNodes[navState.activeIndex]![entityPrimaryKeyProperty]
+                  }
+                  type={stageNodes[navState.activeIndex]!.type}
+                />
               )}
             </motion.div>
           </AnimatePresence>

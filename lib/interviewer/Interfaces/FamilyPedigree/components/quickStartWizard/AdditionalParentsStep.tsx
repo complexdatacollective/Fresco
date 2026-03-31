@@ -5,9 +5,7 @@ import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import Field from '~/lib/form/components/Field/Field';
-import FieldGroup from '~/lib/form/components/FieldGroup';
 import FieldNamespace from '~/lib/form/components/FieldNamespace';
-import BooleanField from '~/lib/form/components/fields/Boolean';
 import InputField from '~/lib/form/components/fields/InputField';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import { useFormValue } from '~/lib/form/hooks/useFormValue';
@@ -49,27 +47,10 @@ function AdditionalParentFields({ index }: { index: number }) {
           required
         />
         <Field
-          name="name-known"
-          label="Do you know this person's name?"
-          component={BooleanField}
-          required
-        />
-        <FieldGroup
-          watch={['name-known']}
-          condition={(values) => values['name-known'] === true}
-        >
-          <Field
-            name="name"
-            label="What is their name?"
-            component={InputField}
-            autoFocus
-            required
-          />
-        </FieldGroup>
-        <Field
-          name="raised-by"
-          label="Was this person involved in raising you?"
-          component={BooleanField}
+          name="name"
+          label="What is their name?"
+          component={InputField}
+          autoFocus
           required
         />
         <Field

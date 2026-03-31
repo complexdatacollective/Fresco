@@ -11,7 +11,7 @@ function parsePath(path: string): PathSegment[] {
   if (!path) return [];
 
   return path.split('.').map((part) => {
-    const bracketMatch = part.match(/^([^[]*)\[(\d+)\]$/);
+    const bracketMatch = /^([^[]*)\[(\d+)\]$/.exec(part);
     if (bracketMatch) {
       return { key: bracketMatch[1]!, index: Number(bracketMatch[2]) };
     }

@@ -310,6 +310,7 @@ export type AddEdgeTypeInput = {
 };
 
 export type AddVariableInput = {
+  id?: string;
   name?: string;
   type?: VariableType;
   component?: ComponentType;

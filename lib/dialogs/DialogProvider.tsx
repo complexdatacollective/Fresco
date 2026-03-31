@@ -1,7 +1,7 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
-import React, { createContext, useCallback, useState } from 'react';
+import React, { createContext, useCallback, useContext, useState } from 'react';
 import { flushSync } from 'react-dom';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
@@ -9,7 +9,9 @@ import { type FieldValue } from '~/lib/form/components/Field/types';
 import { FormWithoutProvider } from '~/lib/form/components/Form';
 import SubmitButton from '~/lib/form/components/SubmitButton';
 import useFormStore from '~/lib/form/hooks/useFormStore';
-import FormStoreProvider from '~/lib/form/store/formStoreProvider';
+import FormStoreProvider, {
+  FormStoreContext,
+} from '~/lib/form/store/formStoreProvider';
 import { generatePublicId } from '~/utils/generatePublicId';
 import Dialog from './Dialog';
 import useWizardState from './useWizardState';
@@ -148,11 +150,32 @@ function WizardDialogContent({
   dialogId: string;
   guardedCloseDialog: (id: string, value: unknown) => Promise<void>;
 }) {
-  const getFieldState = useFormStore((s) => s.getFieldState);
+  const dormantValues = useFormStore((s) => s.dormantValues);
+  const fields = useFormStore((s) => s.fields);
+  const formStoreApi = useContext(FormStoreContext)!;
 
   const getFieldValue: GetFieldValue = useCallback(
-    (fieldName: string) => getFieldState(fieldName)?.value,
-    [getFieldState],
+    (fieldName: string) => {
+      const active = fields.get(fieldName);
+      if (active) return active.value;
+      return dormantValues.get(fieldName)?.value;
+    },
+    [fields, dormantValues],
+  );
+
+  const validateForm = useCallback(
+    () => formStoreApi.getState().validateForm(),
+    [formStoreApi],
+  );
+
+  const getFieldErrors = useCallback(
+    () => formStoreApi.getState().errors.fieldErrors,
+    [formStoreApi],
+  );
+
+  const getFormValues = useCallback(
+    () => formStoreApi.getState().getFormValues(),
+    [formStoreApi],
   );
 
   const wizardProps = useWizardState({
@@ -160,6 +183,9 @@ function WizardDialogContent({
     dialogId,
     closeDialog: guardedCloseDialog,
     getFieldValue,
+    validateForm,
+    getFieldErrors,
+    getFormValues,
   });
 
   if (!wizardProps) return null;
@@ -213,7 +239,7 @@ function WizardDialogRenderer({
   );
 
   return (
-    <FormStoreProvider debug persistFieldValues>
+    <FormStoreProvider debug>
       <WizardDialogContent
         dialog={dialog}
         dialogId={dialog.id}

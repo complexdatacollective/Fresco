@@ -16,7 +16,7 @@ import { UnauthorizedError } from './utils';
 // Will speed up if the same node is rendered in multiple places.
 const labelCache = new Map<string, string>();
 
-export function useNodeLabel(node: NcNode): string {
+export function useNodeLabel(node: NcNode) {
   const getCodebookForNodeType = useSelector(makeGetCodebookForNodeType);
   const codebook = getCodebookForNodeType(node.type);
   const { passphrase } = usePassphrase();
@@ -31,7 +31,7 @@ export function useNodeLabel(node: NcNode): string {
   );
 
   const getById = useNodeAttributes(node);
-  const [label, setLabel] = useState('');
+  const [label, setLabel] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     const fallback = codebook?.name ?? node[entityPrimaryKeyProperty];
@@ -40,7 +40,7 @@ export function useNodeLabel(node: NcNode): string {
     // Also skip the cache if the node attributes changed
     if (prevPassphrase === passphrase && prevNode === node) {
       if (labelCache.has(cacheKey)) {
-        setLabel(labelCache.get(cacheKey)!);
+        setLabel(labelCache.get(cacheKey));
         return;
       }
     }

@@ -261,26 +261,55 @@ export const Colors: Story = {
  * Demonstrates all visual states a node can be in.
  */
 export const VisualStates: Story = {
-  render: () => (
+  render: (args) => (
     <div className="flex flex-wrap items-center gap-8">
       <div className="flex flex-col items-center gap-2">
-        <Node label="Default" />
+        <Node
+          label="Default"
+          color={args.color}
+          shape={args.shape}
+          size={args.size}
+        />
         <span className="text-xs text-current/70">Default</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <Node label="Selected" selected color="node-color-seq-2" />
+        <Node
+          label="Selected"
+          selected
+          color={args.color}
+          shape={args.shape}
+          size={args.size}
+        />
         <span className="text-xs text-current/70">Selected</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <Node label="Linking" linking color="node-color-seq-3" />
+        <Node
+          label="Linking"
+          linking
+          color={args.color}
+          shape={args.shape}
+          size={args.size}
+        />
         <span className="text-xs text-current/70">Linking</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <Node label="Loading" loading color="node-color-seq-4" />
+        <Node
+          label="Loading"
+          loading
+          color={args.color}
+          shape={args.shape}
+          size={args.size}
+        />
         <span className="text-xs text-current/70">Loading</span>
       </div>
       <div className="flex flex-col items-center gap-2">
-        <Node label="Disabled" disabled color="node-color-seq-5" />
+        <Node
+          label="Disabled"
+          disabled
+          color={args.color}
+          shape={args.shape}
+          size={args.size}
+        />
         <span className="text-xs text-current/70">Disabled</span>
       </div>
     </div>
@@ -600,109 +629,6 @@ export const DisabledNodes: Story = {
       description: {
         story:
           'Disabled nodes are desaturated and have `pointer-events: none`. Visual states like selected can still be shown.',
-      },
-    },
-  },
-};
-
-/**
- * All colors with the selected state to demonstrate the selection ring.
- */
-export const SelectedColors: Story = {
-  render: () => (
-    <div className="grid grid-cols-4 gap-6">
-      {NodeColors.filter((c) => c !== 'custom').map((color, i) => (
-        <Node key={color} color={color} label={`Color ${i + 1}`} selected />
-      ))}
-    </div>
-  ),
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'The selected state uses `--color-selected` for the box-shadow, which is consistent across all node colors.',
-      },
-    },
-  },
-};
-
-/**
- * All colors in linking mode to demonstrate the pulsing animation.
- */
-export const LinkingColors: Story = {
-  render: () => (
-    <div className="grid grid-cols-4 gap-6">
-      {NodeColors.filter((c) => c !== 'custom').map((color, i) => (
-        <Node key={color} color={color} label={`Color ${i + 1}`} linking />
-      ))}
-    </div>
-  ),
-  parameters: {
-    chromatic: { pauseAnimationAtEnd: true },
-    docs: {
-      description: {
-        story:
-          'The linking animation uses a pulsing box-shadow effect to indicate the node is ready to form a connection.',
-      },
-    },
-  },
-};
-
-/**
- * Diamond shape with all visual states to verify shadow effects rotate correctly.
- */
-export const DiamondStates: Story = {
-  render: () => (
-    <div className="flex flex-wrap items-center gap-8">
-      <div className="flex flex-col items-center gap-2">
-        <Node shape="diamond" label="Default" />
-        <span className="text-xs text-current/70">Default</span>
-      </div>
-      <div className="flex flex-col items-center gap-2">
-        <Node
-          shape="diamond"
-          label="Selected"
-          selected
-          color="node-color-seq-2"
-        />
-        <span className="text-xs text-current/70">Selected</span>
-      </div>
-      <div className="flex flex-col items-center gap-2">
-        <Node
-          shape="diamond"
-          label="Linking"
-          linking
-          color="node-color-seq-3"
-        />
-        <span className="text-xs text-current/70">Linking</span>
-      </div>
-      <div className="flex flex-col items-center gap-2">
-        <Node
-          shape="diamond"
-          label="Both"
-          selected
-          linking
-          color="node-color-seq-4"
-        />
-        <span className="text-xs text-current/70">Both</span>
-      </div>
-      <div className="flex flex-col items-center gap-2">
-        <Node
-          shape="diamond"
-          label="Disabled"
-          disabled
-          color="node-color-seq-5"
-        />
-        <span className="text-xs text-current/70">Disabled</span>
-      </div>
-    </div>
-  ),
-  parameters: {
-    chromatic: { pauseAnimationAtEnd: true },
-    docs: {
-      description: {
-        story:
-          'Diamond nodes are rotated 45 degrees. All shadow effects (selected ring, linking pulse, focus outline) rotate with the element. The label text is counter-rotated to remain upright.',
       },
     },
   },

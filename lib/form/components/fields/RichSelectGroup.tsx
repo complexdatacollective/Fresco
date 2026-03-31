@@ -70,6 +70,11 @@ const optionCardVariants = compose(
         state: 'invalid',
         className: 'border-destructive',
       },
+      {
+        selected: false,
+        state: 'readOnly',
+        className: 'opacity-40',
+      },
     ],
     defaultVariants: {
       selected: false,
@@ -251,6 +256,7 @@ export default function RichSelectGroupField(props: RichSelectGroupProps) {
         aria-label={fieldsetProps['aria-label']}
         aria-labelledby={fieldsetProps['aria-labelledby']}
         aria-describedby={fieldsetProps['aria-describedby']}
+        aria-readonly={readOnly ?? undefined}
         aria-invalid={fieldsetProps['aria-invalid'] ?? undefined}
       >
         {options.map((option, index) => {

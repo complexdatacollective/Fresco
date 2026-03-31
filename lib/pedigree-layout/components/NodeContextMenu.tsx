@@ -36,7 +36,7 @@ export default function NodeContextMenu({
 
   return (
     <Menu.Root>
-      <Menu.Trigger nativeButton={false}>{children}</Menu.Trigger>
+      <Menu.Trigger nativeButton>{children}</Menu.Trigger>
       <Menu.Portal>
         <Menu.Positioner sideOffset={8}>
           <Menu.Popup

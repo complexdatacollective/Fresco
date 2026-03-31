@@ -19,6 +19,7 @@ const mockProtocol = {
       person: {
         name: 'Person',
         color: 'node-color-seq-1',
+        shape: { default: 'circle' },
         displayVariable: 'name',
         variables: {
           name: {
@@ -30,6 +31,7 @@ const mockProtocol = {
       place: {
         name: 'Place',
         color: 'node-color-seq-2',
+        shape: { default: 'circle' },
         displayVariable: 'name',
         variables: {
           name: {
@@ -82,23 +84,34 @@ const mockUiState = {
   showPassphrasePrompter: false,
 };
 
-const createMockStore = () => {
+const createMockStore = (nodes: NcNode[] = []) => {
+  const sessionWithNodes = {
+    ...mockSession,
+    network: {
+      ...mockSession.network,
+      nodes,
+    },
+  };
+
   return configureStore({
     reducer: {
-      session: (state: typeof mockSession = mockSession) => state,
+      session: (state: typeof sessionWithNodes = sessionWithNodes) => state,
       protocol: (state: typeof mockProtocol = mockProtocol) => state,
       ui: (state: typeof mockUiState = mockUiState) => state,
     },
     preloadedState: {
       protocol: mockProtocol,
-      session: mockSession,
+      session: sessionWithNodes,
       ui: mockUiState,
     },
   });
 };
 
-const ReduxDecorator = (Story: React.ComponentType) => {
-  const store = createMockStore();
+const ReduxDecorator = (
+  Story: React.ComponentType,
+  context: { args: { items?: NcNode[] } },
+) => {
+  const store = createMockStore(context.args.items ?? []);
 
   const decoratorVariants = {
     initial: { opacity: 0 },
@@ -285,7 +298,7 @@ export const CustomItemType: Story = {
 export const CustomAccepts: Story = {
   args: {
     items: createMockNodes(3),
-    accepts: ['node', 'custom-type'],
+    accepts: ['NODE', 'custom-type'],
     nodeSize: 'md',
   },
   parameters: {
@@ -349,7 +362,11 @@ function DragBetweenListsExample() {
 
   return (
     <div className="flex h-[600px] gap-8">
-      <div className="flex flex-1 flex-col">
+      <motion.div
+        className="flex flex-1 flex-col"
+        initial="initial"
+        animate="animate"
+      >
         <Heading level="h3" margin="none" className="mb-4 text-white">
           Left List ({leftItems.length} nodes)
         </Heading>
@@ -358,13 +375,17 @@ function DragBetweenListsExample() {
             id="left-list"
             items={leftItems}
             nodeSize="md"
-            accepts={['node']}
+            accepts={['NODE']}
             onDrop={handleDropOnLeft}
             announcedName="Left Node List"
           />
         </div>
-      </div>
-      <div className="flex flex-1 flex-col">
+      </motion.div>
+      <motion.div
+        className="flex flex-1 flex-col"
+        initial="initial"
+        animate="animate"
+      >
         <Heading level="h3" margin="none" className="mb-4 text-white">
           Right List ({rightItems.length} nodes)
         </Heading>
@@ -373,17 +394,20 @@ function DragBetweenListsExample() {
             id="right-list"
             items={rightItems}
             nodeSize="md"
-            accepts={['node']}
+            accepts={['NODE']}
             onDrop={handleDropOnRight}
             announcedName="Right Node List"
           />
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
 
 export const DragBetweenLists: Story = {
+  args: {
+    items: [...createMockNodes(5), ...createMockNodes(3, 'stage-1', 5)],
+  },
   render: () => <DragBetweenListsExample />,
   parameters: {
     docs: {

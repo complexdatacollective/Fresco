@@ -19,6 +19,9 @@ type UseWizardStateArgs = {
   dialogId: string;
   closeDialog: (id: string, value: unknown) => Promise<void>;
   getFieldValue: GetFieldValue;
+  validateForm: () => Promise<boolean>;
+  getFieldErrors: () => Record<string, string[] | undefined>;
+  getFormValues: () => Record<string, unknown>;
 };
 
 type WizardDialogProps = {
@@ -33,6 +36,9 @@ export default function useWizardState({
   dialogId,
   closeDialog,
   getFieldValue,
+  validateForm,
+  getFieldErrors,
+  getFormValues,
 }: UseWizardStateArgs): WizardDialogProps | null {
   const [stepIndex, setStepIndex] = useState(0);
   const [data, setData] = useState<Record<string, unknown>>({});
@@ -66,21 +72,26 @@ export default function useWizardState({
     [dialog.steps, totalSteps, getFieldValue],
   );
 
+  const isFirstActive = findNextUnskipped(stepIndex, 'backward') === null;
+  const isLastActive = findNextUnskipped(stepIndex, 'forward') === null;
+
+  const showProgress =
+    dialog.progress !== undefined ? dialog.progress !== null : true;
+
   const activeStepCount = useMemo(() => {
+    if (!showProgress) return 0;
     return dialog.steps.filter((s) => !s.skip?.({ data, getFieldValue }))
       .length;
-  }, [dialog.steps, data, getFieldValue]);
+  }, [dialog.steps, data, getFieldValue, showProgress]);
 
   const activeStepIndex = useMemo(() => {
+    if (!showProgress) return 0;
     let idx = 0;
     for (let i = 0; i < stepIndex; i++) {
       if (!dialog.steps[i]?.skip?.({ data, getFieldValue })) idx++;
     }
     return idx;
-  }, [dialog.steps, data, stepIndex, getFieldValue]);
-
-  const isFirstActive = findNextUnskipped(-1, 'forward') === stepIndex;
-  const isLastActive = findNextUnskipped(totalSteps, 'backward') === stepIndex;
+  }, [dialog.steps, data, stepIndex, getFieldValue, showProgress]);
 
   const resetStepOverrides = useCallback(() => {
     setNextEnabled(true);
@@ -100,37 +111,53 @@ export default function useWizardState({
   );
 
   const handleNext = useCallback(async () => {
-    const handler = beforeNextRef.current;
+    setIsNextLoading(true);
+    try {
+      // Validate all currently registered form fields
+      const isFormValid = await validateForm();
+      if (!isFormValid) {
+        const fieldErrors = getFieldErrors();
+        const firstErrorField = Object.keys(fieldErrors)[0];
+        if (firstErrorField) {
+          const el = document.querySelector(
+            `[data-field-name="${CSS.escape(firstErrorField)}"]`,
+          );
+          el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        return;
+      }
 
-    if (handler) {
-      setIsNextLoading(true);
-      try {
+      // Run step-specific beforeNext handler if registered
+      const handler = beforeNextRef.current;
+      if (handler) {
         const result = await handler();
         if (result === false) return;
-      } catch {
-        return;
-      } finally {
-        setIsNextLoading(false);
       }
+    } catch {
+      return;
+    } finally {
+      setIsNextLoading(false);
     }
 
-    if (isLastActive) {
-      const result = dialog.onFinish ? dialog.onFinish(data) : data;
+    const next = findNextUnskipped(stepIndex, 'forward');
+    if (next === null) {
+      const formValues = getFormValues();
+      const result = dialog.onFinish ? dialog.onFinish(formValues) : formValues;
       await closeDialog(dialogId, result);
       return;
     }
 
-    const next = findNextUnskipped(stepIndex, 'forward');
-    if (next !== null) goToStep(next);
+    goToStep(next);
   }, [
-    isLastActive,
     dialog,
-    data,
     closeDialog,
     dialogId,
     goToStep,
     stepIndex,
     findNextUnskipped,
+    validateForm,
+    getFieldErrors,
+    getFormValues,
   ]);
 
   const handleBack = useCallback(() => {
@@ -195,7 +222,7 @@ export default function useWizardState({
             />
           </div>
         ) : (
-          dialog.progress !== null &&
+          showProgress &&
           activeStepCount > 1 && (
             <div className="flex flex-1 justify-center">
               <Pips

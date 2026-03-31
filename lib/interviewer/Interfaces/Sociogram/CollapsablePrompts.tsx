@@ -14,7 +14,7 @@ const CollapsablePrompts = (props: {
   return (
     <MotionSurface
       className={cx(
-        'bg-surface/60 absolute top-4 right-4 z-10 flex w-fit max-w-sm cursor-move flex-col items-center gap-4 overflow-hidden border-b-2 shadow-2xl backdrop-blur-md',
+        'bg-surface/80 absolute top-4 right-4 z-10 flex w-fit max-w-sm cursor-move flex-col items-center gap-4 overflow-hidden border-b-2 shadow-2xl backdrop-blur-md',
         className,
       )}
       layout

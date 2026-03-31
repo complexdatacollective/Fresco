@@ -1,17 +1,10 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import { useMemo } from 'react';
 import Paragraph from '~/components/typography/Paragraph';
-import { useWizard } from '~/lib/dialogs/useWizard';
 import Field from '~/lib/form/components/Field/Field';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
-import useFormStore from '~/lib/form/hooks/useFormStore';
-import FormStoreProvider from '~/lib/form/store/formStoreProvider';
-import { focusFirstError } from '~/lib/form/utils/focusFirstError';
-import {
-  type ParentDetail,
-  type ParentPartnership,
-} from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import { useFormValue } from '~/lib/form/hooks/useFormValue';
 
 const partnershipOptions = [
   { value: 'current', label: 'Current partners' },
@@ -19,117 +12,121 @@ const partnershipOptions = [
   { value: 'none', label: 'Never partners' },
 ];
 
-export default function ParentPartnershipsStep() {
-  return (
-    <FormStoreProvider>
-      <ParentPartnershipsForm />
-    </FormStoreProvider>
-  );
-}
-
-const EDGE_TYPE_LABELS: Record<string, string> = {
-  biological: 'Biological parent',
-  social: 'Social parent',
-  donor: 'Donor',
-  surrogate: 'Surrogate',
+type ParentEntry = {
+  id: string;
+  name: string | undefined;
+  sex: string | undefined;
 };
 
-function getParentLabel(parent: ParentDetail | undefined) {
-  if (parent?.name) return parent.name;
+const MAX_ADDITIONAL_PARENTS = 20;
 
-  const role = EDGE_TYPE_LABELS[parent?.edgeType ?? ''] ?? 'Parent';
+const BIO_PARENT_FIELDS = [
+  'egg-parent.name',
+  'egg-parent.sex-at-birth',
+  'egg-parent.gestationalCarrier',
+  'sperm-parent.name',
+  'sperm-parent.sex-at-birth',
+  'gestational-carrier.name',
+  'gestational-carrier.sex-at-birth',
+  'hasOtherParents',
+  'otherParentCount',
+  ...Array.from({ length: MAX_ADDITIONAL_PARENTS }, (_, i) => [
+    `additional-parent[${String(i)}].name`,
+    `additional-parent[${String(i)}].sex-at-birth`,
+  ]).flat(),
+] as const;
 
-  return `${role} (assigned ${parent?.biologicalSex} at birth)`;
+function getParentLabel(parent: ParentEntry, index: number) {
+  if (parent.name) return parent.name;
+  return `Parent ${String(index + 1)} (assigned ${parent.sex ?? 'unknown'} at birth)`;
 }
 
-function ParentPartnershipsForm() {
-  const { data, setStepData, setBeforeNext } = useWizard();
-  const validateForm = useFormStore((s) => s.validateForm);
-  const getFormValues = useFormStore((s) => s.getFormValues);
-  const errors = useFormStore((s) => s.errors);
-  const errorsRef = useRef(errors);
-  errorsRef.current = errors;
+export default function ParentPartnershipsStep() {
+  const values = useFormValue(BIO_PARENT_FIELDS);
 
-  const parents = (data.parents as ParentDetail[] | undefined) ?? [];
-  const existingPartnerships =
-    (data.parentPartnerships as ParentPartnership[] | undefined) ?? [];
+  const parents = useMemo<ParentEntry[]>(() => {
+    const list: ParentEntry[] = [
+      {
+        id: 'egg-parent',
+        name: values['egg-parent.name'] as string | undefined,
+        sex: values['egg-parent.sex-at-birth'] as string | undefined,
+      },
+      {
+        id: 'sperm-parent',
+        name: values['sperm-parent.name'] as string | undefined,
+        sex: values['sperm-parent.sex-at-birth'] as string | undefined,
+      },
+    ];
 
-  const pairs: [number, number][] = [];
-  for (let i = 0; i < parents.length; i++) {
-    for (let j = i + 1; j < parents.length; j++) {
-      pairs.push([i, j]);
+    if (values['egg-parent.gestationalCarrier'] === false) {
+      list.push({
+        id: 'gestational-carrier',
+        name: values['gestational-carrier.name'] as string | undefined,
+        sex: values['gestational-carrier.sex-at-birth'] as string | undefined,
+      });
     }
-  }
 
-  useEffect(() => {
-    setBeforeNext(async () => {
-      const isValid = await validateForm();
-      if (!isValid) {
-        setTimeout(() => focusFirstError(errorsRef.current), 0);
-        return false;
+    if (values.hasOtherParents === true) {
+      const count = Number(values.otherParentCount ?? 0);
+      for (let i = 0; i < count; i++) {
+        list.push({
+          id: `additional-parent-${String(i)}`,
+          name: values[`additional-parent[${String(i)}].name`] as
+            | string
+            | undefined,
+          sex: values[`additional-parent[${String(i)}].sex-at-birth`] as
+            | string
+            | undefined,
+        });
       }
+    }
 
-      const values = getFormValues();
-      const parentPartnerships: ParentPartnership[] = [];
+    return list;
+  }, [values]);
 
-      for (let i = 0; i < parents.length; i++) {
-        for (let j = i + 1; j < parents.length; j++) {
-          const answer = values[`partnership-${i}-${j}`];
-          if (answer === 'current') {
-            parentPartnerships.push({
-              parentIndices: [i, j],
-              isActive: true,
-            });
-          } else if (answer === 'ex') {
-            parentPartnerships.push({
-              parentIndices: [i, j],
-              isActive: false,
-            });
-          }
-        }
+  const pairs = useMemo(() => {
+    const result: [number, number][] = [];
+    for (let i = 0; i < parents.length; i++) {
+      for (let j = i + 1; j < parents.length; j++) {
+        result.push([i, j]);
       }
+    }
+    return result;
+  }, [parents.length]);
 
-      setStepData({ parentPartnerships });
-      return true;
-    });
-  }, [validateForm, getFormValues, setStepData, setBeforeNext, parents.length]);
+  if (parents.length < 2) return null;
 
   return (
-    <div className="flex flex-col gap-6">
-      {pairs.map(([i, j]) => {
-        const existing = existingPartnerships.find(
-          (p) => p.parentIndices[0] === i && p.parentIndices[1] === j,
-        );
-        const initialValue = existing
-          ? existing.isActive
-            ? 'current'
-            : 'ex'
-          : undefined;
+    <>
+      <div className="mb-8">
+        <Paragraph>
+          We now want to ask about relationships between the parents you named.
+          This includes current and past romantic partnerships, but{' '}
+          <strong>not co-parenting partnerships</strong> where the parents were
+          never romantically involved.
+        </Paragraph>
+        <Paragraph>
+          If either parent is <strong>deceased</strong>, please answer based on
+          whether they were partners while both were alive.
+        </Paragraph>
+      </div>
+      <div className="flex flex-col gap-6">
+        {pairs.map(([i, j]) => {
+          const parentI = parents[i]!;
+          const parentJ = parents[j]!;
 
-        return (
-          <Field
-            key={`partnership-${i}-${j}`}
-            name={`partnership-${i}-${j}`}
-            label={`Are ${getParentLabel(parents[i])} and ${getParentLabel(parents[j])} partners?`}
-            hint={
-              <>
-                <Paragraph>
-                  This includes current and past romantic partnerships, but{' '}
-                  <strong>not co-parenting partnerships</strong> where the
-                  parents were never romantically involved.
-                </Paragraph>
-                <Paragraph>
-                  If either parent is <strong>deceased</strong>, please answer
-                  based on whether they were partners while both were alive.
-                </Paragraph>
-              </>
-            }
-            component={RadioGroupField}
-            options={partnershipOptions}
-            initialValue={initialValue}
-          />
-        );
-      })}
-    </div>
+          return (
+            <Field
+              key={`partnership-${parentI.id}-${parentJ.id}`}
+              name={`partnership-${parentI.id}-${parentJ.id}`}
+              label={`Are ${getParentLabel(parentI, i)} and ${getParentLabel(parentJ, j)} partners?`}
+              component={RadioGroupField}
+              options={partnershipOptions}
+              required
+            />
+          );
+        })}
+      </div>
+    </>
   );
 }

@@ -1,7 +1,6 @@
 /**
  * Composes multiple event handlers into a single handler.
- * The internal handler runs first, then the external handler runs
- * unless the event's default was prevented.
+ * Both handlers always run regardless of whether one prevents default.
  *
  * @param internal - The internal/default handler
  * @param external - The external/user-provided handler
@@ -15,12 +14,6 @@ export function composeEventHandlers<E>(
 
   return (event: E) => {
     internal?.(event);
-
-    // Only call external if default wasn't prevented
-    if (
-      !(event as unknown as { defaultPrevented?: boolean }).defaultPrevented
-    ) {
-      external?.(event);
-    }
+    external?.(event);
   };
 }

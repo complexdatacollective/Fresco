@@ -21,7 +21,7 @@ import { motion } from 'motion/react';
  *   Gen 2:  (Sib)  [Ego]  (Sib)       y = 1100
  */
 
-const BASE_DELAY = 0.5;
+const BASE_DELAY = 0.15;
 
 const draw = (delay: number) => ({
   initial: { pathLength: 0 },

@@ -115,7 +115,12 @@ describe('FormStore', () => {
       expect(store.getState().getFieldState('email')).toBeDefined();
 
       store.getState().unregisterField('email');
-      expect(store.getState().getFieldState('email')).toBeUndefined();
+      // Field is no longer in the active fields Map
+      expect(store.getState().fields.has('email')).toBe(false);
+      // But getFieldState returns a synthetic state from dormant values
+      expect(store.getState().getFieldState('email')?.value).toBe(
+        'test@example.com',
+      );
     });
 
     it('should not error when unregistering non-existent field', () => {
@@ -1026,7 +1031,7 @@ describe('FormStore', () => {
     let persistentStore: ReturnType<typeof createFormStore>;
 
     beforeEach(() => {
-      persistentStore = createFormStore({ persistFieldValues: true });
+      persistentStore = createFormStore();
       vi.clearAllMocks();
     });
 
@@ -1040,10 +1045,15 @@ describe('FormStore', () => {
       persistentStore.getState().unregisterField('email');
 
       // Field should be removed from active fields
-      expect(persistentStore.getState().getFieldState('email')).toBeUndefined();
+      expect(persistentStore.getState().fields.has('email')).toBe(false);
 
-      // But dormantValues should have the value
-      expect(persistentStore.getState().dormantValues.get('email')).toBe(
+      // getFieldState returns synthetic state from dormant values
+      expect(persistentStore.getState().getFieldState('email')?.value).toBe(
+        'changed@example.com',
+      );
+
+      // dormantValues should have the value
+      expect(persistentStore.getState().dormantValues.get('email')?.value).toBe(
         'changed@example.com',
       );
     });
@@ -1099,8 +1109,7 @@ describe('FormStore', () => {
       expect(field?.value).toBe('fresh-value');
     });
 
-    it('should NOT save dormant values when persistence is disabled', () => {
-      // Use the default store (no persistence)
+    it('should always save dormant values when unregistering', () => {
       store.getState().registerField({
         name: 'email',
         initialValue: 'initial@example.com',
@@ -1109,7 +1118,9 @@ describe('FormStore', () => {
       store.getState().setFieldValue('email', 'changed@example.com');
       store.getState().unregisterField('email');
 
-      expect(store.getState().dormantValues.size).toBe(0);
+      expect(store.getState().dormantValues.get('email')?.value).toBe(
+        'changed@example.com',
+      );
     });
 
     it('should clear dormantValues on form reset', () => {

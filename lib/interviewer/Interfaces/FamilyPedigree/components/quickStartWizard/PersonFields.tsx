@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
 import { useSelector } from 'react-redux';
 import Field from '~/lib/form/components/Field/Field';
 import { type FieldValue } from '~/lib/form/components/Field/types';
-import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
+import FieldGroup from '~/lib/form/components/FieldGroup';
+import FieldNamespace from '~/lib/form/components/FieldNamespace';
 import InputField from '~/lib/form/components/fields/InputField';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import ToggleField from '~/lib/form/components/fields/ToggleField';
@@ -17,7 +17,7 @@ import {
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 
 type PersonFieldsProps = {
-  namespace?: string;
+  namespace: string;
   initial?: {
     name?: string;
     sex?: string;
@@ -36,10 +36,6 @@ type PersonFieldsProps = {
   nameToggle?: boolean;
 };
 
-function prefixed(namespace: string | undefined, field: string) {
-  return namespace ? `${namespace}-${field}` : field;
-}
-
 export default function PersonFields({
   namespace,
   initial,
@@ -50,7 +46,6 @@ export default function PersonFields({
   const sexOptions = useSelector(getBiologicalSexOptions);
   const nodeType = useSelector(getNodeType);
   const nodeForm = useSelector(getNodeForm);
-  const [nameKnown, setNameKnown] = useState(true);
 
   const { fieldComponents } = useProtocolForm({
     subject: {
@@ -58,39 +53,49 @@ export default function PersonFields({
       type: nodeType,
     },
     fields: nodeForm ?? [],
-    namespace,
     initialValues: initial?.attributes as
       | Record<string, FieldValue>
       | undefined,
   });
 
   return (
-    <>
+    <FieldNamespace prefix={namespace}>
       {nameToggle && (
-        <UnconnectedField
+        <Field
           inline
-          name={prefixed(namespace, 'nameKnown')}
+          name="name-known"
           label="I know this person's name"
           component={ToggleField}
-          value={nameKnown}
-          onChange={(v) => {
-            setNameKnown(v ?? false);
-          }}
+          initialValue={true}
         />
       )}
-      {nameKnown && (
+      {nameToggle ? (
+        <FieldGroup
+          watch={['name-known']}
+          condition={(values) => values['name-known'] === true}
+        >
+          <Field
+            name="name"
+            label="Name"
+            component={InputField}
+            placeholder={namePlaceholder}
+            autoFocus
+            initialValue={initial?.name ?? ''}
+            required
+          />
+        </FieldGroup>
+      ) : (
         <Field
-          name={prefixed(namespace, 'name')}
+          name="name"
           label="Name"
           component={InputField}
           placeholder={namePlaceholder}
-          autoFocus
           initialValue={initial?.name ?? ''}
           required
         />
       )}
       <Field
-        name={prefixed(namespace, 'sex')}
+        name="sex-at-birth"
         label="Sex assigned at birth"
         component={RadioGroupField}
         options={sexOptions}
@@ -100,6 +105,6 @@ export default function PersonFields({
         validateOnChange
       />
       {fieldComponents}
-    </>
+    </FieldNamespace>
   );
 }

@@ -57,9 +57,9 @@ const ActionButton = forwardRef<HTMLButtonElement, ActionButtonProps>(
   ({ iconName = 'add-a-person', className, disabled, ...rest }, ref) => {
     return (
       <button
+        aria-label="Add a person"
         ref={ref}
         {...rest}
-        aria-label="Add a person"
         className={cx(actionButtonVariants({ disabled }), className)}
       >
         <div className={mainIconVariants({ disabled })}>
