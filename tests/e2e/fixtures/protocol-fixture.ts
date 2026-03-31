@@ -414,6 +414,87 @@ export class ProtocolFixture {
   }
 
   /**
+   * Wait for a node with a specific name to exist in the database.
+   * Polls the database until a node whose attributes contain `nodeName` is found.
+   *
+   * @param interviewId - The interview ID to check
+   * @param nodeName - The node name to find (matched against attribute values)
+   * @param options - Optional timeout (default 15s) and polling interval (default 500ms)
+   * @throws Error if the node is not found within the timeout
+   */
+  async waitForNode(
+    interviewId: string,
+    nodeName: string,
+    options: { timeout?: number; interval?: number } = {},
+  ): Promise<void> {
+    const { timeout = 15000, interval = 500 } = options;
+    const startTime = Date.now();
+
+    while (Date.now() - startTime < timeout) {
+      const state = await this.getNetworkState(interviewId);
+      if (
+        state.nodes.some((n) =>
+          Object.values(n.attributes).includes(nodeName),
+        )
+      ) {
+        log('test', `Found node "${nodeName}" in database`);
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, interval));
+    }
+
+    throw new Error(
+      `Timeout waiting for node "${nodeName}" to appear in database after ${timeout}ms`,
+    );
+  }
+
+  /**
+   * Wait for a node attribute to be set in the database.
+   * Polls the database until a node matching `nodeName` has the given attribute
+   * defined (not undefined). Useful for ensuring CategoricalBin, AlterForm, or
+   * OrdinalBin data has synced before a downstream stage that filters on it.
+   *
+   * @param interviewId - The interview ID to check
+   * @param nodeName - The node name to find (matched against attribute values)
+   * @param attributeId - The attribute ID (variable UUID from the protocol)
+   * @param options - Optional timeout (default 15s) and polling interval (default 500ms)
+   * @throws Error if the attribute is not set within the timeout
+   */
+  async waitForNodeAttribute(
+    interviewId: string,
+    nodeName: string,
+    attributeId: string,
+    options: { timeout?: number; interval?: number } = {},
+  ): Promise<void> {
+    const { timeout = 15000, interval = 500 } = options;
+    const startTime = Date.now();
+
+    while (Date.now() - startTime < timeout) {
+      const state = await this.getNetworkState(interviewId);
+      const node = state.nodes.find((n) =>
+        Object.values(n.attributes).includes(nodeName),
+      );
+      if (node?.attributes[attributeId] != null) {
+        log(
+          'test',
+          `Node "${nodeName}" attribute ${attributeId} = ${JSON.stringify(node.attributes[attributeId])}`,
+        );
+        return;
+      }
+      await new Promise((resolve) => setTimeout(resolve, interval));
+    }
+
+    const finalState = await this.getNetworkState(interviewId);
+    const node = finalState.nodes.find((n) =>
+      Object.values(n.attributes).includes(nodeName),
+    );
+    throw new Error(
+      `Timeout waiting for node "${nodeName}" attribute ${attributeId} to be set. ` +
+        `Node found: ${!!node}, attribute value: ${JSON.stringify(node?.attributes[attributeId])} after ${timeout}ms`,
+    );
+  }
+
+  /**
    * Log the current network state for debugging.
    */
   async logNetworkState(interviewId: string): Promise<void> {

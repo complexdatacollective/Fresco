@@ -114,6 +114,37 @@ class FormFixture {
   }
 
   /**
+   * Select a value on a LikertScale field using keyboard navigation.
+   *
+   * LikertScale renders as a native range input (role="slider") with an
+   * aria-label that reflects the current option. We press Home to go to
+   * index 0, then ArrowRight until the aria-label matches the target.
+   */
+  async selectLikert(fieldName: string, optionLabel: string): Promise<void> {
+    const field = this.getField(fieldName);
+    const slider = field.getByRole('slider');
+    const max = Number(await slider.getAttribute('max'));
+
+    await slider.focus();
+    await slider.press('Home');
+
+    // Arrow right until we find the target label (max steps = option count)
+    for (let i = 0; i <= max; i++) {
+      const label = await slider.getAttribute('aria-label');
+      if (label?.includes(optionLabel)) {
+        return;
+      }
+      await slider.press('ArrowRight');
+    }
+
+    const finalLabel = await slider.getAttribute('aria-label');
+    throw new Error(
+      `LikertScale option "${optionLabel}" not found in field ${fieldName}. ` +
+        `Final aria-label: "${finalLabel}"`,
+    );
+  }
+
+  /**
    * Select a specific option within a ToggleButtonGroup.
    * ToggleButtonGroup renders options as checkboxes.
    */
@@ -949,6 +980,172 @@ class NodePanelFixture {
 }
 
 /**
+ * Placeholder fixture for DyadCensus stages.
+ *
+ * DyadCensus iterates through all node pairs with a binary Yes/No choice
+ * to create edges. Has an introduction panel and auto-advances (350ms)
+ * after each selection.
+ *
+ * TODO: Implement interaction methods:
+ * - dismissIntro() — click next to dismiss intro panel
+ * - selectYes() / selectNo() — click boolean option
+ * - getPairLabels() — get the two node labels currently displayed
+ * - waitForAutoAdvance() — wait for 350ms auto-advance
+ */
+class DyadCensusFixture {
+  readonly page: Page;
+
+  constructor(page: Page) {
+    this.page = page;
+  }
+}
+
+/**
+ * Placeholder fixture for TieStrengthCensus stages.
+ *
+ * Similar to DyadCensus but with multiple ordinal options instead of
+ * binary Yes/No. Creates/updates edges with an ordinal attribute value.
+ * Has introduction panel and auto-advances (350ms).
+ *
+ * TODO: Implement interaction methods:
+ * - dismissIntro() — click next to dismiss intro panel
+ * - selectOption(label) — click an ordinal option button
+ * - selectNegative() — click the negative/no option
+ * - getPairLabels() — get the two node labels currently displayed
+ * - waitForAutoAdvance() — wait for 350ms auto-advance
+ */
+class TieStrengthCensusFixture {
+  readonly page: Page;
+
+  constructor(page: Page) {
+    this.page = page;
+  }
+}
+
+/**
+ * Placeholder fixture for OneToManyDyadCensus stages.
+ *
+ * Shows one source node and a grid of target nodes. Users click targets
+ * to toggle edges. No introduction panel, no auto-advance.
+ *
+ * TODO: Implement interaction methods:
+ * - getSourceNode() — get the current source node label
+ * - getTargetNodes() — get all target node locators
+ * - toggleTarget(label) — click a target node to toggle edge
+ * - isTargetSelected(label) — check if a target has an edge to source
+ */
+class OneToManyDyadCensusFixture {
+  readonly page: Page;
+
+  constructor(page: Page) {
+    this.page = page;
+  }
+}
+
+/**
+ * Placeholder fixture for NameGeneratorRoster stages.
+ *
+ * Presents a searchable/sortable roster of pre-defined nodes.
+ * Users select nodes from the roster to add to the network.
+ *
+ * TODO: Implement interaction methods:
+ * - search(query) — type in the roster filter input
+ * - clearSearch() — clear the filter
+ * - getRosterNode(label) — get a node from the roster panel
+ * - selectRosterNode(label) — click to add node to network
+ * - sort() — toggle sort order
+ */
+class NameGeneratorRosterFixture {
+  readonly page: Page;
+
+  constructor(page: Page) {
+    this.page = page;
+  }
+}
+
+/**
+ * Placeholder fixture for Narrative stages.
+ *
+ * Read-only visualization with optional drawing annotations,
+ * preset switching, convex hulls, and edge display toggles.
+ * Does not mutate the network.
+ *
+ * TODO: Implement interaction methods:
+ * - selectPreset(index) — switch visualization preset
+ * - toggleDrawing() — enable/disable free drawing mode
+ * - toggleEdges() — show/hide edge display
+ * - toggleFreeze() — freeze/unfreeze layout
+ */
+class NarrativeFixture {
+  readonly page: Page;
+
+  constructor(page: Page) {
+    this.page = page;
+  }
+}
+
+/**
+ * Placeholder fixture for Anonymisation stages.
+ *
+ * Collects a passphrase to encrypt participant names marked as
+ * encrypted in the codebook.
+ *
+ * TODO: Implement interaction methods:
+ * - fillPassphrase(value) — fill the passphrase input
+ * - fillConfirmPassphrase(value) — fill the confirm input
+ * - submit() — submit the passphrase form
+ * - isEncrypted() — check if encryption has been applied
+ */
+class AnonymisationFixture {
+  readonly page: Page;
+
+  constructor(page: Page) {
+    this.page = page;
+  }
+}
+
+/**
+ * Placeholder fixture for SlidesForm stages (AlterForm, AlterEdgeForm).
+ *
+ * Manages introduction panel and slide-per-item navigation for form stages
+ * that iterate over nodes (AlterForm) or edges (AlterEdgeForm).
+ * Field interactions are handled by FormFixture.
+ *
+ * TODO: Implement interaction methods:
+ * - dismissIntro() — advance past the introduction panel
+ * - getCurrentItemLabel() — get the label of the current node/edge
+ * - getSlideIndex() — get current slide position
+ * - isOnIntro() — check if intro panel is displayed
+ */
+class SlidesFormFixture {
+  readonly page: Page;
+
+  constructor(page: Page) {
+    this.page = page;
+  }
+}
+
+/**
+ * Placeholder fixture for FamilyPedigree stages.
+ *
+ * Multi-step wizard (15 steps) for building family tree data.
+ * Creates multiple node types and edge types for family relationships.
+ *
+ * TODO: Implement interaction methods:
+ * - getWizardStep() — get current wizard step
+ * - advanceWizard() — advance to next wizard step
+ * - getPedigreeView() — get the pedigree visualization locator
+ * - getNodeCount() — count non-ego nodes in pedigree
+ */
+class FamilyPedigreeFixture {
+  readonly page: Page;
+
+  constructor(page: Page) {
+    this.page = page;
+  }
+}
+
+/**
  * Stage fixture for e2e tests.
  *
  * Handles stage-specific elements and interactions.
@@ -963,6 +1160,14 @@ export class StageFixture {
   readonly ordinalBin: OrdinalBinFixture;
   readonly categoricalBin: CategoricalBinFixture;
   readonly geospatial: GeospatialFixture;
+  readonly dyadCensus: DyadCensusFixture;
+  readonly tieStrengthCensus: TieStrengthCensusFixture;
+  readonly oneToManyDyadCensus: OneToManyDyadCensusFixture;
+  readonly nameGeneratorRoster: NameGeneratorRosterFixture;
+  readonly narrative: NarrativeFixture;
+  readonly anonymisation: AnonymisationFixture;
+  readonly slidesForm: SlidesFormFixture;
+  readonly familyPedigree: FamilyPedigreeFixture;
 
   constructor(page: Page) {
     this.page = page;
@@ -974,6 +1179,14 @@ export class StageFixture {
     this.ordinalBin = new OrdinalBinFixture(page);
     this.categoricalBin = new CategoricalBinFixture(page);
     this.geospatial = new GeospatialFixture(page);
+    this.dyadCensus = new DyadCensusFixture(page);
+    this.tieStrengthCensus = new TieStrengthCensusFixture(page);
+    this.oneToManyDyadCensus = new OneToManyDyadCensusFixture(page);
+    this.nameGeneratorRoster = new NameGeneratorRosterFixture(page);
+    this.narrative = new NarrativeFixture(page);
+    this.anonymisation = new AnonymisationFixture(page);
+    this.slidesForm = new SlidesFormFixture(page);
+    this.familyPedigree = new FamilyPedigreeFixture(page);
   }
 
   /**

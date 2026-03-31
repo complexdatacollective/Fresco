@@ -403,8 +403,13 @@ The `protocol` fixture is available in interview tests (import from `fixtures/in
 **Network State Inspection (for debugging):**
 
 - `protocol.getNetworkState(interviewId)` — Get current network state from the database (`nodes`, `edges`, `ego`, `currentStep`).
-- `protocol.waitForNodes(interviewId, expectedCount, options?)` — Poll the database until `expectedCount` nodes exist. Useful for waiting for client-server sync.
+- `protocol.waitForNodes(interviewId, expectedCount, options?)` — Poll the database until `expectedCount` nodes exist.
+- `protocol.waitForNode(interviewId, nodeName, options?)` — Poll the database until a node with a specific name exists.
+- `protocol.waitForNodeAttribute(interviewId, nodeName, attributeId, options?)` — Poll the database until a node has a non-null attribute. Use after CategoricalBin/OrdinalBin/AlterForm stages with downstream skip logic.
+- `protocol.waitForEgoAttribute(interviewId, attributeId, expectedValue, options?)` — Poll the database until an ego attribute matches the expected value. Use after EgoForm stages with downstream skip logic.
 - `protocol.logNetworkState(interviewId)` — Log the current network state for debugging.
+
+**Important**: Form stages (EgoForm, AlterForm) store data in React Hook Form's local state until submitted. Tests must click `interview.nextButton` at the end of form stages to flush data to Redux before any persistence wait can succeed.
 
 Cleanup is automatic — no `afterAll` needed.
 

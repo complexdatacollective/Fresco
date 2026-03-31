@@ -43,8 +43,8 @@ test.describe('SILOS Protocol', () => {
       const stepMatch = /step=(\d+)/.exec(page.url());
       if (stepMatch?.[1]) {
         const step = stepMatch[1];
-        // Sociogram stages (13, 14) have non-deterministic node positions
-        const sociogramStages = ['13', '14'];
+        // Sociogram stages have non-deterministic node positions
+        const sociogramStages = ['13', '14', '41'];
 
         await interview.capture(`stage-${step}-final`, {
           maxDiffPixelRatio: sociogramStages.includes(step) ? 0.1 : undefined,
@@ -111,7 +111,7 @@ test.describe('SILOS Protocol', () => {
       await expect(stage.getNode('Me')).toBeVisible();
       await expect(interview.nextButton).toBeEnabled();
 
-      // Wait for sync middleware to persist the node to database
+      // Wait for the "Me" node to be persisted to the database
       await protocol.waitForNodes(interview.interviewId, 1);
     });
 
@@ -187,7 +187,8 @@ test.describe('SILOS Protocol', () => {
         'HIV Negative',
       );
 
-      await expect(interview.nextButton).toBeEnabled();
+      // Submit form to flush data to Redux
+      await interview.nextButton.click();
     });
 
     // Stages 4-5 are skipped (conditional on Female sex assigned at birth)
@@ -229,7 +230,8 @@ test.describe('SILOS Protocol', () => {
         'Gay',
       );
 
-      await expect(interview.nextButton).toBeEnabled();
+      // Submit form to flush data to Redux
+      await interview.nextButton.click();
     });
 
     test('Stage 7: Map Selection Information', async ({ page, interview }) => {
@@ -410,7 +412,8 @@ test.describe('SILOS Protocol', () => {
         'No',
       );
 
-      await expect(interview.nextButton).toBeEnabled();
+      // Submit form to flush data to Redux
+      await interview.nextButton.click();
     });
 
     test('Stage 10: Name Generator Instructions', async ({
@@ -529,22 +532,12 @@ test.describe('SILOS Protocol', () => {
 
       await expect(interview.nextButton).toBeEnabled();
 
-      // Wait for sync middleware to persist the addNodeToPrompt update to database.
-      // waitForNodes(3) is insufficient because the 3 nodes already existed before the
-      // drag — the drag only updates Alice's promptIDs and additional attributes.
-      // Poll until Alice has 2 promptIDs (close ties + drug prompt).
-      await expect
-        .poll(
-          async () => {
-            const state = await protocol.getNetworkState(interview.interviewId);
-            const alice = state.nodes.find((n) =>
-              Object.values(n.attributes).includes('Alice'),
-            );
-            return alice?.attributes['45032017-155e-4499-9e7f-2abbfc6cc441'];
-          },
-          { timeout: 15000, intervals: [500] },
-        )
-        .toBe(true);
+      // Wait for Alice's drug attribute to be set (dragged to drug prompt)
+      await protocol.waitForNodeAttribute(
+        interview.interviewId,
+        'Alice',
+        '45032017-155e-4499-9e7f-2abbfc6cc441',
+      );
     });
 
     test('Stage 12: Sex Partner Nomination', async ({
@@ -590,21 +583,8 @@ test.describe('SILOS Protocol', () => {
 
       await expect(interview.nextButton).toBeEnabled();
 
-      // Wait for sync middleware to persist Evan to the database.
-      // waitForNodes(4) is insufficient because it checks count, not content —
-      // addNodeToPrompt for Bob may trigger a sync that satisfies the count
-      // before Evan's creation is persisted.
-      await expect
-        .poll(
-          async () => {
-            const state = await protocol.getNetworkState(interview.interviewId);
-            return state.nodes.some((n) =>
-              Object.values(n.attributes).includes('Evan'),
-            );
-          },
-          { timeout: 15000, intervals: [500] },
-        )
-        .toBe(true);
+      // Wait for Evan node to be persisted to the database
+      await protocol.waitForNode(interview.interviewId, 'Evan');
     });
 
     test('Stage 13: Sociogram (Close Ties and Drug Partners)', async ({
@@ -873,6 +853,988 @@ test.describe('SILOS Protocol', () => {
 
       await expect(interview.nextButton).toBeEnabled();
     });
+
+    test('Stage 17: Lives in City', async ({ interview, stage, protocol }) => {
+      await interview.goto(17);
+
+      // Verify prompt is visible
+      await expect(stage.getPrompt()).toBeVisible();
+
+      // Verify category bins
+      await expect(
+        stage.categoricalBin.getBin('Yes, lives in Chicago'),
+      ).toBeVisible();
+      await expect(
+        stage.categoricalBin.getBin('No, does not live in Chicago'),
+      ).toBeVisible();
+
+      // Drag nodes to bins — Dan and Alice live in Chicago, Bob and Evan do not
+      await stage.categoricalBin.dragNodeToBin(
+        'Dan',
+        'Yes, lives in Chicago',
+      );
+      await stage.categoricalBin.dragNodeToBin(
+        'Alice',
+        'Yes, lives in Chicago',
+      );
+      await stage.categoricalBin.dragNodeToBin(
+        'Bob',
+        'No, does not live in Chicago',
+      );
+      await stage.categoricalBin.dragNodeToBin(
+        'Evan',
+        'No, does not live in Chicago',
+      );
+
+      // Verify counts
+      expect(
+        await stage.categoricalBin.getNodeCountInBin('Yes, lives in Chicago'),
+      ).toBe(2);
+      expect(
+        await stage.categoricalBin.getNodeCountInBin(
+          'No, does not live in Chicago',
+        ),
+      ).toBe(2);
+
+      await expect(interview.nextButton).toBeEnabled();
+
+      // Wait for Evan's city resident attribute to be persisted
+      await protocol.waitForNodeAttribute(
+        interview.interviewId,
+        'Evan',
+        'e2684ae9-fb88-4f9d-90a7-861911f0f22f',
+      );
+    });
+
+    test('Stage 18: Alter Census Tract - Introduction', async ({
+      page,
+      interview,
+    }) => {
+      await interview.goto(18);
+
+      await expect(
+        page.getByRole('heading', { name: 'Map Selection' }),
+      ).toBeVisible();
+
+      const video = page.locator('video');
+      await expect(video).toBeVisible();
+
+      await expect(interview.nextButton).toBeEnabled();
+    });
+
+    test('Stage 19: Alter Census Tract (Geospatial)', async ({
+      interview,
+      stage,
+      browserName,
+    }) => {
+      test.skip(
+        browserName === 'firefox',
+        'Firefox lacks WebGL support in Playwright',
+      );
+
+      await interview.goto(19);
+
+      // This geospatial stage iterates over nodes that live in Chicago (Dan, Alice)
+      await expect(stage.getPrompt()).toBeVisible();
+      await expect(stage.geospatial.mapContainer).toBeVisible();
+
+      // Wait for map to load
+      await stage.geospatial.waitForMapLoad();
+
+      // Click on map to select an area for the first node
+      await stage.geospatial.clickOnMap(0.5, 0.5);
+
+      // Wait for pulse to indicate selection
+      await expect
+        .poll(() => interview.nextButtonHasPulse(), { timeout: 5000 })
+        .toBe(true);
+
+      await expect(interview.nextButton).toBeEnabled();
+    });
+
+    test('Stage 20: Sex Partners and Activity - Introduction', async ({
+      page,
+      interview,
+    }) => {
+      await interview.goto(20);
+
+      await expect(
+        page.getByRole('heading', {
+          name: 'Your Sexual Partners and Activity',
+        }),
+      ).toBeVisible();
+
+      await expect(interview.nextButton).toBeEnabled();
+    });
+
+    test('Stage 21: Ego PrEP', async ({ page, interview, stage }) => {
+      await interview.goto(21);
+
+      // Verify the form heading
+      await expect(
+        page.getByRole('heading', { name: 'PrEP Use', level: 1 }),
+      ).toBeVisible();
+
+      // PrEP use (RadioGroup)
+      await stage.form.selectRadio(
+        '3736e8f1-af8c-4594-a1a1-d9a413e7a137',
+        'No',
+      );
+
+      // Submit form to flush data to Redux
+      await interview.nextButton.click();
+    });
+
+    // Stage 22 (Ego ART) is skipped — only shown when HIV status = HIV Positive
+
+    test('Stage 23: Anal Sex Categorical Check', async ({
+      interview,
+      stage,
+      protocol,
+    }) => {
+      await interview.goto(23);
+
+      // This stage only shows sex partners (Bob, Evan)
+      await expect(stage.getPrompt()).toBeVisible();
+
+      // Verify bins
+      await expect(stage.categoricalBin.getBin('Anal sex')).toBeVisible();
+      await expect(stage.categoricalBin.getBin('No anal sex')).toBeVisible();
+
+      // Categorize both sex partners as having had anal sex
+      await stage.categoricalBin.dragNodeToBin('Bob', 'Anal sex');
+      await stage.categoricalBin.dragNodeToBin('Evan', 'Anal sex');
+
+      expect(
+        await stage.categoricalBin.getNodeCountInBin('Anal sex'),
+      ).toBe(2);
+
+      await expect(interview.nextButton).toBeEnabled();
+
+      // Wait for Evan's anal sex attribute to be persisted (last node categorized)
+      await protocol.waitForNodeAttribute(
+        interview.interviewId,
+        'Evan',
+        '9170ac88-7651-4a33-bb03-8393bfc3e023',
+      );
+    });
+
+    test('Stage 24: Anal Sex Counts (AlterForm)', async ({
+      interview,
+      stage,
+    }) => {
+      await interview.goto(24);
+
+      // AlterForm with intro panel — dismiss it
+      await interview.nextButton.click();
+
+      // Slide 1 (first sex partner with anal sex — Bob or Evan)
+      // 1. Number of times anal sex (Number)
+      await stage.form.fillNumber(
+        'a61f8d2d-f3d1-4c4d-9236-34e709effb9f',
+        '5',
+      );
+
+      // 2. Number of times without condom (Number — lessThanVariable validation)
+      await stage.form.fillNumber(
+        '315d540c-92fe-4acd-81c7-0b6ea2dacc17',
+        '2',
+      );
+
+      // Advance to next slide
+      await interview.nextButton.click();
+
+      // Slide 2 (second sex partner with anal sex)
+      await stage.form.fillNumber(
+        'a61f8d2d-f3d1-4c4d-9236-34e709effb9f',
+        '3',
+      );
+      await stage.form.fillNumber(
+        '315d540c-92fe-4acd-81c7-0b6ea2dacc17',
+        '1',
+      );
+
+      // Submit last slide to flush form data to Redux
+      await interview.nextButton.click();
+    });
+
+    test('Stage 25: Sex Partner Form (AlterForm)', async ({
+      interview,
+      stage,
+      protocol,
+    }) => {
+      await interview.goto(25);
+
+      // Dismiss intro panel
+      await interview.nextButton.click();
+
+      // Slide 1 (first sex partner with anal sex)
+      // 1. First day of sex (RelativeDatePicker)
+      await stage.form.fillDate(
+        'c2235691-c828-4138-8602-37d3f047af48',
+        '2025-06-15',
+      );
+
+      // 2. Last day of sex (RelativeDatePicker)
+      await stage.form.fillDate(
+        '5442154c-b098-4801-ad84-80e7e55d7685',
+        '2025-12-15',
+      );
+
+      // 3. Ongoing partner (Boolean)
+      await stage.form.selectRadio(
+        'ce4f028f-31ea-46a9-8564-a7c276d8efed',
+        'Yes',
+      );
+
+      // 4. HIV status — set first partner HIV Negative (RadioGroup)
+      await stage.form.selectRadio(
+        '33e444a9-1605-492d-8c49-216eb08b078a',
+        'HIV Negative',
+      );
+
+      // Advance to next slide
+      await interview.nextButton.click();
+
+      // Slide 2 (second sex partner with anal sex)
+      await stage.form.fillDate(
+        'c2235691-c828-4138-8602-37d3f047af48',
+        '2025-09-01',
+      );
+      await stage.form.fillDate(
+        '5442154c-b098-4801-ad84-80e7e55d7685',
+        '2025-11-30',
+      );
+      await stage.form.selectRadio(
+        'ce4f028f-31ea-46a9-8564-a7c276d8efed',
+        'No',
+      );
+
+      // Set second partner HIV Positive (enables Alter ART stage)
+      await stage.form.selectRadio(
+        '33e444a9-1605-492d-8c49-216eb08b078a',
+        'HIV Positive',
+      );
+
+      // Submit last slide to flush form data to Redux
+      await interview.nextButton.click();
+
+      // Wait for both sex partners' HIV status attributes to be persisted
+      await protocol.waitForNodeAttribute(
+        interview.interviewId,
+        'Bob',
+        '33e444a9-1605-492d-8c49-216eb08b078a',
+      );
+      await protocol.waitForNodeAttribute(
+        interview.interviewId,
+        'Evan',
+        '33e444a9-1605-492d-8c49-216eb08b078a',
+      );
+    });
+
+    test('Stage 26: Alter PrEP (CategoricalBin)', async ({
+      interview,
+      stage,
+    }) => {
+      await interview.goto(26);
+
+      // Only shows partners whose HIV status is NOT HIV Positive
+      // (i.e., the partner we set to HIV Negative)
+      await expect(stage.getPrompt()).toBeVisible();
+
+      // Verify bins
+      await expect(stage.categoricalBin.getBin('Yes')).toBeVisible();
+      await expect(stage.categoricalBin.getBin('No')).toBeVisible();
+
+      // Get unplaced count — should be 1 (only the HIV Negative partner)
+      const unplaced = await stage.categoricalBin.getUnplacedCount();
+      expect(unplaced).toBeGreaterThanOrEqual(1);
+
+      // Categorize the partner
+      const drawerToggle = stage.categoricalBin.drawerToggle;
+      await expect(drawerToggle).toBeVisible();
+
+      // Drag the node to "Yes" bin
+      // The node name depends on which partner was HIV Negative (first in slide order)
+      // Use the first unplaced node from the drawer
+      const firstNode = stage.page
+        .getByRole('button', { name: /Bob|Evan/ })
+        .first();
+      const nodeName = await firstNode.textContent();
+      if (nodeName) {
+        await stage.categoricalBin.dragNodeToBin(nodeName.trim(), 'Yes');
+      }
+
+      await expect(interview.nextButton).toBeEnabled();
+    });
+
+    test('Stage 27: Alter ART (CategoricalBin)', async ({
+      interview,
+      stage,
+    }) => {
+      await interview.goto(27);
+
+      // Only shows partners whose HIV status IS HIV Positive
+      await expect(stage.getPrompt()).toBeVisible();
+
+      await expect(stage.categoricalBin.getBin('Yes')).toBeVisible();
+      await expect(stage.categoricalBin.getBin('No')).toBeVisible();
+
+      const unplaced = await stage.categoricalBin.getUnplacedCount();
+      expect(unplaced).toBeGreaterThanOrEqual(1);
+
+      // Drag the HIV Positive partner to "Yes"
+      const firstNode = stage.page
+        .getByRole('button', { name: /Bob|Evan/ })
+        .first();
+      const nodeName = await firstNode.textContent();
+      if (nodeName) {
+        await stage.categoricalBin.dragNodeToBin(nodeName.trim(), 'Yes');
+      }
+
+      await expect(interview.nextButton).toBeEnabled();
+    });
+
+    test('Stage 28: Alter Substances (AlterForm)', async ({
+      interview,
+      stage,
+    }) => {
+      await interview.goto(28);
+
+      // Dismiss intro panel
+      await interview.nextButton.click();
+
+      // Slide 1 — select substances for first anal sex partner (CheckboxGroup)
+      await stage.form.selectCheckbox(
+        'd76f1663-f491-4aa2-90ee-806e186652b0',
+        'Marijuana',
+      );
+
+      // Advance to next slide
+      await interview.nextButton.click();
+
+      // Slide 2 — select substances for second anal sex partner
+      await stage.form.selectCheckbox(
+        'd76f1663-f491-4aa2-90ee-806e186652b0',
+        'None',
+      );
+
+      // Submit last slide to flush form data to Redux
+      await interview.nextButton.click();
+    });
+
+    test('Stage 29: Sex Partner Place Met (CategoricalBin)', async ({
+      interview,
+      stage,
+      protocol,
+    }) => {
+      await interview.goto(29);
+
+      // Shows anal sex partners — categorize where they were met
+      await expect(stage.getPrompt()).toBeVisible();
+
+      // Verify bins (ToggleButtonGroup-style categories)
+      await expect(
+        stage.categoricalBin.getBin('Online / Mobile App'),
+      ).toBeVisible();
+      await expect(
+        stage.categoricalBin.getBin('Physical place or venue'),
+      ).toBeVisible();
+
+      // Get the two partners and categorize them
+      const unplaced = await stage.categoricalBin.getUnplacedCount();
+      expect(unplaced).toBe(2);
+
+      // Get the first unplaced node and drag to Physical Place
+      const firstNode = stage.page
+        .getByRole('button', { name: /Bob|Evan/ })
+        .first();
+      const firstName = (await firstNode.textContent())?.trim() ?? '';
+      await stage.categoricalBin.dragNodeToBin(
+        firstName,
+        'Physical place or venue',
+      );
+
+      // Get the second unplaced node and drag to Online / Mobile App
+      const secondNode = stage.page
+        .getByRole('button', { name: /Bob|Evan/ })
+        .first();
+      const secondName = (await secondNode.textContent())?.trim() ?? '';
+      await stage.categoricalBin.dragNodeToBin(
+        secondName,
+        'Online / Mobile App',
+      );
+
+      await expect(interview.nextButton).toBeEnabled();
+
+      // Wait for both sex partners' where-met attributes to be persisted
+      await protocol.waitForNodeAttribute(
+        interview.interviewId,
+        'Bob',
+        'c4a28d6c-3b6f-4cc7-a15b-0cff8cfd66d9',
+      );
+      await protocol.waitForNodeAttribute(
+        interview.interviewId,
+        'Evan',
+        'c4a28d6c-3b6f-4cc7-a15b-0cff8cfd66d9',
+      );
+    });
+
+    test('Stage 30: Name Place Met (AlterForm)', async ({
+      interview,
+      stage,
+    }) => {
+      await interview.goto(30);
+
+      // Only shows partners who met at a physical place
+      // Dismiss intro panel
+      await interview.nextButton.click();
+
+      // Fill the venue name (Text)
+      await stage.form.fillText(
+        '052fbe4e-a85e-4dc8-b632-43d3f9462ec2',
+        'The Bar',
+      );
+
+      // Submit last slide to flush form data to Redux
+      await interview.nextButton.click();
+    });
+
+    test('Stage 31: Name App Met (AlterForm)', async ({
+      interview,
+      stage,
+    }) => {
+      await interview.goto(31);
+
+      // Only shows partners who met online
+      // Dismiss intro panel
+      await interview.nextButton.click();
+
+      // Fill the app name (Text)
+      await stage.form.fillText(
+        'b5cd7347-5dce-4a67-8f2b-11dd2b6ead0b',
+        'Grindr',
+      );
+
+      // Submit last slide to flush form data to Redux
+      await interview.nextButton.click();
+    });
+
+    // Stages 32-33 (Poppers and Methamphetamine) are skipped
+    // — conditional on ego Poppers=Yes and Meth=Yes respectively (both set to No in Stage 9)
+
+    test('Stage 34: Venue Nomination Instructions', async ({
+      page,
+      interview,
+    }) => {
+      await interview.goto(34);
+
+      await expect(
+        page.getByRole('heading', { name: 'Places You Go' }),
+      ).toBeVisible();
+
+      const video = page.locator('video');
+      await expect(video).toBeVisible();
+
+      await expect(interview.nextButton).toBeEnabled();
+    });
+
+    test('Stage 35: Venue Nomination - Socialize', async ({
+      interview,
+      stage,
+      protocol,
+    }) => {
+      await interview.goto(35);
+
+      await expect(stage.getPrompt()).toBeVisible();
+
+      // Add 3 venues
+      await stage.quickAdd.addNode('The Bar');
+      await expect(stage.getNode('The Bar')).toBeVisible();
+
+      await stage.quickAdd.addNode('Boystown');
+      await expect(stage.getNode('Boystown')).toBeVisible();
+
+      await stage.quickAdd.addNode('Lakeshore');
+      await expect(stage.getNode('Lakeshore')).toBeVisible();
+
+      await expect(interview.nextButton).toBeEnabled();
+
+      // Wait for 8 total nodes (5 person + 3 venue) to be persisted
+      await protocol.waitForNodes(interview.interviewId, 8);
+    });
+
+    test('Stage 36: Venue Nomination - Meet People', async ({
+      interview,
+      stage,
+      protocol,
+    }) => {
+      await interview.goto(36);
+
+      await expect(stage.getPrompt()).toBeVisible();
+
+      // Side panel should show previously added venues
+      await expect(stage.nodePanel.panel).toBeVisible();
+      await expect(stage.nodePanel.getNode('The Bar')).toBeVisible();
+
+      // Add a new venue
+      await stage.quickAdd.addNode('Club X');
+      await expect(stage.getNode('Club X')).toBeVisible();
+
+      await expect(interview.nextButton).toBeEnabled();
+
+      // Wait for 9 total nodes (5 person + 4 venue) to be persisted
+      await protocol.waitForNodes(interview.interviewId, 9);
+    });
+
+    test('Stage 37: Venue Frequency (OrdinalBin)', async ({
+      interview,
+      stage,
+    }) => {
+      await interview.goto(37);
+
+      await expect(stage.getPrompt()).toBeVisible();
+
+      // Verify bins match codebook options for venue_freq
+      await expect(
+        stage.page.getByRole('heading', {
+          name: 'Daily',
+          level: 4,
+          exact: true,
+        }),
+      ).toBeVisible();
+      await expect(
+        stage.page.getByRole('heading', {
+          name: 'Weekly',
+          level: 4,
+          exact: true,
+        }),
+      ).toBeVisible();
+
+      // Should have 4 venue nodes unplaced
+      const unplaced = await stage.ordinalBin.getUnplacedCount();
+      expect(unplaced).toBe(4);
+
+      // Place venues into bins (round-robin)
+      await stage.ordinalBin.dragNodeToBin('The Bar', 'Weekly');
+      await stage.ordinalBin.dragNodeToBin('Boystown', 'Monthly');
+      await stage.ordinalBin.dragNodeToBin('Lakeshore', 'Daily');
+      await stage.ordinalBin.dragNodeToBin('Club X', 'Less Than Monthly');
+
+      // Verify all placed
+      expect(await stage.ordinalBin.getUnplacedCount()).toBe(0);
+
+      await expect(interview.nextButton).toBeEnabled();
+    });
+
+    test('Stage 38: Venue Type (CategoricalBin)', async ({
+      interview,
+      stage,
+    }) => {
+      await interview.goto(38);
+
+      await expect(stage.getPrompt()).toBeVisible();
+
+      // Verify bins
+      await expect(stage.categoricalBin.getBin('Bar/Club')).toBeVisible();
+      await expect(
+        stage.categoricalBin.getBin('Restaurant/Coffee Shop'),
+      ).toBeVisible();
+
+      // Categorize venues
+      await stage.categoricalBin.dragNodeToBin('The Bar', 'Bar/Club');
+      await stage.categoricalBin.dragNodeToBin(
+        'Boystown',
+        'Restaurant/Coffee Shop',
+      );
+      await stage.categoricalBin.dragNodeToBin(
+        'Lakeshore',
+        'Park/Neighborhood',
+      );
+      await stage.categoricalBin.dragNodeToBin('Club X', 'Bar/Club');
+
+      expect(
+        await stage.categoricalBin.getNodeCountInBin('Bar/Club'),
+      ).toBe(2);
+
+      await expect(interview.nextButton).toBeEnabled();
+    });
+
+    test('Stage 39: Venue Census Tract - Introduction', async ({
+      page,
+      interview,
+    }) => {
+      await interview.goto(39);
+
+      await expect(
+        page.getByRole('heading', { name: 'Map Selection' }),
+      ).toBeVisible();
+
+      const video = page.locator('video');
+      await expect(video).toBeVisible();
+
+      await expect(interview.nextButton).toBeEnabled();
+    });
+
+    test('Stage 40: Venue Census Tract (Geospatial)', async ({
+      interview,
+      stage,
+      browserName,
+    }) => {
+      test.skip(
+        browserName === 'firefox',
+        'Firefox lacks WebGL support in Playwright',
+      );
+
+      await interview.goto(40);
+
+      await expect(stage.getPrompt()).toBeVisible();
+      await expect(stage.geospatial.mapContainer).toBeVisible();
+
+      await stage.geospatial.waitForMapLoad();
+
+      // Click on map to select area for first venue
+      await stage.geospatial.clickOnMap(0.5, 0.5);
+
+      await expect
+        .poll(() => interview.nextButtonHasPulse(), { timeout: 5000 })
+        .toBe(true);
+
+      await expect(interview.nextButton).toBeEnabled();
+    });
+
+    test('Stage 41: Venue Attributes (Sociogram - LGBTQ highlighting)', async ({
+      interview,
+      stage,
+    }) => {
+      // Sociogram has non-deterministic force-directed node layout
+      await interview.goto(41, { maxDiffPixelRatio: 0.1 });
+
+      await expect(stage.getPrompt()).toBeVisible();
+
+      // Verify venue nodes are visible on canvas
+      await expect(stage.sociogram.getNode('The Bar')).toBeVisible();
+      await expect(stage.sociogram.getNode('Boystown')).toBeVisible();
+      await expect(stage.sociogram.getNode('Lakeshore')).toBeVisible();
+      await expect(stage.sociogram.getNode('Club X')).toBeVisible();
+
+      // Highlight LGBTQ venues
+      await stage.sociogram.toggleHighlight('The Bar');
+      await expect(stage.sociogram.getNode('The Bar')).toHaveAttribute(
+        'data-node-highlighted',
+        'true',
+      );
+
+      await stage.sociogram.toggleHighlight('Club X');
+      await expect(stage.sociogram.getNode('Club X')).toHaveAttribute(
+        'data-node-highlighted',
+        'true',
+      );
+
+      await expect(interview.nextButton).toBeEnabled();
+    });
+
+    test('Stage 42: Venue - Heavy Drinking (OrdinalBin)', async ({
+      interview,
+      stage,
+    }) => {
+      await interview.goto(42);
+
+      await expect(stage.getPrompt()).toBeVisible();
+
+      // Verify bins match venue_heavy_drinking options
+      await expect(
+        stage.page.getByRole('heading', {
+          name: 'Very Common',
+          level: 4,
+          exact: true,
+        }),
+      ).toBeVisible();
+
+      // Place all venues
+      await stage.ordinalBin.dragNodeToBin('The Bar', 'Very Common');
+      await stage.ordinalBin.dragNodeToBin('Boystown', 'Somewhat Common');
+      await stage.ordinalBin.dragNodeToBin('Lakeshore', 'Not At All Common');
+      await stage.ordinalBin.dragNodeToBin('Club X', 'Very Common');
+
+      expect(await stage.ordinalBin.getUnplacedCount()).toBe(0);
+
+      await expect(interview.nextButton).toBeEnabled();
+    });
+
+    test('Stage 43: Venue - Substance Use (OrdinalBin)', async ({
+      interview,
+      stage,
+    }) => {
+      await interview.goto(43);
+
+      await expect(stage.getPrompt()).toBeVisible();
+
+      await stage.ordinalBin.dragNodeToBin('The Bar', 'Very Common');
+      await stage.ordinalBin.dragNodeToBin('Boystown', 'Not At All Common');
+      await stage.ordinalBin.dragNodeToBin('Lakeshore', 'Not At All Common');
+      await stage.ordinalBin.dragNodeToBin('Club X', 'Somewhat Common');
+
+      expect(await stage.ordinalBin.getUnplacedCount()).toBe(0);
+
+      await expect(interview.nextButton).toBeEnabled();
+    });
+
+    test('Stage 44: Venue - Meet for Sex (OrdinalBin)', async ({
+      interview,
+      stage,
+    }) => {
+      await interview.goto(44);
+
+      await expect(stage.getPrompt()).toBeVisible();
+
+      await stage.ordinalBin.dragNodeToBin('The Bar', 'Somewhat Common');
+      await stage.ordinalBin.dragNodeToBin('Boystown', 'Not At All Common');
+      await stage.ordinalBin.dragNodeToBin('Lakeshore', 'Not At All Common');
+      await stage.ordinalBin.dragNodeToBin('Club X', 'Very Common');
+
+      expect(await stage.ordinalBin.getUnplacedCount()).toBe(0);
+
+      await expect(interview.nextButton).toBeEnabled();
+    });
+
+    test('Stage 45: App Instructions', async ({ page, interview }) => {
+      await interview.goto(45);
+
+      await expect(
+        page.getByRole('heading', { name: 'Apps and Websites You Use' }),
+      ).toBeVisible();
+
+      const video = page.locator('video');
+      await expect(video).toBeVisible();
+
+      await expect(interview.nextButton).toBeEnabled();
+    });
+
+    test('Stage 46: App Nomination', async ({
+      interview,
+      stage,
+      protocol,
+    }) => {
+      await interview.goto(46);
+
+      await expect(stage.getPrompt()).toBeVisible();
+
+      // Add apps
+      await stage.quickAdd.addNode('Grindr');
+      await expect(stage.getNode('Grindr')).toBeVisible();
+
+      await stage.quickAdd.addNode('Scruff');
+      await expect(stage.getNode('Scruff')).toBeVisible();
+
+      await expect(interview.nextButton).toBeEnabled();
+
+      // Wait for 11 total nodes (5 person + 4 venue + 2 app) to be persisted
+      await protocol.waitForNodes(interview.interviewId, 11);
+    });
+
+    test('Stage 47: Healthcare Access (EgoForm)', async ({
+      page,
+      interview,
+      stage,
+      protocol,
+    }) => {
+      await interview.goto(47);
+
+      await expect(
+        page.getByRole('heading', { name: 'Healthcare Access', level: 1 }),
+      ).toBeVisible();
+
+      // Select Yes — enables healthcare nomination stage
+      await stage.form.selectRadio(
+        '606361d0-6c1d-4763-b3f0-e8c122a08a68',
+        'Yes',
+      );
+
+      // Submit form to flush data to Redux
+      await interview.nextButton.click();
+
+      // Wait for ego healthcare access field (true) to be persisted
+      await protocol.waitForEgoAttribute(
+        interview.interviewId,
+        '606361d0-6c1d-4763-b3f0-e8c122a08a68',
+        true,
+      );
+    });
+
+    test('Stage 48: Healthcare Nomination', async ({
+      interview,
+      stage,
+      protocol,
+    }) => {
+      await interview.goto(48);
+
+      await expect(stage.getPrompt()).toBeVisible();
+
+      // Add a healthcare provider
+      await stage.quickAdd.addNode('Howard Brown');
+      await expect(stage.getNode('Howard Brown')).toBeVisible();
+
+      await expect(interview.nextButton).toBeEnabled();
+
+      // Wait for 12 total nodes (5 person + 4 venue + 2 app + 1 healthcare) to be persisted
+      await protocol.waitForNodes(interview.interviewId, 12);
+    });
+
+    test('Stage 49: Healthcare Census Tract - Information', async ({
+      page,
+      interview,
+    }) => {
+      await interview.goto(49);
+
+      await expect(
+        page.getByRole('heading', { name: 'Healthcare Access' }),
+      ).toBeVisible();
+
+      const video = page.locator('video');
+      await expect(video).toBeVisible();
+
+      await expect(interview.nextButton).toBeEnabled();
+    });
+
+    test('Stage 50: Healthcare Census Tract (Geospatial)', async ({
+      interview,
+      stage,
+      browserName,
+    }) => {
+      test.skip(
+        browserName === 'firefox',
+        'Firefox lacks WebGL support in Playwright',
+      );
+
+      await interview.goto(50);
+
+      await expect(stage.getPrompt()).toBeVisible();
+      await expect(stage.geospatial.mapContainer).toBeVisible();
+
+      await stage.geospatial.waitForMapLoad();
+
+      // Click on map to select area for the healthcare provider
+      await stage.geospatial.clickOnMap(0.5, 0.5);
+
+      await expect
+        .poll(() => interview.nextButtonHasPulse(), { timeout: 5000 })
+        .toBe(true);
+
+      await expect(interview.nextButton).toBeEnabled();
+    });
+
+    test('Stage 51: Social Support - Introduction', async ({
+      page,
+      interview,
+    }) => {
+      await interview.goto(51);
+
+      await expect(
+        page.getByRole('heading', {
+          name: 'Your Thoughts and Feelings',
+        }),
+      ).toBeVisible();
+
+      await expect(interview.nextButton).toBeEnabled();
+    });
+
+    test('Stage 52: Ego Social Support (EgoForm)', async ({
+      page,
+      interview,
+      stage,
+    }) => {
+      await interview.goto(52);
+
+      await expect(
+        page.getByRole('heading', { name: 'About You', level: 1 }),
+      ).toBeVisible();
+
+      // Verify validation blocks advancement (all 12 fields are required)
+      await interview.nextButton.click();
+      await expectURL(page, /step=52/);
+
+      // Verify at least one field error is visible
+      await expect(
+        stage.form.getFieldError('7c2c9953-1d3a-498f-a83d-11b6378213f4'),
+      ).toBeVisible();
+
+      // Fill all 12 LikertScale fields (all required)
+      // 1. PersonInNeed
+      await stage.form.selectLikert(
+        '7c2c9953-1d3a-498f-a83d-11b6378213f4',
+        'Agree',
+      );
+
+      // 2. ShareJoySorrow
+      await stage.form.selectLikert(
+        'c08cb514-c349-4402-a2fb-49e6b238ea06',
+        'Agree',
+      );
+
+      // 3. FamilyHelp
+      await stage.form.selectLikert(
+        '4c7f3cf9-bf6a-4c88-85bd-c2232e4ecfdb',
+        'Neutral',
+      );
+
+      // 4. SourceComfort
+      await stage.form.selectLikert(
+        'd053c8dc-827e-4fa1-8e5f-b2124ac98f64',
+        'Agree',
+      );
+
+      // 5. CountOnFriends
+      await stage.form.selectLikert(
+        '6c7d34c3-ef7e-4fcc-9ff3-4ed299a2ad98',
+        'Strongly Agree',
+      );
+
+      // 6. TalkProblemsFamily
+      await stage.form.selectLikert(
+        'f78cfe68-479d-40b7-81c2-f58a548053e1',
+        'Disagree',
+      );
+
+      // 7. FriendsJoySorrow
+      await stage.form.selectLikert(
+        '7ce13844-b620-4ce6-9baa-714ec97d23a4',
+        'Agree',
+      );
+
+      // 8. CareFeelings
+      await stage.form.selectLikert(
+        'f94a1de6-abbd-48d9-a759-02885718ed71',
+        'Agree',
+      );
+
+      // 9. FamilyHelpDecisions
+      await stage.form.selectLikert(
+        '74ab8125-dade-4b1e-bd3f-63faca51e357',
+        'Neutral',
+      );
+
+      // 10. TalkProblemsFriends
+      await stage.form.selectLikert(
+        'f29caf3b-f90f-48f6-b9a0-6a544f86e5b7',
+        'Agree',
+      );
+
+      // 11. EmotionalSupport
+      await stage.form.selectLikert(
+        '677b1fe2-a15d-4828-bef7-2f0e5fc79b3a',
+        'Neutral',
+      );
+
+      // 12. FriendsTryHelp
+      await stage.form.selectLikert(
+        '0452300a-e807-40a4-9bc5-586bf671d52d',
+        'Strongly Agree',
+      );
+
+      // Submit form to flush data to Redux
+      await interview.nextButton.click();
+    });
   }); // End of Happy Path describe
 
   /**
@@ -930,7 +1892,7 @@ test.describe('SILOS Protocol', () => {
       // Validation released
       expect(await interview.nextButtonHasPulse()).toBe(true);
 
-      // Wait for sync
+      // Wait for the "Me" node to be persisted to the database
       await protocol.waitForNodes(interview.interviewId, 1);
     });
 
@@ -992,18 +1954,17 @@ test.describe('SILOS Protocol', () => {
         'HIV Negative',
       );
 
-      await expect(interview.nextButton).toBeEnabled();
-
-      // Click Next - this submits the form to Redux and triggers navigation.
+      // Submit form to flush data to Redux and trigger navigation
       await interview.nextButton.click();
 
       // Should navigate to stage 4 (sex confirmation)
       await expectURL(page, /step=4/);
 
+      // Wait for last ego field (HIV status) to be persisted
       await protocol.waitForEgoAttribute(
         interview.interviewId,
-        'f3d7559b-3a07-4719-8e4a-1db49d270f7b', // sex assigned at birth
-        ['Female'],
+        'fe681ff5-adaf-40b8-8376-20b5f53c93c7',
+        'HIV_Negative',
       );
     });
 
@@ -1025,17 +1986,16 @@ test.describe('SILOS Protocol', () => {
         'Yes',
       );
 
-      await expect(interview.nextButton).toBeEnabled();
-
-      // Proceed to ineligibility screen
+      // Submit form to flush data to Redux and proceed to ineligibility screen
       await interview.nextButton.click();
 
       // Should navigate to stage 5 (ineligibility)
       await expectURL(page, /step=5/);
 
+      // Wait for ego sex confirmation field (true) to be persisted
       await protocol.waitForEgoAttribute(
         interview.interviewId,
-        'f249c2d1-3f54-49a9-83d8-81e2387df5e5', // sex assigned at birth confirmation
+        'f249c2d1-3f54-49a9-83d8-81e2387df5e5',
         true,
       );
     });
