@@ -42,6 +42,10 @@ const names = [
   'Malik',
   'Yasmin',
   'Ibrahim',
+  'فاطمة',
+  'عمر',
+  'نور',
+  'ياسمين',
 
   // East Asian Origin
   'Wei',
@@ -54,6 +58,12 @@ const names = [
   'Akiko',
   'Xiaoping',
   'Hana',
+  '美咲',
+  '太郎',
+  '서연',
+  '민준',
+  '伟明',
+  '小芳',
 
   // South Asian Origin
   'Priya',
@@ -66,6 +76,10 @@ const names = [
   'Kumar',
   'Zara',
   'Arun',
+  'प्रिया',
+  'अर्जुन',
+  'অনিতা',
+  'রাহুল',
 
   // African Origin
   'Amara',
@@ -78,6 +92,8 @@ const names = [
   'Jabari',
   'Folami',
   'Oluwaseun',
+  'አማራ',
+  'ዘይናብ',
 
   // Latin American & Hispanic Origin
   'Carmen',
@@ -126,6 +142,18 @@ const names = [
   'Phoenix',
   'Eden',
   'Rain',
+
+  // Other Scripts
+  'Ελένη',
+  'Νίκος',
+  'สมชาย',
+  'สุดา',
+  'Նարե',
+  'Արամ',
+  'ნინო',
+  'გიორგი',
+  'Юрий',
+  'Наташа',
 
   // Nordic & Celtic Origin
   'Astrid',
@@ -192,8 +220,9 @@ const EncryptionBackground = ({
   const lastUpdateTimeRef = useRef<number>(0);
 
   useEffect(() => {
-    const initialStreams = Array.from({ length: 40 }, (_, index) =>
-      createStream(index * 6, thresholdPosition),
+    const streamCount = 40;
+    const initialStreams = Array.from({ length: streamCount }, (_, index) =>
+      createStream(-20 + (index * 120) / streamCount, thresholdPosition),
     );
     setStreams(initialStreams);
 
@@ -296,7 +325,7 @@ const EncryptionBackground = ({
 
   return (
     <div
-      className="preserve-3d pointer-events-none absolute inset-0 size-full overflow-hidden text-white/30 select-none"
+      className="preserve-3d pointer-events-none absolute inset-0 size-full overflow-hidden text-white/60 select-none"
       style={{ perspective: '1000px' }}
     >
       {streams.map((stream) => (
@@ -306,7 +335,7 @@ const EncryptionBackground = ({
           style={{
             transform: `translate3d(${stream.x}vw, ${stream.y}vh, 0)`,
             opacity: Math.max(0, Math.min(1, (100 - stream.y) / 50)),
-            color: stream.encrypted ? 'rgb(100, 255, 150, 0.3)' : undefined,
+            color: stream.encrypted ? 'oklch(var(--sea-green))' : undefined,
           }}
         >
           {stream.letters.map((letterState, index) => (
