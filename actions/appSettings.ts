@@ -50,7 +50,11 @@ export async function setAppSetting<
 
     safeUpdateTag(`appSettings-${key}`);
 
-    const REDACTED_KEYS: AppSetting[] = ['uploadThingToken'];
+    const REDACTED_KEYS: AppSetting[] = [
+      'uploadThingToken',
+      's3SecretAccessKey',
+      's3AccessKeyId',
+    ];
     const displayValue = REDACTED_KEYS.includes(key)
       ? '[REDACTED]'
       : String(value);

@@ -15,6 +15,12 @@ const appSettingsSchema = z
     previewModeRequireAuth: z.boolean(),
     freezeInterviewsAfterCompletion: z.boolean(),
     enableInterviewDataApi: z.boolean(),
+    storageProvider: z.enum(['uploadthing', 's3']),
+    s3Endpoint: z.string(),
+    s3Bucket: z.string(),
+    s3Region: z.string(),
+    s3AccessKeyId: z.string(),
+    s3SecretAccessKey: z.string(),
   })
   .strict();
 
@@ -55,6 +61,15 @@ export const appSettingPreprocessedSchema = appSettingsSchema.extend({
     parseBoolean,
     z.boolean().default(false),
   ),
+  storageProvider: z.preprocess(
+    (val) => (typeof val === 'string' ? val : undefined),
+    z.enum(['uploadthing', 's3']).optional(),
+  ),
+  s3Endpoint: z.string().optional(),
+  s3Bucket: z.string().optional(),
+  s3Region: z.string().optional(),
+  s3AccessKeyId: z.string().optional(),
+  s3SecretAccessKey: z.string().optional(),
   uploadThingToken: z.string().optional(),
   installationId: z.string().optional(),
 });
