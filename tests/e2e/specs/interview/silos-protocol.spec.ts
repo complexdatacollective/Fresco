@@ -38,20 +38,6 @@ test.describe('SILOS Protocol', () => {
       interview.interviewId = interviewId;
     });
 
-    test.afterEach(async ({ page, interview }) => {
-      // Capture screenshot at end of each stage
-      const stepMatch = /step=(\d+)/.exec(page.url());
-      if (stepMatch?.[1]) {
-        const step = stepMatch[1];
-        // Sociogram stages have non-deterministic node positions
-        const sociogramStages = ['13', '14', '41'];
-
-        await interview.capture(`stage-${step}-final`, {
-          maxDiffPixelRatio: sociogramStages.includes(step) ? 0.1 : undefined,
-        });
-      }
-    });
-
     test('Stage 0: Welcome', async ({ page, interview }) => {
       await interview.goto(0);
 
@@ -62,6 +48,7 @@ test.describe('SILOS Protocol', () => {
 
       // Information stage - should be able to proceed immediately
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 1: Getting Started', async ({ page, interview }) => {
@@ -77,6 +64,7 @@ test.describe('SILOS Protocol', () => {
 
       // Information stage - should be able to proceed immediately
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 2: Self-Nomination', async ({ interview, stage, protocol }) => {
@@ -113,6 +101,7 @@ test.describe('SILOS Protocol', () => {
 
       // Wait for the "Me" node to be persisted to the database
       await protocol.waitForNodes(interview.interviewId, 1);
+      await interview.next();
     });
 
     test('Stage 3: Ego Information (EgoForm)', async ({
@@ -188,7 +177,7 @@ test.describe('SILOS Protocol', () => {
       );
 
       // Submit form to flush data to Redux
-      await interview.nextButton.click();
+      await interview.next();
     });
 
     // Stages 4-5 are skipped (conditional on Female sex assigned at birth)
@@ -231,7 +220,7 @@ test.describe('SILOS Protocol', () => {
       );
 
       // Submit form to flush data to Redux
-      await interview.nextButton.click();
+      await interview.next();
     });
 
     test('Stage 7: Map Selection Information', async ({ page, interview }) => {
@@ -246,6 +235,7 @@ test.describe('SILOS Protocol', () => {
 
       // Information stage - should be able to proceed immediately
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 8: Geospatial Interface', async ({
@@ -367,6 +357,7 @@ test.describe('SILOS Protocol', () => {
         .toBe(true);
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 9: Ego Substances', async ({ page, interview, stage }) => {
@@ -413,7 +404,7 @@ test.describe('SILOS Protocol', () => {
       );
 
       // Submit form to flush data to Redux
-      await interview.nextButton.click();
+      await interview.next();
     });
 
     test('Stage 10: Name Generator Instructions', async ({
@@ -432,6 +423,7 @@ test.describe('SILOS Protocol', () => {
 
       // Information stage - should be able to proceed immediately
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 11: Name Generator (Close Ties and Drug)', async ({
@@ -538,6 +530,7 @@ test.describe('SILOS Protocol', () => {
         'Alice',
         '45032017-155e-4499-9e7f-2abbfc6cc441',
       );
+      await interview.next();
     });
 
     test('Stage 12: Sex Partner Nomination', async ({
@@ -585,6 +578,15 @@ test.describe('SILOS Protocol', () => {
 
       // Wait for Evan node to be persisted to the database
       await protocol.waitForNode(interview.interviewId, 'Evan');
+
+      // Verify Bob's sex partner attribute was set by the drag
+      await protocol.waitForNodeAttribute(
+        interview.interviewId,
+        'Bob',
+        '1bf37368-5188-49c6-b35f-f0a49706fcb0',
+      );
+
+      await interview.next();
     });
 
     test('Stage 13: Sociogram (Close Ties and Drug Partners)', async ({
@@ -655,9 +657,46 @@ test.describe('SILOS Protocol', () => {
       );
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next({ maxDiffPixelRatio: 0.1 });
     });
 
-    // Stage 14 is Sex Sociogram - skipped if no sex partners nominated
+    test('Stage 14: Sex Sociogram', async ({ interview, stage }) => {
+      // Sociogram has non-deterministic force-directed node layout
+      await interview.goto(14, { maxDiffPixelRatio: 0.1 });
+
+      // Verify prompt is visible (connect sex partners who had sex with each other)
+      await expect(stage.getPrompt()).toBeVisible();
+
+      // Only sex partners should be visible (Bob and Evan)
+      await expect(stage.sociogram.getNode('Bob')).toBeVisible();
+      await expect(stage.sociogram.getNode('Evan')).toBeVisible();
+
+      // No edges initially
+      await expect.poll(() => stage.sociogram.getEdgeCount()).toBe(0);
+
+      // Connect Bob and Evan
+      await stage.sociogram.connectNodes('Bob', 'Evan');
+
+      // Verify edge was created
+      await expect.poll(() => stage.sociogram.getEdgeCount()).toBe(1);
+
+      // --- Proceed to next prompt (serious relationship highlighting) ---
+      await interview.nextButton.click();
+
+      // Verify we're on the second prompt (serious relationship)
+      await expect(stage.getPrompt(/serious relationship/i)).toBeVisible();
+
+      // Highlight Bob as a serious relationship
+      await stage.sociogram.toggleHighlight('Bob');
+
+      await expect(stage.sociogram.getNode('Bob')).toHaveAttribute(
+        'data-node-highlighted',
+        'true',
+      );
+
+      await expect(interview.nextButton).toBeEnabled();
+      await interview.next({ maxDiffPixelRatio: 0.1 });
+    });
 
     test('Stage 15: Ordinal Bins (Relationship Strength)', async ({
       page,
@@ -725,6 +764,7 @@ test.describe('SILOS Protocol', () => {
       );
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 16: Categorical Bins (4 prompts)', async ({
@@ -852,6 +892,7 @@ test.describe('SILOS Protocol', () => {
       expect(await stage.categoricalBin.getNodeCountInBin('Bisexual')).toBe(1);
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 17: Lives in City', async ({ interview, stage, protocol }) => {
@@ -904,6 +945,7 @@ test.describe('SILOS Protocol', () => {
         'Evan',
         'e2684ae9-fb88-4f9d-90a7-861911f0f22f',
       );
+      await interview.next();
     });
 
     test('Stage 18: Alter Census Tract - Introduction', async ({
@@ -920,6 +962,7 @@ test.describe('SILOS Protocol', () => {
       await expect(video).toBeVisible();
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 19: Alter Census Tract (Geospatial)', async ({
@@ -950,6 +993,7 @@ test.describe('SILOS Protocol', () => {
         .toBe(true);
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 20: Sex Partners and Activity - Introduction', async ({
@@ -965,6 +1009,7 @@ test.describe('SILOS Protocol', () => {
       ).toBeVisible();
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 21: Ego PrEP', async ({ page, interview, stage }) => {
@@ -982,7 +1027,7 @@ test.describe('SILOS Protocol', () => {
       );
 
       // Submit form to flush data to Redux
-      await interview.nextButton.click();
+      await interview.next();
     });
 
     // Stage 22 (Ego ART) is skipped — only shown when HIV status = HIV Positive
@@ -1017,6 +1062,7 @@ test.describe('SILOS Protocol', () => {
         'Evan',
         '9170ac88-7651-4a33-bb03-8393bfc3e023',
       );
+      await interview.next();
     });
 
     test('Stage 24: Anal Sex Counts (AlterForm)', async ({
@@ -1055,7 +1101,7 @@ test.describe('SILOS Protocol', () => {
       );
 
       // Submit last slide to flush form data to Redux
-      await interview.nextButton.click();
+      await interview.next();
     });
 
     test('Stage 25: Sex Partner Form (AlterForm)', async ({
@@ -1117,7 +1163,7 @@ test.describe('SILOS Protocol', () => {
       );
 
       // Submit last slide to flush form data to Redux
-      await interview.nextButton.click();
+      await interview.next();
 
       // Wait for both sex partners' HIV status attributes to be persisted
       await protocol.waitForNodeAttribute(
@@ -1166,6 +1212,7 @@ test.describe('SILOS Protocol', () => {
       }
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 27: Alter ART (CategoricalBin)', async ({
@@ -1193,6 +1240,7 @@ test.describe('SILOS Protocol', () => {
       }
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 28: Alter Substances (AlterForm)', async ({
@@ -1220,7 +1268,7 @@ test.describe('SILOS Protocol', () => {
       );
 
       // Submit last slide to flush form data to Redux
-      await interview.nextButton.click();
+      await interview.next();
     });
 
     test('Stage 29: Sex Partner Place Met (CategoricalBin)', async ({
@@ -1278,6 +1326,7 @@ test.describe('SILOS Protocol', () => {
         'Evan',
         'c4a28d6c-3b6f-4cc7-a15b-0cff8cfd66d9',
       );
+      await interview.next();
     });
 
     test('Stage 30: Name Place Met (AlterForm)', async ({
@@ -1297,7 +1346,7 @@ test.describe('SILOS Protocol', () => {
       );
 
       // Submit last slide to flush form data to Redux
-      await interview.nextButton.click();
+      await interview.next();
     });
 
     test('Stage 31: Name App Met (AlterForm)', async ({
@@ -1317,7 +1366,7 @@ test.describe('SILOS Protocol', () => {
       );
 
       // Submit last slide to flush form data to Redux
-      await interview.nextButton.click();
+      await interview.next();
     });
 
     // Stages 32-33 (Poppers and Methamphetamine) are skipped
@@ -1337,6 +1386,7 @@ test.describe('SILOS Protocol', () => {
       await expect(video).toBeVisible();
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 35: Venue Nomination - Socialize', async ({
@@ -1362,6 +1412,7 @@ test.describe('SILOS Protocol', () => {
 
       // Wait for 8 total nodes (5 person + 3 venue) to be persisted
       await protocol.waitForNodes(interview.interviewId, 8);
+      await interview.next();
     });
 
     test('Stage 36: Venue Nomination - Meet People', async ({
@@ -1385,6 +1436,7 @@ test.describe('SILOS Protocol', () => {
 
       // Wait for 9 total nodes (5 person + 4 venue) to be persisted
       await protocol.waitForNodes(interview.interviewId, 9);
+      await interview.next();
     });
 
     test('Stage 37: Venue Frequency (OrdinalBin)', async ({
@@ -1425,6 +1477,7 @@ test.describe('SILOS Protocol', () => {
       expect(await stage.ordinalBin.getUnplacedCount()).toBe(0);
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 38: Venue Type (CategoricalBin)', async ({
@@ -1458,6 +1511,7 @@ test.describe('SILOS Protocol', () => {
       ).toBe(2);
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 39: Venue Census Tract - Introduction', async ({
@@ -1474,6 +1528,7 @@ test.describe('SILOS Protocol', () => {
       await expect(video).toBeVisible();
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 40: Venue Census Tract (Geospatial)', async ({
@@ -1501,6 +1556,7 @@ test.describe('SILOS Protocol', () => {
         .toBe(true);
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 41: Venue Attributes (Sociogram - LGBTQ highlighting)', async ({
@@ -1532,6 +1588,7 @@ test.describe('SILOS Protocol', () => {
       );
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next({ maxDiffPixelRatio: 0.1 });
     });
 
     test('Stage 42: Venue - Heavy Drinking (OrdinalBin)', async ({
@@ -1560,6 +1617,7 @@ test.describe('SILOS Protocol', () => {
       expect(await stage.ordinalBin.getUnplacedCount()).toBe(0);
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 43: Venue - Substance Use (OrdinalBin)', async ({
@@ -1578,6 +1636,7 @@ test.describe('SILOS Protocol', () => {
       expect(await stage.ordinalBin.getUnplacedCount()).toBe(0);
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 44: Venue - Meet for Sex (OrdinalBin)', async ({
@@ -1596,6 +1655,7 @@ test.describe('SILOS Protocol', () => {
       expect(await stage.ordinalBin.getUnplacedCount()).toBe(0);
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 45: App Instructions', async ({ page, interview }) => {
@@ -1609,6 +1669,7 @@ test.describe('SILOS Protocol', () => {
       await expect(video).toBeVisible();
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 46: App Nomination', async ({
@@ -1631,6 +1692,7 @@ test.describe('SILOS Protocol', () => {
 
       // Wait for 11 total nodes (5 person + 4 venue + 2 app) to be persisted
       await protocol.waitForNodes(interview.interviewId, 11);
+      await interview.next();
     });
 
     test('Stage 47: Healthcare Access (EgoForm)', async ({
@@ -1652,7 +1714,7 @@ test.describe('SILOS Protocol', () => {
       );
 
       // Submit form to flush data to Redux
-      await interview.nextButton.click();
+      await interview.next();
 
       // Wait for ego healthcare access field (true) to be persisted
       await protocol.waitForEgoAttribute(
@@ -1679,6 +1741,7 @@ test.describe('SILOS Protocol', () => {
 
       // Wait for 12 total nodes (5 person + 4 venue + 2 app + 1 healthcare) to be persisted
       await protocol.waitForNodes(interview.interviewId, 12);
+      await interview.next();
     });
 
     test('Stage 49: Healthcare Census Tract - Information', async ({
@@ -1695,6 +1758,7 @@ test.describe('SILOS Protocol', () => {
       await expect(video).toBeVisible();
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 50: Healthcare Census Tract (Geospatial)', async ({
@@ -1722,6 +1786,7 @@ test.describe('SILOS Protocol', () => {
         .toBe(true);
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 51: Social Support - Introduction', async ({
@@ -1737,6 +1802,7 @@ test.describe('SILOS Protocol', () => {
       ).toBeVisible();
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 52: Ego Social Support (EgoForm)', async ({
@@ -1833,7 +1899,7 @@ test.describe('SILOS Protocol', () => {
       );
 
       // Submit form to flush data to Redux
-      await interview.nextButton.click();
+      await interview.next();
     });
   }); // End of Happy Path describe
 
@@ -1867,6 +1933,7 @@ test.describe('SILOS Protocol', () => {
         page.getByRole('heading', { name: 'Welcome!' }),
       ).toBeVisible();
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 1: Getting Started', async ({ page, interview }) => {
@@ -1880,6 +1947,7 @@ test.describe('SILOS Protocol', () => {
       await expect(video).toBeVisible();
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test('Stage 2: Self-Nomination', async ({ interview, stage, protocol }) => {
@@ -1894,6 +1962,7 @@ test.describe('SILOS Protocol', () => {
 
       // Wait for the "Me" node to be persisted to the database
       await protocol.waitForNodes(interview.interviewId, 1);
+      await interview.next();
     });
 
     test('Stage 3: Ego Form - Select Female at Birth', async ({
@@ -1955,7 +2024,7 @@ test.describe('SILOS Protocol', () => {
       );
 
       // Submit form to flush data to Redux and trigger navigation
-      await interview.nextButton.click();
+      await interview.next();
 
       // Should navigate to stage 4 (sex confirmation)
       await expectURL(page, /step=4/);
@@ -1987,7 +2056,7 @@ test.describe('SILOS Protocol', () => {
       );
 
       // Submit form to flush data to Redux and proceed to ineligibility screen
-      await interview.nextButton.click();
+      await interview.next();
 
       // Should navigate to stage 5 (ineligibility)
       await expectURL(page, /step=5/);
@@ -2008,6 +2077,7 @@ test.describe('SILOS Protocol', () => {
       ).toBeVisible();
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.next();
     });
 
     test.fixme('Skip to End and Finish Interview', async () => {

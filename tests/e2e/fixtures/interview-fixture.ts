@@ -110,6 +110,28 @@ export class InterviewFixture {
   }
 
   /**
+   * Capture the current stage's final state, then click next.
+   * This is the standard way to end every stage test — it ensures
+   * the filled/interacted state is screenshotted before navigation.
+   */
+  async next(captureOptions?: CaptureOptions): Promise<void> {
+    const step = this.getCurrentStep();
+    if (step) {
+      const prefix = this.snapshotPrefix ? `${this.snapshotPrefix}-` : '';
+      await this.capture(`${prefix}stage-${step}-final`, captureOptions);
+    }
+    await this.nextButton.click();
+  }
+
+  /**
+   * Extract the current step index from the page URL.
+   */
+  private getCurrentStep(): string | null {
+    const match = /step=(\d+)/.exec(this.page.url());
+    return match?.[1] ?? null;
+  }
+
+  /**
    * Wait for the interview stage to be fully loaded.
    */
   private async waitForStageLoad(): Promise<void> {
