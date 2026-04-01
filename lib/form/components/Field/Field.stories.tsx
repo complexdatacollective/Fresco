@@ -230,7 +230,7 @@ export const WithHint: Story = {
   render: () => (
     <div className="max-w-lg">
       <Form
-        onSubmit={async (data) => {
+        onSubmit={(data) => {
           action('form-submitted')(data);
           return { success: true };
         }}
@@ -274,7 +274,7 @@ export const WithValidationHints: Story = {
   render: () => (
     <div className="max-w-lg">
       <Form
-        onSubmit={async (data) => {
+        onSubmit={(data) => {
           action('form-submitted')(data);
           return { success: true };
         }}
@@ -328,7 +328,7 @@ export const HintWithValidationHints: Story = {
   render: () => (
     <div className="max-w-lg">
       <Form
-        onSubmit={async (data) => {
+        onSubmit={(data) => {
           action('form-submitted')(data);
           return { success: true };
         }}

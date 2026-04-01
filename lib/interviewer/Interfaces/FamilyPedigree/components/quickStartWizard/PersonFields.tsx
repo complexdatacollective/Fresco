@@ -5,9 +5,9 @@ import Field from '~/lib/form/components/Field/Field';
 import { type FieldValue } from '~/lib/form/components/Field/types';
 import FieldGroup from '~/lib/form/components/FieldGroup';
 import FieldNamespace from '~/lib/form/components/FieldNamespace';
+import BooleanField from '~/lib/form/components/fields/Boolean';
 import InputField from '~/lib/form/components/fields/InputField';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
-import ToggleField from '~/lib/form/components/fields/ToggleField';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import { type CustomFieldValidation } from '~/lib/form/store/types';
 import {
@@ -17,7 +17,7 @@ import {
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 
 type PersonFieldsProps = {
-  namespace: string;
+  namespace?: string;
   initial?: {
     name?: string;
     sex?: string;
@@ -58,15 +58,14 @@ export default function PersonFields({
       | undefined,
   });
 
-  return (
-    <FieldNamespace prefix={namespace}>
+  const content = (
+    <>
       {nameToggle && (
         <Field
-          inline
           name="name-known"
-          label="I know this person's name"
-          component={ToggleField}
-          initialValue={true}
+          label="Do you know this person's name?"
+          component={BooleanField}
+          required
         />
       )}
       {nameToggle ? (
@@ -105,6 +104,12 @@ export default function PersonFields({
         validateOnChange
       />
       {fieldComponents}
-    </FieldNamespace>
+    </>
   );
+
+  if (namespace) {
+    return <FieldNamespace prefix={namespace}>{content}</FieldNamespace>;
+  }
+
+  return content;
 }

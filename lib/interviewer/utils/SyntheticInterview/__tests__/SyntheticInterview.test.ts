@@ -720,7 +720,7 @@ describe('SyntheticInterview', () => {
           isActiveVariable: isActiveVar.id,
           isGestationalCarrierVariable: isGestVar.id,
         },
-        censusPrompt: 'Build your family tree',
+        censusPrompt: 'Build your family pedigree',
       });
       stage.addDiseaseNominationStep({
         text: 'Who has the disease?',
@@ -741,7 +741,7 @@ describe('SyntheticInterview', () => {
       expect(edgeConfig.relationshipTypeVariable).toBe(relVar.id);
       expect(edgeConfig.isActiveVariable).toBe(isActiveVar.id);
 
-      expect(stageConfig.censusPrompt).toBe('Build your family tree');
+      expect(stageConfig.censusPrompt).toBe('Build your family pedigree');
       expect(stageConfig.label).toBeDefined();
 
       const nomPrompts = stageConfig.nominationPrompts as {

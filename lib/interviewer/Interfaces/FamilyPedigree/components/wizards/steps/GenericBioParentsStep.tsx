@@ -3,7 +3,6 @@
 import { useSelector } from 'react-redux';
 import Surface from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
 import { Alert, AlertDescription } from '~/components/ui/Alert';
 import Field from '~/lib/form/components/Field/Field';
 import FieldGroup from '~/lib/form/components/FieldGroup';
@@ -18,7 +17,7 @@ import {
   getNodeType,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 
-export default function BioParentsForm() {
+export default function GenericBioParentsStep() {
   const sexOptions = useSelector(getBiologicalSexOptions);
   const nodeType = useSelector(getNodeType);
   const nodeForm = useSelector(getNodeForm);
@@ -33,12 +32,6 @@ export default function BioParentsForm() {
 
   return (
     <>
-      <Paragraph>
-        When building a pedigree, we need to ask you about your biological
-        parents, and not just your parents in general. If you were conceived via
-        an egg or sperm donor, the donor is considered your biological parent,
-        even if they did not raise you.
-      </Paragraph>
       <div className="flex flex-col gap-6">
         <Surface level={1} spacing="sm">
           <FieldNamespace prefix="egg-parent">
@@ -46,10 +39,8 @@ export default function BioParentsForm() {
               <Heading level="h3">Egg Parent</Heading>
               <Alert variant="info">
                 <AlertDescription>
-                  The egg parent is the person who contributed the egg that you
-                  were conceived with. If you were conceived via an egg donor,
-                  the egg donor is the egg parent, even if they did not carry
-                  you during pregnancy.
+                  The egg parent is the person who contributed the egg that this
+                  person was conceived with.
                 </AlertDescription>
               </Alert>
             </div>
@@ -79,8 +70,8 @@ export default function BioParentsForm() {
             />
             <Field
               name="gestationalCarrier"
-              label="Did this parent carry you during pregnancy?"
-              hint="If you were carried by a different person (e.g. a gestational carrier or surrogate), select 'No' here and we'll ask you about the carrier in the next step."
+              label="Did this parent carry them during pregnancy?"
+              hint="If they were carried by a different person (e.g. a gestational carrier or surrogate), select 'No' here."
               component={BooleanField}
               initialValue={true}
               required
@@ -102,17 +93,9 @@ export default function BioParentsForm() {
             <Alert variant="info">
               <AlertDescription>
                 The sperm parent is the person who contributed the sperm that
-                you were conceived with. If you were conceived via a sperm
-                donor, the sperm donor is the sperm parent, even if they did not
-                raise you.
+                this person was conceived with.
               </AlertDescription>
             </Alert>
-            <Field
-              name="is-donor"
-              label="Was this person a sperm donor?"
-              component={BooleanField}
-              required
-            />
             <Field
               name="name-known"
               label="Do you know this person's name?"
@@ -131,6 +114,12 @@ export default function BioParentsForm() {
                 required
               />
             </FieldGroup>
+            <Field
+              name="is-donor"
+              label="Was this person a sperm donor?"
+              component={BooleanField}
+              required
+            />
             <Field
               name="sex-at-birth"
               label="What was this person's sex assigned at birth?"
@@ -154,9 +143,8 @@ export default function BioParentsForm() {
                 <Heading level="h3">Gestational Carrier</Heading>
                 <Alert variant="info">
                   <AlertDescription>
-                    The gestational carrier is the person who carried you during
-                    pregnancy but did not contribute the egg. This includes
-                    gestational surrogates.
+                    The gestational carrier is the person who carried them
+                    during pregnancy but did not contribute the egg.
                   </AlertDescription>
                 </Alert>
               </div>

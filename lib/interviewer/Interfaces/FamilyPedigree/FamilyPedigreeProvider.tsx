@@ -1,4 +1,4 @@
-import { type NcEdge, type NcEgo, type NcNode } from '@codaco/shared-consts';
+import { type NcEdge, type NcNode } from '@codaco/shared-consts';
 import { invariant } from 'es-toolkit';
 import { createContext, useContext, useRef } from 'react';
 import { useSelector } from 'react-redux';
@@ -28,13 +28,11 @@ const FamilyPedigreeContext = createContext<FamilyPedigreeStoreApi | undefined>(
 );
 
 export const FamilyPedigreeProvider = ({
-  ego,
   nodes,
   edges,
   diseaseVariables,
   children,
 }: {
-  ego: NcEgo | null;
   nodes: NcNode[];
   edges: NcEdge[];
   diseaseVariables: string[];
@@ -72,7 +70,7 @@ export const FamilyPedigreeProvider = ({
       return [
         node._uid,
         {
-          isEgo: false,
+          isEgo: node.attributes[egoVariable] === true,
           readOnly: false,
           interviewNetworkId: node._uid,
           diseases,
@@ -81,14 +79,6 @@ export const FamilyPedigreeProvider = ({
       ];
     }),
   );
-
-  if (ego != null) {
-    initialNodes.set(ego._uid, {
-      isEgo: true,
-      readOnly: true,
-      attributes: { ...ego.attributes },
-    });
-  }
 
   const initialEdges = new Map<string, StoreEdge>(
     edges.map((edge) => {

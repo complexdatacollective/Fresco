@@ -36,7 +36,7 @@ export function AdoptionBrackets({
 }
 
 /**
- * Icon for the ego (self) node in the family tree.
+ * Icon for the ego (self) node in the family pedigree.
  * Based on the add-a-person icon (lib/ui/assets/icons/add-a-person-single.svg).
  *
  * Variants:
@@ -174,8 +174,7 @@ export default function PedigreeNode({
     return resolveNodeShape(shapeDef, node.attributes);
   }, [shapeDef, node.attributes]);
 
-  const { handlePointerDown, handlePointerUp, shouldHandleClick } =
-    useClickUnlessDragged();
+  useClickUnlessDragged();
 
   const { dragProps } = useDragSource({
     type: 'FAMILY_TREE_NODE',
@@ -192,7 +191,7 @@ export default function PedigreeNode({
       ariaLabel={displayLabel}
       shape={shape}
       selected={selected}
-      // {...dragProps}
+      {...dragProps}
       {...rest}
     >
       {isEgo && (
@@ -210,5 +209,5 @@ export default function PedigreeNode({
     nodeElement
   );
 
-  return wrappedNode;
+  return <div>{wrappedNode}</div>;
 }

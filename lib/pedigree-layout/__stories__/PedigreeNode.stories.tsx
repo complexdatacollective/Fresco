@@ -36,7 +36,7 @@ const mockProtocol = {
     {
       id: 'stage-1',
       type: 'FamilyPedigree',
-      label: 'Family Tree',
+      label: 'family pedigree',
       subject: { entity: 'node', type: 'person' },
       nodeConfig: {
         type: 'person',

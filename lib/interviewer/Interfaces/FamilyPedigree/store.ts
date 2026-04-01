@@ -4,7 +4,6 @@ import { immer } from 'zustand/middleware/immer';
 import { updateStageMetadata } from '~/lib/interviewer/ducks/modules/session';
 import { type useAppDispatch } from '~/lib/interviewer/store';
 import { computeAllDisplayLabels } from '~/lib/pedigree-layout/utils/getDisplayLabel';
-import { type ParentEdge } from '~/schemas/familyPedigree';
 
 enableMapSet();
 
@@ -29,82 +28,6 @@ export type NodeData = {
   attributes: Record<string, unknown>;
 };
 
-export type PersonDetail = {
-  name: string;
-  biologicalSex?: string;
-  attributes?: Record<string, unknown>;
-};
-
-export type ParentDetail = PersonDetail & {
-  nameKnown: boolean;
-  edgeType: ParentEdge['relationshipType'];
-  biological?: boolean;
-};
-
-export type BioParentDetail = PersonDetail & {
-  nameKnown: boolean;
-};
-
-export type SiblingDetail = PersonDetail & {
-  sharedParentIndices: number[];
-};
-
-export type ParentPartnership = {
-  parentIndices: [number, number];
-  isActive: boolean;
-};
-
-export type GrandparentDetail = PersonDetail & {
-  nameKnown: boolean;
-};
-
-export type AuntUncleDetail = PersonDetail &
-  (
-    | { hasChildren: false; children: [] }
-    | {
-        hasChildren: true;
-        hasPartner: boolean;
-        partner?: PersonDetail;
-        children: PersonDetail[];
-      }
-  );
-
-export type ParentBranch = {
-  parentIndex: number;
-  grandparents: [GrandparentDetail, GrandparentDetail];
-  auntUncleCount: number;
-  auntsUncles: AuntUncleDetail[];
-};
-
-export type SiblingFamily = {
-  siblingIndex: number;
-  hasPartner: boolean;
-  partner?: PersonDetail;
-  children: PersonDetail[];
-};
-
-export type HalfSiblingOtherParent = PersonDetail & {
-  nameKnown: boolean;
-  siblingIndex: number;
-  sharedParentIndices: number[];
-};
-
-export type QuickStartData = {
-  adoptionStatus?: AdoptionStatus;
-  parents: ParentDetail[];
-  egoParentIndices?: number[];
-  parentPartnerships: ParentPartnership[];
-  gestationalCarrierParentIndex?: number;
-  bioParents: BioParentDetail[];
-  siblings: SiblingDetail[];
-  partner: (PersonDetail & { hasPartner: true }) | { hasPartner: false };
-  childrenWithPartner: PersonDetail[];
-  otherChildren: PersonDetail[];
-  parentBranches: ParentBranch[];
-  halfSiblingOtherParents: HalfSiblingOtherParent[];
-  siblingFamilies: SiblingFamily[];
-};
-
 export type StoreEdge = {
   source: string;
   target: string;
@@ -116,6 +39,23 @@ export type StoreEdge = {
     }
   | { relationshipType: 'partner'; isActive: boolean }
 );
+
+export type CommitBatchEdgeData =
+  | {
+      relationshipType: 'biological' | 'social' | 'donor' | 'surrogate';
+      isActive: boolean;
+      isGestationalCarrier?: boolean;
+    }
+  | { relationshipType: 'partner'; isActive: boolean };
+
+export type CommitBatch = {
+  nodes: { tempId: string; data: NodeData }[];
+  edges: {
+    source: string;
+    target: string;
+    data: CommitBatchEdgeData;
+  }[];
+};
 
 type FamilyPedigreeState = {
   step: 'scaffolding' | 'diseaseNomination';
@@ -133,25 +73,11 @@ type NetworkActions = {
   removeEdge: (id: string) => void;
   clearNetwork: () => void;
   setStep: (step: FamilyPedigreeState['step']) => void;
-  generateQuickStartNetwork: (data: QuickStartData) => void;
+  commitBatch: (batch: CommitBatch) => void;
   syncMetadata: () => void;
 };
 
 export type FamilyPedigreeStore = FamilyPedigreeState & NetworkActions;
-
-function personToNodeData(
-  person: PersonDetail,
-  variableConfig: VariableConfig,
-): NodeData {
-  return {
-    isEgo: false,
-    attributes: {
-      [variableConfig.nodeLabelVariable]: person.name,
-      [variableConfig.biologicalSexVariable]: person.biologicalSex,
-      ...person.attributes,
-    },
-  };
-}
 
 export const createFamilyPedigreeStore = (
   initialNodes: Map<string, NodeData>,
@@ -233,344 +159,29 @@ export const createFamilyPedigreeStore = (
           });
         },
 
-        generateQuickStartNetwork: (data) => {
-          get().clearNetwork();
+        commitBatch: (batch) => {
+          set((state) => {
+            const tempIdToRealId = new Map<string, string>();
 
-          const egoId = get().addNode({
-            isEgo: true,
-            adoptionStatus: data.adoptionStatus,
-            attributes: { [variableConfig.nodeLabelVariable]: '' },
+            for (const { tempId, data } of batch.nodes) {
+              const realId = crypto.randomUUID();
+              tempIdToRealId.set(tempId, realId);
+              state.network.nodes.set(realId, data);
+            }
+
+            for (const edge of batch.edges) {
+              const resolvedSource =
+                tempIdToRealId.get(edge.source) ?? edge.source;
+              const resolvedTarget =
+                tempIdToRealId.get(edge.target) ?? edge.target;
+              const edgeId = crypto.randomUUID();
+              state.network.edges.set(edgeId, {
+                source: resolvedSource,
+                target: resolvedTarget,
+                ...edge.data,
+              });
+            }
           });
-
-          const egoParentSet = data.egoParentIndices
-            ? new Set(data.egoParentIndices)
-            : null;
-
-          const parentIds: string[] = [];
-          for (let pi = 0; pi < data.parents.length; pi++) {
-            const parent = data.parents[pi]!;
-            const parentId = get().addNode(
-              personToNodeData(parent, variableConfig),
-            );
-            parentIds.push(parentId);
-
-            // Only create parent→ego edge if this parent is ego's parent
-            const isEgoParent = !egoParentSet || egoParentSet.has(pi);
-            if (isEgoParent) {
-              const edgeId = get().addEdge({
-                source: parentId,
-                target: egoId,
-                relationshipType: parent.edgeType,
-                isActive: true,
-              });
-
-              // Mark gestational carrier on the parent→ego edge
-              if (
-                data.gestationalCarrierParentIndex !== undefined &&
-                pi === data.gestationalCarrierParentIndex
-              ) {
-                set((state) => {
-                  const edge = state.network.edges.get(edgeId);
-                  if (edge && edge.relationshipType !== 'partner') {
-                    edge.isGestationalCarrier = true;
-                  }
-                });
-              }
-            }
-          }
-
-          // Create partner edges from explicit partnerships
-          for (const partnership of data.parentPartnerships) {
-            const [i, j] = partnership.parentIndices;
-            const sourceId = parentIds[i];
-            const targetId = parentIds[j];
-            if (sourceId && targetId) {
-              get().addEdge({
-                source: sourceId,
-                target: targetId,
-                relationshipType: 'partner',
-                isActive: partnership.isActive,
-              });
-            }
-          }
-
-          const bioParentIds: string[] = [];
-          for (const bp of data.bioParents) {
-            const bpId = get().addNode({
-              ...personToNodeData(bp, variableConfig),
-              attributes: {
-                ...personToNodeData(bp, variableConfig).attributes,
-                [variableConfig.nodeLabelVariable]: bp.nameKnown ? bp.name : '',
-              },
-            });
-            bioParentIds.push(bpId);
-            get().addEdge({
-              source: bpId,
-              target: egoId,
-              relationshipType: 'biological',
-              isActive: true,
-            });
-          }
-
-          const unifiedParentNodeIds = [...parentIds, ...bioParentIds];
-
-          const grandparentIdsByBranch = new Map<number, [string, string]>();
-          for (
-            let branchIdx = 0;
-            branchIdx < data.parentBranches.length;
-            branchIdx++
-          ) {
-            const branch = data.parentBranches[branchIdx]!;
-            const parentNodeId = unifiedParentNodeIds[branch.parentIndex];
-            if (!parentNodeId) continue;
-
-            const gpIds: [string, string] = ['', ''];
-            for (const gpIdx of [0, 1] as const) {
-              const gp = branch.grandparents[gpIdx];
-              const gpId = get().addNode(
-                personToNodeData(
-                  {
-                    name: gp.nameKnown ? gp.name : '',
-                    biologicalSex: gp.biologicalSex,
-                    attributes: gp.attributes,
-                  },
-                  variableConfig,
-                ),
-              );
-              gpIds[gpIdx] = gpId;
-
-              get().addEdge({
-                source: gpId,
-                target: parentNodeId,
-                relationshipType: 'biological',
-                isActive: true,
-              });
-            }
-
-            get().addEdge({
-              source: gpIds[0],
-              target: gpIds[1],
-              relationshipType: 'partner',
-              isActive: true,
-            });
-
-            grandparentIdsByBranch.set(branchIdx, gpIds);
-          }
-
-          // --- Extended family: Aunts/uncles & cousins ---
-          for (
-            let branchIdx = 0;
-            branchIdx < data.parentBranches.length;
-            branchIdx++
-          ) {
-            const branch = data.parentBranches[branchIdx]!;
-            const gpIds = grandparentIdsByBranch.get(branchIdx);
-            if (!gpIds) continue;
-
-            for (const au of branch.auntsUncles) {
-              const auId = get().addNode(personToNodeData(au, variableConfig));
-
-              // Link to same grandparents as parent (full sibling simplification)
-              get().addEdge({
-                source: gpIds[0],
-                target: auId,
-                relationshipType: 'biological',
-                isActive: true,
-              });
-              get().addEdge({
-                source: gpIds[1],
-                target: auId,
-                relationshipType: 'biological',
-                isActive: true,
-              });
-
-              if (au.hasChildren) {
-                let auPartnerId: string | undefined;
-                if (au.hasPartner && au.partner) {
-                  auPartnerId = get().addNode(
-                    personToNodeData(au.partner, variableConfig),
-                  );
-                  get().addEdge({
-                    source: auId,
-                    target: auPartnerId,
-                    relationshipType: 'partner',
-                    isActive: true,
-                  });
-                }
-
-                for (const cousin of au.children) {
-                  const cousinId = get().addNode(
-                    personToNodeData(cousin, variableConfig),
-                  );
-                  get().addEdge({
-                    source: auId,
-                    target: cousinId,
-                    relationshipType: 'biological',
-                    isActive: true,
-                  });
-                  if (auPartnerId) {
-                    get().addEdge({
-                      source: auPartnerId,
-                      target: cousinId,
-                      relationshipType: 'biological',
-                      isActive: true,
-                    });
-                  }
-                }
-              }
-            }
-          }
-
-          const siblingIds: string[] = [];
-          for (const sibling of data.siblings) {
-            const siblingId = get().addNode(
-              personToNodeData(sibling, variableConfig),
-            );
-            siblingIds.push(siblingId);
-            for (const parentIdx of sibling.sharedParentIndices) {
-              const parentId = parentIds[parentIdx];
-              if (!parentId) continue;
-
-              // Determine edge type: use ego's edge if it exists, otherwise
-              // fall back to the parent's configured edgeType (needed when a
-              // parent is only the sibling's parent, not ego's).
-              const parentEdge = [...get().network.edges.values()].find(
-                (e) =>
-                  e.relationshipType !== 'partner' &&
-                  e.source === parentId &&
-                  e.target === egoId,
-              );
-              const edgeType =
-                parentEdge && parentEdge.relationshipType !== 'partner'
-                  ? parentEdge.relationshipType
-                  : (data.parents[parentIdx]?.edgeType ?? 'biological');
-
-              get().addEdge({
-                source: parentId,
-                target: siblingId,
-                relationshipType: edgeType,
-                isActive: true,
-              });
-            }
-          }
-
-          for (const entry of data.halfSiblingOtherParents) {
-            const siblingNodeId = siblingIds[entry.siblingIndex];
-            if (!siblingNodeId) continue;
-
-            const otherParentId = get().addNode(
-              personToNodeData(
-                {
-                  name: entry.nameKnown ? entry.name : '',
-                  biologicalSex: entry.biologicalSex,
-                  attributes: entry.attributes,
-                },
-                variableConfig,
-              ),
-            );
-
-            get().addEdge({
-              source: otherParentId,
-              target: siblingNodeId,
-              relationshipType: 'biological',
-              isActive: true,
-            });
-
-            const sharedParentNodeId =
-              unifiedParentNodeIds[entry.sharedParentIndices[0]!];
-            if (sharedParentNodeId) {
-              get().addEdge({
-                source: otherParentId,
-                target: sharedParentNodeId,
-                relationshipType: 'partner',
-                isActive: false,
-              });
-            }
-          }
-
-          // --- Extended family: Sibling partners & niblings ---
-          for (const sf of data.siblingFamilies) {
-            const siblingNodeId = siblingIds[sf.siblingIndex];
-            if (!siblingNodeId) continue;
-
-            let sibPartnerNodeId: string | undefined;
-            if (sf.hasPartner && sf.partner) {
-              sibPartnerNodeId = get().addNode(
-                personToNodeData(sf.partner, variableConfig),
-              );
-              get().addEdge({
-                source: siblingNodeId,
-                target: sibPartnerNodeId,
-                relationshipType: 'partner',
-                isActive: true,
-              });
-            }
-
-            for (const nibling of sf.children) {
-              const niblingId = get().addNode(
-                personToNodeData(nibling, variableConfig),
-              );
-              get().addEdge({
-                source: siblingNodeId,
-                target: niblingId,
-                relationshipType: 'biological',
-                isActive: true,
-              });
-              if (sibPartnerNodeId) {
-                get().addEdge({
-                  source: sibPartnerNodeId,
-                  target: niblingId,
-                  relationshipType: 'biological',
-                  isActive: true,
-                });
-              }
-            }
-          }
-
-          let partnerId: string | undefined;
-          if (data.partner.hasPartner) {
-            partnerId = get().addNode(
-              personToNodeData(data.partner, variableConfig),
-            );
-            get().addEdge({
-              source: egoId,
-              target: partnerId,
-              relationshipType: 'partner',
-              isActive: true,
-            });
-          }
-
-          for (const child of data.childrenWithPartner) {
-            const childId = get().addNode(
-              personToNodeData(child, variableConfig),
-            );
-            get().addEdge({
-              source: egoId,
-              target: childId,
-              relationshipType: 'biological',
-              isActive: true,
-            });
-            if (partnerId) {
-              get().addEdge({
-                source: partnerId,
-                target: childId,
-                relationshipType: 'biological',
-                isActive: true,
-              });
-            }
-          }
-
-          for (const child of data.otherChildren) {
-            const childId = get().addNode(
-              personToNodeData(child, variableConfig),
-            );
-            get().addEdge({
-              source: egoId,
-              target: childId,
-              relationshipType: 'biological',
-              isActive: true,
-            });
-          }
         },
 
         syncMetadata: () => {

@@ -4,7 +4,7 @@ import { motion } from 'motion/react';
 
 /**
  * Decorative placeholder illustration shown on the FamilyPedigree interface
- * before the participant has started building their family tree. Renders a
+ * before the participant has started building their family pedigree. Renders a
  * ghost pedigree (squares and circles connected by lines) at low opacity to
  * preview what the completed tree will look like.
  *
