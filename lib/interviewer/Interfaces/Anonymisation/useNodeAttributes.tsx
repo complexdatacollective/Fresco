@@ -14,11 +14,11 @@ import { decryptData, UnauthorizedError } from './utils';
  * Mechanism for accessing node attributes, which takes into account
  * whether the attribute is encrypted or not.
  */
-export const useNodeAttributes = (node: NcNode) => {
+export const useNodeAttributes = (node: NcNode | undefined) => {
   const getCodebookVariablesForNodeType = useSelector(
     makeGetCodebookVariablesForNodeType,
   );
-  const nodeAttributes = getEntityAttributes(node);
+  const nodeAttributes = node ? getEntityAttributes(node) : {};
   const {
     requirePassphrase,
     setPassphraseInvalid,
@@ -30,6 +30,8 @@ export const useNodeAttributes = (node: NcNode) => {
     async <T extends VariableValue>(
       attributeId: string,
     ): Promise<T | undefined> => {
+      if (!node) return undefined;
+
       const codebookVariables = getCodebookVariablesForNodeType(node.type);
 
       const isEncrypted =
