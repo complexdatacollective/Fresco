@@ -16,7 +16,7 @@ import {
   getUserMessage,
 } from '~/lib/export/errors';
 import { type ExportEvent, stageMessages } from '~/lib/export/exportEvents';
-import { FileStorage } from '~/lib/export/services/FileStorage';
+import { FileStorage } from '~/lib/storage/services/FileStorage';
 import { FileSystem } from '~/lib/export/services/FileSystem';
 import {
   InterviewRepository,
