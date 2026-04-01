@@ -5,7 +5,7 @@ import { useEffect } from 'react';
 import { containerClasses } from '~/components/ContainerClasses';
 import Surface from '~/components/layout/Surface';
 import { cx } from '~/utils/cva';
-import ConnectUploadThing from '../_components/OnboardSteps/ConnectUploadThing';
+import ConfigureStorage from '../_components/OnboardSteps/ConfigureStorage';
 import CreateAccount from '../_components/OnboardSteps/CreateAccount';
 import Documentation from '../_components/OnboardSteps/Documentation';
 import ManageParticipants from '../_components/OnboardSteps/ManageParticipants';
@@ -22,8 +22,8 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
       component: CreateAccount,
     },
     {
-      label: 'Connect UploadThing',
-      component: ConnectUploadThing,
+      label: 'Configure Storage',
+      component: ConfigureStorage,
     },
     {
       label: 'Upload Protocol',

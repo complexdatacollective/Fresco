@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { setUploadThingToken } from '~/actions/appSettings';
+import { setStorageProvider } from '~/actions/storageProvider';
 import Field from '~/lib/form/components/Field/Field';
 import Form from '~/lib/form/components/Form';
 import SubmitButton from '~/lib/form/components/SubmitButton';
@@ -20,6 +21,8 @@ export const UploadThingTokenForm = () => {
         fieldErrors: result.fieldErrors,
       };
     }
+
+    await setStorageProvider('uploadthing');
 
     // Navigate to step 3 (Upload Protocol)
     router.push('/setup?step=3');

@@ -1,7 +1,10 @@
 import { Effect, Layer } from 'effect';
 import { NextRequest } from 'next/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AssetStorage } from '~/lib/storage/services/AssetStorage';
+import {
+  AssetStorage,
+  type PresignedUploadUrl,
+} from '~/lib/storage/services/AssetStorage';
 
 // Hoisted mocks
 const {
@@ -34,7 +37,8 @@ const {
   },
   mockGetExistingAssets: vi.fn(),
   mockDeleteAssets: vi.fn(),
-  mockGeneratePresignedUploadUrls: vi.fn(),
+  mockGeneratePresignedUploadUrls:
+    vi.fn<(files: { name: string; size: number }[]) => PresignedUploadUrl[]>(),
   mockAddEvent: vi.fn(),
   mockCaptureException: vi.fn(),
   mockExtractApikeyAssetsFromManifest: vi.fn(),
@@ -91,16 +95,7 @@ vi.mock('~/lib/storage/layers/StorageLayer', () => ({
       AssetStorage.of({
         generatePresignedUploadUrls: (
           files: { name: string; size: number }[],
-        ) => {
-          const result = mockGeneratePresignedUploadUrls(files);
-          return Effect.succeed(
-            result as {
-              uploadUrl: string;
-              fileKey: string;
-              publicUrl: string;
-            }[],
-          );
-        },
+        ) => Effect.succeed(mockGeneratePresignedUploadUrls(files)),
         deleteAssets: (keys: string[]) => {
           mockDeleteAssets(keys);
           return Effect.void;

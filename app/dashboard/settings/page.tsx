@@ -11,6 +11,7 @@ import { env } from '~/env';
 import { requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
 import ConfigurationSection from './_components/ConfigurationSection';
+import StorageProviderSection from './_components/StorageProviderSection';
 import DeveloperToolsSection from './_components/DeveloperToolsSection';
 import InterviewSettingsSection from './_components/InterviewSettingsSection';
 import ApiTokensSection from './_components/ApiTokensSection';
@@ -24,6 +25,7 @@ function getSettingsSections(): SettingsSection[] {
     { id: 'app-version', title: 'App Version' },
     { id: 'user-management', title: 'User Management' },
     { id: 'configuration', title: 'Configuration' },
+    { id: 'storage', title: 'Storage' },
     { id: 'interview-settings', title: 'Interview Settings' },
     { id: 'privacy', title: 'Privacy' },
     { id: 'api-tokens', title: 'API Tokens' },
@@ -52,6 +54,7 @@ function SettingsContentSkeleton() {
         <div className="min-w-0 flex-1 space-y-6">
           <SettingsCardSkeleton rows={1} />
           <SettingsCardSkeleton rows={1} />
+          <SettingsCardSkeleton rows={2} />
           <SettingsCardSkeleton rows={2} />
           <SettingsCardSkeleton rows={3} />
           <SettingsCardSkeleton rows={1} />
@@ -103,6 +106,9 @@ async function SettingsContent() {
           </Suspense>
           <Suspense fallback={<SettingsCardSkeleton rows={2} />}>
             <ConfigurationSection />
+          </Suspense>
+          <Suspense fallback={<SettingsCardSkeleton rows={2} />}>
+            <StorageProviderSection />
           </Suspense>
           <Suspense fallback={<SettingsCardSkeleton rows={3} />}>
             <InterviewSettingsSection />
