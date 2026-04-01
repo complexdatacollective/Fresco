@@ -112,9 +112,13 @@ export const exportPipeline = (
     });
 
     const archiveBuffer = yield* fs.readFile(archiveResult.path);
-    const { url, key } = yield* fileStorage
+    const { key } = yield* fileStorage
       .upload(archiveBuffer, fileName)
       .pipe(Effect.withSpan('export.upload'));
+
+    const downloadUrl = yield* fileStorage
+      .getDownloadUrl(key)
+      .pipe(Effect.withSpan('export.getDownloadUrl'));
 
     yield* Effect.forEach(
       tempFilePaths,
@@ -123,7 +127,7 @@ export const exportPipeline = (
     );
 
     return {
-      zipUrl: url,
+      zipUrl: downloadUrl,
       zipKey: key,
       status: archiveResult.rejected.length
         ? ('partial' as const)
