@@ -4,7 +4,9 @@ import { Prisma } from '~/lib/db/generated/client';
 import { safeUpdateTag } from '~/lib/cache';
 import { hash } from 'ohash';
 import { type z } from 'zod';
-import { getUTApi } from '~/lib/uploadthing/server-helpers';
+import { Effect } from 'effect';
+import { getStorageLayer } from '~/lib/storage/layers/StorageLayer';
+import { AssetStorage } from '~/lib/storage/services/AssetStorage';
 import { type protocolInsertSchema } from '~/schemas/protocol';
 import { requireApiAuth } from '~/utils/auth';
 import { prisma } from '~/lib/db';
@@ -75,7 +77,7 @@ export async function deleteProtocols(hashes: string[]) {
     // eslint-disable-next-line no-console
     console.log('deleting protocol assets...');
 
-    await deleteFilesFromUploadThing(assetKeysToDelete.map((a) => a.key));
+    await deleteFilesFromStorage(assetKeysToDelete.map((a) => a.key));
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log('Error deleting protocol assets!', error);
@@ -134,24 +136,22 @@ export async function deleteProtocols(hashes: string[]) {
   }
 }
 
-async function deleteFilesFromUploadThing(fileKey: string | string[]) {
+async function deleteFilesFromStorage(fileKey: string | string[]) {
   await requireApiAuth();
 
-  if (fileKey.length === 0) {
+  const keys = Array.isArray(fileKey) ? fileKey : [fileKey];
+  if (keys.length === 0) {
     // eslint-disable-next-line no-console
     console.log('No assets to delete');
     return;
   }
 
-  const utapi = await getUTApi();
+  const storageLayer = await getStorageLayer();
 
-  const response = await utapi.deleteFiles(fileKey);
-
-  if (!response.success) {
-    throw new Error('Failed to delete files from uploadthing');
-  }
-
-  return;
+  await Effect.gen(function* () {
+    const assetStorage = yield* AssetStorage;
+    yield* assetStorage.deleteAssets(keys);
+  }).pipe(Effect.provide(storageLayer), Effect.runPromise);
 }
 
 export async function insertProtocol(
@@ -191,9 +191,7 @@ export async function insertProtocol(
   } catch (e) {
     // Attempt to delete any assets we uploaded to storage
     if (newAssets.length > 0) {
-      void deleteFilesFromUploadThing(
-        newAssets.map((a: { key: string }) => a.key),
-      );
+      void deleteFilesFromStorage(newAssets.map((a: { key: string }) => a.key));
     }
     // Check for protocol already existing
     if (e instanceof Prisma.PrismaClientKnownRequestError) {

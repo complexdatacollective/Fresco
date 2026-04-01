@@ -4,7 +4,7 @@ import { Loader2 } from 'lucide-react';
 import posthog from 'posthog-js';
 import { createContext, useCallback, useContext, useRef } from 'react';
 import { updateExportTime } from '~/actions/interviews';
-import { deleteZipFromUploadThing } from '~/actions/uploadThing';
+import { deleteZipFromStorage } from '~/actions/uploadThing';
 import ProgressBar from '~/components/ui/ProgressBar';
 import { useToast } from '~/components/ui/Toast';
 import { useDownload } from '~/hooks/useDownload';
@@ -185,7 +185,7 @@ export function ExportProgressProvider({
                   timeout: 5000,
                 });
 
-                void deleteZipFromUploadThing(data.zipKey).catch(
+                void deleteZipFromStorage(data.zipKey).catch(
                   (error: unknown) => {
                     const e = ensureError(error);
                     posthog.captureException(e);

@@ -2,7 +2,7 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { NextResponse } from 'next/server';
 import { env } from '~/env.js';
-import { LOCAL_EXPORT_DIR } from '~/lib/export/layers/LocalFileStorage';
+import { LOCAL_EXPORT_DIR } from '~/lib/storage/layers/LocalFileStorage';
 
 // Intentionally unauthenticated: this route is only active when
 // E2E_TEST is set (test environments only) and returns 404 otherwise.

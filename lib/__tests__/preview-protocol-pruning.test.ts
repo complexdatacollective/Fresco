@@ -1,4 +1,6 @@
+import { Effect, Layer } from 'effect';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { AssetStorage } from '~/lib/storage/services/AssetStorage';
 
 // Mock Prisma
 const mockPrisma = {
@@ -12,31 +14,36 @@ const mockPrisma = {
   },
 };
 
-// Mock uploadthing API
-const mockDeleteFiles = vi.fn();
-const mockGetUTApi = vi.fn();
+const mockDeleteAssets = vi.fn();
 
 // Mock the db module
 vi.mock('~/lib/db', () => ({
   prisma: mockPrisma,
 }));
 
-// Mock uploadthing server-helpers
-vi.mock('~/lib/uploadthing/server-helpers', () => ({
-  getUTApi: () =>
-    mockGetUTApi() as Promise<{ deleteFiles: typeof mockDeleteFiles }>,
+// Mock the storage layer
+vi.mock('~/lib/storage/layers/StorageLayer', () => ({
+  getStorageLayer: () => {
+    const mockAssetStorage = Layer.succeed(
+      AssetStorage,
+      AssetStorage.of({
+        generatePresignedUploadUrls: () => Effect.succeed([]),
+        deleteAssets: (keys: string[]) => {
+          mockDeleteAssets(keys);
+          return Effect.void;
+        },
+      }),
+    );
+    return Promise.resolve(mockAssetStorage);
+  },
 }));
 
 describe('prunePreviewProtocols', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockGetUTApi.mockResolvedValue({
-      deleteFiles: mockDeleteFiles,
-    });
   });
 
   it('should delete protocols older than 24 hours', async () => {
-    // Dynamic import to ensure mocks are set up
     const { prunePreviewProtocols } =
       await import('../../actions/preview-protocol-pruning');
 
@@ -75,7 +82,7 @@ describe('prunePreviewProtocols', () => {
     expect(mockPrisma.previewProtocol.deleteMany).not.toHaveBeenCalled();
   });
 
-  it('should delete associated assets from UploadThing', async () => {
+  it('should delete associated assets from storage', async () => {
     const { prunePreviewProtocols } =
       await import('../../actions/preview-protocol-pruning');
 
@@ -87,7 +94,6 @@ describe('prunePreviewProtocols', () => {
 
     const assets = [{ key: 'ut-key-1' }, { key: 'ut-key-2' }];
 
-    mockDeleteFiles.mockResolvedValue({ success: true });
     mockPrisma.previewProtocol.findMany.mockResolvedValue([oldProtocol]);
     mockPrisma.asset.findMany.mockResolvedValue(assets);
     mockPrisma.asset.deleteMany.mockResolvedValue({ count: 2 });
@@ -96,14 +102,16 @@ describe('prunePreviewProtocols', () => {
     const result = await prunePreviewProtocols();
 
     expect(result.deletedCount).toBe(1);
-    expect(mockDeleteFiles).toHaveBeenCalledWith(['ut-key-1', 'ut-key-2']);
+    expect(mockDeleteAssets).toHaveBeenCalledWith(['ut-key-1', 'ut-key-2']);
   });
 
   it('should handle errors gracefully', async () => {
     const { prunePreviewProtocols } =
       await import('../../actions/preview-protocol-pruning');
 
-    mockPrisma.previewProtocol.findMany.mockRejectedValue(new Error('Database error'));
+    mockPrisma.previewProtocol.findMany.mockRejectedValue(
+      new Error('Database error'),
+    );
 
     const result = await prunePreviewProtocols();
 

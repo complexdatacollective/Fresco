@@ -7,15 +7,11 @@ import { prisma } from '~/lib/db';
 import { Prisma } from '~/lib/db/generated/client';
 import { captureException, shutdownPostHog } from '~/lib/posthog-server';
 import { validateAndMigrateProtocol } from '~/lib/protocol/validateAndMigrateProtocol';
-import {
-  generatePresignedUploadUrl,
-  parseUploadThingToken,
-  registerUploadWithUploadThing,
-} from '~/lib/uploadthing/presigned';
-import { getUTApi } from '~/lib/uploadthing/server-helpers';
+import { Effect } from 'effect';
+import { getStorageLayer } from '~/lib/storage/layers/StorageLayer';
+import { AssetStorage } from '~/lib/storage/services/AssetStorage';
 import { getExistingAssets } from '~/queries/protocols';
 import { ensureError } from '~/utils/ensureError';
-import { getBaseUrl } from '~/utils/getBaseUrl';
 import { extractApikeyAssetsFromManifest } from '~/utils/protocolImport';
 import { checkPreviewAuth, jsonResponse } from './helpers';
 import {
@@ -122,30 +118,18 @@ export async function v1(request: NextRequest) {
         let presignedData: PresignedAssetData[] = [];
 
         if (newAssets.length > 0) {
-          const tokenData = await parseUploadThingToken();
+          const storageLayer = await getStorageLayer();
+          const presignedResults = await Effect.gen(function* () {
+            const assetStorage = yield* AssetStorage;
+            return yield* assetStorage.generatePresignedUploadUrls(
+              newAssets.map((a) => ({ name: a.name, size: a.size })),
+            );
+          }).pipe(Effect.provide(storageLayer), Effect.runPromise);
 
-          if (!tokenData) {
-            const response: InitializeResponse = {
-              status: 'error',
-              message: 'UploadThing not configured',
-            };
-            return jsonResponse(response, 500);
-          }
-
-          // tokenData is now narrowed to ParsedToken
-          presignedData = newAssets.map((asset) => {
+          presignedData = newAssets.map((asset, i) => {
+            const presigned = presignedResults[i]!;
             const manifestEntry = assetManifest[asset.assetId];
             const assetType = manifestEntry?.type ?? 'file';
-
-            const presigned = generatePresignedUploadUrl({
-              fileName: asset.name,
-              fileSize: asset.size,
-              tokenData,
-            });
-
-            if (!presigned) {
-              throw new Error('Failed to generate presigned URL');
-            }
 
             return {
               uploadUrl: presigned.uploadUrl,
@@ -154,20 +138,10 @@ export async function v1(request: NextRequest) {
                 key: presigned.fileKey,
                 name: asset.name,
                 type: assetType,
-                url: presigned.fileUrl,
+                url: presigned.publicUrl,
                 size: asset.size,
               },
             };
-          });
-
-          const fileKeys = presignedData.map((d) => d.assetRecord.key);
-
-          // Register the uploads with UploadThing to enable CORS for browser uploads
-          const callbackUrl = `${getBaseUrl()}/api/uploadthing`;
-          await registerUploadWithUploadThing({
-            fileKeys,
-            tokenData,
-            callbackUrl,
           });
         }
 
@@ -290,8 +264,13 @@ export async function v1(request: NextRequest) {
         // Delete assets from UploadThing (best effort)
         if (assetsToDelete.length > 0) {
           try {
-            const utapi = await getUTApi();
-            await utapi.deleteFiles(assetsToDelete.map((a) => a.key));
+            const storageLayer = await getStorageLayer();
+            await Effect.gen(function* () {
+              const assetStorage = yield* AssetStorage;
+              yield* assetStorage.deleteAssets(
+                assetsToDelete.map((a) => a.key),
+              );
+            }).pipe(Effect.provide(storageLayer), Effect.runPromise);
           } catch (error) {
             // eslint-disable-next-line no-console
             console.error('Error deleting preview protocol assets:', error);

@@ -1,7 +1,9 @@
 'use server';
 
+import { Effect } from 'effect';
 import { prisma } from '~/lib/db';
-import { getUTApi } from '~/lib/uploadthing/server-helpers';
+import { getStorageLayer } from '~/lib/storage/layers/StorageLayer';
+import { AssetStorage } from '~/lib/storage/services/AssetStorage';
 
 // Completed previews: 24 hours
 const MAX_COMPLETED_PREVIEW_AGE_MS = 24 * 60 * 60 * 1000;
@@ -64,8 +66,11 @@ export async function prunePreviewProtocols(): Promise<{
     // Delete assets from UploadThing (best effort)
     if (assetKeysToDelete.length > 0) {
       try {
-        const utapi = await getUTApi();
-        await utapi.deleteFiles(assetKeysToDelete.map((a) => a.key));
+        const storageLayer = await getStorageLayer();
+        await Effect.gen(function* () {
+          const assetStorage = yield* AssetStorage;
+          yield* assetStorage.deleteAssets(assetKeysToDelete.map((a) => a.key));
+        }).pipe(Effect.provide(storageLayer), Effect.runPromise);
       } catch (error) {
         // eslint-disable-next-line no-console
         console.error('Error deleting preview protocol assets:', error);
