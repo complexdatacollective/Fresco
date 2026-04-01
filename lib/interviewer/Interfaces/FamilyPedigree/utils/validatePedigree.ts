@@ -26,17 +26,6 @@ function getBiologicalParentIds(
   return parentIds;
 }
 
-function getNodeName(
-  nodeId: string,
-  nodes: Map<string, NodeData>,
-  nodeLabelVariable: string,
-): string {
-  const node = nodes.get(nodeId);
-  if (!node) return 'Unknown';
-  const name = node.attributes[nodeLabelVariable];
-  return typeof name === 'string' && name.length > 0 ? name : 'Unnamed person';
-}
-
 export function validatePedigreeCompleteness(
   nodes: Map<string, NodeData>,
   edges: Map<string, StoreEdge>,

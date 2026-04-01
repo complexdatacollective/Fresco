@@ -87,7 +87,7 @@ export default function NodeContextMenu({
                   Add sibling
                 </Menu.Item>
               )}
-              <Menu.Separator className="bg-neutral/20 my-1 h-px" />
+              <Menu.Separator className="my-1 h-px bg-current/20" />
               <Menu.Item
                 className={menuItemClass}
                 onClick={() => onAction('editName')}
@@ -96,7 +96,7 @@ export default function NodeContextMenu({
               </Menu.Item>
               {!isEgo && (
                 <>
-                  <Menu.Separator className="bg-neutral/20 my-1 h-px" />
+                  <Menu.Separator className="my-1 h-px bg-current/20" />
                   <Menu.Item
                     className={destructiveMenuItemClass}
                     onClick={() => onAction('delete')}

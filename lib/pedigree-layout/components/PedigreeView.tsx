@@ -345,6 +345,7 @@ export default function PedigreeView() {
           nodes={nodes}
           edges={edges}
           biologicalSexVariable={biologicalSexVariable}
+          nodeLabelVariable={nodeLabelVariable}
           nodeWidth={nodeWidth}
           nodeHeight={nodeHeight}
           renderNode={(node) => (

@@ -40,10 +40,11 @@ export function computeConnectors(
   activePartnerPairs?: Set<string>,
   branch = 0.6,
   pconnect = 0.5,
+  nodeNames?: string[],
 ): PedigreeConnectors {
   const { boxHeight: boxh, legHeight: legh } = scaling;
   const maxlev = layout.nid.length;
-  const maxcol = layout.nid[0]?.length ?? 0;
+  const maxcol = Math.max(...layout.n, 0);
 
   const groupLines: ParentGroupConnector[] = [];
   const groupLineIndex = new Map<string, number>();
@@ -87,25 +88,12 @@ export function computeConnectors(
         };
 
         // For inactive lines, determine which side to place the slash:
-        // put it on the side of the partner who does NOT have another
-        // active relationship, so the connected partner's line looks
-        // continuous.
-        if (!isActive && activePartnerPairs) {
-          const leftId = layout.nid[i]![j]!;
-          const rightId = layout.nid[i]![j + 1]!;
-
-          const leftHasActive = [...activePartnerPairs].some((pk) => {
-            const [a, b] = pk.split(',').map(Number);
-            return a === leftId || b === leftId;
-          });
-          const rightHasActive = [...activePartnerPairs].some((pk) => {
-            const [a, b] = pk.split(',').map(Number);
-            return a === rightId || b === rightId;
-          });
-
-          if (leftHasActive && !rightHasActive) {
-            connector.slashSide = 'right';
-          } else if (rightHasActive && !leftHasActive) {
+        if (!isActive) {
+          if (nodeNames) {
+            const rightId = layout.nid[i]![j + 1]!;
+            const rightName = nodeNames[rightId] ?? '';
+            connector.slashSide = rightName.length === 0 ? 'right' : 'left';
+          } else {
             connector.slashSide = 'left';
           }
         }

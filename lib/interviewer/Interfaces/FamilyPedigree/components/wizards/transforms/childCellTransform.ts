@@ -23,8 +23,6 @@ function extractCustomAttributes(
 
 type RoleKey = 'egg-source' | 'sperm-source' | 'carrier-source';
 
-const ROLE_KEYS: RoleKey[] = ['egg-source', 'sperm-source', 'carrier-source'];
-
 const NEW_PERSON_NAMESPACE: Record<RoleKey, string> = {
   'egg-source': 'new-egg-source',
   'sperm-source': 'new-sperm-source',

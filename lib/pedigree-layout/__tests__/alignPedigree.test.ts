@@ -130,6 +130,20 @@ describe('alignPedigree', () => {
     expect(result.n.filter((v) => v > 0).length).toBe(2);
   });
 
+  it('three co-parents have minimum spacing of 1', () => {
+    const result = alignPedigree(threeCoParents, {
+      hints: { order: [1, 2, 3, 4] },
+    });
+    const parentLevel = result.n.findIndex((v) => v >= 3);
+    expect(parentLevel).toBeGreaterThanOrEqual(0);
+    const positions = result.pos[parentLevel]!.slice(0, result.n[parentLevel]);
+    for (let j = 0; j < positions.length - 1; j++) {
+      expect(positions[j + 1]! - positions[j]!).toBeGreaterThanOrEqual(
+        1 - 1e-10,
+      );
+    }
+  });
+
   it('lays out surrogacy family', () => {
     const result = alignPedigree(surrogacyFamily, {
       hints: { order: [1, 2, 3, 4] },
@@ -506,6 +520,16 @@ describe('alignPedigree', () => {
 
     // Both donors should be equidistant from mom (within tolerance)
     expect(dist1).toBeCloseTo(dist2, 0);
+
+    // Children should be centered under mom, not under donors
+    const child1Pos = posOf.get(3)!;
+    const child2Pos = posOf.get(4)!;
+    const childCenter = (child1Pos + child2Pos) / 2;
+    expect(childCenter).toBeCloseTo(momPos, 0);
+
+    // Each donor should NOT be directly above its child (should be diagonal)
+    expect(donor1Pos).not.toBeCloseTo(child1Pos, 0);
+    expect(donor2Pos).not.toBeCloseTo(child2Pos, 0);
   });
 
   it('places child directly under sole primary parent in reciprocal IVF', () => {
@@ -763,4 +787,57 @@ describe('traditional family regression', () => {
     const x2 = conn.parentChildLines[1]!.parentLink[0]!.x1;
     expect(x1).not.toBeCloseTo(x2, 1);
   });
+});
+
+it('adoption by relative: no duplicate group lines', () => {
+  const sp = (parentIndex: number): ParentConnection => ({
+    parentIndex,
+    edgeType: 'biological',
+  });
+
+  const ped: PedigreeInput = {
+    id: ['grandpa', 'grandma', 'father', 'aunt', 'uncle', 'child'],
+    sex: ['male', 'female', 'male', 'female', 'male', 'female'],
+    gender: ['man', 'woman', 'man', 'woman', 'man', 'woman'],
+    parents: [
+      [],
+      [],
+      [sp(0), sp(1)],
+      [sp(0), sp(1)],
+      [],
+      [
+        { parentIndex: 2, edgeType: 'biological' },
+        { parentIndex: 3, edgeType: 'social' },
+        { parentIndex: 4, edgeType: 'social' },
+      ],
+    ],
+    relation: [{ id1: 3, id2: 4, code: 4 }],
+    partners: [
+      { partnerIndex1: 0, partnerIndex2: 1, isActive: true },
+      { partnerIndex1: 3, partnerIndex2: 4, isActive: true },
+    ],
+  };
+  const result = alignPedigree(ped, {
+    hints: { order: [1, 2, 3, 4, 5, 6] },
+  });
+
+  const conn = computeConnectors(result, defaultScaling, ped.parents);
+
+  // Log for debugging
+  console.log('Group lines:', conn.groupLines.length);
+  for (const gl of conn.groupLines) {
+    console.log(
+      `  ${gl.segment.x1.toFixed(2)} -> ${gl.segment.x2.toFixed(2)} active=${gl.isActive} double=${gl.double}`,
+    );
+  }
+  console.log('Parent-child lines:', conn.parentChildLines.length);
+  console.log('Auxiliary lines:', conn.auxiliaryLines.length);
+  for (const al of conn.auxiliaryLines) {
+    console.log(
+      `  ${al.edgeType}: (${al.segment.x1.toFixed(2)},${al.segment.y1.toFixed(2)}) -> (${al.segment.x2.toFixed(2)},${al.segment.y2.toFixed(2)})`,
+    );
+  }
+
+  // There should be exactly 2 group lines (grandpa+grandma, aunt+uncle)
+  expect(conn.groupLines.length).toBe(2);
 });

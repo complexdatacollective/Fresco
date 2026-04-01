@@ -25,6 +25,7 @@ type PedigreeLayoutProps = {
   nodes: Map<string, NodeData>;
   edges: Map<string, StoreEdge>;
   biologicalSexVariable: string;
+  nodeLabelVariable?: string;
   nodeWidth: number;
   nodeHeight: number;
   renderNode: (node: PedigreeLayoutNode) => ReactNode;
@@ -34,6 +35,7 @@ export default function PedigreeLayout({
   nodes,
   edges,
   biologicalSexVariable,
+  nodeLabelVariable,
   nodeWidth,
   nodeHeight,
   renderNode,
@@ -61,12 +63,21 @@ export default function PedigreeLayout({
 
     const layout = alignPedigree(input);
     const positions = pedigreeLayoutToPositions(layout, indexToId, dimensions);
+    const nodeNames = nodeLabelVariable
+      ? indexToId.map((id) => {
+          const node = nodes.get(id);
+          const name = node?.attributes[nodeLabelVariable];
+          return typeof name === 'string' ? name : '';
+        })
+      : undefined;
+
     const connectorData = buildConnectorData(
       layout,
       edges,
       dimensions,
       input.parents,
       idToIndex,
+      nodeNames,
     );
 
     return { positions, connectorData };

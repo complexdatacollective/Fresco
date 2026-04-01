@@ -178,6 +178,7 @@ export function buildConnectorData(
   dimensions: LayoutDimensions,
   parents: ParentConnection[][] = [],
   idToIndex?: Map<string, number>,
+  nodeNames?: string[],
 ): ConnectorRenderData {
   const metrics = computeLayoutMetrics(dimensions);
   const boxHeight = dimensions.nodeHeight / metrics.rowHeight;
@@ -207,6 +208,9 @@ export function buildConnectorData(
     scaling,
     parents,
     activePartnerPairs,
+    undefined,
+    undefined,
+    nodeNames,
   );
 
   // Transform all coordinates to pixel space
