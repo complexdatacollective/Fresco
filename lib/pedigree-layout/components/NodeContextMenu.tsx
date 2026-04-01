@@ -87,13 +87,17 @@ export default function NodeContextMenu({
                   Add sibling
                 </Menu.Item>
               )}
-              <Menu.Separator className="my-1 h-px bg-current/20" />
-              <Menu.Item
-                className={menuItemClass}
-                onClick={() => onAction('editName')}
-              >
-                Edit name
-              </Menu.Item>
+              {!isEgo && (
+                <>
+                  <Menu.Separator className="my-1 h-px bg-current/20" />
+                  <Menu.Item
+                    className={menuItemClass}
+                    onClick={() => onAction('editName')}
+                  >
+                    Edit name
+                  </Menu.Item>
+                </>
+              )}
               {!isEgo && (
                 <>
                   <Menu.Separator className="my-1 h-px bg-current/20" />

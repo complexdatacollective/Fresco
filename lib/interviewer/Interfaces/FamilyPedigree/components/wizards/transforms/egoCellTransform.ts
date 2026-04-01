@@ -93,6 +93,7 @@ function buildAdditionalParent(
 export type EgoCellResult = {
   batch: CommitBatch;
   egoAdoptionStatus?: 'in';
+  egoAttributes?: Record<string, unknown>;
 };
 
 export function egoCellTransform(
@@ -160,16 +161,46 @@ export function egoCellTransform(
   const egoRef = existingEgoId ?? 'ego';
   const batch: CommitBatch = { nodes: [], edges: [] };
 
+  const egoSex = values['ego-sex-at-birth'] as string | undefined;
+
+  const egoKnownKeys = new Set([
+    'ego-sex-at-birth',
+    'egg-parent',
+    'sperm-parent',
+    'gestational-carrier',
+    'hasOtherParents',
+    'otherParentCount',
+    'additional-parent',
+    'hasPartner',
+    'partner',
+    'childrenWithPartnerCount',
+    'childWithPartner',
+  ]);
+  const egoCustomAttrs: Record<string, unknown> = {};
+  for (const [key, val] of Object.entries(values)) {
+    if (
+      !egoKnownKeys.has(key) &&
+      !key.startsWith('partnership-') &&
+      val !== undefined
+    ) {
+      egoCustomAttrs[key] = val;
+    }
+  }
+
+  const egoAttributes: Record<string, unknown> = {
+    [variableConfig.nodeLabelVariable]: '',
+    [variableConfig.egoVariable]: true,
+    ...(egoSex ? { [variableConfig.biologicalSexVariable]: egoSex } : {}),
+    ...egoCustomAttrs,
+  };
+
   if (!existingEgoId) {
     batch.nodes.push({
       tempId: 'ego',
       data: {
         isEgo: true,
         ...(hasAdoptiveParent ? { adoptionStatus: 'in' as const } : {}),
-        attributes: {
-          [variableConfig.nodeLabelVariable]: '',
-          [variableConfig.egoVariable]: true,
-        },
+        attributes: egoAttributes,
       },
     });
   }
@@ -288,5 +319,6 @@ export function egoCellTransform(
   return {
     batch,
     ...(hasAdoptiveParent ? { egoAdoptionStatus: 'in' as const } : {}),
+    ...(existingEgoId ? { egoAttributes } : {}),
   };
 }

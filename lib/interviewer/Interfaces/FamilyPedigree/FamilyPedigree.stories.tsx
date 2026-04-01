@@ -413,6 +413,10 @@ export const NuclearFamily: ScenarioStory = {
   render: scenarioRender,
   play: async () => {
     await clickGetStarted();
+
+    // About you
+    await setFieldInput('ego-sex-at-birth', 'Female');
+    await setFieldInput('gender_identity', 'Woman');
     await clickContinue();
 
     await setFieldInput('egg-parent.is-donor', false);
@@ -465,6 +469,9 @@ export const SingleParent: ScenarioStory = {
   play: async () => {
     await clickGetStarted();
 
+    // About you
+    await setFieldInput('ego-sex-at-birth', 'Female');
+    await setFieldInput('gender_identity', 'Woman');
     await clickContinue();
 
     // Bioparents step: Linda is bio mum, absent father (not a donor)
@@ -560,6 +567,10 @@ export const SpermDonor: ScenarioStory = {
   render: scenarioRender,
   play: async () => {
     await clickGetStarted();
+
+    // About you
+    await setFieldInput('ego-sex-at-birth', 'Female');
+    await setFieldInput('gender_identity', 'Woman');
     await clickContinue();
 
     await setFieldInput('egg-parent.is-donor', false);
@@ -723,6 +734,10 @@ export const NonBinaryEgo: ScenarioStory = {
   render: scenarioRender,
   play: async () => {
     await clickGetStarted();
+
+    // About you
+    await setFieldInput('ego-sex-at-birth', 'Intersex');
+    await setFieldInput('gender_identity', 'Non-binary');
     await clickContinue();
 
     await setFieldInput('egg-parent.is-donor', false);
@@ -898,6 +913,10 @@ export const WithPartnerAndChildren: ScenarioStory = {
   render: scenarioRender,
   play: async () => {
     await clickGetStarted();
+
+    // About you
+    await setFieldInput('ego-sex-at-birth', 'Female');
+    await setFieldInput('gender_identity', 'Woman');
     await clickContinue();
 
     await setFieldInput('egg-parent.is-donor', false);

@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'motion/react';
 import useDialog from '~/lib/dialogs/useDialog';
 import AdditionalParentsStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/AdditionalParentsStep';
 import BioParentsStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/BioParentsStep';
+import EgoDetailsStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/EgoDetailsStep';
 import ChildrenDetailStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/ChildrenDetailStep';
 import OtherParentsStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/OtherParentsStep';
 import ParentPartnershipsStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/ParentPartnershipsStep';
@@ -34,6 +35,10 @@ export default function EgoCellWizard({
       title: 'Your Biological Parents',
       progress: null,
       steps: [
+        {
+          title: 'About you',
+          content: EgoDetailsStep,
+        },
         {
           title: 'Your biological parents',
           content: BioParentsStep,
