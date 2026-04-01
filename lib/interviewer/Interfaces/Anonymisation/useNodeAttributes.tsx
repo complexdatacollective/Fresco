@@ -18,7 +18,6 @@ export const useNodeAttributes = (node: NcNode | undefined) => {
   const getCodebookVariablesForNodeType = useSelector(
     makeGetCodebookVariablesForNodeType,
   );
-  const nodeAttributes = node ? getEntityAttributes(node) : {};
   const {
     requirePassphrase,
     setPassphraseInvalid,
@@ -32,6 +31,7 @@ export const useNodeAttributes = (node: NcNode | undefined) => {
     ): Promise<T | undefined> => {
       if (!node) return undefined;
 
+      const nodeAttributes = getEntityAttributes(node);
       const codebookVariables = getCodebookVariablesForNodeType(node.type);
 
       const isEncrypted =
@@ -92,7 +92,6 @@ export const useNodeAttributes = (node: NcNode | undefined) => {
     },
     [
       getCodebookVariablesForNodeType,
-      nodeAttributes,
       node,
       requirePassphrase,
       setPassphraseInvalid,
