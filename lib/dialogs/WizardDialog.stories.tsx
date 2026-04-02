@@ -1019,7 +1019,7 @@ export const ConfirmCancel: StoryObj<Meta<WizardStoryArgs>> = {
 
     // Click Cancel again
     await userEvent.click(
-      within(screen.getByRole('dialog')).getByRole('button', {
+      within(dialog).getByRole('button', {
         name: 'Cancel',
       }),
     );
@@ -1030,7 +1030,7 @@ export const ConfirmCancel: StoryObj<Meta<WizardStoryArgs>> = {
     });
 
     await userEvent.click(
-      screen.getByRole('button', { name: 'Cancel wizard' }),
+      screen.getByRole('button', { name: 'Exit and lose progress' }),
     );
 
     // Wizard should close with null

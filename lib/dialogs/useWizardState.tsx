@@ -141,7 +141,7 @@ export default function useWizardState({
 
     const next = findNextUnskipped(stepIndex, 'forward');
     if (next === null) {
-      const formValues = getFormValues();
+      const formValues = { ...dataRef.current, ...getFormValues() };
       const result = dialog.onFinish ? dialog.onFinish(formValues) : formValues;
       await closeDialog(dialogId, result);
       return;
