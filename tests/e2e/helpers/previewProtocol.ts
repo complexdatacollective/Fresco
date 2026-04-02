@@ -44,6 +44,7 @@ export async function createPreviewProtocol(
       [nodeTypeId]: {
         name: 'person',
         color: 'node-color-seq-1',
+        shape: { default: 'circle' },
         variables: {
           name: { name: 'name', type: 'text' },
         },
@@ -129,6 +130,7 @@ export function createTestProtocol(overrides?: {
         [nodeTypeId]: {
           name: 'person',
           color: 'node-color-seq-1',
+          shape: { default: 'circle' },
           variables: {
             name: { name: 'name', type: 'text' },
           },

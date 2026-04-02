@@ -111,6 +111,7 @@ export class TestDataBuilder {
         [nodeTypeId]: {
           name: 'person',
           color: 'node-color-seq-1',
+          shape: { default: 'circle' },
           variables: {
             name: {
               name: 'name',
