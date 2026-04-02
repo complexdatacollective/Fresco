@@ -207,7 +207,7 @@ test.describe('Preview Mode API', () => {
         message: string;
       };
       expect(body.status).toBe('error');
-      expect(body.message).toBe('UploadThing not configured');
+      expect(body.message).toBe('Failed to process preview request');
     });
 
     test('complete-preview returns 404 for non-existent protocol', async ({
