@@ -60,6 +60,7 @@ export default function BioParentsForm() {
               name="is-donor"
               label="Was this person an egg donor?"
               component={BooleanField}
+              initialValue={false}
               required
             />
             <Field
@@ -95,6 +96,7 @@ export default function BioParentsForm() {
               name="is-donor"
               label="Was this person a sperm donor?"
               component={BooleanField}
+              initialValue={false}
               required
             />
             {fieldComponents}
