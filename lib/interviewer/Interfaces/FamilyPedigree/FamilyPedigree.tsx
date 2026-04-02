@@ -146,9 +146,28 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
 
   useBeforeNext((direction) => {
     if (direction === 'forwards') {
-      if (currentStepIndex === 0 && isNetworkCommitted) {
-        setCurrentStepIndex(1);
-        updateNominationVariable(1);
+      // Step 0 → finalize before advancing
+      if (currentStepIndex === 0) {
+        if (isNetworkCommitted) {
+          // Already finalized (revisiting) — skip straight to nomination
+          setCurrentStepIndex(1);
+          updateNominationVariable(1);
+        } else if (!hasNodes) {
+          // Ego wizard not yet completed
+          void openDialog({
+            type: 'acknowledge',
+            title: 'Pedigree is incomplete',
+            description:
+              'Please complete the onboarding wizard before continuing.',
+            intent: 'destructive',
+            actions: {
+              primary: { label: 'OK', value: true as const },
+            },
+          });
+        } else {
+          // Not finalized — show confirmation dialog
+          void handleConfirmAndAdvance();
+        }
         return false;
       }
 
@@ -183,13 +202,20 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
     );
 
     if (issues.length > 0) {
-      const issueList = issues.map((i) => i.message).join('\n');
-      await confirm({
+      await openDialog({
+        type: 'acknowledge',
         title: 'Pedigree is incomplete',
-        description: `The following issues must be resolved before finalizing:\n\n${issueList}`,
-        confirmLabel: 'OK',
-        intent: 'default',
-        onConfirm: () => undefined,
+        description: 'The following issues must be resolved before finalizing:',
+        children: (
+          <ul className="list-disc space-y-1 pl-5">
+            {issues.map((issue) => (
+              <li key={issue.message}>{issue.message}</li>
+            ))}
+          </ul>
+        ),
+        actions: {
+          primary: { label: 'OK', value: true as const },
+        },
       });
       return;
     }
@@ -198,7 +224,7 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
       title: 'Finalize your family pedigree?',
       description:
         'Once you continue, you will not be able to add or remove family members. You can still edit their details.',
-      confirmLabel: 'Continue',
+      confirmLabel: 'Finalize',
       cancelLabel: 'Keep editing',
       intent: 'default',
       onConfirm: async () => {
