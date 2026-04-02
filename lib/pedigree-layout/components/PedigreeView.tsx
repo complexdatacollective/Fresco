@@ -42,6 +42,12 @@ export default function PedigreeView() {
   const updateNode = useFamilyPedigreeStore((s) => s.updateNode);
   const removeNode = useFamilyPedigreeStore((s) => s.removeNode);
   const commitBatch = useFamilyPedigreeStore((s) => s.commitBatch);
+  const activeNominationVariable = useFamilyPedigreeStore(
+    (s) => s.activeNominationVariable,
+  );
+  const toggleNodeAttribute = useFamilyPedigreeStore(
+    (s) => s.toggleNodeAttribute,
+  );
 
   const nodeLabelVariable = useSelector(getNodeLabelVariable);
   const egoVariable = useSelector(getEgoVariable);
@@ -316,26 +322,38 @@ export default function PedigreeView() {
           nodeLabelVariable={nodeLabelVariable}
           nodeWidth={nodeWidth}
           nodeHeight={nodeHeight}
-          renderNode={(node) => (
-            <NodeContextMenu
-              isBiological={
-                node.isEgo ||
-                [...edges.values()].some(
-                  (e) =>
-                    e.relationshipType !== 'partner' &&
-                    (e.source === node.id || e.target === node.id),
-                )
-              }
-              isEgo={node.isEgo}
-              onAction={(action) => handleMenuAction(node.id, action)}
-            >
+          renderNode={(node) =>
+            activeNominationVariable ? (
               <PedigreeNode
                 node={node}
                 displayLabel={displayLabels.get(node.id) ?? ''}
-                allowDrag={node.readOnly !== true}
+                allowDrag={false}
+                selected={node.attributes[activeNominationVariable] === true}
+                onClick={() =>
+                  toggleNodeAttribute(node.id, activeNominationVariable)
+                }
               />
-            </NodeContextMenu>
-          )}
+            ) : (
+              <NodeContextMenu
+                isBiological={
+                  node.isEgo ||
+                  [...edges.values()].some(
+                    (e) =>
+                      e.relationshipType !== 'partner' &&
+                      (e.source === node.id || e.target === node.id),
+                  )
+                }
+                isEgo={node.isEgo}
+                onAction={(action) => handleMenuAction(node.id, action)}
+              >
+                <PedigreeNode
+                  node={node}
+                  displayLabel={displayLabels.get(node.id) ?? ''}
+                  allowDrag={node.readOnly !== true}
+                />
+              </NodeContextMenu>
+            )
+          }
         />
       </div>
     </div>

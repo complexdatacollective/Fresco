@@ -29,12 +29,10 @@ const FamilyPedigreeContext = createContext<FamilyPedigreeStoreApi | undefined>(
 export const FamilyPedigreeProvider = ({
   nodes,
   edges,
-  diseaseVariables,
   children,
 }: {
   nodes: NcNode[];
   edges: NcEdge[];
-  diseaseVariables: string[];
   children: React.ReactNode;
 }) => {
   const storeRef = useRef<FamilyPedigreeStoreApi>(undefined);
@@ -56,25 +54,15 @@ export const FamilyPedigreeProvider = ({
   };
 
   const initialNodes = new Map<string, NodeData>(
-    nodes.map((node) => {
-      const diseases = new Map(
-        diseaseVariables.map((disease) => [
-          disease,
-          node.attributes[disease] === true,
-        ]),
-      );
-
-      return [
-        node._uid,
-        {
-          isEgo: node.attributes[egoVariable] === true,
-          readOnly: false,
-          interviewNetworkId: node._uid,
-          diseases,
-          attributes: { ...node.attributes },
-        },
-      ];
-    }),
+    nodes.map((node) => [
+      node._uid,
+      {
+        isEgo: node.attributes[egoVariable] === true,
+        readOnly: false,
+        interviewNetworkId: node._uid,
+        attributes: { ...node.attributes },
+      },
+    ]),
   );
 
   const initialEdges = new Map<string, StoreEdge>(

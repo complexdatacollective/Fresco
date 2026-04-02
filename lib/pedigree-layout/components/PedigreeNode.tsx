@@ -155,6 +155,7 @@ type PedigreeNodeProps = {
   displayLabel: string;
   allowDrag: boolean;
   selected?: boolean;
+  onClick?: () => void;
 };
 
 export default function PedigreeNode({
@@ -162,6 +163,7 @@ export default function PedigreeNode({
   displayLabel,
   allowDrag,
   selected,
+  onClick,
   ...rest
 }: PedigreeNodeProps) {
   const { id, isEgo, adoptionStatus } = node;
@@ -209,5 +211,9 @@ export default function PedigreeNode({
     nodeElement
   );
 
-  return <div>{wrappedNode}</div>;
+  return (
+    <div onClick={onClick} role={onClick ? 'button' : undefined}>
+      {wrappedNode}
+    </div>
+  );
 }

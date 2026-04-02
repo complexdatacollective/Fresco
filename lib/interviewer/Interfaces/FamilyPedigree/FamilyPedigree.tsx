@@ -53,6 +53,9 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
   const syncMetadata = useFamilyPedigreeStore((s) => s.syncMetadata);
   const clearNetwork = useFamilyPedigreeStore((s) => s.clearNetwork);
   const commitBatch = useFamilyPedigreeStore((s) => s.commitBatch);
+  const setActiveNominationVariable = useFamilyPedigreeStore(
+    (s) => s.setActiveNominationVariable,
+  );
 
   const nodeLabelVariable = useSelector(getNodeLabelVariable);
   const egoVariable = useSelector(getEgoVariable);
@@ -90,6 +93,11 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
 
+  const updateNominationVariable = (stepIndex: number) => {
+    const prompt = allPrompts[stepIndex];
+    setActiveNominationVariable(prompt?.variable ?? null);
+  };
+
   useBeforeNext((direction) => {
     if (direction === 'forwards') {
       const isLastStep = currentStepIndex === allPrompts.length - 1;
@@ -98,14 +106,18 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
         return true;
       }
 
-      setCurrentStepIndex((prev) => prev + 1);
+      const nextStep = currentStepIndex + 1;
+      setCurrentStepIndex(nextStep);
+      updateNominationVariable(nextStep);
       return false;
     } else if (direction === 'backwards') {
       if (currentStepIndex === 0) {
         return true;
       }
 
-      setCurrentStepIndex((prev) => prev - 1);
+      const prevStep = currentStepIndex - 1;
+      setCurrentStepIndex(prevStep);
+      updateNominationVariable(prevStep);
       return false;
     }
     return false;
@@ -144,6 +156,7 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
 
     if (result === true) {
       setCurrentStepIndex(1);
+      updateNominationVariable(1);
     }
   };
 
@@ -304,15 +317,8 @@ export default function FamilyPedigreeWithProvider(
 ) {
   const allNodes = useSelector(getNetworkNodes);
   const allEdges = useSelector(getNetworkEdges);
-  const { stage } = props;
-  const diseaseVariables =
-    stage.nominationPrompts?.map((prompt) => prompt.variable) ?? [];
   return (
-    <FamilyPedigreeProvider
-      nodes={allNodes}
-      edges={allEdges}
-      diseaseVariables={diseaseVariables}
-    >
+    <FamilyPedigreeProvider nodes={allNodes} edges={allEdges}>
       <FamilyPedigree {...props} />
     </FamilyPedigreeProvider>
   );

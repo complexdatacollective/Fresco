@@ -21,7 +21,6 @@ export type NodeData = {
   isEgo: boolean;
   readOnly?: boolean;
   interviewNetworkId?: string;
-  diseases?: Map<string, boolean>;
   isBioRelative?: boolean;
   adoptionStatus?: AdoptionStatus;
   attributes: Record<string, unknown>;
@@ -58,6 +57,7 @@ export type CommitBatch = {
 
 type FamilyPedigreeState = {
   step: 'scaffolding' | 'diseaseNomination';
+  activeNominationVariable: string | null;
   network: {
     nodes: Map<string, NodeData>;
     edges: Map<string, StoreEdge>;
@@ -72,6 +72,8 @@ type NetworkActions = {
   removeEdge: (id: string) => void;
   clearNetwork: () => void;
   setStep: (step: FamilyPedigreeState['step']) => void;
+  setActiveNominationVariable: (variable: string | null) => void;
+  toggleNodeAttribute: (nodeId: string, variable: string) => void;
   commitBatch: (batch: CommitBatch) => void;
   syncMetadata: () => void;
 };
@@ -88,6 +90,7 @@ export const createFamilyPedigreeStore = (
     immer((set, get) => {
       return {
         step: 'scaffolding',
+        activeNominationVariable: null,
         network: {
           nodes: initialNodes,
           edges: initialEdges,
@@ -96,6 +99,18 @@ export const createFamilyPedigreeStore = (
         setStep: (step) =>
           set((state) => {
             state.step = step;
+          }),
+
+        setActiveNominationVariable: (variable) =>
+          set((state) => {
+            state.activeNominationVariable = variable;
+          }),
+
+        toggleNodeAttribute: (nodeId, variable) =>
+          set((state) => {
+            const node = state.network.nodes.get(nodeId);
+            if (!node) return;
+            node.attributes[variable] = node.attributes[variable] !== true;
           }),
 
         addNode: (node) => {
