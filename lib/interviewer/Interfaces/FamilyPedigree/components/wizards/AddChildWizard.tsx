@@ -79,6 +79,7 @@ export async function openAddChildWizard(
     variableConfig,
   );
   const existingNodes = buildNodeOptions(nodes, variableConfig);
+  const bioTriadConfig = { existingNodes, preselection };
 
   const result = await openDialog({
     type: 'wizard',
@@ -97,7 +98,7 @@ export async function openAddChildWizard(
       {
         title: 'Biological parents',
         content: () => (
-          <BioTriadConfigProvider value={{ existingNodes, preselection }}>
+          <BioTriadConfigProvider value={bioTriadConfig}>
             <BioTriadStep />
           </BioTriadConfigProvider>
         ),
@@ -113,7 +114,11 @@ export async function openAddChildWizard(
       },
       {
         title: 'Parent partnerships',
-        content: NewParentPartnershipsStep,
+        content: () => (
+          <BioTriadConfigProvider value={bioTriadConfig}>
+            <NewParentPartnershipsStep />
+          </BioTriadConfigProvider>
+        ),
         skip: shouldSkipNewParentPartnerships,
       },
     ],

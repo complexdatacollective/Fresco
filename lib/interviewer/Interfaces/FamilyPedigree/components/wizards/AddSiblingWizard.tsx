@@ -92,10 +92,20 @@ export async function openAddSiblingWizard(
   const preselection = derivePreselection(anchorNodeId, edges, variableConfig);
   const existingNodes = buildNodeOptions(nodes, variableConfig);
 
+  const bioTriadConfig = { existingNodes, preselection };
+
   function WrappedBioTriadStep() {
     return (
-      <BioTriadConfigProvider value={{ existingNodes, preselection }}>
+      <BioTriadConfigProvider value={bioTriadConfig}>
         <BioTriadStep />
+      </BioTriadConfigProvider>
+    );
+  }
+
+  function WrappedPartnershipsStep() {
+    return (
+      <BioTriadConfigProvider value={bioTriadConfig}>
+        <NewParentPartnershipsStep />
       </BioTriadConfigProvider>
     );
   }
@@ -124,7 +134,7 @@ export async function openAddSiblingWizard(
       },
       {
         title: 'Parent partnerships',
-        content: NewParentPartnershipsStep,
+        content: WrappedPartnershipsStep,
         skip: shouldSkipNewParentPartnerships,
       },
     ],

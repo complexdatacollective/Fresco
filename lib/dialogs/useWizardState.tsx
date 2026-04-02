@@ -106,6 +106,11 @@ export default function useWizardState({
       prevStepRef.current = stepIndex;
       resetStepOverrides();
       setStepIndex(target);
+      requestAnimationFrame(() => {
+        document
+          .querySelector('[role="dialog"] .scroll-area-viewport')
+          ?.scrollTo(0, 0);
+      });
     },
     [stepIndex, totalSteps, resetStepOverrides],
   );

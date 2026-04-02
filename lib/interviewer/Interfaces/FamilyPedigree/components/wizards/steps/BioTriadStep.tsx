@@ -100,7 +100,7 @@ function ParentSection({
         watch={[roleKey]}
         condition={(values) => values[roleKey] === 'new'}
       >
-        <PersonFields namespace={`new-${roleKey}`}  />
+        <PersonFields namespace={`new-${roleKey}`} />
       </FieldGroup>
       <FieldGroup
         watch={[roleKey]}
@@ -112,6 +112,7 @@ function ParentSection({
           name={donorFieldName}
           label={donorLabel}
           component={BooleanField}
+          initialValue={false}
           required
         />
         {carriedFieldName && carriedLabel && (
@@ -193,7 +194,7 @@ export default function BioTriadStep() {
             watch={['carrier-source']}
             condition={(values) => values['carrier-source'] === 'new'}
           >
-            <PersonFields namespace="new-carrier"  />
+            <PersonFields namespace="new-carrier" />
           </FieldGroup>
           <FieldGroup
             watch={['carrier-source']}
@@ -207,6 +208,7 @@ export default function BioTriadStep() {
               label="Was this person a gestational surrogate?"
               hint="A surrogate carries a pregnancy on behalf of someone else. Select 'Yes' if this person was not the intended parent."
               component={BooleanField}
+              initialValue={false}
               required
             />
           </FieldGroup>
