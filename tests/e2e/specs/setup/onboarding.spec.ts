@@ -29,7 +29,7 @@ test.describe('Setup Flow', () => {
   });
 
   test('completes the onboarding wizard', async ({ page, capturePage }) => {
-    // This test navigates 5 wizard steps and captures screenshots at 7 viewports
+    // This test navigates 4 wizard steps and captures screenshots at 7 viewports
     // per step (~28 screenshots). WebKit is notably slower at rendering/comparing
     // screenshots, so the default 60s timeout is insufficient.
     test.setTimeout(120_000);
@@ -52,47 +52,38 @@ test.describe('Setup Flow', () => {
     await fillField(page, 'confirmPassword', 'TestAdmin123!');
     await page.getByRole('button', { name: 'Create account' }).click();
 
-    // Step 2: Connect UploadThing
+    // Step 2: Configure Storage
     await expect(
-      page.getByRole('heading', { name: 'Connect UploadThing', level: 2 }),
+      page.getByRole('heading', { name: 'Configure Storage', level: 2 }),
     ).toBeVisible({ timeout: 15_000 });
 
-    await capturePage('setup-step-2-connect-uploadthing');
+    await capturePage('setup-step-2-configure-storage');
 
+    // UploadThing is selected by default — fill the token field.
+    // The token must be valid base64-encoded JSON with apiKey and appId fields.
+    // The UPLOADTHING_TOKEN= prefix is stripped by the schema parser.
     await fillField(
       page,
       'uploadThingToken',
-      'UPLOADTHING_TOKEN=test_token_value_here_12345',
+      'UPLOADTHING_TOKEN=eyJhcGlLZXkiOiJza19saXZlX3Rlc3QxMjMiLCJhcHBJZCI6InRlc3QtYXBwLWlkIn0=',
     );
     await page.getByRole('button', { name: 'Save and continue' }).click();
 
     // Step 3: Upload Protocol - skip
     await expect(
       page.getByRole('heading', { name: 'Import Protocols', level: 2 }),
-    ).toBeVisible();
+    ).toBeVisible({ timeout: 15_000 });
 
     await capturePage('setup-step-3-import-protocols');
 
     await page.getByRole('button', { name: /continue/i }).click();
 
-    // Step 4: Configure Participation - skip
-    await expect(
-      page.getByRole('heading', {
-        name: 'Configure Participation',
-        level: 2,
-      }),
-    ).toBeVisible();
-
-    await capturePage('setup-step-4-configure-participation');
-
-    await page.getByRole('button', { name: /continue/i }).click();
-
-    // Step 5: Documentation - complete
+    // Step 4: Documentation - complete
     await expect(
       page.getByRole('heading', { name: 'Documentation', level: 2 }),
     ).toBeVisible();
 
-    await capturePage('setup-step-5-documentation');
+    await capturePage('setup-step-4-documentation');
 
     await page.getByRole('button', { name: 'Go to the dashboard!' }).click();
 
