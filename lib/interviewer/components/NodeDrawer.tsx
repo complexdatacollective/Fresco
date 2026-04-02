@@ -26,7 +26,7 @@ export default function NodeDrawer({
   onExpandedChange,
   floating = false,
 }: NodeDrawerProps) {
-  const [internalExpanded, setInternalExpanded] = useState(true);
+  const [internalExpanded, setInternalExpanded] = useState(nodes.length > 0);
   const isExpanded = expanded ?? internalExpanded;
   const setIsExpanded = onExpandedChange ?? setInternalExpanded;
 
