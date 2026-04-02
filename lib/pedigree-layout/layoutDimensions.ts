@@ -4,7 +4,7 @@ export type LayoutDimensions = {
 };
 
 export function computeLayoutMetrics(dims: LayoutDimensions) {
-  const rowGap = Math.round(dims.nodeHeight * 0.6);
+  const rowGap = Math.round(dims.nodeHeight * 1);
   const columnGap = Math.round(dims.nodeWidth * 0.6);
   const containerWidth = dims.nodeWidth;
   const containerHeight = dims.nodeHeight;
