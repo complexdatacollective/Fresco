@@ -12,18 +12,27 @@ export const S3ConfigForm = () => {
   const router = useRouter();
 
   const handleSubmit = async (rawData: unknown) => {
-    const result = await saveS3Config(rawData);
+    try {
+      const result = await saveS3Config(rawData);
 
-    if (!result.success) {
+      if (!result.success) {
+        return {
+          success: false as const,
+          fieldErrors: result.fieldErrors ?? {},
+          formErrors: 'error' in result && result.error ? [result.error] : [],
+        };
+      }
+
+      router.push('/setup?step=3');
+      return { success: true as const };
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'An unexpected error occurred';
       return {
         success: false as const,
-        fieldErrors: result.fieldErrors ?? {},
-        formErrors: 'error' in result && result.error ? [result.error] : [],
+        formErrors: [message],
       };
     }
-
-    router.push('/setup?step=3');
-    return { success: true as const };
   };
 
   return (

@@ -13,32 +13,43 @@ export const UploadThingTokenForm = () => {
   const router = useRouter();
 
   const handleSubmit = async (rawData: unknown) => {
-    const result = await setUploadThingToken(rawData);
+    try {
+      const result = await setUploadThingToken(rawData);
 
-    if (!result.success) {
+      if (!result.success) {
+        return {
+          success: false as const,
+          fieldErrors: result.fieldErrors,
+        };
+      }
+
+      const providerResult = await setStorageProvider('uploadthing');
+      if (!providerResult.success) {
+        return {
+          success: false as const,
+          formErrors: [
+            providerResult.error ?? 'Failed to set storage provider.',
+          ],
+        };
+      }
+
+      router.push('/setup?step=3');
+
+      return {
+        success: true as const,
+      };
+    } catch (error) {
+      const message =
+        error instanceof Error ? error.message : 'An unexpected error occurred';
       return {
         success: false as const,
-        fieldErrors: result.fieldErrors,
+        formErrors: [message],
       };
     }
-
-    const providerResult = await setStorageProvider('uploadthing');
-    if (!providerResult.success) {
-      return {
-        success: false as const,
-        formErrors: [providerResult.error ?? 'Failed to set storage provider.'],
-      };
-    }
-
-    router.push('/setup?step=3');
-
-    return {
-      success: true as const,
-    };
   };
 
   return (
-    <Form onSubmit={handleSubmit} className="flex w-full flex-col">
+    <Form onSubmit={handleSubmit}>
       <Field
         key="uploadThingToken"
         name="uploadThingToken"
