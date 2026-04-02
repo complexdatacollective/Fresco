@@ -34,24 +34,47 @@ import PedigreeLayout from '~/lib/pedigree-layout/components/PedigreeLayout';
 import PedigreeNode, {
   computeNodeDisplayLabels,
 } from '~/lib/pedigree-layout/components/PedigreeNode';
-import { type VariableValue } from '@codaco/shared-consts';
+import {
+  type NcEdge,
+  type NcNode,
+  type VariableValue,
+} from '@codaco/shared-consts';
+import { type NodeMetadata } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import { type ParentEdge } from '~/schemas/familyPedigree';
 
-export default function PedigreeView() {
-  const nodes = useFamilyPedigreeStore((s) => s.network.nodes);
-  const edges = useFamilyPedigreeStore((s) => s.network.edges);
-  const nodeMetadata = useFamilyPedigreeStore((s) => s.nodeMetadata);
+type PedigreeViewProps = {
+  overrideNodes?: Map<string, NcNode>;
+  overrideEdges?: Map<string, NcEdge>;
+  overrideNodeMetadata?: Map<string, NodeMetadata>;
+  activeNominationVariable?: string | null;
+  onToggleAttribute?: (nodeId: string, variable: string) => void;
+};
+
+export default function PedigreeView({
+  overrideNodes,
+  overrideEdges,
+  overrideNodeMetadata,
+  activeNominationVariable: activeNominationVariableProp,
+  onToggleAttribute,
+}: PedigreeViewProps = {}) {
+  const storeNodes = useFamilyPedigreeStore((s) => s.network.nodes);
+  const storeEdges = useFamilyPedigreeStore((s) => s.network.edges);
+  const storeNodeMetadata = useFamilyPedigreeStore((s) => s.nodeMetadata);
+  const storeActiveNominationVariable = useFamilyPedigreeStore(
+    (s) => s.activeNominationVariable,
+  );
+
+  const nodes = overrideNodes ?? storeNodes;
+  const edges = overrideEdges ?? storeEdges;
+  const nodeMetadata = overrideNodeMetadata ?? storeNodeMetadata;
+  const activeNominationVariable =
+    activeNominationVariableProp ?? storeActiveNominationVariable;
+
   const addNode = useFamilyPedigreeStore((s) => s.addNode);
   const addEdge = useFamilyPedigreeStore((s) => s.addEdge);
   const updateNode = useFamilyPedigreeStore((s) => s.updateNode);
   const removeNode = useFamilyPedigreeStore((s) => s.removeNode);
   const commitBatch = useFamilyPedigreeStore((s) => s.commitBatch);
-  const activeNominationVariable = useFamilyPedigreeStore(
-    (s) => s.activeNominationVariable,
-  );
-  const toggleNodeAttribute = useFamilyPedigreeStore(
-    (s) => s.toggleNodeAttribute,
-  );
 
   const nodeType = useSelector(getNodeTypeKey);
   const edgeType = useSelector(getEdgeTypeKey);
@@ -362,7 +385,7 @@ export default function PedigreeView() {
                 isAdopted={isAdopted}
                 selected={node.attributes[activeNominationVariable] === true}
                 onClick={() =>
-                  toggleNodeAttribute(node.id, activeNominationVariable)
+                  onToggleAttribute?.(node.id, activeNominationVariable)
                 }
               />
             ) : (

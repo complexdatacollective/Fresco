@@ -6,7 +6,12 @@ import {
 import { enableMapSet } from 'immer';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import { updateStageMetadata } from '~/lib/interviewer/ducks/modules/session';
+import {
+  addEdge as addEdgeToNetwork,
+  addNode as addNodeToNetwork,
+  deleteNode,
+  updateStageMetadata,
+} from '~/lib/interviewer/ducks/modules/session';
 import { type useAppDispatch } from '~/lib/interviewer/store';
 import { computeAllDisplayLabels } from '~/lib/pedigree-layout/utils/getDisplayLabel';
 
@@ -70,9 +75,10 @@ type NetworkActions = {
   clearNetwork: () => void;
   setStep: (step: FamilyPedigreeState['step']) => void;
   setActiveNominationVariable: (variable: string | null) => void;
-  toggleNodeAttribute: (nodeId: string, variable: string) => void;
   commitBatch: (batch: CommitBatch) => void;
   syncMetadata: () => void;
+  finalizeNetwork: () => Promise<void>;
+  resetNetwork: () => void;
 };
 
 export type FamilyPedigreeStore = FamilyPedigreeState & NetworkActions;
@@ -104,13 +110,6 @@ export const createFamilyPedigreeStore = (
         setActiveNominationVariable: (variable) =>
           set((state) => {
             state.activeNominationVariable = variable;
-          }),
-
-        toggleNodeAttribute: (nodeId, variable) =>
-          set((state) => {
-            const node = state.network.nodes.get(nodeId);
-            if (!node) return;
-            node.attributes[variable] = node.attributes[variable] !== true;
           }),
 
         addNode: (node) => {
@@ -264,6 +263,75 @@ export const createFamilyPedigreeStore = (
               edges: serializedEdges,
             }),
           );
+        },
+
+        finalizeNetwork: async () => {
+          if (!dispatch) return;
+
+          const { network, syncMetadata: sync } = get();
+          const idMap = new Map<string, string>();
+
+          for (const [storeId, node] of network.nodes) {
+            const reduxId = crypto.randomUUID();
+            const result = await dispatch(
+              addNodeToNetwork({
+                type: variableConfig.nodeType,
+                attributeData: { ...node.attributes },
+                modelData: { _uid: reduxId },
+                allowUnknownAttributes: true,
+              }),
+            );
+
+            if (addNodeToNetwork.fulfilled.match(result)) {
+              idMap.set(storeId, reduxId);
+            }
+          }
+
+          for (const [, edge] of network.edges) {
+            const mappedFrom = idMap.get(edge.from);
+            const mappedTo = idMap.get(edge.to);
+            if (mappedFrom && mappedTo) {
+              await dispatch(
+                addEdgeToNetwork({
+                  type: variableConfig.edgeType,
+                  from: mappedFrom,
+                  to: mappedTo,
+                  attributeData: { ...edge.attributes },
+                }),
+              );
+            }
+          }
+
+          set((state) => {
+            state.storeToReduxIdMap = new Map(idMap);
+            for (const key of state.nodeMetadata.keys()) {
+              const meta = state.nodeMetadata.get(key);
+              if (meta) {
+                meta.readOnly = true;
+              }
+            }
+          });
+
+          sync();
+        },
+
+        resetNetwork: () => {
+          const { storeToReduxIdMap } = get();
+
+          for (const reduxId of storeToReduxIdMap.values()) {
+            dispatch?.(deleteNode(reduxId));
+          }
+
+          set((state) => {
+            state.network.nodes.clear();
+            state.network.edges.clear();
+            state.nodeMetadata.clear();
+            state.storeToReduxIdMap.clear();
+            state.step = 'scaffolding';
+            state.activeNominationVariable = null;
+          });
+
+          dispatch?.(updateStageMetadata({ isNetworkCommitted: false }));
         },
       };
     }),

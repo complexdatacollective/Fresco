@@ -1,12 +1,16 @@
-import { type NcNode, type VariableValue } from '@codaco/shared-consts';
-import { useRef, useState } from 'react';
+import {
+  type NcEdge,
+  type NcNode,
+  type VariableValue,
+} from '@codaco/shared-consts';
+import { useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
 import { env } from '~/env.js';
 import useDialog from '~/lib/dialogs/useDialog';
 import Prompts from '~/lib/interviewer/components/Prompts/Prompts';
-import { updateStageMetadata } from '~/lib/interviewer/ducks/modules/session';
+import { toggleNodeAttributes } from '~/lib/interviewer/ducks/modules/session';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import PedigreeChecklist from '~/lib/interviewer/Interfaces/FamilyPedigree/components/PedigreeChecklist';
 import EgoCellWizard from '~/lib/interviewer/Interfaces/FamilyPedigree/components/wizards/EgoCellWizard';
@@ -14,7 +18,10 @@ import {
   FamilyPedigreeProvider,
   useFamilyPedigreeStore,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/FamilyPedigreeProvider';
-import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import {
+  type NodeMetadata,
+  type VariableConfig,
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import {
   getEdgeTypeKey,
   getIsActiveVariable,
@@ -52,6 +59,8 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
   const syncMetadata = useFamilyPedigreeStore((s) => s.syncMetadata);
   const clearNetwork = useFamilyPedigreeStore((s) => s.clearNetwork);
   const commitBatch = useFamilyPedigreeStore((s) => s.commitBatch);
+  const finalizeNetwork = useFamilyPedigreeStore((s) => s.finalizeNetwork);
+  const resetNetwork = useFamilyPedigreeStore((s) => s.resetNetwork);
   const setActiveNominationVariable = useFamilyPedigreeStore(
     (s) => s.setActiveNominationVariable,
   );
@@ -75,10 +84,40 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
     isGestationalCarrierVariable,
   };
 
+  const allNodes = useSelector(getNetworkNodes);
+  const allEdges = useSelector(getNetworkEdges);
+
   const stageMetadata = useSelector(getStageMetadata) as
     | { isNetworkCommitted?: boolean }
     | undefined;
   const isNetworkCommitted = stageMetadata?.isNetworkCommitted === true;
+
+  const reduxNodesMap = useMemo(
+    () => new Map<string, NcNode>(allNodes.map((n) => [n._uid, n])),
+    [allNodes],
+  );
+  const reduxEdgesMap = useMemo(
+    () => new Map<string, NcEdge>(allEdges.map((e) => [e._uid, e])),
+    [allEdges],
+  );
+  const reduxNodeMetadata = useMemo(
+    () =>
+      new Map<string, NodeMetadata>(
+        allNodes.map((n) => [n._uid, { readOnly: true }]),
+      ),
+    [allNodes],
+  );
+
+  const handleToggleAttribute = (nodeId: string, variable: string) => {
+    const node = allNodes.find((n) => n._uid === nodeId);
+    const currentValue = node?.attributes[variable] === true;
+    dispatch(
+      toggleNodeAttributes({
+        nodeId,
+        attributes: { [variable]: !currentValue },
+      }),
+    );
+  };
 
   const egoId = [...nodesMap.entries()].find(
     ([, n]) => n.attributes[egoVariable] === true,
@@ -107,6 +146,12 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
 
   useBeforeNext((direction) => {
     if (direction === 'forwards') {
+      if (currentStepIndex === 0 && isNetworkCommitted) {
+        setCurrentStepIndex(1);
+        updateNominationVariable(1);
+        return false;
+      }
+
       const isLastStep = currentStepIndex === allPrompts.length - 1;
       if (isLastStep) {
         syncMetadata();
@@ -156,8 +201,8 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
       confirmLabel: 'Continue',
       cancelLabel: 'Keep editing',
       intent: 'default',
-      onConfirm: () => {
-        syncMetadata();
+      onConfirm: async () => {
+        await finalizeNetwork();
       },
     });
 
@@ -171,17 +216,12 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
     await confirm({
       title: 'Reset family pedigree?',
       description:
-        'This will delete all family members and restart the onboarding wizard. This action cannot be undone.',
+        'This will delete all family members and relationships. This action cannot be undone.',
       confirmLabel: 'Reset',
       cancelLabel: 'Cancel',
       intent: 'destructive',
       onConfirm: () => {
-        clearNetwork();
-        dispatch(
-          updateStageMetadata({
-            isNetworkCommitted: false,
-          }),
-        );
+        resetNetwork();
       },
     });
   };
@@ -290,7 +330,19 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
             </>
           ) : (
             <>
-              <PedigreeView />
+              {isNetworkCommitted && currentStepIndex > 0 ? (
+                <PedigreeView
+                  overrideNodes={reduxNodesMap}
+                  overrideEdges={reduxEdgesMap}
+                  overrideNodeMetadata={reduxNodeMetadata}
+                  activeNominationVariable={
+                    allPrompts[currentStepIndex]?.variable ?? null
+                  }
+                  onToggleAttribute={handleToggleAttribute}
+                />
+              ) : (
+                <PedigreeView />
+              )}
               {currentStepIndex === 0 && hasNodes && !isNetworkCommitted && (
                 <PedigreeChecklist
                   dragConstraints={containerRef}
