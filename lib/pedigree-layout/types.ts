@@ -102,6 +102,7 @@ export type AuxiliaryConnector = {
     | 'surrogate'
     | 'unpartnered-parent'
     | 'social'
+    | 'adoptive'
     | 'biological';
   segment: LineSegment;
 };

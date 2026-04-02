@@ -157,6 +157,7 @@ function getAuxiliaryStyle(edgeType: AuxiliaryConnector['edgeType']) {
   switch (edgeType) {
     case 'unpartnered-parent':
     case 'social':
+    case 'adoptive':
       return { strokeDasharray: DASHED_PATTERN, strokeWidth: EDGE_WIDTH };
     case 'donor':
     case 'surrogate':
@@ -181,7 +182,7 @@ function renderParentChild(
   idx: number,
   color: string,
 ) {
-  const isDashed = conn.edgeType === 'social';
+  const isDashed = conn.edgeType === 'social' || conn.edgeType === 'adoptive';
 
   // For dashed (social/adoptive) edges, combine all segments into a single
   // polyline so the dash pattern flows continuously instead of restarting
