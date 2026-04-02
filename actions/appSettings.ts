@@ -85,24 +85,56 @@ export async function setUploadThingToken(rawData: unknown) {
 
   const token = parsed.data.uploadThingToken;
 
-  // Verify the token is valid by attempting an API call
+  // Verify the token is structurally valid (base64 JSON with expected fields)
   try {
-    const { UTApi } = await import('uploadthing/server');
-    const utapi = new UTApi({ token });
-    await utapi.listFiles({ limit: 1 });
-  } catch (error) {
-    const message =
-      error instanceof Error ? error.message : 'Verification failed';
+    const decoded = Buffer.from(token, 'base64').toString('utf-8');
+    const data = JSON.parse(decoded) as Record<string, unknown>;
+    if (!data.apiKey || !data.appId) {
+      return {
+        success: false as const,
+        fieldErrors: {
+          uploadThingToken: [
+            'Token is missing required fields (apiKey, appId).',
+          ],
+        },
+      };
+    }
+  } catch {
     return {
       success: false as const,
       fieldErrors: {
-        uploadThingToken: [`Invalid token: ${message}`],
+        uploadThingToken: [
+          'Token is not valid. Make sure you copied the full token.',
+        ],
+      },
+    };
+  }
+
+  // Verify the token works by making an API call
+  const verifyError = await verifyUploadThingToken(token);
+  if (verifyError) {
+    return {
+      success: false as const,
+      fieldErrors: {
+        uploadThingToken: [verifyError],
       },
     };
   }
 
   await setAppSetting('uploadThingToken', token);
   return { success: true as const };
+}
+
+async function verifyUploadThingToken(token: string): Promise<string | null> {
+  try {
+    const { UTApi } = await import('uploadthing/server');
+    const utapi = new UTApi({ token });
+    await utapi.listFiles({ limit: 1 });
+    return null;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return `Could not verify token: ${message}`;
+  }
 }
 
 export async function regenerateInstallationId() {
