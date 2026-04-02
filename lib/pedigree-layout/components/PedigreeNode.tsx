@@ -3,7 +3,6 @@ import { useSelector } from 'react-redux';
 import Node from '~/components/Node';
 import { useDragSource } from '~/lib/dnd';
 import {
-  type AdoptionStatus,
   type NodeData,
   type StoreEdge,
   type VariableConfig,
@@ -16,18 +15,12 @@ import {
 import { useClickUnlessDragged } from '~/lib/pedigree-layout/useClickUnlessDragged';
 import { computeAllDisplayLabels } from '~/lib/pedigree-layout/utils/getDisplayLabel';
 
-export function AdoptionBrackets({
-  children,
-  status,
-}: {
-  children: React.ReactNode;
-  status: AdoptionStatus;
-}) {
+export function AdoptionBrackets({ children }: { children: React.ReactNode }) {
   const bracketStyle =
     'absolute top-1 bottom-1 w-1.5 border-white/80 border-y-2';
 
   return (
-    <div className="relative" aria-label={`Adopted ${status}`} role="img">
+    <div className="relative" aria-label="Adopted" role="img">
       <span className={`${bracketStyle} -left-2.5 border-l-2`} />
       {children}
       <span className={`${bracketStyle} -right-2.5 border-r-2`} />
@@ -154,6 +147,7 @@ type PedigreeNodeProps = {
   node: NodeData & { id: string };
   displayLabel: string;
   allowDrag: boolean;
+  isAdopted?: boolean;
   selected?: boolean;
   onClick?: () => void;
 };
@@ -162,11 +156,12 @@ export default function PedigreeNode({
   node,
   displayLabel,
   allowDrag,
+  isAdopted,
   selected,
   onClick,
   ...rest
 }: PedigreeNodeProps) {
-  const { id, isEgo, adoptionStatus } = node;
+  const { id, isEgo } = node;
 
   const nodeColor = useSelector(getNodeColorSelector);
   const shapeDef = useSelector(getNodeShapeDefinition);
@@ -205,8 +200,8 @@ export default function PedigreeNode({
     </Node>
   );
 
-  const wrappedNode = adoptionStatus ? (
-    <AdoptionBrackets status={adoptionStatus}>{nodeElement}</AdoptionBrackets>
+  const wrappedNode = isAdopted ? (
+    <AdoptionBrackets>{nodeElement}</AdoptionBrackets>
   ) : (
     nodeElement
   );

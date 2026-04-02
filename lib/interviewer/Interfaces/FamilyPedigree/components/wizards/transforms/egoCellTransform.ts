@@ -32,7 +32,12 @@ function extractUnknownAttributes(
 type ParentEntry = {
   tempId: string;
   nodeData: NodeData;
-  relationshipType: 'biological' | 'donor' | 'surrogate' | 'social';
+  relationshipType:
+    | 'biological'
+    | 'donor'
+    | 'surrogate'
+    | 'social'
+    | 'adoptive';
   isGestationalCarrier: boolean;
 };
 
@@ -80,14 +85,13 @@ function buildAdditionalParent(
         ...extraAttrs,
       },
     },
-    relationshipType: 'social',
+    relationshipType: parent.role === 'adoptive-parent' ? 'adoptive' : 'social',
     isGestationalCarrier: false,
   };
 }
 
 export type EgoCellResult = {
   batch: CommitBatch;
-  egoAdoptionStatus?: 'in';
   egoAttributes?: Record<string, unknown>;
 };
 
@@ -149,10 +153,6 @@ export function egoCellTransform(
     }
   }
 
-  const hasAdoptiveParent = Array.isArray(additionalParents)
-    ? additionalParents.some((ap) => ap?.role === 'adoptive-parent')
-    : false;
-
   const egoRef = existingEgoId ?? 'ego';
   const batch: CommitBatch = { nodes: [], edges: [] };
 
@@ -190,7 +190,6 @@ export function egoCellTransform(
       tempId: 'ego',
       data: {
         isEgo: true,
-        ...(hasAdoptiveParent ? { adoptionStatus: 'in' as const } : {}),
         attributes: egoAttributes,
       },
     });
@@ -304,7 +303,6 @@ export function egoCellTransform(
 
   return {
     batch,
-    ...(hasAdoptiveParent ? { egoAdoptionStatus: 'in' as const } : {}),
     ...(existingEgoId ? { egoAttributes } : {}),
   };
 }

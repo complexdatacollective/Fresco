@@ -4,7 +4,6 @@ import { useMemo } from 'react';
 import Node from '~/components/Node';
 import { useNodeMeasurement } from '~/hooks/useNodeMeasurement';
 import {
-  type AdoptionStatus,
   type NodeData,
   type StoreEdge,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
@@ -90,12 +89,11 @@ function buildNetwork(
     id: string;
     label: string;
     isEgo?: boolean;
-    adoptionStatus?: AdoptionStatus;
   }[],
   edgeDefs: StoreEdge[],
 ): NetworkData {
   const nodes = new Map<string, NodeData>();
-  for (const { id, label, isEgo, adoptionStatus } of nodeDefs) {
+  for (const { id, label, isEgo } of nodeDefs) {
     const attributes: Record<string, unknown> = {
       [STORY_LABEL_VAR]: label,
     };
@@ -103,7 +101,6 @@ function buildNetwork(
       attributes,
       isEgo: isEgo ?? false,
       readOnly: false,
-      adoptionStatus,
     });
   }
 
@@ -1675,7 +1672,6 @@ const NETWORKS: Record<string, NetworkData> = {
         label: fakeName('female'),
 
         isEgo: true,
-        adoptionStatus: 'in',
       },
     ],
     [
@@ -1706,13 +1702,13 @@ const NETWORKS: Record<string, NetworkData> = {
       {
         source: 'adoptDad',
         target: 'child',
-        relationshipType: 'social',
+        relationshipType: 'adoptive',
         isActive: true,
       },
       {
         source: 'adoptMom',
         target: 'child',
-        relationshipType: 'social',
+        relationshipType: 'adoptive',
         isActive: true,
       },
     ],
@@ -1729,7 +1725,6 @@ const NETWORKS: Record<string, NetworkData> = {
         label: fakeName('male'),
 
         isEgo: true,
-        adoptionStatus: 'out',
       },
     ],
     [
@@ -1772,13 +1767,13 @@ const NETWORKS: Record<string, NetworkData> = {
       {
         source: 'adoptFather',
         target: 'ego',
-        relationshipType: 'social',
+        relationshipType: 'adoptive',
         isActive: true,
       },
       {
         source: 'adoptMother',
         target: 'ego',
-        relationshipType: 'social',
+        relationshipType: 'adoptive',
         isActive: true,
       },
     ],
@@ -1795,7 +1790,6 @@ const NETWORKS: Record<string, NetworkData> = {
         label: fakeName('female'),
 
         isEgo: true,
-        adoptionStatus: 'by-relative',
       },
     ],
     [
@@ -1844,20 +1838,29 @@ const NETWORKS: Record<string, NetworkData> = {
       {
         source: 'aunt',
         target: 'child',
-        relationshipType: 'social',
+        relationshipType: 'adoptive',
         isActive: true,
       },
       {
         source: 'uncle',
         target: 'child',
-        relationshipType: 'social',
+        relationshipType: 'adoptive',
         isActive: true,
       },
     ],
   ),
 };
 
-type NodeRenderer = (node: NodeData & { id: string }) => React.ReactNode;
+type NodeRenderer = (
+  node: NodeData & { id: string },
+  edges: Map<string, StoreEdge>,
+) => React.ReactNode;
+
+function isNodeAdopted(nodeId: string, edges: Map<string, StoreEdge>): boolean {
+  return [...edges.values()].some(
+    (e) => e.target === nodeId && e.relationshipType === 'adoptive',
+  );
+}
 
 const NODE_MEASUREMENT_COMPONENTS: Record<string, React.ReactElement> = {
   'Colored Node': <Node size="sm" />,
@@ -1881,7 +1884,7 @@ const NODE_MEASUREMENT_COMPONENTS: Record<string, React.ReactElement> = {
 };
 
 const NODE_RENDERERS: Record<string, NodeRenderer> = {
-  'Colored Node': (node) => {
+  'Colored Node': (node, edges) => {
     const label = node.attributes[STORY_LABEL_VAR] as string | undefined;
     const nodeEl = (
       <Node
@@ -1897,16 +1900,12 @@ const NODE_RENDERERS: Record<string, NodeRenderer> = {
         )}
       </Node>
     );
-    if (node.adoptionStatus) {
-      return (
-        <AdoptionBrackets status={node.adoptionStatus}>
-          {nodeEl}
-        </AdoptionBrackets>
-      );
+    if (isNodeAdopted(node.id, edges)) {
+      return <AdoptionBrackets>{nodeEl}</AdoptionBrackets>;
     }
     return nodeEl;
   },
-  'Labeled Node': (node) => {
+  'Labeled Node': (node, edges) => {
     const label = node.attributes[STORY_LABEL_VAR] as string | undefined;
     const nodeEl = (
       <Node
@@ -1923,8 +1922,8 @@ const NODE_RENDERERS: Record<string, NodeRenderer> = {
         )}
       </Node>
     );
-    const wrappedNode = node.adoptionStatus ? (
-      <AdoptionBrackets status={node.adoptionStatus}>{nodeEl}</AdoptionBrackets>
+    const wrappedNode = isNodeAdopted(node.id, edges) ? (
+      <AdoptionBrackets>{nodeEl}</AdoptionBrackets>
     ) : (
       nodeEl
     );
@@ -1936,7 +1935,7 @@ const NODE_RENDERERS: Record<string, NodeRenderer> = {
       </div>
     );
   },
-  'Responsive': (node) => (
+  'Responsive': (node, _edges) => (
     <div
       className={`rounded-full ${node.isEgo ? 'bg-node-2' : 'bg-node-1'}`}
       style={{
@@ -1946,7 +1945,7 @@ const NODE_RENDERERS: Record<string, NodeRenderer> = {
       title={node.attributes[STORY_LABEL_VAR] as string | undefined}
     />
   ),
-  'Dot': (node) => (
+  'Dot': (node, _edges) => (
     <div
       className={`m-4 size-4 rounded-full ${node.isEgo ? 'bg-mustard' : 'bg-white'}`}
       title={node.attributes[STORY_LABEL_VAR] as string | undefined}
@@ -1982,7 +1981,7 @@ export const Playground: StoryFn<StoryArgs> = ({ network, nodeStyle }) => {
           edges={stableEdges}
           nodeWidth={nodeWidth}
           nodeHeight={nodeHeight}
-          renderNode={renderNode}
+          renderNode={(node) => renderNode(node, stableEdges)}
         />
       </div>
       <PedigreeKey

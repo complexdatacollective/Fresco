@@ -7,8 +7,6 @@ import { computeAllDisplayLabels } from '~/lib/pedigree-layout/utils/getDisplayL
 
 enableMapSet();
 
-export type AdoptionStatus = 'in' | 'out' | 'by-relative';
-
 export type VariableConfig = {
   nodeLabelVariable: string;
   egoVariable: string;
@@ -22,7 +20,6 @@ export type NodeData = {
   readOnly?: boolean;
   interviewNetworkId?: string;
   isBioRelative?: boolean;
-  adoptionStatus?: AdoptionStatus;
   attributes: Record<string, unknown>;
 };
 
@@ -232,7 +229,6 @@ export const createFamilyPedigreeStore = (
               interviewNetworkId: node.interviewNetworkId,
               label,
               isEgo: node.isEgo,
-              adoptionStatus: node.adoptionStatus,
             };
           });
 

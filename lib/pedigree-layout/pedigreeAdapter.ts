@@ -9,7 +9,6 @@ import {
 import { computeConnectors } from '~/lib/pedigree-layout/connectors';
 import {
   type ParentConnection,
-  type ParentEdgeType,
   type PartnerConnection,
   type PedigreeConnectors,
   type PedigreeInput,

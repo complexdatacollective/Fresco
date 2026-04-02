@@ -291,17 +291,8 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
             egoId={egoId}
             onSubmit={(result) => {
               commitBatch(result.batch);
-              if (egoId) {
-                const updates: Record<string, unknown> = {};
-                if (result.egoAdoptionStatus) {
-                  updates.adoptionStatus = result.egoAdoptionStatus;
-                }
-                if (result.egoAttributes) {
-                  updates.attributes = result.egoAttributes;
-                }
-                if (Object.keys(updates).length > 0) {
-                  updateNode(egoId, updates);
-                }
+              if (egoId && result.egoAttributes) {
+                updateNode(egoId, { attributes: result.egoAttributes });
               }
             }}
             variableConfig={variableConfig}

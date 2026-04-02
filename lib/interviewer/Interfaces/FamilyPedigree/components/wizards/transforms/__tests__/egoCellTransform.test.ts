@@ -244,7 +244,7 @@ describe('egoCellTransform', () => {
     });
   });
 
-  it('returns egoAdoptionStatus when adoptive parents are present', () => {
+  it('produces adoptive edges when adoptive parents are present', () => {
     const values = {
       'egg-parent': {
         'is-donor': false,
@@ -277,10 +277,23 @@ describe('egoCellTransform', () => {
       variableConfig,
     );
 
-    expect(result.egoAdoptionStatus).toBe('in');
+    const adoptiveEdges = result.batch.edges.filter(
+      (e) => e.data.relationshipType === 'adoptive',
+    );
+    expect(adoptiveEdges).toHaveLength(2);
+    expect(adoptiveEdges[0]).toMatchObject({
+      source: 'additional-parent-0',
+      target: 'ego',
+      data: { relationshipType: 'adoptive', isActive: true },
+    });
+    expect(adoptiveEdges[1]).toMatchObject({
+      source: 'additional-parent-1',
+      target: 'ego',
+      data: { relationshipType: 'adoptive', isActive: true },
+    });
   });
 
-  it('does not return egoAdoptionStatus when no adoptive parents', () => {
+  it('does not produce adoptive edges when no adoptive parents', () => {
     const values = {
       'egg-parent': {
         'is-donor': false,
@@ -300,7 +313,10 @@ describe('egoCellTransform', () => {
       variableConfig,
     );
 
-    expect(result.egoAdoptionStatus).toBeUndefined();
+    const adoptiveEdges = result.batch.edges.filter(
+      (e) => e.data.relationshipType === 'adoptive',
+    );
+    expect(adoptiveEdges).toHaveLength(0);
   });
 
   it('uses existing ego ID and does not create ego node', () => {

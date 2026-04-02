@@ -322,12 +322,17 @@ export default function PedigreeView() {
           nodeLabelVariable={nodeLabelVariable}
           nodeWidth={nodeWidth}
           nodeHeight={nodeHeight}
-          renderNode={(node) =>
-            activeNominationVariable ? (
+          renderNode={(node) => {
+            const isAdopted = [...edges.values()].some(
+              (e) => e.target === node.id && e.relationshipType === 'adoptive',
+            );
+
+            return activeNominationVariable ? (
               <PedigreeNode
                 node={node}
                 displayLabel={displayLabels.get(node.id) ?? ''}
                 allowDrag={false}
+                isAdopted={isAdopted}
                 selected={node.attributes[activeNominationVariable] === true}
                 onClick={() =>
                   toggleNodeAttribute(node.id, activeNominationVariable)
@@ -350,10 +355,11 @@ export default function PedigreeView() {
                   node={node}
                   displayLabel={displayLabels.get(node.id) ?? ''}
                   allowDrag={node.readOnly !== true}
+                  isAdopted={isAdopted}
                 />
               </NodeContextMenu>
-            )
-          }
+            );
+          }}
         />
       </div>
     </div>
