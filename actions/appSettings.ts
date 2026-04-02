@@ -83,7 +83,25 @@ export async function setUploadThingToken(rawData: unknown) {
     };
   }
 
-  await setAppSetting('uploadThingToken', parsed.data.uploadThingToken);
+  const token = parsed.data.uploadThingToken;
+
+  // Verify the token is valid by attempting an API call
+  try {
+    const { UTApi } = await import('uploadthing/server');
+    const utapi = new UTApi({ token });
+    await utapi.listFiles({ limit: 1 });
+  } catch (error) {
+    const message =
+      error instanceof Error ? error.message : 'Verification failed';
+    return {
+      success: false as const,
+      fieldErrors: {
+        uploadThingToken: [`Invalid token: ${message}`],
+      },
+    };
+  }
+
+  await setAppSetting('uploadThingToken', token);
   return { success: true as const };
 }
 
