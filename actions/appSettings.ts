@@ -128,26 +128,40 @@ export async function setUploadThingToken(rawData: unknown) {
 async function verifyUploadThingToken(token: string): Promise<string | null> {
   try {
     const decoded = Buffer.from(token, 'base64').toString('utf-8');
-    const { apiKey } = JSON.parse(decoded) as { apiKey: string };
+    const parsed = JSON.parse(decoded) as {
+      apiKey: string;
+      appId: string;
+      regions: string[];
+      ingestHost?: string;
+    };
 
-    const response = await fetch('https://api.uploadthing.com/v6/listFiles', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-uploadthing-api-key': apiKey,
-      },
-      body: JSON.stringify({ limit: 1 }),
+    const tokenData = {
+      apiKey: parsed.apiKey,
+      appId: parsed.appId,
+      regions: parsed.regions,
+      ingestHost: parsed.ingestHost ?? 'ingest.uploadthing.com',
+    };
+
+    const { generatePresignedUploadUrl, registerUploadWithUploadThing } =
+      await import('~/lib/uploadthing/presigned');
+
+    const presigned = generatePresignedUploadUrl({
+      fileName: 'fresco-token-verify.txt',
+      fileSize: 1,
+      ttl: 5000,
+      tokenData,
     });
 
-    if (!response.ok) {
-      const text = await response.text();
-      return `Token verification failed (${String(response.status)}): ${text}`;
-    }
+    await registerUploadWithUploadThing({
+      fileKeys: [presigned.fileKey],
+      tokenData,
+      callbackUrl: 'https://localhost/api/uploadthing',
+    });
 
     return null;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
-    return `Could not verify token: ${message}`;
+    return `Token verification failed: ${message}`;
   }
 }
 
