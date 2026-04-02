@@ -4,7 +4,7 @@ import { DatabaseError } from '~/lib/export/errors';
 import type { ExportEvent } from '~/lib/export/exportEvents';
 import { NodeFileSystem } from '~/lib/export/layers/NodeFileSystem';
 import { exportPipeline } from '~/lib/export/pipeline';
-import { FileStorage } from '~/lib/export/services/FileStorage';
+import { FileStorage } from '~/lib/storage/services/FileStorage';
 import {
   InterviewRepository,
   type InterviewExportData,
@@ -35,6 +35,7 @@ describe('exportPipeline', () => {
     const MockStorage = Layer.succeed(FileStorage, {
       upload: () => Effect.succeed({ url: 'http://test/file.zip', key: 'k' }),
       delete: () => Effect.void,
+      getDownloadUrl: (key) => Effect.succeed(`http://test/download/${key}`),
     });
 
     const testLayer = Layer.mergeAll(MockRepo, NodeFileSystem, MockStorage);
@@ -73,6 +74,7 @@ describe('exportPipeline', () => {
     const MockStorage = Layer.succeed(FileStorage, {
       upload: () => Effect.succeed({ url: 'http://test/file.zip', key: 'k' }),
       delete: () => Effect.void,
+      getDownloadUrl: (key) => Effect.succeed(`http://test/download/${key}`),
     });
 
     const testLayer = Layer.mergeAll(MockRepo, NodeFileSystem, MockStorage);
@@ -144,6 +146,7 @@ describe('exportPipeline', () => {
           key: 'networkCanvasExport-123.zip',
         }),
       delete: () => Effect.void,
+      getDownloadUrl: (key) => Effect.succeed(`http://test/download/${key}`),
     });
 
     const testLayer = Layer.mergeAll(MockRepo, NodeFileSystem, MockStorage);

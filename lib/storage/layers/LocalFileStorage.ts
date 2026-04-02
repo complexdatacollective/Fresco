@@ -2,8 +2,8 @@ import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Effect, Layer } from 'effect';
-import { FileStorageError, getUserMessage } from '~/lib/export/errors';
-import { FileStorage } from '~/lib/export/services/FileStorage';
+import { FileStorageError, getUserMessage } from '~/lib/storage/errors';
+import { FileStorage } from '~/lib/storage/services/FileStorage';
 
 const LOCAL_EXPORT_DIR = join(tmpdir(), 'fresco-test-exports');
 
@@ -56,6 +56,9 @@ export const makeLocalFileStorage = (baseUrl: string) =>
           }),
       });
     },
+
+    getDownloadUrl: (key) =>
+      Effect.succeed(`${baseUrl}/api/test/exports/${key}`),
   });
 
 export { LOCAL_EXPORT_DIR };

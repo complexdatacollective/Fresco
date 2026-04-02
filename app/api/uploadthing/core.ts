@@ -16,5 +16,3 @@ export const ourFileRouter = {
     })
     .onUploadComplete(() => undefined),
 };
-
-export type OurFileRouter = typeof ourFileRouter;

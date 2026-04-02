@@ -146,6 +146,12 @@ enum AppSetting {
   previewModeRequireAuth
   freezeInterviewsAfterCompletion
   enableInterviewDataApi
+  storageProvider
+  s3Endpoint
+  s3Bucket
+  s3Region
+  s3AccessKeyId
+  s3SecretAccessKey
 }
 
 model AppSettings {

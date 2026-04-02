@@ -1,8 +1,9 @@
 import { File } from 'node:buffer';
 import { Effect, Layer } from 'effect';
-import { FileStorageError, getUserMessage } from '~/lib/export/errors';
-import { FileStorage } from '~/lib/export/services/FileStorage';
+import { FileStorageError, getUserMessage } from '~/lib/storage/errors';
+import { FileStorage } from '~/lib/storage/services/FileStorage';
 import { getUTApi } from '~/lib/uploadthing/server-helpers';
+import { parseUploadThingToken } from '~/lib/uploadthing/presigned';
 
 export const UploadThingFileStorage = Layer.succeed(FileStorage, {
   upload: (fileBuffer, fileName) =>
@@ -35,7 +36,7 @@ export const UploadThingFileStorage = Layer.succeed(FileStorage, {
       if (!data) {
         return yield* Effect.fail(
           new FileStorageError({
-            cause: error,
+            cause: error ?? new Error('Upload returned no data'),
             userMessage: getUserMessage(
               error ?? new Error('Upload returned no data'),
               'uploading zip file',
@@ -81,5 +82,28 @@ export const UploadThingFileStorage = Layer.succeed(FileStorage, {
           }),
         );
       }
+    }),
+
+  getDownloadUrl: (key) =>
+    Effect.gen(function* () {
+      const tokenData = yield* Effect.tryPromise({
+        try: () => parseUploadThingToken(),
+        catch: (error) =>
+          new FileStorageError({
+            cause: error,
+            userMessage: getUserMessage(error, 'parsing storage credentials'),
+          }),
+      });
+
+      if (!tokenData) {
+        return yield* Effect.fail(
+          new FileStorageError({
+            cause: new Error('UploadThing token not configured'),
+            userMessage: 'Storage credentials are not configured.',
+          }),
+        );
+      }
+
+      return `https://${tokenData.appId}.ufs.sh/f/${key}`;
     }),
 });

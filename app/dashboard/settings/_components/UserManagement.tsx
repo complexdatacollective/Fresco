@@ -490,7 +490,6 @@ export default function UserManagement({
 
   return (
     <div className="space-y-6">
-      <Heading level="label">Current User</Heading>
       <Surface
         level={1}
         className="mt-2 divide-y divide-current/10 p-6"

@@ -8,7 +8,7 @@
     "build": "next build",
     "build:platform": "prisma generate && tsx ./scripts/setup-database.ts && tsx ./scripts/initialize.ts && next build",
     "build:branch-preview": "SKIP_ENV_VALIDATION=true prisma generate && next build",
-    "dev": "concurrently -k './scripts/dev-db.sh' 'next dev'",
+    "dev": "concurrently -k './scripts/dev-db.sh' './scripts/dev-s3.sh' 'next dev'",
     "postinstall": "SKIP_ENV_VALIDATION=true prisma generate",
     "lint": "SKIP_ENV_VALIDATION=true eslint .",
     "start": "next start",
@@ -48,6 +48,8 @@
     }
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1021.0",
+    "@aws-sdk/s3-request-presigner": "^3.1021.0",
     "@base-ui/react": "1.3.0",
     "@codaco/protocol-validation": "11.3.0-alpha.3",
     "@codaco/shared-consts": "5.0.0",
@@ -71,7 +73,6 @@
     "@tiptap/pm": "^3.20.5",
     "@tiptap/react": "^3.20.5",
     "@tiptap/starter-kit": "^3.20.5",
-    "@uploadthing/react": "^7.3.3",
     "@xmldom/xmldom": "^0.9.8",
     "archiver": "^7.0.1",
     "async": "^3.2.6",

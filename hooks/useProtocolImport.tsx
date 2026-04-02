@@ -24,7 +24,7 @@ import {
   validateAndMigrateProtocol,
   type ProtocolValidationError,
 } from '~/lib/protocol/validateAndMigrateProtocol';
-import { uploadFiles } from '~/lib/uploadthing/client-helpers';
+import { useUploadAssets } from '~/hooks/useUploadAssets';
 import { type AssetInsertType } from '~/schemas/protocol';
 import { DatabaseError } from '~/utils/databaseError';
 import { ensureError } from '~/utils/ensureError';
@@ -70,6 +70,7 @@ function generateJobId(): string {
 
 export const useProtocolImport = () => {
   const { add, update, close } = useToast();
+  const { uploadAssets } = useUploadAssets();
   const activeJobs = useRef<Set<string>>(new Set());
   // Store refs to toast manager functions so the queue callback can access them
   // without being recreated when toast manager changes
@@ -227,11 +228,8 @@ export const useProtocolImport = () => {
         updateToastPhase(toastId, 'uploading-assets');
         const files = newAssets.map((asset) => asset.file);
 
-        const uploadedFiles = await uploadFiles('assetRouter', {
-          files,
-          onUploadProgress: ({ progress }) => {
-            updateToastPhase(toastId, 'uploading-assets', progress);
-          },
+        const uploadedFiles = await uploadAssets(files, (progress) => {
+          updateToastPhase(toastId, 'uploading-assets', progress);
         });
 
         newAssetsWithCombinedMetadata = newAssets.map((asset) => {
@@ -248,7 +246,7 @@ export const useProtocolImport = () => {
             assetId: asset.assetId,
             name: asset.name,
             type: asset.type,
-            url: uploadedAsset.ufsUrl,
+            url: uploadedAsset.url,
             size: uploadedAsset.size,
           };
         });

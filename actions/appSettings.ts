@@ -50,7 +50,11 @@ export async function setAppSetting<
 
     safeUpdateTag(`appSettings-${key}`);
 
-    const REDACTED_KEYS: AppSetting[] = ['uploadThingToken'];
+    const REDACTED_KEYS: AppSetting[] = [
+      'uploadThingToken',
+      's3SecretAccessKey',
+      's3AccessKeyId',
+    ];
     const displayValue = REDACTED_KEYS.includes(key)
       ? '[REDACTED]'
       : String(value);
@@ -79,8 +83,86 @@ export async function setUploadThingToken(rawData: unknown) {
     };
   }
 
-  await setAppSetting('uploadThingToken', parsed.data.uploadThingToken);
+  const token = parsed.data.uploadThingToken;
+
+  // Verify the token is structurally valid (base64 JSON with expected fields)
+  try {
+    const decoded = Buffer.from(token, 'base64').toString('utf-8');
+    const data = JSON.parse(decoded) as Record<string, unknown>;
+    if (!data.apiKey || !data.appId) {
+      return {
+        success: false as const,
+        fieldErrors: {
+          uploadThingToken: [
+            'Token is missing required fields (apiKey, appId).',
+          ],
+        },
+      };
+    }
+  } catch {
+    return {
+      success: false as const,
+      fieldErrors: {
+        uploadThingToken: [
+          'Token is not valid. Make sure you copied the full token.',
+        ],
+      },
+    };
+  }
+
+  // Verify the token works by making an API call
+  const verifyError = await verifyUploadThingToken(token);
+  if (verifyError) {
+    return {
+      success: false as const,
+      fieldErrors: {
+        uploadThingToken: [verifyError],
+      },
+    };
+  }
+
+  await setAppSetting('uploadThingToken', token);
   return { success: true as const };
+}
+
+async function verifyUploadThingToken(token: string): Promise<string | null> {
+  try {
+    const decoded = Buffer.from(token, 'base64').toString('utf-8');
+    const parsed = JSON.parse(decoded) as {
+      apiKey: string;
+      appId: string;
+      regions: string[];
+      ingestHost?: string;
+    };
+
+    const tokenData = {
+      apiKey: parsed.apiKey,
+      appId: parsed.appId,
+      regions: parsed.regions,
+      ingestHost: parsed.ingestHost ?? 'ingest.uploadthing.com',
+    };
+
+    const { generatePresignedUploadUrl, registerUploadWithUploadThing } =
+      await import('~/lib/uploadthing/presigned');
+
+    const presigned = generatePresignedUploadUrl({
+      fileName: 'fresco-token-verify.txt',
+      fileSize: 1,
+      ttl: 5000,
+      tokenData,
+    });
+
+    await registerUploadWithUploadThing({
+      fileKeys: [presigned.fileKey],
+      tokenData,
+      callbackUrl: 'https://localhost/api/uploadthing',
+    });
+
+    return null;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    return `Token verification failed: ${message}`;
+  }
 }
 
 export async function regenerateInstallationId() {

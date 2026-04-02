@@ -2,7 +2,7 @@ import { Effect, Queue, Stream } from 'effect';
 import { addEvent } from '~/actions/activityFeed';
 import { safeRevalidateTag } from '~/lib/cache';
 import { type ExportEvent, formatSSE } from '~/lib/export/exportEvents';
-import { ExportLayer } from '~/lib/export/layers/ExportLayer';
+import { getStorageLayer } from '~/lib/storage/layers/StorageLayer';
 import { exportPipeline } from '~/lib/export/pipeline';
 import {
   captureEvent,
@@ -42,6 +42,8 @@ export async function POST(request: Request) {
 
   const { interviewIds, exportOptions } = parsed.data;
 
+  const storageLayer = await getStorageLayer();
+
   const program = Effect.gen(function* () {
     const queue = yield* Queue.unbounded<ExportEvent>();
 
@@ -80,7 +82,7 @@ export async function POST(request: Request) {
       ),
       Effect.catchAll(() => Effect.void),
       Effect.ensuring(Queue.shutdown(queue)),
-      Effect.provide(ExportLayer),
+      Effect.provide(storageLayer),
       Effect.forkDaemon,
     );
 

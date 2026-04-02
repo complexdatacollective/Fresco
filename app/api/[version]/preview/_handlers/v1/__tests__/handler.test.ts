@@ -1,5 +1,10 @@
+import { Effect, Layer } from 'effect';
 import { NextRequest } from 'next/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  AssetStorage,
+  type PresignedUploadUrl,
+} from '~/lib/storage/services/AssetStorage';
 
 // Hoisted mocks
 const {
@@ -8,11 +13,8 @@ const {
   mockPrunePreviewProtocols,
   mockPrisma,
   mockGetExistingAssets,
-  mockParseUploadThingToken,
-  mockGeneratePresignedUploadUrl,
-  mockRegisterUploadWithUploadThing,
-  mockGetUTApi,
-  mockDeleteFiles,
+  mockDeleteAssets,
+  mockGeneratePresignedUploadUrls,
   mockAddEvent,
   mockCaptureException,
   mockExtractApikeyAssetsFromManifest,
@@ -34,11 +36,9 @@ const {
     },
   },
   mockGetExistingAssets: vi.fn(),
-  mockParseUploadThingToken: vi.fn(),
-  mockGeneratePresignedUploadUrl: vi.fn(),
-  mockRegisterUploadWithUploadThing: vi.fn(),
-  mockGetUTApi: vi.fn(),
-  mockDeleteFiles: vi.fn(),
+  mockDeleteAssets: vi.fn(),
+  mockGeneratePresignedUploadUrls:
+    vi.fn<(files: { name: string; size: number }[]) => PresignedUploadUrl[]>(),
   mockAddEvent: vi.fn(),
   mockCaptureException: vi.fn(),
   mockExtractApikeyAssetsFromManifest: vi.fn(),
@@ -88,14 +88,22 @@ vi.mock('~/lib/protocol/validateAndMigrateProtocol', () => ({
   validateAndMigrateProtocol: mockValidateAndMigrateProtocol,
 }));
 
-vi.mock('~/lib/uploadthing/presigned', () => ({
-  generatePresignedUploadUrl: mockGeneratePresignedUploadUrl,
-  parseUploadThingToken: mockParseUploadThingToken,
-  registerUploadWithUploadThing: mockRegisterUploadWithUploadThing,
-}));
-
-vi.mock('~/lib/uploadthing/server-helpers', () => ({
-  getUTApi: mockGetUTApi,
+vi.mock('~/lib/storage/layers/StorageLayer', () => ({
+  getStorageLayer: () => {
+    const mockAssetStorageLayer = Layer.succeed(
+      AssetStorage,
+      AssetStorage.of({
+        generatePresignedUploadUrls: (
+          files: { name: string; size: number }[],
+        ) => Effect.succeed(mockGeneratePresignedUploadUrls(files)),
+        deleteAssets: (keys: string[]) => {
+          mockDeleteAssets(keys);
+          return Effect.void;
+        },
+      }),
+    );
+    return Promise.resolve(mockAssetStorageLayer);
+  },
 }));
 
 vi.mock('~/queries/protocols', () => ({
@@ -104,10 +112,6 @@ vi.mock('~/queries/protocols', () => ({
 
 vi.mock('~/utils/ensureError', () => ({
   ensureError: (e: unknown) => (e instanceof Error ? e : new Error(String(e))),
-}));
-
-vi.mock('~/utils/getBaseUrl', () => ({
-  getBaseUrl: () => 'http://localhost:3000',
 }));
 
 vi.mock('~/utils/protocolImport', () => ({
@@ -270,13 +274,13 @@ describe('Preview API v1 handler', () => {
       mockPrisma.previewProtocol.create.mockResolvedValue({
         id: 'new-protocol-id',
       });
-      mockParseUploadThingToken.mockResolvedValue({ apiKey: 'test-key' });
-      mockGeneratePresignedUploadUrl.mockReturnValue({
-        uploadUrl: 'https://upload.example.com/file',
-        fileKey: 'file-key-1',
-        fileUrl: 'https://cdn.example.com/file',
-      });
-      mockRegisterUploadWithUploadThing.mockResolvedValue(undefined);
+      mockGeneratePresignedUploadUrls.mockReturnValue([
+        {
+          uploadUrl: 'https://upload.example.com/file',
+          fileKey: 'file-key-1',
+          publicUrl: 'https://cdn.example.com/file',
+        },
+      ]);
 
       const request = createPostRequest({
         type: 'initialize-preview',
@@ -292,28 +296,6 @@ describe('Preview API v1 handler', () => {
       expect(body.protocolId).toBe('new-protocol-id');
       expect(body.presignedUrls).toHaveLength(1);
       expect(body.presignedUrls![0]!.assetId).toBe('asset-1');
-    });
-
-    it('should return error when UploadThing is not configured', async () => {
-      mockValidateAndMigrateProtocol.mockResolvedValue({
-        success: true,
-        protocol: validProtocol,
-      });
-      mockPrisma.previewProtocol.findFirst.mockResolvedValue(null);
-      mockParseUploadThingToken.mockResolvedValue(null);
-
-      const request = createPostRequest({
-        type: 'initialize-preview',
-        protocol: validProtocol,
-        assetMeta: [{ assetId: 'asset-1', name: 'image.png', size: 1024 }],
-      });
-
-      const response = await v1(request);
-      const body = (await response.json()) as JsonBody;
-
-      expect(response.status).toBe(500);
-      expect(body.status).toBe('error');
-      expect(body.message).toBe('UploadThing not configured');
     });
 
     it('should prune old preview protocols before creating new ones', async () => {
@@ -359,7 +341,7 @@ describe('Preview API v1 handler', () => {
 
       expect(response.status).toBe(200);
       expect(body.status).toBe('ready');
-      expect(mockParseUploadThingToken).not.toHaveBeenCalled();
+      expect(mockGeneratePresignedUploadUrls).not.toHaveBeenCalled();
     });
   });
 
@@ -452,7 +434,7 @@ describe('Preview API v1 handler', () => {
       expect(body.status).toBe('error');
     });
 
-    it('should delete assets from UploadThing and database', async () => {
+    it('should delete assets from storage and database', async () => {
       mockPrisma.previewProtocol.findUnique.mockResolvedValue({
         id: 'protocol-1',
         name: 'Test Protocol',
@@ -461,8 +443,6 @@ describe('Preview API v1 handler', () => {
         { key: 'ut-key-1' },
         { key: 'ut-key-2' },
       ]);
-      mockGetUTApi.mockResolvedValue({ deleteFiles: mockDeleteFiles });
-      mockDeleteFiles.mockResolvedValue({ success: true });
       mockPrisma.asset.deleteMany.mockResolvedValue({ count: 2 });
       mockPrisma.previewProtocol.delete.mockResolvedValue({});
 
@@ -473,32 +453,10 @@ describe('Preview API v1 handler', () => {
 
       await v1(request);
 
-      expect(mockDeleteFiles).toHaveBeenCalledWith(['ut-key-1', 'ut-key-2']);
+      expect(mockDeleteAssets).toHaveBeenCalledWith(['ut-key-1', 'ut-key-2']);
       expect(mockPrisma.asset.deleteMany).toHaveBeenCalledWith({
         where: { key: { in: ['ut-key-1', 'ut-key-2'] } },
       });
-    });
-
-    it('should continue even if UploadThing delete fails', async () => {
-      mockPrisma.previewProtocol.findUnique.mockResolvedValue({
-        id: 'protocol-1',
-        name: 'Test Protocol',
-      });
-      mockPrisma.asset.findMany.mockResolvedValue([{ key: 'ut-key-1' }]);
-      mockGetUTApi.mockRejectedValue(new Error('UploadThing API error'));
-      mockPrisma.asset.deleteMany.mockResolvedValue({ count: 1 });
-      mockPrisma.previewProtocol.delete.mockResolvedValue({});
-
-      const request = createPostRequest({
-        type: 'abort-preview',
-        protocolId: 'protocol-1',
-      });
-
-      const response = await v1(request);
-      const body = (await response.json()) as JsonBody;
-
-      expect(body.status).toBe('removed');
-      expect(mockPrisma.previewProtocol.delete).toHaveBeenCalled();
     });
   });
 

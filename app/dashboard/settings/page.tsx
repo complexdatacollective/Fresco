@@ -4,13 +4,11 @@ import SettingsNavigation, {
   type SettingsSection,
 } from '~/components/settings/SettingsNavigation';
 import PageHeader from '~/components/typography/PageHeader';
-import VersionSection, {
-  VersionSectionSkeleton,
-} from '~/components/VersionSection';
 import { env } from '~/env';
 import { requireAppNotExpired } from '~/queries/appSettings';
 import { requirePageAuth } from '~/utils/auth';
 import ConfigurationSection from './_components/ConfigurationSection';
+import StorageProviderSection from './_components/StorageProviderSection';
 import DeveloperToolsSection from './_components/DeveloperToolsSection';
 import InterviewSettingsSection from './_components/InterviewSettingsSection';
 import ApiTokensSection from './_components/ApiTokensSection';
@@ -21,9 +19,9 @@ import UserManagementSection from './_components/UserManagementSection';
 
 function getSettingsSections(): SettingsSection[] {
   const sections: SettingsSection[] = [
-    { id: 'app-version', title: 'App Version' },
+    { id: 'app-details', title: 'App Details' },
     { id: 'user-management', title: 'User Management' },
-    { id: 'configuration', title: 'Configuration' },
+    { id: 'storage', title: 'Storage' },
     { id: 'interview-settings', title: 'Interview Settings' },
     { id: 'privacy', title: 'Privacy' },
     { id: 'api-tokens', title: 'API Tokens' },
@@ -51,7 +49,7 @@ function SettingsContentSkeleton() {
         <SettingsNavigation sections={sections} />
         <div className="min-w-0 flex-1 space-y-6">
           <SettingsCardSkeleton rows={1} />
-          <SettingsCardSkeleton rows={1} />
+          <SettingsCardSkeleton rows={2} />
           <SettingsCardSkeleton rows={2} />
           <SettingsCardSkeleton rows={3} />
           <SettingsCardSkeleton rows={1} />
@@ -92,8 +90,8 @@ async function SettingsContent() {
       <div className="flex gap-8">
         <SettingsNavigation sections={sections} />
         <div className="min-w-0 flex-1 space-y-6">
-          <Suspense fallback={<VersionSectionSkeleton />}>
-            <VersionSection />
+          <Suspense fallback={<SettingsCardSkeleton rows={2} />}>
+            <ConfigurationSection />
           </Suspense>
           <Suspense fallback={<SettingsCardSkeleton rows={1} />}>
             <UserManagementSection
@@ -102,7 +100,7 @@ async function SettingsContent() {
             />
           </Suspense>
           <Suspense fallback={<SettingsCardSkeleton rows={2} />}>
-            <ConfigurationSection />
+            <StorageProviderSection />
           </Suspense>
           <Suspense fallback={<SettingsCardSkeleton rows={3} />}>
             <InterviewSettingsSection />
