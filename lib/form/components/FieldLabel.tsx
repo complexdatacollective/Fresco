@@ -6,6 +6,7 @@ import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
 import remarkGemoji from 'remark-gemoji';
 import { Label as UILabel } from '~/components/ui/Label';
+import { cx } from '~/utils/cva';
 
 const ALLOWED_MARKDOWN_LABEL_TAGS = ['em', 'strong', 'ul', 'ol', 'li'];
 
@@ -55,7 +56,20 @@ const FieldLabel = React.forwardRef<HTMLLabelElement, FieldLabelProps>(
         {typeof processedChildren === 'string' ? (
           <ReactMarkdown
             allowedElements={ALLOWED_MARKDOWN_LABEL_TAGS}
-            components={defaultMarkdownRenderers}
+            components={{
+              ...defaultMarkdownRenderers,
+              strong: ({ children }) => (
+                <strong
+                  style={{
+                    paintOrder: 'stroke fill',
+                    WebkitTextStroke: '1.5px currentColor',
+                    letterSpacing: '0.04em',
+                  }}
+                >
+                  {children}
+                </strong>
+              ),
+            }}
             remarkPlugins={[remarkGemoji]}
             rehypePlugins={[rehypeRaw, rehypeSanitize]}
             unwrapDisallowed
