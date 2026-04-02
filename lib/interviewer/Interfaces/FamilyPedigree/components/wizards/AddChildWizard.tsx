@@ -3,6 +3,7 @@ import type useDialog from '~/lib/dialogs/useDialog';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
 import BioTriadStep, {
   BioTriadConfigProvider,
+  type BioTriadConfig,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/wizards/steps/BioTriadStep';
 import GenericAdditionalParentsStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/wizards/steps/GenericAdditionalParentsStep';
 import GenericOtherParentsStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/wizards/steps/GenericOtherParentsStep';
@@ -34,12 +35,34 @@ function buildNodeOptions(
   return options;
 }
 
-function getPreselection(): {
-  eggSource?: string;
-  spermSource?: string;
-  carrier?: string;
-} {
-  return {};
+function getPreselection(
+  anchorNodeId: string,
+  nodes: Map<string, NcNode>,
+  edges: Map<string, NcEdge>,
+  variableConfig: VariableConfig,
+): BioTriadConfig['preselection'] {
+  const partnerIds: string[] = [];
+  for (const edge of edges.values()) {
+    if (edge.attributes[variableConfig.relationshipTypeVariable] !== 'partner')
+      continue;
+    if (edge.from === anchorNodeId) partnerIds.push(edge.to);
+    else if (edge.to === anchorNodeId) partnerIds.push(edge.from);
+  }
+
+  const preselection: BioTriadConfig['preselection'] = {};
+  const candidates = [anchorNodeId, ...partnerIds];
+
+  // Assign the first two candidates as egg source and sperm source.
+  // Default the egg source as the carrier.
+  if (candidates[0]) {
+    preselection.eggSource = candidates[0];
+    preselection.carrier = 'egg-source';
+  }
+  if (candidates[1]) {
+    preselection.spermSource = candidates[1];
+  }
+
+  return preselection;
 }
 
 export async function openAddChildWizard(
@@ -49,7 +72,12 @@ export async function openAddChildWizard(
   edges: Map<string, NcEdge>,
   variableConfig: VariableConfig,
 ): Promise<CommitBatch | null> {
-  const preselection = getPreselection();
+  const preselection = getPreselection(
+    anchorNodeId,
+    nodes,
+    edges,
+    variableConfig,
+  );
   const existingNodes = buildNodeOptions(nodes, variableConfig);
 
   const result = await openDialog({

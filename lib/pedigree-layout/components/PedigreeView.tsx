@@ -398,6 +398,15 @@ export default function PedigreeView({
                       (e.from === node.id || e.to === node.id),
                   )
                 }
+                canAddSibling={
+                  isEgo ||
+                  [...edges.values()].some(
+                    (e) =>
+                      e.to === node.id &&
+                      e.attributes[relationshipTypeVariable] !== 'partner' &&
+                      e.attributes[relationshipTypeVariable] !== 'social',
+                  )
+                }
                 isEgo={isEgo}
                 onAction={(action) => handleMenuAction(node.id, action)}
               >

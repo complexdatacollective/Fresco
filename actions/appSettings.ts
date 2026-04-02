@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { after } from 'next/server';
 import { type z } from 'zod';
 import { z as zm } from 'zod/mini';
+import { env } from '~/env.js';
 import { captureEvent, shutdownPostHog } from '~/lib/posthog-server';
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
@@ -112,7 +113,7 @@ export async function setUploadThingToken(rawData: unknown) {
 
   // Verify the token works by making an API call.
   // In E2E tests, skip verification since the storage layer uses a test stub.
-  if (String(process.env.E2E_TEST) !== 'true') {
+  if (String(env.E2E_TEST) !== 'true') {
     const verifyError = await verifyUploadThingToken(token);
     if (verifyError) {
       return {
