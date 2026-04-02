@@ -192,10 +192,10 @@ export default function PedigreeChecklist({
       list.push({
         id: `grandparents-${parentId}`,
         label: done
-          ? `Add ${parentName}'s parents`
+          ? `Add parents for ${parentName}`
           : remaining === 1
-            ? `Add 1 more grandparent via ${parentName}`
-            : `Add ${parentName}'s parents`,
+            ? `Add 1 more parent for ${parentName}`
+            : `Add parents for ${parentName}`,
         done,
         required: true,
       });
