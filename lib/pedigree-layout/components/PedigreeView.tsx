@@ -313,8 +313,8 @@ export default function PedigreeView() {
   const displayLabels = computeNodeDisplayLabels(nodes, edges, variableConfig);
 
   return (
-    <div className="relative size-full overflow-x-auto pt-6">
-      <div className="relative flex size-full min-w-fit justify-center">
+    <div className="absolute inset-0 overflow-x-auto pt-6">
+      <div className="relative flex min-h-full min-w-fit justify-center">
         <PedigreeLayout
           nodes={nodes}
           edges={edges}

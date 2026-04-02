@@ -173,11 +173,11 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
 
   return (
     <>
-      <div className="interface">
+      <div className="interface p-0">
         <Prompts
           prompts={allPrompts}
           currentPromptId={allPrompts[currentStepIndex]?.id}
-          className="shrink-0"
+          className="phone-landscape:px-4 phone-landscape:pt-4 tablet-landscape:px-6 tablet-landscape:pt-6 desktop:px-8 shrink-0 px-2 pt-2"
         />
         <div
           ref={containerRef}
