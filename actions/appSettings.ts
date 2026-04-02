@@ -110,15 +110,18 @@ export async function setUploadThingToken(rawData: unknown) {
     };
   }
 
-  // Verify the token works by making an API call
-  const verifyError = await verifyUploadThingToken(token);
-  if (verifyError) {
-    return {
-      success: false as const,
-      fieldErrors: {
-        uploadThingToken: [verifyError],
-      },
-    };
+  // Verify the token works by making an API call.
+  // In E2E tests, skip verification since the storage layer uses a test stub.
+  if (String(process.env.E2E_TEST) !== 'true') {
+    const verifyError = await verifyUploadThingToken(token);
+    if (verifyError) {
+      return {
+        success: false as const,
+        fieldErrors: {
+          uploadThingToken: [verifyError],
+        },
+      };
+    }
   }
 
   await setAppSetting('uploadThingToken', token);

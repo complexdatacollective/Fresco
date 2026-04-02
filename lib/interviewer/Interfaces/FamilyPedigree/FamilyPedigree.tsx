@@ -404,7 +404,7 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
               }
               void openDialog({
                 type: 'acknowledge',
-                title: 'Building your family tree',
+                title: 'Building the rest of your pedigree',
                 children: (
                   <div className="flex items-start gap-6">
                     <div>
