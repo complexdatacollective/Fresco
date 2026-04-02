@@ -11,9 +11,8 @@ import { env } from '~/env';
 import { captureException, shutdownPostHog } from '~/lib/posthog-server';
 import { ensureError } from '~/utils/ensureError';
 import { getSemverUpdateType, semverSchema } from '~/utils/semVer';
-import SettingsCard from './settings/SettingsCard';
+import SettingsField from './settings/SettingsField';
 import Heading from './typography/Heading';
-import Paragraph from './typography/Paragraph';
 import { Button } from './ui/Button';
 
 const GithubApiResponseSchema = z
@@ -83,14 +82,12 @@ export default async function VersionSection() {
     await checkForUpdate();
 
   return (
-    <SettingsCard id="app-version" title="App Version">
-      <Paragraph data-testid="app-version-info">
-        You are currently running Fresco {env.APP_VERSION} (
-        {env.CI ? 'ci-build' : env.COMMIT_HASH}).
-      </Paragraph>
-
+    <SettingsField
+      label="App Version"
+      description={`You are currently running Fresco ${env.APP_VERSION ?? 'unknown'} (${env.CI ? 'ci-build' : env.COMMIT_HASH}).`}
+    >
       {error && (
-        <Alert variant="destructive" className="mt-4">
+        <Alert variant="destructive">
           <AlertTitle>Error fetching update information</AlertTitle>
           <AlertDescription>
             An error occurred while fetching the latest version information.
@@ -99,7 +96,7 @@ export default async function VersionSection() {
       )}
 
       {!error && !updateType && (
-        <Alert variant="success" className="mt-4">
+        <Alert variant="success">
           <AlertTitle>You are up to date</AlertTitle>
           <AlertDescription>
             You are running the latest version of Fresco.
@@ -108,60 +105,56 @@ export default async function VersionSection() {
       )}
 
       {updateType && (
-        <>
-          <Alert variant="info" className="mt-4">
-            <AlertTitle>{latestVersion} of Fresco is available!</AlertTitle>
-            {updateType === 'major' && (
-              <Alert variant="destructive" className="my-4 ml-6 w-fit">
-                <AlertTitle>Major update</AlertTitle>
-                <AlertDescription>
-                  This update is a major version bump. A new major version may
-                  change the interview experience, or require additional
-                  configuration before the app can continue to be used. It
-                  should NOT be done while collecting data. If you are actively
-                  collecting data, please wait until data collection is complete
-                  before updating.
-                </AlertDescription>
-              </Alert>
-            )}
-            <AlertDescription>
-              To upgrade your Fresco version, you will need to sync your fork
-              with the latest version of the Fresco repository. For more
-              information, please refer to the{' '}
-              <Link
-                href="https://documentation.networkcanvas.com/en/fresco/deployment/upgrading"
-                target="_blank"
-              >
-                upgrade documentation.
-              </Link>
-            </AlertDescription>
-            <article className="text-text [&_a]:text-link my-4 max-w-full text-sm [&_h1]:text-sm [&_h1]:font-extrabold [&_h1]:tracking-widest [&_h1]:uppercase [&_h2]:text-sm [&_h2]:font-extrabold [&_h2]:tracking-widest [&_h2]:uppercase [&_h3]:text-sm [&_h3]:font-extrabold [&_h3]:tracking-widest [&_h3]:uppercase [&_h4]:text-sm [&_h4]:font-extrabold [&_h4]:tracking-widest [&_h4]:uppercase [&_h5]:text-sm [&_h5]:font-extrabold [&_h5]:tracking-widest [&_h5]:uppercase [&_h6]:text-sm [&_h6]:font-extrabold [&_h6]:tracking-widest [&_h6]:uppercase">
-              <Markdown>{releaseNotes}</Markdown>
-            </article>
-            <div className="text-right">
-              <a href={releaseUrl} target="_blank">
-                <Button color="info">View Full Release Notes</Button>
-              </a>
-            </div>
-          </Alert>
-        </>
+        <Alert variant="info">
+          <AlertTitle>{latestVersion} of Fresco is available!</AlertTitle>
+          {updateType === 'major' && (
+            <Alert variant="destructive" className="my-4 ml-6 w-fit">
+              <AlertTitle>Major update</AlertTitle>
+              <AlertDescription>
+                This update is a major version bump. A new major version may
+                change the interview experience, or require additional
+                configuration before the app can continue to be used. It should
+                NOT be done while collecting data. If you are actively
+                collecting data, please wait until data collection is complete
+                before updating.
+              </AlertDescription>
+            </Alert>
+          )}
+          <AlertDescription>
+            To upgrade your Fresco version, you will need to sync your fork with
+            the latest version of the Fresco repository. For more information,
+            please refer to the{' '}
+            <Link
+              href="https://documentation.networkcanvas.com/en/fresco/deployment/upgrading"
+              target="_blank"
+            >
+              upgrade documentation.
+            </Link>
+          </AlertDescription>
+          <article className="text-text [&_a]:text-link my-4 max-w-full text-sm [&_h1]:text-sm [&_h1]:font-extrabold [&_h1]:tracking-widest [&_h1]:uppercase [&_h2]:text-sm [&_h2]:font-extrabold [&_h2]:tracking-widest [&_h2]:uppercase [&_h3]:text-sm [&_h3]:font-extrabold [&_h3]:tracking-widest [&_h3]:uppercase [&_h4]:text-sm [&_h4]:font-extrabold [&_h4]:tracking-widest [&_h4]:uppercase [&_h5]:text-sm [&_h5]:font-extrabold [&_h5]:tracking-widest [&_h5]:uppercase [&_h6]:text-sm [&_h6]:font-extrabold [&_h6]:tracking-widest [&_h6]:uppercase">
+            <Markdown>{releaseNotes}</Markdown>
+          </article>
+          <div className="text-right">
+            <a href={releaseUrl} target="_blank">
+              <Button color="info">View Full Release Notes</Button>
+            </a>
+          </div>
+        </Alert>
       )}
-    </SettingsCard>
+    </SettingsField>
   );
 }
 
-// Skeleton
 export function VersionSectionSkeleton() {
   return (
-    <SettingsCard title="App Version">
-      <Paragraph>
-        You are currently running Fresco {env.APP_VERSION} (
-        {env.CI ? 'ci-build' : env.COMMIT_HASH}).
-      </Paragraph>
+    <SettingsField
+      label="App Version"
+      description={`You are currently running Fresco ${env.APP_VERSION ?? 'unknown'} (${env.CI ? 'ci-build' : env.COMMIT_HASH}).`}
+    >
       <div className="my-4 flex h-24 items-center justify-center gap-4">
         <Loader2 className="animate-spin" />
         <Heading>Checking for updates...</Heading>
       </div>
-    </SettingsCard>
+    </SettingsField>
   );
 }
