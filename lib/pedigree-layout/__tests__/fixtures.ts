@@ -139,3 +139,30 @@ export const blendedFamily: PedigreeInput = {
     ],
   ],
 };
+
+/**
+ * Cross-family pedigree: two grandparent couples whose children marry.
+ *
+ *   gpA1(0) + gpA2(1)      gpB1(2) + gpB2(3)
+ *         |                       |
+ *       childA(4) ---- childB(5)
+ *              |
+ *          grandchild(6)
+ *
+ * This structure triggers the per-layer normalization bug when the
+ * downward centering creates negative positions on the child layer.
+ */
+export const crossFamily: PedigreeInput = {
+  id: ['gpA1', 'gpA2', 'gpB1', 'gpB2', 'childA', 'childB', 'grandchild'],
+  parents: [[], [], [], [], [sp(0), sp(1)], [sp(2), sp(3)], [sp(4), sp(5)]],
+  relation: [
+    { id1: 0, id2: 1, code: 4 },
+    { id1: 2, id2: 3, code: 4 },
+    { id1: 4, id2: 5, code: 4 },
+  ],
+  partners: [
+    { partnerIndex1: 0, partnerIndex2: 1, isActive: true },
+    { partnerIndex1: 2, partnerIndex2: 3, isActive: true },
+    { partnerIndex1: 4, partnerIndex2: 5, isActive: true },
+  ],
+};

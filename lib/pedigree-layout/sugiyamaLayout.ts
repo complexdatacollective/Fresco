@@ -728,6 +728,31 @@ function encodePedigreeLayout(
       }
     }
 
+    // Position married-in partners adjacent to their spouse. Founders
+    // with no parents above keep their initial column index, which
+    // drifts away from a spouse that was shifted under their family.
+    for (let col = 0; col < layerN; col++) {
+      const node = nid[layer]![col]!;
+      if (graph.parents[node]!.length > 0) continue;
+
+      for (const pg of graph.partnerGroups) {
+        if (!pg.members.includes(node)) continue;
+        const spouse = pg.members.find((m) => m !== node);
+        if (spouse === undefined) continue;
+        const spouseLoc = nodeLocation.get(spouse);
+        if (spouseLoc?.layer !== layer) continue;
+        const spouseCol = spouseLoc.col;
+        if (spouseCol < 0) continue;
+
+        if (col > spouseCol) {
+          ideal[col] = ideal[spouseCol]! + 1;
+        } else {
+          ideal[col] = ideal[spouseCol]! - 1;
+        }
+        break;
+      }
+    }
+
     // Resolve overlaps: left-to-right sweep enforcing min gap of 1
     const resolved = [...ideal];
     for (let col = 1; col < layerN; col++) {
@@ -774,6 +799,10 @@ function encodePedigreeLayout(
   // Upward centering: shift parent groups to center over their children.
   // Partner groups move as a unit; neighbouring nodes are pushed aside to
   // make room, maintaining a minimum gap of 1.
+  //
+  // When a parent appears in multiple family units (e.g. Margaret with two
+  // ex-partners), merge all children from those units so the parent's
+  // position accounts for all of them at once.
   for (let layer = maxLayer - 2; layer >= 0; layer--) {
     const layerN = n[layer]!;
     if (layerN === 0) continue;
@@ -782,19 +811,66 @@ function encodePedigreeLayout(
 
     const layerNodes = nid[layer]!.slice(0, layerN);
 
-    for (const fu of graph.familyUnits) {
+    // Merge family units that share parents on this layer into
+    // combined centering groups: { parentCols, allChildrenBelow }.
+    const processed = new Set<number>();
+    type CenteringGroup = { parentCols: number[]; children: number[] };
+    const centeringGroups: CenteringGroup[] = [];
+
+    for (let fi = 0; fi < graph.familyUnits.length; fi++) {
+      if (processed.has(fi)) continue;
+      const fu = graph.familyUnits[fi]!;
+      if (fu.parentGroup.members.length < 2) continue;
+
       const parentCols = fu.parentGroup.members
         .map((m) => {
           const idx = layerNodes.indexOf(m);
           return idx >= 0 ? idx : -1;
         })
-        .filter((c) => c >= 0)
-        .sort((a, b) => a - b);
-
+        .filter((c) => c >= 0);
       if (parentCols.length === 0) continue;
-      if (fu.parentGroup.members.length < 2) continue;
 
-      const childrenBelow = fu.children.filter((c) => {
+      const parentNodeSet = new Set(parentCols.map((c) => nid[layer]![c]!));
+      const allChildren = new Set(fu.children);
+      processed.add(fi);
+
+      // Find other family units sharing any parent on this layer
+      for (let fj = fi + 1; fj < graph.familyUnits.length; fj++) {
+        if (processed.has(fj)) continue;
+        const otherFu = graph.familyUnits[fj]!;
+        const sharesParent = otherFu.parentGroup.members.some((m) => {
+          const idx = layerNodes.indexOf(m);
+          return idx >= 0 && parentNodeSet.has(nid[layer]![idx]!);
+        });
+        if (!sharesParent) continue;
+
+        processed.add(fj);
+        for (const m of otherFu.parentGroup.members) {
+          const idx = layerNodes.indexOf(m);
+          if (idx >= 0) {
+            parentCols.push(idx);
+            parentNodeSet.add(nid[layer]![idx]!);
+          }
+        }
+        for (const c of otherFu.children) {
+          allChildren.add(c);
+        }
+      }
+
+      const uniqueParentCols = [...new Set(parentCols)].sort((a, b) => a - b);
+      centeringGroups.push({
+        parentCols: uniqueParentCols,
+        children: [...allChildren],
+      });
+    }
+
+    // Sort centering groups left-to-right by leftmost parent col
+    centeringGroups.sort(
+      (a, b) => Math.min(...a.parentCols) - Math.min(...b.parentCols),
+    );
+
+    for (const cg of centeringGroups) {
+      const childrenBelow = cg.children.filter((c) => {
         const loc = nodeLocation.get(c);
         return loc?.layer === childLayer;
       });
@@ -807,21 +883,22 @@ function encodePedigreeLayout(
       const childCenter =
         childPositions.reduce((a, b) => a + b, 0) / childPositions.length;
 
-      const parentPositions = parentCols.map((c) => pos[layer]![c]!);
+      const parentPositions = cg.parentCols.map((c) => pos[layer]![c]!);
       const parentCenter =
         parentPositions.reduce((a, b) => a + b, 0) / parentPositions.length;
 
       const shift = childCenter - parentCenter;
+
       if (Math.abs(shift) < 0.01) continue;
 
       const newPositions = [...pos[layer]!];
-      for (const col of parentCols) {
+      for (const col of cg.parentCols) {
         newPositions[col] = newPositions[col]! + shift;
       }
 
       // Push neighbours aside to maintain minimum gap of 1
-      const minCol = Math.min(...parentCols);
-      const maxCol = Math.max(...parentCols);
+      const minCol = Math.min(...cg.parentCols);
+      const maxCol = Math.max(...cg.parentCols);
 
       // Push left neighbours leftward
       for (let col = minCol - 1; col >= 0; col--) {
@@ -850,7 +927,6 @@ function encodePedigreeLayout(
       }
     }
   }
-
   // Enforce minimum gap of 1 on every layer after all centering passes
   for (let layer = 0; layer < maxLayer; layer++) {
     const layerN = n[layer]!;
@@ -862,26 +938,23 @@ function encodePedigreeLayout(
     }
   }
 
-  // Ensure all positions are non-negative after centering shifts
-  for (let layer = 0; layer < maxLayer; layer++) {
-    const layerPos = pos[layer]!;
-    if (layerPos.length === 0) continue;
-    const minPos = Math.min(...layerPos);
-    if (minPos < 0) {
+  // Ensure all positions are non-negative after centering shifts.
+  // Use a single global offset so parent–child alignment is preserved.
+  {
+    let globalMin = 0;
+    for (let layer = 0; layer < maxLayer; layer++) {
+      const layerPos = pos[layer]!;
       for (let col = 0; col < layerPos.length; col++) {
-        layerPos[col] = layerPos[col]! - minPos;
+        if (layerPos[col]! < globalMin) globalMin = layerPos[col]!;
       }
     }
-  }
-
-  // Ensure all positions are non-negative by shifting
-  for (let layer = 0; layer < maxLayer; layer++) {
-    const layerPos = pos[layer]!;
-    if (layerPos.length === 0) continue;
-    const minPos = Math.min(...layerPos);
-    if (minPos < 0) {
-      for (let col = 0; col < layerPos.length; col++) {
-        layerPos[col] = layerPos[col]! - minPos;
+    if (globalMin < 0) {
+      const offset = -globalMin;
+      for (let layer = 0; layer < maxLayer; layer++) {
+        const layerPos = pos[layer]!;
+        for (let col = 0; col < layerPos.length; col++) {
+          layerPos[col] = layerPos[col]! + offset;
+        }
       }
     }
   }

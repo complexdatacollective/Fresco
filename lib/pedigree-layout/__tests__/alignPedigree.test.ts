@@ -8,6 +8,7 @@ import {
 } from '~/lib/pedigree-layout/types';
 import {
   blendedFamily,
+  crossFamily,
   multipleMarriages,
   nuclearFamily,
   sameSeParents,
@@ -776,4 +777,56 @@ it('adoption by relative: no duplicate group lines', () => {
 
   // There should be exactly 2 group lines (grandpa+grandma, aunt+uncle)
   expect(conn.groupLines.length).toBe(2);
+});
+
+// --- Cross-family alignment tests ---
+
+function positionOf(
+  result: ReturnType<typeof alignPedigree>,
+  nodeIndex: number,
+): { layer: number; pos: number } | undefined {
+  for (let lev = 0; lev < result.n.length; lev++) {
+    for (let col = 0; col < (result.n[lev] ?? 0); col++) {
+      if (result.nid[lev]![col] === nodeIndex) {
+        return { layer: lev, pos: result.pos[lev]![col]! };
+      }
+    }
+  }
+  return undefined;
+}
+
+describe('cross-family alignment', () => {
+  it('normalizes positions globally so parent-child alignment is preserved', () => {
+    const result = alignPedigree(crossFamily);
+
+    // gpA1(0)+gpA2(1) should be roughly centered over childA(4)
+    // gpB1(2)+gpB2(3) should be roughly centered over childB(5)
+    const gpA1 = positionOf(result, 0)!;
+    const gpA2 = positionOf(result, 1)!;
+    const gpB1 = positionOf(result, 2)!;
+    const gpB2 = positionOf(result, 3)!;
+    const childA = positionOf(result, 4)!;
+    const childB = positionOf(result, 5)!;
+
+    const gpACenterX = (gpA1.pos + gpA2.pos) / 2;
+    const gpBCenterX = (gpB1.pos + gpB2.pos) / 2;
+
+    // Parent couple center should be within 1 unit of the child they
+    // connect to. Without global normalization, the per-layer shift
+    // breaks this alignment and the distance can exceed 2+.
+    expect(Math.abs(gpACenterX - childA.pos)).toBeLessThan(1.5);
+    expect(Math.abs(gpBCenterX - childB.pos)).toBeLessThan(1.5);
+  });
+
+  it('partners in cross-family marriages are adjacent', () => {
+    const result = alignPedigree(crossFamily);
+
+    const childA = positionOf(result, 4)!;
+    const childB = positionOf(result, 5)!;
+
+    // childA and childB are partners — they should be on the same layer
+    // and adjacent (within 2 units, allowing for sibling block spacing)
+    expect(childA.layer).toBe(childB.layer);
+    expect(Math.abs(childA.pos - childB.pos)).toBeLessThanOrEqual(2 + 1e-10);
+  });
 });
