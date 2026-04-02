@@ -38,14 +38,12 @@ export default async function StorageProviderSection() {
         label="Storage Provider"
         description={`Files are stored using ${providerLabel}.`}
       >
-        {protocolsExist && (
-          <Alert variant="info">
-            <AlertDescription>
-              The storage provider cannot be changed after protocols have been
-              uploaded.
-            </AlertDescription>
-          </Alert>
-        )}
+        <Alert variant="info">
+          <AlertDescription>
+            The storage provider type cannot be changed once the application has
+            been deployed. You can update the credentials below.
+          </AlertDescription>
+        </Alert>
       </SettingsField>
 
       {provider === 'uploadthing' && (
