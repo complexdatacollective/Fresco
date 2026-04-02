@@ -50,7 +50,7 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
   } = props;
 
   const dispatch = useAppDispatch();
-  const { confirm } = useDialog();
+  const { confirm, openDialog } = useDialog();
   const nodesMap = useFamilyPedigreeStore((s) => s.network.nodes);
   const edgesMap = useFamilyPedigreeStore((s) => s.network.edges);
   const addNode = useFamilyPedigreeStore((s) => s.addNode);
@@ -374,6 +374,48 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
               if (egoId && result.egoAttributes) {
                 updateNode(egoId, result.egoAttributes);
               }
+              void openDialog({
+                type: 'acknowledge',
+                title: 'Building your family tree',
+                children: (
+                  <div className="flex items-start gap-6">
+                    <div>
+                      <Paragraph intent="lead">
+                        You now need to add family members to build out your
+                        pedigree.
+                      </Paragraph>
+                      <Paragraph>
+                        Click on any person in the diagram to open a menu where
+                        you can add parents, children, partners, and siblings.
+                        Not all options are available for every person — the
+                        menu will show the actions relevant to that family
+                        member.
+                      </Paragraph>
+                      <Paragraph>
+                        Please try to be as thorough as possible. Use the
+                        checklist to keep track of your progress.
+                      </Paragraph>
+                      <Paragraph>
+                        When you are finished, click the next button to
+                        continue.
+                      </Paragraph>
+                    </div>
+                    <figure className="flex shrink-0 flex-col items-center gap-2">
+                      <img
+                        src="/images/pedigree-context-menu-hint.png"
+                        alt="Example of the context menu showing options to add parent, child, partner, sibling, edit name, or delete"
+                        className="w-40 rounded-lg shadow-lg"
+                      />
+                      <figcaption className="text-muted text-xs">
+                        Click a person to see this menu
+                      </figcaption>
+                    </figure>
+                  </div>
+                ),
+                actions: {
+                  primary: { label: 'Got it', value: true as const },
+                },
+              });
             }}
             variableConfig={variableConfig}
           />
