@@ -19,8 +19,8 @@ import UserManagementSection from './_components/UserManagementSection';
 
 function getSettingsSections(): SettingsSection[] {
   const sections: SettingsSection[] = [
+    { id: 'app-details', title: 'App Details' },
     { id: 'user-management', title: 'User Management' },
-    { id: 'configuration', title: 'Configuration' },
     { id: 'storage', title: 'Storage' },
     { id: 'interview-settings', title: 'Interview Settings' },
     { id: 'privacy', title: 'Privacy' },
@@ -90,14 +90,14 @@ async function SettingsContent() {
       <div className="flex gap-8">
         <SettingsNavigation sections={sections} />
         <div className="min-w-0 flex-1 space-y-6">
+          <Suspense fallback={<SettingsCardSkeleton rows={2} />}>
+            <ConfigurationSection />
+          </Suspense>
           <Suspense fallback={<SettingsCardSkeleton rows={1} />}>
             <UserManagementSection
               userId={session.user.userId}
               username={session.user.username}
             />
-          </Suspense>
-          <Suspense fallback={<SettingsCardSkeleton rows={2} />}>
-            <ConfigurationSection />
           </Suspense>
           <Suspense fallback={<SettingsCardSkeleton rows={2} />}>
             <StorageProviderSection />

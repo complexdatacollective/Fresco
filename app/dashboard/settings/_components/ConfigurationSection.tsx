@@ -12,7 +12,7 @@ export default async function ConfigurationSection() {
   const installationId = await getInstallationId();
 
   return (
-    <SettingsCard id="configuration" title="Configuration" divideChildren>
+    <SettingsCard id="app-details" title="App Details" divideChildren>
       <Suspense fallback={<VersionSectionSkeleton />}>
         <VersionSection />
       </Suspense>
