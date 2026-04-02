@@ -33,7 +33,7 @@ export default async function StorageProviderSection() {
     provider === 's3' ? 'S3 / S3-Compatible' : 'UploadThing';
 
   return (
-    <SettingsCard id="storage" title="Storage">
+    <SettingsCard id="storage" title="Storage" divideChildren>
       <SettingsField
         label="Storage Provider"
         description={`Files are stored using ${providerLabel}.`}
