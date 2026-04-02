@@ -1,15 +1,14 @@
-/* eslint-disable */
-// @ts-nocheck -- TODO: Update tests for NcNode/NcEdge migration (Task 10)
+import { type NcEdge, type NcNode } from '@codaco/shared-consts';
 import { describe, expect, it } from 'vitest';
 import {
   createFamilyPedigreeStore,
-  type NodeData,
-  type StoreEdge,
   type VariableConfig,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import { type useAppDispatch } from '~/lib/interviewer/store';
 
 const testConfig: VariableConfig = {
+  nodeType: 'person',
+  edgeType: 'family',
   nodeLabelVariable: 'label',
   egoVariable: 'isEgo',
   relationshipTypeVariable: 'relationshipType',
@@ -19,7 +18,12 @@ const testConfig: VariableConfig = {
 
 describe('store creation', () => {
   it('creates an empty store', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    const store = createFamilyPedigreeStore(
+      new Map(),
+      new Map(),
+      new Map(),
+      testConfig,
+    );
     const state = store.getState();
 
     expect(state.step).toBe('scaffolding');
@@ -28,39 +32,52 @@ describe('store creation', () => {
   });
 
   it('creates a store with initial data', () => {
-    const nodes = new Map<string, NodeData>([
+    const nodes = new Map<string, NcNode>([
       [
         'n1',
         {
-          isEgo: true,
+          _uid: 'n1',
+          type: 'person',
           attributes: {
             [testConfig.nodeLabelVariable]: 'ego',
+            [testConfig.egoVariable]: true,
           },
         },
       ],
       [
         'n2',
         {
-          isEgo: false,
+          _uid: 'n2',
+          type: 'person',
           attributes: {
             [testConfig.nodeLabelVariable]: 'mother',
+            [testConfig.egoVariable]: false,
           },
         },
       ],
     ]);
-    const edges = new Map<string, StoreEdge>([
+    const edges = new Map<string, NcEdge>([
       [
         'e1',
         {
-          source: 'n2',
-          target: 'n1',
-          relationshipType: 'biological',
-          isActive: true,
+          _uid: 'e1',
+          type: 'family',
+          from: 'n2',
+          to: 'n1',
+          attributes: {
+            [testConfig.relationshipTypeVariable]: 'biological',
+            [testConfig.isActiveVariable]: true,
+          },
         },
       ],
     ]);
 
-    const store = createFamilyPedigreeStore(nodes, edges, testConfig);
+    const store = createFamilyPedigreeStore(
+      nodes,
+      edges,
+      new Map(),
+      testConfig,
+    );
     const state = store.getState();
 
     expect(state.network.nodes.size).toBe(2);
@@ -73,10 +90,15 @@ describe('store creation', () => {
 
 describe('addNode', () => {
   it('creates a node with a generated id', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    const store = createFamilyPedigreeStore(
+      new Map(),
+      new Map(),
+      new Map(),
+      testConfig,
+    );
     const id = store.getState().addNode({
-      isEgo: false,
       attributes: {
+        [testConfig.egoVariable]: false,
         [testConfig.nodeLabelVariable]: 'test',
       },
     });
@@ -86,32 +108,39 @@ describe('addNode', () => {
   });
 
   it('stores data correctly without the id field', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    const store = createFamilyPedigreeStore(
+      new Map(),
+      new Map(),
+      new Map(),
+      testConfig,
+    );
     const id = store.getState().addNode({
-      isEgo: true,
-      readOnly: false,
       attributes: {
+        [testConfig.egoVariable]: true,
         [testConfig.nodeLabelVariable]: 'ego',
       },
     });
 
     const node = store.getState().network.nodes.get(id);
-    expect(node).toEqual({
-      isEgo: true,
-      readOnly: false,
-      attributes: {
-        [testConfig.nodeLabelVariable]: 'ego',
-      },
-    });
-    expect(node).not.toHaveProperty('id');
+    expect(node?.attributes[testConfig.nodeLabelVariable]).toBe('ego');
+    expect(node?.attributes[testConfig.egoVariable]).toBe(true);
+    expect(node?.type).toBe('person');
+    expect(node?._uid).toBe(id);
   });
 
   it('uses a provided id', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    const store = createFamilyPedigreeStore(
+      new Map(),
+      new Map(),
+      new Map(),
+      testConfig,
+    );
     const id = store.getState().addNode({
       id: 'custom-id',
-      isEgo: false,
-      attributes: { [testConfig.nodeLabelVariable]: 'test' },
+      attributes: {
+        [testConfig.egoVariable]: false,
+        [testConfig.nodeLabelVariable]: 'test',
+      },
     });
 
     expect(id).toBe('custom-id');
@@ -121,136 +150,170 @@ describe('addNode', () => {
 
 describe('updateNode', () => {
   it('merges partial updates', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    const store = createFamilyPedigreeStore(
+      new Map(),
+      new Map(),
+      new Map(),
+      testConfig,
+    );
     const id = store.getState().addNode({
-      isEgo: false,
-      readOnly: false,
       attributes: {
+        [testConfig.egoVariable]: false,
         [testConfig.nodeLabelVariable]: 'test',
       },
     });
 
     store.getState().updateNode(id, {
-      readOnly: true,
-      attributes: {
-        [testConfig.nodeLabelVariable]: 'updated',
-      },
+      [testConfig.nodeLabelVariable]: 'updated',
     });
 
     const node = store.getState().network.nodes.get(id);
     expect(node?.attributes[testConfig.nodeLabelVariable]).toBe('updated');
-    expect(node?.readOnly).toBe(true);
-    expect(node?.isEgo).toBe(false);
+    expect(node?.attributes[testConfig.egoVariable]).toBe(false);
   });
 });
 
 describe('removeNode', () => {
   it('deletes the node and cascading edges', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    const store = createFamilyPedigreeStore(
+      new Map(),
+      new Map(),
+      new Map(),
+      testConfig,
+    );
     const parentId = store.getState().addNode({
-      isEgo: false,
       attributes: {
+        [testConfig.egoVariable]: false,
         [testConfig.nodeLabelVariable]: 'parent',
       },
     });
     const childId = store.getState().addNode({
-      isEgo: false,
       attributes: {
+        [testConfig.egoVariable]: false,
         [testConfig.nodeLabelVariable]: 'child',
       },
     });
     const unrelatedId = store.getState().addNode({
-      isEgo: false,
       attributes: {
+        [testConfig.egoVariable]: false,
         [testConfig.nodeLabelVariable]: 'other',
       },
     });
 
     store.getState().addEdge({
-      source: parentId,
-      target: childId,
-      relationshipType: 'biological',
-      isActive: true,
+      from: parentId,
+      to: childId,
+      attributes: {
+        [testConfig.relationshipTypeVariable]: 'biological',
+        [testConfig.isActiveVariable]: true,
+      },
     });
     const keptEdgeId = store.getState().addEdge({
-      source: unrelatedId,
-      target: parentId,
-      relationshipType: 'partner',
-      isActive: true,
+      from: unrelatedId,
+      to: parentId,
+      attributes: {
+        [testConfig.relationshipTypeVariable]: 'partner',
+        [testConfig.isActiveVariable]: true,
+      },
     });
 
     store.getState().removeNode(childId);
 
     expect(store.getState().network.nodes.has(childId)).toBe(false);
-    // The parent edge to child should be removed
     const remainingEdges = Array.from(
       store.getState().network.edges.values(),
-    ).filter((e) => e.source === childId || e.target === childId);
+    ).filter((e) => e.from === childId || e.to === childId);
     expect(remainingEdges).toHaveLength(0);
-    // The unrelated edge should remain
     expect(store.getState().network.edges.has(keptEdgeId)).toBe(true);
   });
 });
 
 describe('addEdge', () => {
   it('creates a parent edge with edgeType', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    const store = createFamilyPedigreeStore(
+      new Map(),
+      new Map(),
+      new Map(),
+      testConfig,
+    );
     const id = store.getState().addEdge({
-      source: 'n1',
-      target: 'n2',
-      relationshipType: 'biological',
-      isActive: true,
+      from: 'n1',
+      to: 'n2',
+      attributes: {
+        [testConfig.relationshipTypeVariable]: 'biological',
+        [testConfig.isActiveVariable]: true,
+      },
     });
 
     const edge = store.getState().network.edges.get(id);
     expect(edge).toBeDefined();
-    expect(edge?.relationshipType).not.toBe('partner');
-    if (edge && edge.relationshipType !== 'partner') {
-      expect(edge.relationshipType).toBe('biological');
-    }
+    expect(edge?.attributes[testConfig.relationshipTypeVariable]).toBe(
+      'biological',
+    );
   });
 
   it('creates a partner edge with current flag', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    const store = createFamilyPedigreeStore(
+      new Map(),
+      new Map(),
+      new Map(),
+      testConfig,
+    );
     const id = store.getState().addEdge({
-      source: 'n1',
-      target: 'n2',
-      relationshipType: 'partner',
-      isActive: true,
+      from: 'n1',
+      to: 'n2',
+      attributes: {
+        [testConfig.relationshipTypeVariable]: 'partner',
+        [testConfig.isActiveVariable]: true,
+      },
     });
 
     const edge = store.getState().network.edges.get(id);
     expect(edge).toBeDefined();
-    expect(edge?.relationshipType).toBe('partner');
-    if (edge?.relationshipType === 'partner') {
-      expect(edge.isActive).toBe(true);
-    }
+    expect(edge?.attributes[testConfig.relationshipTypeVariable]).toBe(
+      'partner',
+    );
+    expect(edge?.attributes[testConfig.isActiveVariable]).toBe(true);
   });
 
   it('strips the id field from stored data', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    const store = createFamilyPedigreeStore(
+      new Map(),
+      new Map(),
+      new Map(),
+      testConfig,
+    );
     const id = store.getState().addEdge({
       id: 'custom-edge',
-      source: 'n1',
-      target: 'n2',
-      relationshipType: 'donor',
-      isActive: true,
+      from: 'n1',
+      to: 'n2',
+      attributes: {
+        [testConfig.relationshipTypeVariable]: 'donor',
+        [testConfig.isActiveVariable]: true,
+      },
     });
 
     expect(id).toBe('custom-edge');
     const edge = store.getState().network.edges.get(id);
-    expect(edge).not.toHaveProperty('id');
+    expect(edge?._uid).toBe('custom-edge');
   });
 });
 
 describe('removeEdge', () => {
   it('deletes the edge', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    const store = createFamilyPedigreeStore(
+      new Map(),
+      new Map(),
+      new Map(),
+      testConfig,
+    );
     const id = store.getState().addEdge({
-      source: 'n1',
-      target: 'n2',
-      relationshipType: 'partner',
-      isActive: false,
+      from: 'n1',
+      to: 'n2',
+      attributes: {
+        [testConfig.relationshipTypeVariable]: 'partner',
+        [testConfig.isActiveVariable]: false,
+      },
     });
 
     expect(store.getState().network.edges.has(id)).toBe(true);
@@ -261,20 +324,31 @@ describe('removeEdge', () => {
 
 describe('clearNetwork', () => {
   it('removes all nodes and edges', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    const store = createFamilyPedigreeStore(
+      new Map(),
+      new Map(),
+      new Map(),
+      testConfig,
+    );
     store.getState().addNode({
-      isEgo: true,
-      attributes: { [testConfig.nodeLabelVariable]: 'a' },
+      attributes: {
+        [testConfig.egoVariable]: true,
+        [testConfig.nodeLabelVariable]: 'a',
+      },
     });
     store.getState().addNode({
-      isEgo: false,
-      attributes: { [testConfig.nodeLabelVariable]: 'b' },
+      attributes: {
+        [testConfig.egoVariable]: false,
+        [testConfig.nodeLabelVariable]: 'b',
+      },
     });
     store.getState().addEdge({
-      source: 'x',
-      target: 'y',
-      relationshipType: 'partner',
-      isActive: true,
+      from: 'x',
+      to: 'y',
+      attributes: {
+        [testConfig.relationshipTypeVariable]: 'partner',
+        [testConfig.isActiveVariable]: true,
+      },
     });
 
     store.getState().clearNetwork();
@@ -286,7 +360,12 @@ describe('clearNetwork', () => {
 
 describe('setStep', () => {
   it('changes step', () => {
-    const store = createFamilyPedigreeStore(new Map(), new Map(), testConfig);
+    const store = createFamilyPedigreeStore(
+      new Map(),
+      new Map(),
+      new Map(),
+      testConfig,
+    );
     expect(store.getState().step).toBe('scaffolding');
 
     store.getState().setStep('diseaseNomination');
@@ -307,12 +386,15 @@ describe('syncMetadata', () => {
     const store = createFamilyPedigreeStore(
       new Map(),
       new Map(),
+      new Map(),
       testConfig,
       mockDispatch,
     );
     store.getState().addNode({
-      isEgo: true,
-      attributes: { [testConfig.nodeLabelVariable]: 'Ego' },
+      attributes: {
+        [testConfig.egoVariable]: true,
+        [testConfig.nodeLabelVariable]: 'Ego',
+      },
     });
     store.getState().syncMetadata();
     expect(dispatched.length).toBe(1);

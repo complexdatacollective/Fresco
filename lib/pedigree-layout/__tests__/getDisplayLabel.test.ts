@@ -1,14 +1,11 @@
-/* eslint-disable */
-// @ts-nocheck -- TODO: Update tests for NcNode/NcEdge migration (Task 10)
+import { type NcEdge, type NcNode } from '@codaco/shared-consts';
 import { describe, expect, it } from 'vitest';
-import {
-  type NodeData,
-  type StoreEdge,
-  type VariableConfig,
-} from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import { getDisplayLabel } from '~/lib/pedigree-layout/utils/getDisplayLabel';
 
 const variableConfig: VariableConfig = {
+  nodeType: 'person',
+  edgeType: 'family',
   nodeLabelVariable: 'name',
   egoVariable: 'isEgo',
   relationshipTypeVariable: 'rel',
@@ -18,13 +15,15 @@ const variableConfig: VariableConfig = {
 
 function makeNodes(
   entries: [string, { name?: string; isEgo?: boolean }][],
-): Map<string, NodeData> {
+): Map<string, NcNode> {
   return new Map(
     entries.map(([id, { name, isEgo }]) => [
       id,
       {
-        isEgo: isEgo ?? false,
+        _uid: id,
+        type: 'person',
         attributes: {
+          [variableConfig.egoVariable]: isEgo ?? false,
           ...(name !== undefined ? { name } : {}),
         },
       },
@@ -33,12 +32,29 @@ function makeNodes(
 }
 
 function makeEdges(
-  entries: [string, Omit<StoreEdge, 'isActive'> & { isActive?: boolean }][],
-): Map<string, StoreEdge> {
+  entries: [
+    string,
+    {
+      from: string;
+      to: string;
+      relType: string;
+      isActive?: boolean;
+    },
+  ][],
+): Map<string, NcEdge> {
   return new Map(
-    entries.map(([id, edge]) => [
+    entries.map(([id, { from, to, relType, isActive }]) => [
       id,
-      { ...edge, isActive: edge.isActive ?? true } as StoreEdge,
+      {
+        _uid: id,
+        type: 'family',
+        from,
+        to,
+        attributes: {
+          [variableConfig.relationshipTypeVariable]: relType,
+          [variableConfig.isActiveVariable]: isActive ?? true,
+        },
+      },
     ]),
   );
 }
@@ -50,7 +66,7 @@ describe('getDisplayLabel', () => {
       ['dad', { name: 'Rob' }],
     ]);
     const edges = makeEdges([
-      ['e1', { source: 'dad', target: 'ego', relationshipType: 'biological' }],
+      ['e1', { from: 'dad', to: 'ego', relType: 'biological' }],
     ]);
 
     expect(getDisplayLabel('dad', 'ego', nodes, edges, variableConfig)).toBe(
@@ -64,7 +80,7 @@ describe('getDisplayLabel', () => {
       ['dad', {}],
     ]);
     const edges = makeEdges([
-      ['e1', { source: 'dad', target: 'ego', relationshipType: 'biological' }],
+      ['e1', { from: 'dad', to: 'ego', relType: 'biological' }],
     ]);
 
     expect(getDisplayLabel('dad', 'ego', nodes, edges, variableConfig)).toBe(
@@ -78,7 +94,7 @@ describe('getDisplayLabel', () => {
       ['step', {}],
     ]);
     const edges = makeEdges([
-      ['e1', { source: 'step', target: 'ego', relationshipType: 'social' }],
+      ['e1', { from: 'step', to: 'ego', relType: 'social' }],
     ]);
 
     expect(getDisplayLabel('step', 'ego', nodes, edges, variableConfig)).toBe(
@@ -92,7 +108,7 @@ describe('getDisplayLabel', () => {
       ['donor', {}],
     ]);
     const edges = makeEdges([
-      ['e1', { source: 'donor', target: 'ego', relationshipType: 'donor' }],
+      ['e1', { from: 'donor', to: 'ego', relType: 'donor' }],
     ]);
 
     expect(getDisplayLabel('donor', 'ego', nodes, edges, variableConfig)).toBe(
@@ -106,7 +122,7 @@ describe('getDisplayLabel', () => {
       ['surr', {}],
     ]);
     const edges = makeEdges([
-      ['e1', { source: 'surr', target: 'ego', relationshipType: 'surrogate' }],
+      ['e1', { from: 'surr', to: 'ego', relType: 'surrogate' }],
     ]);
 
     expect(getDisplayLabel('surr', 'ego', nodes, edges, variableConfig)).toBe(
@@ -120,7 +136,7 @@ describe('getDisplayLabel', () => {
       ['kid', {}],
     ]);
     const edges = makeEdges([
-      ['e1', { source: 'ego', target: 'kid', relationshipType: 'biological' }],
+      ['e1', { from: 'ego', to: 'kid', relType: 'biological' }],
     ]);
 
     expect(getDisplayLabel('kid', 'ego', nodes, edges, variableConfig)).toBe(
@@ -134,7 +150,7 @@ describe('getDisplayLabel', () => {
       ['p', {}],
     ]);
     const edges = makeEdges([
-      ['e1', { source: 'ego', target: 'p', relationshipType: 'partner' }],
+      ['e1', { from: 'ego', to: 'p', relType: 'partner' }],
     ]);
 
     expect(getDisplayLabel('p', 'ego', nodes, edges, variableConfig)).toBe(
@@ -149,8 +165,8 @@ describe('getDisplayLabel', () => {
       ['sib', {}],
     ]);
     const edges = makeEdges([
-      ['e1', { source: 'dad', target: 'ego', relationshipType: 'biological' }],
-      ['e2', { source: 'dad', target: 'sib', relationshipType: 'biological' }],
+      ['e1', { from: 'dad', to: 'ego', relType: 'biological' }],
+      ['e2', { from: 'dad', to: 'sib', relType: 'biological' }],
     ]);
 
     expect(getDisplayLabel('sib', 'ego', nodes, edges, variableConfig)).toBe(
@@ -166,14 +182,8 @@ describe('getDisplayLabel', () => {
         ['grandpa', {}],
       ]);
       const edges = makeEdges([
-        [
-          'e1',
-          { source: 'dad', target: 'ego', relationshipType: 'biological' },
-        ],
-        [
-          'e2',
-          { source: 'grandpa', target: 'dad', relationshipType: 'biological' },
-        ],
+        ['e1', { from: 'dad', to: 'ego', relType: 'biological' }],
+        ['e2', { from: 'grandpa', to: 'dad', relType: 'biological' }],
       ]);
 
       expect(
@@ -188,14 +198,8 @@ describe('getDisplayLabel', () => {
         ['grandpa', {}],
       ]);
       const edges = makeEdges([
-        [
-          'e1',
-          { source: 'dad', target: 'ego', relationshipType: 'biological' },
-        ],
-        [
-          'e2',
-          { source: 'grandpa', target: 'dad', relationshipType: 'biological' },
-        ],
+        ['e1', { from: 'dad', to: 'ego', relType: 'biological' }],
+        ['e2', { from: 'grandpa', to: 'dad', relType: 'biological' }],
       ]);
 
       expect(
@@ -210,14 +214,8 @@ describe('getDisplayLabel', () => {
         ['stepmom', {}],
       ]);
       const edges = makeEdges([
-        [
-          'e1',
-          { source: 'dad', target: 'ego', relationshipType: 'biological' },
-        ],
-        [
-          'e2',
-          { source: 'dad', target: 'stepmom', relationshipType: 'partner' },
-        ],
+        ['e1', { from: 'dad', to: 'ego', relType: 'biological' }],
+        ['e2', { from: 'dad', to: 'stepmom', relType: 'partner' }],
       ]);
 
       expect(
@@ -233,22 +231,9 @@ describe('getDisplayLabel', () => {
         ['uncle', {}],
       ]);
       const edges = makeEdges([
-        [
-          'e1',
-          { source: 'dad', target: 'ego', relationshipType: 'biological' },
-        ],
-        [
-          'e2',
-          { source: 'grandpa', target: 'dad', relationshipType: 'biological' },
-        ],
-        [
-          'e3',
-          {
-            source: 'grandpa',
-            target: 'uncle',
-            relationshipType: 'biological',
-          },
-        ],
+        ['e1', { from: 'dad', to: 'ego', relType: 'biological' }],
+        ['e2', { from: 'grandpa', to: 'dad', relType: 'biological' }],
+        ['e3', { from: 'grandpa', to: 'uncle', relType: 'biological' }],
       ]);
 
       expect(
@@ -264,22 +249,9 @@ describe('getDisplayLabel', () => {
         ['uncle', {}],
       ]);
       const edges = makeEdges([
-        [
-          'e1',
-          { source: 'dad', target: 'ego', relationshipType: 'biological' },
-        ],
-        [
-          'e2',
-          { source: 'grandpa', target: 'dad', relationshipType: 'biological' },
-        ],
-        [
-          'e3',
-          {
-            source: 'grandpa',
-            target: 'uncle',
-            relationshipType: 'biological',
-          },
-        ],
+        ['e1', { from: 'dad', to: 'ego', relType: 'biological' }],
+        ['e2', { from: 'grandpa', to: 'dad', relType: 'biological' }],
+        ['e3', { from: 'grandpa', to: 'uncle', relType: 'biological' }],
       ]);
 
       expect(
@@ -296,26 +268,10 @@ describe('getDisplayLabel', () => {
         ['cousin', {}],
       ]);
       const edges = makeEdges([
-        [
-          'e1',
-          { source: 'dad', target: 'ego', relationshipType: 'biological' },
-        ],
-        [
-          'e2',
-          { source: 'grandpa', target: 'dad', relationshipType: 'biological' },
-        ],
-        [
-          'e3',
-          {
-            source: 'grandpa',
-            target: 'uncle',
-            relationshipType: 'biological',
-          },
-        ],
-        [
-          'e4',
-          { source: 'uncle', target: 'cousin', relationshipType: 'biological' },
-        ],
+        ['e1', { from: 'dad', to: 'ego', relType: 'biological' }],
+        ['e2', { from: 'grandpa', to: 'dad', relType: 'biological' }],
+        ['e3', { from: 'grandpa', to: 'uncle', relType: 'biological' }],
+        ['e4', { from: 'uncle', to: 'cousin', relType: 'biological' }],
       ]);
 
       expect(
@@ -331,18 +287,9 @@ describe('getDisplayLabel', () => {
         ['niece', {}],
       ]);
       const edges = makeEdges([
-        [
-          'e1',
-          { source: 'dad', target: 'ego', relationshipType: 'biological' },
-        ],
-        [
-          'e2',
-          { source: 'dad', target: 'sis', relationshipType: 'biological' },
-        ],
-        [
-          'e3',
-          { source: 'sis', target: 'niece', relationshipType: 'biological' },
-        ],
+        ['e1', { from: 'dad', to: 'ego', relType: 'biological' }],
+        ['e2', { from: 'dad', to: 'sis', relType: 'biological' }],
+        ['e3', { from: 'sis', to: 'niece', relType: 'biological' }],
       ]);
 
       expect(
@@ -357,11 +304,8 @@ describe('getDisplayLabel', () => {
         ['inlaw', {}],
       ]);
       const edges = makeEdges([
-        [
-          'e1',
-          { source: 'ego', target: 'kid', relationshipType: 'biological' },
-        ],
-        ['e2', { source: 'kid', target: 'inlaw', relationshipType: 'partner' }],
+        ['e1', { from: 'ego', to: 'kid', relType: 'biological' }],
+        ['e2', { from: 'kid', to: 'inlaw', relType: 'partner' }],
       ]);
 
       expect(
@@ -376,14 +320,8 @@ describe('getDisplayLabel', () => {
         ['grandkid', {}],
       ]);
       const edges = makeEdges([
-        [
-          'e1',
-          { source: 'ego', target: 'kid', relationshipType: 'biological' },
-        ],
-        [
-          'e2',
-          { source: 'kid', target: 'grandkid', relationshipType: 'biological' },
-        ],
+        ['e1', { from: 'ego', to: 'kid', relType: 'biological' }],
+        ['e2', { from: 'kid', to: 'grandkid', relType: 'biological' }],
       ]);
 
       expect(
@@ -413,11 +351,11 @@ describe('getDisplayLabel', () => {
         ['e', {}],
       ]);
       const edges = makeEdges([
-        ['e1', { source: 'a', target: 'ego', relationshipType: 'biological' }],
-        ['e2', { source: 'b', target: 'a', relationshipType: 'biological' }],
-        ['e3', { source: 'c', target: 'b', relationshipType: 'biological' }],
-        ['e4', { source: 'd', target: 'c', relationshipType: 'biological' }],
-        ['e5', { source: 'd', target: 'e', relationshipType: 'biological' }],
+        ['e1', { from: 'a', to: 'ego', relType: 'biological' }],
+        ['e2', { from: 'b', to: 'a', relType: 'biological' }],
+        ['e3', { from: 'c', to: 'b', relType: 'biological' }],
+        ['e4', { from: 'd', to: 'c', relType: 'biological' }],
+        ['e5', { from: 'd', to: 'e', relType: 'biological' }],
       ]);
 
       expect(getDisplayLabel('e', 'ego', nodes, edges, variableConfig)).toBe(

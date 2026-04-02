@@ -1,9 +1,12 @@
-/* eslint-disable */
-// @ts-nocheck -- TODO: Update tests for NcNode/NcEdge migration (Task 10)
 import { describe, expect, it } from 'vitest';
-import { createFamilyPedigreeStore } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import {
+  createFamilyPedigreeStore,
+  type VariableConfig,
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 
-const variableConfig = {
+const variableConfig: VariableConfig = {
+  nodeType: 'person',
+  edgeType: 'family',
   nodeLabelVariable: 'name',
   egoVariable: 'isEgo',
   relationshipTypeVariable: 'rel',
@@ -16,19 +19,35 @@ describe('commitBatch', () => {
     const store = createFamilyPedigreeStore(
       new Map(),
       new Map(),
+      new Map(),
       variableConfig,
     );
 
     store.getState().commitBatch({
       nodes: [
-        { tempId: 'ego', data: { isEgo: true, attributes: { name: '' } } },
+        {
+          tempId: 'ego',
+          data: {
+            attributes: { name: '', [variableConfig.egoVariable]: true },
+          },
+        },
         {
           tempId: 'mum',
-          data: { isEgo: false, attributes: { name: 'Linda' } },
+          data: {
+            attributes: {
+              name: 'Linda',
+              [variableConfig.egoVariable]: false,
+            },
+          },
         },
         {
           tempId: 'dad',
-          data: { isEgo: false, attributes: { name: 'Robert' } },
+          data: {
+            attributes: {
+              name: 'Robert',
+              [variableConfig.egoVariable]: false,
+            },
+          },
         },
       ],
       edges: [
@@ -36,15 +55,22 @@ describe('commitBatch', () => {
           source: 'mum',
           target: 'ego',
           data: {
-            relationshipType: 'biological',
-            isActive: true,
-            isGestationalCarrier: true,
+            attributes: {
+              [variableConfig.relationshipTypeVariable]: 'biological',
+              [variableConfig.isActiveVariable]: true,
+              [variableConfig.isGestationalCarrierVariable]: true,
+            },
           },
         },
         {
           source: 'dad',
           target: 'ego',
-          data: { relationshipType: 'biological', isActive: true },
+          data: {
+            attributes: {
+              [variableConfig.relationshipTypeVariable]: 'biological',
+              [variableConfig.isActiveVariable]: true,
+            },
+          },
         },
       ],
     });
@@ -57,7 +83,7 @@ describe('commitBatch', () => {
 
     let egoId: string | null = null;
     for (const [id, node] of nodes) {
-      if (node.isEgo) {
+      if (node.attributes[variableConfig.egoVariable] === true) {
         egoId = id;
         break;
       }
@@ -66,12 +92,9 @@ describe('commitBatch', () => {
 
     const parentIds: string[] = [];
     for (const edge of edges.values()) {
-      if (
-        edge.target === egoId &&
-        edge.relationshipType !== 'partner' &&
-        edge.relationshipType !== 'social'
-      ) {
-        parentIds.push(edge.source);
+      const relType = edge.attributes[variableConfig.relationshipTypeVariable];
+      if (edge.to === egoId && relType !== 'partner' && relType !== 'social') {
+        parentIds.push(edge.from);
       }
     }
     expect(parentIds).toHaveLength(2);

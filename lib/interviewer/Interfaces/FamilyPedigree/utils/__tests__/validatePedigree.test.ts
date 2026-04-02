@@ -1,43 +1,49 @@
-/* eslint-disable */
-// @ts-nocheck -- TODO: Update tests for NcNode/NcEdge migration (Task 10)
+import { type NcEdge, type NcNode } from '@codaco/shared-consts';
 import { describe, expect, it } from 'vitest';
-import {
-  type NodeData,
-  type StoreEdge,
-} from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import { validatePedigreeCompleteness } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/validatePedigree';
 
-const LABEL_VAR = 'name';
+const variableConfig: VariableConfig = {
+  nodeType: 'person',
+  edgeType: 'family',
+  nodeLabelVariable: 'name',
+  egoVariable: 'isEgo',
+  relationshipTypeVariable: 'rel',
+  isActiveVariable: 'isActive',
+  isGestationalCarrierVariable: 'isGest',
+};
 
 function makeNodes(
   entries: [string, { isEgo?: boolean; name?: string }][],
-): Map<string, NodeData> {
-  const map = new Map<string, NodeData>();
+): Map<string, NcNode> {
+  const map = new Map<string, NcNode>();
   for (const [id, { isEgo, name }] of entries) {
     map.set(id, {
-      isEgo: isEgo ?? false,
-      attributes: { [LABEL_VAR]: name ?? '' },
+      _uid: id,
+      type: 'person',
+      attributes: {
+        [variableConfig.egoVariable]: isEgo ?? false,
+        [variableConfig.nodeLabelVariable]: name ?? '',
+      },
     });
   }
   return map;
 }
 
-function makeEdges(
-  entries: [string, string, StoreEdge['relationshipType']][],
-): Map<string, StoreEdge> {
-  const map = new Map<string, StoreEdge>();
-  for (const [source, target, type] of entries) {
+function makeEdges(entries: [string, string, string][]): Map<string, NcEdge> {
+  const map = new Map<string, NcEdge>();
+  for (const [source, target, relType] of entries) {
     const id = `${source}->${target}`;
-    if (type === 'partner') {
-      map.set(id, {
-        source,
-        target,
-        relationshipType: 'partner',
-        isActive: true,
-      });
-    } else {
-      map.set(id, { source, target, relationshipType: type, isActive: true });
-    }
+    map.set(id, {
+      _uid: id,
+      type: 'family',
+      from: source,
+      to: target,
+      attributes: {
+        [variableConfig.relationshipTypeVariable]: relType,
+        [variableConfig.isActiveVariable]: true,
+      },
+    });
   }
   return map;
 }
@@ -63,7 +69,7 @@ describe('validatePedigreeCompleteness', () => {
       ['gp2', 'dad', 'biological'],
     ]);
 
-    const issues = validatePedigreeCompleteness(nodes, edges, LABEL_VAR);
+    const issues = validatePedigreeCompleteness(nodes, edges, variableConfig);
     expect(issues).toHaveLength(0);
   });
 
@@ -71,7 +77,7 @@ describe('validatePedigreeCompleteness', () => {
     const nodes = makeNodes([['ego', { isEgo: true }]]);
     const edges = makeEdges([]);
 
-    const issues = validatePedigreeCompleteness(nodes, edges, LABEL_VAR);
+    const issues = validatePedigreeCompleteness(nodes, edges, variableConfig);
     expect(issues).toHaveLength(1);
     expect(issues[0]?.message).toContain('You');
   });
@@ -83,7 +89,7 @@ describe('validatePedigreeCompleteness', () => {
     ]);
     const edges = makeEdges([['mum', 'ego', 'biological']]);
 
-    const issues = validatePedigreeCompleteness(nodes, edges, LABEL_VAR);
+    const issues = validatePedigreeCompleteness(nodes, edges, variableConfig);
     expect(issues.some((i) => i.nodeId === 'ego')).toBe(true);
   });
 
@@ -98,7 +104,7 @@ describe('validatePedigreeCompleteness', () => {
       ['dad', 'ego', 'biological'],
     ]);
 
-    const issues = validatePedigreeCompleteness(nodes, edges, LABEL_VAR);
+    const issues = validatePedigreeCompleteness(nodes, edges, variableConfig);
     expect(issues).toHaveLength(2);
     expect(issues[0]?.message).toContain('Mum');
     expect(issues[1]?.message).toContain('Dad');
@@ -123,7 +129,7 @@ describe('validatePedigreeCompleteness', () => {
       ['gp2', 'donor', 'biological'],
     ]);
 
-    const issues = validatePedigreeCompleteness(nodes, edges, LABEL_VAR);
+    const issues = validatePedigreeCompleteness(nodes, edges, variableConfig);
     expect(issues).toHaveLength(0);
   });
 
@@ -138,7 +144,7 @@ describe('validatePedigreeCompleteness', () => {
       ['step', 'ego', 'social'],
     ]);
 
-    const issues = validatePedigreeCompleteness(nodes, edges, LABEL_VAR);
+    const issues = validatePedigreeCompleteness(nodes, edges, variableConfig);
     expect(issues.some((i) => i.nodeId === 'ego')).toBe(true);
   });
 
@@ -153,7 +159,7 @@ describe('validatePedigreeCompleteness', () => {
       ['dad', 'ego', 'partner'],
     ]);
 
-    const issues = validatePedigreeCompleteness(nodes, edges, LABEL_VAR);
+    const issues = validatePedigreeCompleteness(nodes, edges, variableConfig);
     expect(issues.some((i) => i.nodeId === 'ego')).toBe(true);
   });
 
@@ -168,7 +174,7 @@ describe('validatePedigreeCompleteness', () => {
       ['donor', 'ego', 'donor'],
     ]);
 
-    const issues = validatePedigreeCompleteness(nodes, edges, LABEL_VAR);
+    const issues = validatePedigreeCompleteness(nodes, edges, variableConfig);
     expect(issues).toHaveLength(1);
     expect(issues[0]?.nodeId).toBe('mum');
   });
@@ -188,7 +194,7 @@ describe('validatePedigreeCompleteness', () => {
       ['gp1', 'mum', 'biological'],
     ]);
 
-    const issues = validatePedigreeCompleteness(nodes, edges, LABEL_VAR);
+    const issues = validatePedigreeCompleteness(nodes, edges, variableConfig);
     expect(issues).toHaveLength(0);
   });
 });
