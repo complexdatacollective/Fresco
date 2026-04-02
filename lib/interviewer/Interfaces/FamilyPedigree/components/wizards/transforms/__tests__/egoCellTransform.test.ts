@@ -4,7 +4,6 @@ import { egoCellTransform } from '~/lib/interviewer/Interfaces/FamilyPedigree/co
 
 const variableConfig: VariableConfig = {
   nodeLabelVariable: 'name',
-  biologicalSexVariable: 'sex',
   egoVariable: 'isEgo',
   relationshipTypeVariable: 'relationship',
   isActiveVariable: 'isActive',
@@ -16,20 +15,12 @@ describe('egoCellTransform', () => {
     const values = {
       'egg-parent': {
         'is-donor': false,
-        'name-known': true,
         'name': 'Linda',
         'gestationalCarrier': true,
-
-        'sex-at-birth': 'female',
-        'gender_identity': 'woman',
       },
       'sperm-parent': {
         'is-donor': false,
-        'name-known': true,
         'name': 'Robert',
-
-        'sex-at-birth': 'male',
-        'gender_identity': 'man',
       },
       'hasOtherParents': false,
       'partnership-egg-parent-sperm-parent': 'current',
@@ -47,14 +38,14 @@ describe('egoCellTransform', () => {
       tempId: 'egg-parent',
       data: {
         isEgo: false,
-        attributes: { name: 'Linda', sex: 'female', gender_identity: 'woman' },
+        attributes: { name: 'Linda' },
       },
     });
     expect(batch.nodes[2]).toMatchObject({
       tempId: 'sperm-parent',
       data: {
         isEgo: false,
-        attributes: { name: 'Robert', sex: 'male', gender_identity: 'man' },
+        attributes: { name: 'Robert' },
       },
     });
 
@@ -92,23 +83,16 @@ describe('egoCellTransform', () => {
     const values = {
       'egg-parent': {
         'is-donor': false,
-        'name-known': true,
         'name': 'Linda',
         'gestationalCarrier': true,
-
-        'sex-at-birth': 'female',
       },
       'sperm-parent': {
         'is-donor': true,
-        'name-known': false,
-
-        'sex-at-birth': 'male',
+        'name': '',
       },
       'hasOtherParents': true,
       'otherParentCount': 1,
-      'additional-parent': [
-        { 'role': 'raised-me', 'name': 'Patricia', 'sex-at-birth': 'female' },
-      ],
+      'additional-parent': [{ role: 'raised-me', name: 'Patricia' }],
       'partnership-egg-parent-sperm-parent': 'none',
       'partnership-egg-parent-additional-parent-0': 'current',
       'partnership-sperm-parent-additional-parent-0': 'none',
@@ -123,7 +107,7 @@ describe('egoCellTransform', () => {
     expect(batch.nodes).toHaveLength(4);
     expect(batch.nodes[3]).toMatchObject({
       tempId: 'additional-parent-0',
-      data: { attributes: { name: 'Patricia', sex: 'female' } },
+      data: { attributes: { name: 'Patricia' } },
     });
 
     // Sperm parent is donor
@@ -153,7 +137,7 @@ describe('egoCellTransform', () => {
       data: { isActive: true },
     });
 
-    // Donor node has empty name (name-known=false)
+    // Donor node has empty name
     expect(batch.nodes[2]).toMatchObject({
       tempId: 'sperm-parent',
       data: { attributes: { name: '' } },
@@ -164,23 +148,16 @@ describe('egoCellTransform', () => {
     const values = {
       'egg-parent': {
         'is-donor': true,
-        'name-known': false,
+        'name': '',
         'gestationalCarrier': false,
-
-        'sex-at-birth': 'female',
       },
       'sperm-parent': {
         'is-donor': true,
-        'name-known': false,
-
-        'sex-at-birth': 'male',
+        'name': '',
       },
       'gestational-carrier': {
         'is-donor': false,
-        'name-known': true,
         'name': 'Mum',
-
-        'sex-at-birth': 'female',
       },
       'hasOtherParents': false,
       'partnership-egg-parent-sperm-parent': 'none',
@@ -227,24 +204,16 @@ describe('egoCellTransform', () => {
     const values = {
       'egg-parent': {
         'is-donor': false,
-        'name-known': true,
         'name': 'Susan',
         'gestationalCarrier': true,
-
-        'sex-at-birth': 'female',
       },
       'sperm-parent': {
         'is-donor': false,
-        'name-known': true,
         'name': 'Robert',
-
-        'sex-at-birth': 'male',
       },
       'hasOtherParents': true,
       'otherParentCount': 1,
-      'additional-parent': [
-        { 'role': 'step-parent', 'name': 'Karen', 'sex-at-birth': 'female' },
-      ],
+      'additional-parent': [{ role: 'step-parent', name: 'Karen' }],
       'partnership-egg-parent-sperm-parent': 'ex',
       'partnership-egg-parent-additional-parent-0': 'none',
       'partnership-sperm-parent-additional-parent-0': 'current',
@@ -279,23 +248,20 @@ describe('egoCellTransform', () => {
     const values = {
       'egg-parent': {
         'is-donor': false,
-        'name-known': false,
+        'name': '',
         'gestationalCarrier': true,
-        'sex-at-birth': 'female',
       },
       'sperm-parent': {
         'is-donor': false,
-        'name-known': false,
-        'sex-at-birth': 'male',
+        'name': '',
       },
       'hasOtherParents': true,
       'otherParentCount': 2,
       'additional-parent': [
-        { 'role': 'adoptive-parent', 'name': 'James', 'sex-at-birth': 'male' },
+        { role: 'adoptive-parent', name: 'James' },
         {
-          'role': 'adoptive-parent',
-          'name': 'Barbara',
-          'sex-at-birth': 'female',
+          role: 'adoptive-parent',
+          name: 'Barbara',
         },
       ],
       'partnership-egg-parent-sperm-parent': 'none',
@@ -318,16 +284,12 @@ describe('egoCellTransform', () => {
     const values = {
       'egg-parent': {
         'is-donor': false,
-        'name-known': true,
         'name': 'Linda',
         'gestationalCarrier': true,
-        'sex-at-birth': 'female',
       },
       'sperm-parent': {
         'is-donor': false,
-        'name-known': true,
         'name': 'Robert',
-        'sex-at-birth': 'male',
       },
       'hasOtherParents': false,
       'partnership-egg-parent-sperm-parent': 'current',
@@ -345,16 +307,12 @@ describe('egoCellTransform', () => {
     const values = {
       'egg-parent': {
         'is-donor': false,
-        'name-known': true,
         'name': 'Linda',
         'gestationalCarrier': true,
-        'sex-at-birth': 'female',
       },
       'sperm-parent': {
         'is-donor': false,
-        'name-known': true,
         'name': 'Robert',
-        'sex-at-birth': 'male',
       },
       'hasOtherParents': false,
       'partnership-egg-parent-sperm-parent': 'current',
@@ -379,29 +337,21 @@ describe('egoCellTransform', () => {
     const values = {
       'egg-parent': {
         'is-donor': false,
-        'name-known': true,
         'name': 'Linda',
         'gestationalCarrier': true,
-        'sex-at-birth': 'female',
       },
       'sperm-parent': {
         'is-donor': false,
-        'name-known': true,
         'name': 'Robert',
-        'sex-at-birth': 'male',
       },
       'hasOtherParents': false,
       'partnership-egg-parent-sperm-parent': 'current',
       'hasPartner': true,
       'partner': {
-        'name': 'Sophia',
-        'sex-at-birth': 'female',
+        name: 'Sophia',
       },
       'childrenWithPartnerCount': 2,
-      'childWithPartner': [
-        { 'name': 'Olivia', 'sex-at-birth': 'female' },
-        { 'name': 'Liam', 'sex-at-birth': 'male' },
-      ],
+      'childWithPartner': [{ name: 'Olivia' }, { name: 'Liam' }],
     };
 
     const { batch } = egoCellTransform(
@@ -441,16 +391,12 @@ describe('egoCellTransform', () => {
     const values = {
       'egg-parent': {
         'is-donor': false,
-        'name-known': true,
         'name': 'Linda',
         'gestationalCarrier': true,
-        'sex-at-birth': 'female',
       },
       'sperm-parent': {
         'is-donor': false,
-        'name-known': true,
         'name': 'Robert',
-        'sex-at-birth': 'male',
       },
       'hasOtherParents': false,
       'partnership-egg-parent-sperm-parent': 'current',

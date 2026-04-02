@@ -8,7 +8,6 @@ import {
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import { computeConnectors } from '~/lib/pedigree-layout/connectors';
 import {
-  type Gender,
   type ParentConnection,
   type ParentEdgeType,
   type PartnerConnection,
@@ -17,7 +16,6 @@ import {
   type PedigreeLayout,
   type Relation,
   type ScalingParams,
-  type Sex,
 } from '~/lib/pedigree-layout/types';
 
 export type ConnectorRenderData = {
@@ -30,23 +28,9 @@ type ConversionResult = {
   idToIndex: Map<string, number>;
 };
 
-function biologicalSexToSex(biologicalSex: string | undefined): Sex {
-  if (biologicalSex === 'female') return 'female';
-  if (biologicalSex === 'male') return 'male';
-  if (biologicalSex === 'intersex') return 'intersex';
-  return 'unknown';
-}
-
-function biologicalSexToGender(biologicalSex: string | undefined): Gender {
-  if (biologicalSex === 'female') return 'woman';
-  if (biologicalSex === 'male') return 'man';
-  return 'unknown';
-}
-
 export function storeToPedigreeInput(
   nodes: Map<string, NodeData>,
   edges: Map<string, StoreEdge>,
-  biologicalSexVariable: string,
 ): ConversionResult {
   const indexToId: string[] = [];
   const idToIndex = new Map<string, number>();
@@ -60,16 +44,6 @@ export function storeToPedigreeInput(
 
   const n = indexToId.length;
   const id: string[] = indexToId.slice();
-  const sex: Sex[] = indexToId.map((nid) =>
-    biologicalSexToSex(
-      nodes.get(nid)?.attributes[biologicalSexVariable] as string | undefined,
-    ),
-  );
-  const gender: Gender[] = indexToId.map((nid) =>
-    biologicalSexToGender(
-      nodes.get(nid)?.attributes[biologicalSexVariable] as string | undefined,
-    ),
-  );
   const parents: ParentConnection[][] = Array.from({ length: n }, () => []);
   const relations: Relation[] = [];
   const partnerConnections: PartnerConnection[] = [];
@@ -116,8 +90,6 @@ export function storeToPedigreeInput(
   return {
     input: {
       id,
-      sex,
-      gender,
       parents,
       partners: partnerConnections.length > 0 ? partnerConnections : undefined,
       relation: relations.length > 0 ? relations : undefined,

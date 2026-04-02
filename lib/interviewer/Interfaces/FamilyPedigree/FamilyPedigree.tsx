@@ -2,6 +2,7 @@ import { useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
+import { env } from '~/env.js';
 import useDialog from '~/lib/dialogs/useDialog';
 import Prompts from '~/lib/interviewer/components/Prompts/Prompts';
 import { updateStageMetadata } from '~/lib/interviewer/ducks/modules/session';
@@ -12,14 +13,17 @@ import {
   FamilyPedigreeProvider,
   useFamilyPedigreeStore,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/FamilyPedigreeProvider';
-import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import {
+  type NodeData,
+  type StoreEdge,
+  type VariableConfig,
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import {
   getIsActiveVariable,
   getIsGestationalCarrierVariable,
   getRelationshipTypeVariable,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/edgeUtils';
 import {
-  getBiologicalSexVariable,
   getEgoVariable,
   getNodeLabelVariable,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
@@ -43,13 +47,14 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
   const { confirm } = useDialog();
   const nodesMap = useFamilyPedigreeStore((s) => s.network.nodes);
   const edgesMap = useFamilyPedigreeStore((s) => s.network.edges);
+  const addNode = useFamilyPedigreeStore((s) => s.addNode);
+  const addEdge = useFamilyPedigreeStore((s) => s.addEdge);
   const updateNode = useFamilyPedigreeStore((s) => s.updateNode);
   const syncMetadata = useFamilyPedigreeStore((s) => s.syncMetadata);
   const clearNetwork = useFamilyPedigreeStore((s) => s.clearNetwork);
   const commitBatch = useFamilyPedigreeStore((s) => s.commitBatch);
 
   const nodeLabelVariable = useSelector(getNodeLabelVariable);
-  const biologicalSexVariable = useSelector(getBiologicalSexVariable);
   const egoVariable = useSelector(getEgoVariable);
   const relationshipTypeVariable = useSelector(getRelationshipTypeVariable);
   const isActiveVariable = useSelector(getIsActiveVariable);
@@ -58,7 +63,6 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
   );
   const variableConfig: VariableConfig = {
     nodeLabelVariable,
-    biologicalSexVariable,
     egoVariable,
     relationshipTypeVariable,
     isActiveVariable,
@@ -179,6 +183,57 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
           ref={containerRef}
           className="relative flex size-full grow items-center justify-center"
         >
+          {env.NODE_ENV === 'development' && (
+            <div className="absolute top-2 right-2 z-50 flex gap-1">
+              <button
+                type="button"
+                className="rounded bg-black/50 px-2 py-1 text-xs text-white opacity-50 hover:opacity-100"
+                onClick={() => {
+                  const json = JSON.stringify(
+                    {
+                      nodes: Object.fromEntries(
+                        [...nodesMap.entries()].map(([id, n]) => [id, n]),
+                      ),
+                      edges: Object.fromEntries(
+                        [...edgesMap.entries()].map(([id, e]) => [id, e]),
+                      ),
+                    },
+                    null,
+                    2,
+                  );
+                  void navigator.clipboard.writeText(json);
+                }}
+              >
+                Dump
+              </button>
+              <button
+                type="button"
+                className="rounded bg-black/50 px-2 py-1 text-xs text-white opacity-50 hover:opacity-100"
+                onClick={() => {
+                  const json = window.prompt('Paste network JSON:');
+                  if (!json) return;
+                  try {
+                    const data = JSON.parse(json) as {
+                      nodes: Record<string, NodeData>;
+                      edges: Record<string, StoreEdge>;
+                    };
+                    clearNetwork();
+                    for (const [id, node] of Object.entries(data.nodes)) {
+                      addNode({ id, ...node });
+                    }
+                    for (const [id, edge] of Object.entries(data.edges)) {
+                      addEdge({ id, ...edge });
+                    }
+                  } catch {
+                    // eslint-disable-next-line no-console
+                    console.error('Failed to parse network JSON');
+                  }
+                }}
+              >
+                Load
+              </button>
+            </div>
+          )}
           {showQuickStart ? (
             <>
               <div className="flex flex-col items-center gap-6">

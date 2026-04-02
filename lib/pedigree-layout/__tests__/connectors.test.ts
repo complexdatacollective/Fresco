@@ -275,7 +275,7 @@ describe('computeConnectors', () => {
     ];
     const connectors = computeConnectors(bioLayout, scaling, bioParents);
     expect(connectors.auxiliaryLines.length).toBe(1);
-    expect(connectors.auxiliaryLines[0]!.edgeType).toBe('unpartnered-parent');
+    expect(connectors.auxiliaryLines[0]!.edgeType).toBe('biological');
   });
 
   it('marks group lines as active when no activePartnerPairs provided', () => {
@@ -547,7 +547,7 @@ describe('computeConnectors', () => {
       activePairs,
     );
     const bioAux = connectors.auxiliaryLines.filter(
-      (l) => l.edgeType === 'unpartnered-parent',
+      (l) => l.edgeType === 'biological',
     );
     expect(bioAux.length).toBe(1);
     // Connects to sibling bar y = 1 - 0.25 = 0.75
@@ -604,7 +604,7 @@ describe('computeConnectors', () => {
       activePairs,
     );
     const bioAux = connectors.auxiliaryLines.filter(
-      (l) => l.edgeType === 'unpartnered-parent',
+      (l) => l.edgeType === 'biological',
     );
     expect(bioAux.length).toBe(2);
     // Each connects directly to child: y = 1 + 0.25 = 1.25

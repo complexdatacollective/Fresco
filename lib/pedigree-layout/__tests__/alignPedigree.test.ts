@@ -180,8 +180,6 @@ describe('alignPedigree', () => {
     // 3-gen: gp1(0) + gp2(1) -> parent(2); parent(2) + partner(3) -> child(4); donor(5) for child(4)
     const ped: PedigreeInput = {
       id: ['gp1', 'gp2', 'parent', 'partner', 'child', 'donor'],
-      sex: ['male', 'female', 'male', 'female', 'male', 'male'],
-      gender: ['man', 'woman', 'man', 'woman', 'man', 'man'],
       parents: [
         [],
         [],
@@ -227,28 +225,6 @@ describe('alignPedigree', () => {
         'sibling',
         'egoPartner',
         'grandchild',
-      ],
-      sex: [
-        'male',
-        'female',
-        'female',
-        'female',
-        'male',
-        'female',
-        'male',
-        'male',
-        'female',
-      ],
-      gender: [
-        'man',
-        'woman',
-        'woman',
-        'woman',
-        'man',
-        'woman',
-        'man',
-        'man',
-        'woman',
       ],
       parents: [
         [], // gfA
@@ -312,36 +288,6 @@ describe('alignPedigree', () => {
         'cousin',
         'egoPartner',
         'grandchild',
-      ],
-      sex: [
-        'male',
-        'female',
-        'female',
-        'female',
-        'male',
-        'female',
-        'female',
-        'male',
-        'female',
-        'male',
-        'male',
-        'male',
-        'female',
-      ],
-      gender: [
-        'man',
-        'woman',
-        'woman',
-        'woman',
-        'man',
-        'woman',
-        'woman',
-        'man',
-        'woman',
-        'man',
-        'man',
-        'man',
-        'woman',
       ],
       parents: [
         [], // mgf (0)
@@ -443,8 +389,6 @@ describe('alignPedigree', () => {
     // donor edge from partnerA, bio edge from partnerB → child(2)
     const ped: PedigreeInput = {
       id: ['partnerA', 'partnerB', 'child'],
-      sex: ['female', 'female', 'male'],
-      gender: ['woman', 'woman', 'man'],
       parents: [
         [],
         [],
@@ -483,8 +427,6 @@ describe('alignPedigree', () => {
     // donor1→child3 only, donor2→child4 only
     const ped: PedigreeInput = {
       id: ['mom', 'donor1', 'donor2', 'child1', 'child2'],
-      sex: ['female', 'male', 'male', 'male', 'female'],
-      gender: ['woman', 'man', 'man', 'man', 'woman'],
       parents: [
         [],
         [],
@@ -537,8 +479,6 @@ describe('alignPedigree', () => {
     // partnerB→pregnancy is biological; spermDonor(2)→pregnancy is donor
     const ped: PedigreeInput = {
       id: ['partnerA', 'partnerB', 'spermDonor', 'pregnancy'],
-      sex: ['female', 'female', 'male', 'female'],
-      gender: ['woman', 'woman', 'man', 'woman'],
       parents: [
         [],
         [],
@@ -732,8 +672,6 @@ describe('traditional family regression', () => {
     // child A + child B -> grandchild (6)
     const ped: PedigreeInput = {
       id: ['gpA1', 'gpA2', 'gpB1', 'gpB2', 'parentA', 'parentB', 'grandchild'],
-      sex: ['male', 'female', 'male', 'female', 'male', 'female', 'male'],
-      gender: ['man', 'woman', 'man', 'woman', 'man', 'woman', 'man'],
       parents: [[], [], [], [], [sp(0), sp(1)], [sp(2), sp(3)], [sp(4), sp(5)]],
     };
     const result = alignPedigree(ped, {
@@ -797,8 +735,6 @@ it('adoption by relative: no duplicate group lines', () => {
 
   const ped: PedigreeInput = {
     id: ['grandpa', 'grandma', 'father', 'aunt', 'uncle', 'child'],
-    sex: ['male', 'female', 'male', 'female', 'male', 'female'],
-    gender: ['man', 'woman', 'man', 'woman', 'man', 'woman'],
     parents: [
       [],
       [],

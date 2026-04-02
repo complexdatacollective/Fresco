@@ -3,7 +3,6 @@ import { createFamilyPedigreeStore } from '~/lib/interviewer/Interfaces/FamilyPe
 
 const variableConfig = {
   nodeLabelVariable: 'name',
-  biologicalSexVariable: 'sex',
   egoVariable: 'isEgo',
   relationshipTypeVariable: 'rel',
   isActiveVariable: 'active',

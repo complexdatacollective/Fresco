@@ -160,6 +160,7 @@ function getAuxiliaryStyle(edgeType: AuxiliaryConnector['edgeType']) {
       return { strokeDasharray: DASHED_PATTERN, strokeWidth: EDGE_WIDTH };
     case 'donor':
     case 'surrogate':
+    case 'biological':
       return { strokeWidth: EDGE_WIDTH };
   }
 }

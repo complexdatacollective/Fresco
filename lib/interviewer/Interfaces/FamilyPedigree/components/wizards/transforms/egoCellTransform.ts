@@ -6,15 +6,13 @@ import {
 
 const KNOWN_BIO_PARENT_KEYS = new Set([
   'is-donor',
-  'name-known',
   'name',
-  'sex-at-birth',
   'gestationalCarrier',
 ]);
 
-const KNOWN_ADDITIONAL_PARENT_KEYS = new Set(['role', 'name', 'sex-at-birth']);
+const KNOWN_ADDITIONAL_PARENT_KEYS = new Set(['role', 'name']);
 
-const KNOWN_PERSON_KEYS = new Set(['name', 'sex-at-birth']);
+const KNOWN_PERSON_KEYS = new Set(['name']);
 
 function extractUnknownAttributes(
   obj: Record<string, unknown>,
@@ -44,9 +42,8 @@ function buildBioParent(
   donorType: 'donor' | 'surrogate',
   variableConfig: VariableConfig,
 ): ParentEntry {
-  const nameKnown = Boolean(parent['name-known']);
   const isDonor = parent['is-donor'] === true;
-  const name = nameKnown ? ((parent.name as string | undefined) ?? '') : '';
+  const name = (parent.name as string | undefined) ?? '';
   const extraAttrs = extractUnknownAttributes(parent, KNOWN_BIO_PARENT_KEYS);
 
   return {
@@ -55,7 +52,6 @@ function buildBioParent(
       isEgo: false,
       attributes: {
         [variableConfig.nodeLabelVariable]: name,
-        [variableConfig.biologicalSexVariable]: parent['sex-at-birth'],
         ...extraAttrs,
       },
     },
@@ -81,7 +77,6 @@ function buildAdditionalParent(
       attributes: {
         [variableConfig.nodeLabelVariable]:
           (parent.name as string | undefined) ?? '',
-        [variableConfig.biologicalSexVariable]: parent['sex-at-birth'],
         ...extraAttrs,
       },
     },
@@ -161,10 +156,7 @@ export function egoCellTransform(
   const egoRef = existingEgoId ?? 'ego';
   const batch: CommitBatch = { nodes: [], edges: [] };
 
-  const egoSex = values['ego-sex-at-birth'] as string | undefined;
-
   const egoKnownKeys = new Set([
-    'ego-sex-at-birth',
     'egg-parent',
     'sperm-parent',
     'gestational-carrier',
@@ -190,7 +182,6 @@ export function egoCellTransform(
   const egoAttributes: Record<string, unknown> = {
     [variableConfig.nodeLabelVariable]: '',
     [variableConfig.egoVariable]: true,
-    ...(egoSex ? { [variableConfig.biologicalSexVariable]: egoSex } : {}),
     ...egoCustomAttrs,
   };
 
@@ -245,10 +236,7 @@ export function egoCellTransform(
   const partnerObj = values.partner as Record<string, unknown> | undefined;
 
   if (hasPartner && partnerObj) {
-    const partnerNameKnown = partnerObj['name-known'] !== false;
-    const partnerName = partnerNameKnown
-      ? ((partnerObj.name as string | undefined) ?? '')
-      : '';
+    const partnerName = (partnerObj.name as string | undefined) ?? '';
     const partnerExtraAttrs = extractUnknownAttributes(
       partnerObj,
       KNOWN_BIO_PARENT_KEYS,
@@ -260,7 +248,6 @@ export function egoCellTransform(
         isEgo: false,
         attributes: {
           [variableConfig.nodeLabelVariable]: partnerName,
-          [variableConfig.biologicalSexVariable]: partnerObj['sex-at-birth'],
           ...partnerExtraAttrs,
         },
       },
@@ -295,7 +282,6 @@ export function egoCellTransform(
         isEgo: false,
         attributes: {
           [variableConfig.nodeLabelVariable]: childName,
-          [variableConfig.biologicalSexVariable]: child['sex-at-birth'],
           ...childExtraAttrs,
         },
       },

@@ -2,12 +2,9 @@
 
 import { useSelector } from 'react-redux';
 import Node from '~/components/Node';
-import { env } from '~/env.js';
 import { useNodeMeasurement } from '~/hooks/useNodeMeasurement';
 import useDialog from '~/lib/dialogs/useDialog';
 import Field from '~/lib/form/components/Field/Field';
-import FieldGroup from '~/lib/form/components/FieldGroup';
-import BooleanField from '~/lib/form/components/fields/Boolean';
 import InputField from '~/lib/form/components/fields/InputField';
 import AddPersonFields, {
   type AddPersonMode,
@@ -28,7 +25,6 @@ import {
   getRelationshipTypeVariable,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/edgeUtils';
 import {
-  getBiologicalSexVariable,
   getEgoVariable,
   getNodeLabelVariable,
   getResolvedNodeFormFields,
@@ -53,7 +49,6 @@ export default function PedigreeView() {
   const commitBatch = useFamilyPedigreeStore((s) => s.commitBatch);
 
   const nodeLabelVariable = useSelector(getNodeLabelVariable);
-  const biologicalSexVariable = useSelector(getBiologicalSexVariable);
   const egoVariable = useSelector(getEgoVariable);
   const relationshipTypeVariable = useSelector(getRelationshipTypeVariable);
   const isActiveVariable = useSelector(getIsActiveVariable);
@@ -64,7 +59,6 @@ export default function PedigreeView() {
 
   const variableConfig: VariableConfig = {
     nodeLabelVariable,
-    biologicalSexVariable,
     egoVariable,
     relationshipTypeVariable,
     isActiveVariable,
@@ -96,8 +90,6 @@ export default function PedigreeView() {
     if (!result) return;
 
     const name = typeof result.name === 'string' ? result.name : '';
-    const biologicalSex =
-      typeof result.sex === 'string' ? result.sex : undefined;
 
     const formAttrs: Record<string, unknown> = {};
     for (const field of resolvedFormFields) {
@@ -110,7 +102,6 @@ export default function PedigreeView() {
       isEgo: false,
       attributes: {
         [nodeLabelVariable]: name,
-        [biologicalSexVariable]: biologicalSex,
         ...formAttrs,
       },
     });
@@ -216,7 +207,6 @@ export default function PedigreeView() {
       typeof currentNode?.attributes[nodeLabelVariable] === 'string'
         ? currentNode.attributes[nodeLabelVariable]
         : '';
-    const currentNameKnown = currentName.length > 0;
 
     const result = await openDialog({
       type: 'form',
@@ -224,36 +214,20 @@ export default function PedigreeView() {
       submitLabel: 'Done',
       cancelLabel: 'Cancel',
       children: (
-        <>
-          <Field
-            name="nameKnown"
-            label="Do you know this person's name?"
-            component={BooleanField}
-            initialValue={currentNameKnown}
-            required
-          />
-          <FieldGroup
-            watch={['nameKnown']}
-            condition={(values) => values.nameKnown === true}
-          >
-            <Field
-              name="name"
-              label="Name"
-              component={InputField}
-              initialValue={currentName}
-              autoFocus
-              required
-            />
-          </FieldGroup>
-        </>
+        <Field
+          name="name"
+          label="Name"
+          component={InputField}
+          initialValue={currentName}
+          hint="Leave blank if the name is not known"
+          autoFocus
+        />
       ),
     });
 
     if (!result) return;
 
-    const nameKnown = result.nameKnown === true;
-    const name =
-      nameKnown && typeof result.name === 'string' ? result.name : '';
+    const name = typeof result.name === 'string' ? result.name : '';
     if (!currentNode) return;
     updateNode(nodeId, {
       attributes: { ...currentNode.attributes, [nodeLabelVariable]: name },
@@ -344,7 +318,6 @@ export default function PedigreeView() {
         <PedigreeLayout
           nodes={nodes}
           edges={edges}
-          biologicalSexVariable={biologicalSexVariable}
           nodeLabelVariable={nodeLabelVariable}
           nodeWidth={nodeWidth}
           nodeHeight={nodeHeight}
@@ -370,59 +343,6 @@ export default function PedigreeView() {
           )}
         />
       </div>
-      {env.NODE_ENV === 'development' && (
-        <div className="absolute top-2 right-2 z-50 flex gap-1">
-          <button
-            type="button"
-            className="rounded bg-black/50 px-2 py-1 text-xs text-white opacity-50 hover:opacity-100"
-            onClick={() => {
-              // eslint-disable-next-line no-console
-              console.log(
-                JSON.stringify(
-                  {
-                    nodes: Object.fromEntries(
-                      [...nodes.entries()].map(([id, n]) => [id, n]),
-                    ),
-                    edges: Object.fromEntries(
-                      [...edges.entries()].map(([id, e]) => [id, e]),
-                    ),
-                  },
-                  null,
-                  2,
-                ),
-              );
-            }}
-          >
-            Dump
-          </button>
-          <button
-            type="button"
-            className="rounded bg-black/50 px-2 py-1 text-xs text-white opacity-50 hover:opacity-100"
-            onClick={() => {
-              const json = window.prompt('Paste network JSON:');
-              if (!json) return;
-              try {
-                const data = JSON.parse(json) as {
-                  nodes: Record<string, NodeData>;
-                  edges: Record<string, StoreEdge>;
-                };
-                clearNetwork();
-                for (const [id, node] of Object.entries(data.nodes)) {
-                  addNode({ id, ...node });
-                }
-                for (const [id, edge] of Object.entries(data.edges)) {
-                  addEdge({ id, ...edge });
-                }
-              } catch {
-                // eslint-disable-next-line no-console
-                console.error('Failed to parse network JSON');
-              }
-            }}
-          >
-            Load
-          </button>
-        </div>
-      )}
     </div>
   );
 }

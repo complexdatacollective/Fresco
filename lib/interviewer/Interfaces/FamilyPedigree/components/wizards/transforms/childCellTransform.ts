@@ -5,7 +5,7 @@ import {
   type VariableConfig,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 
-const KNOWN_PERSON_KEYS = new Set(['name-known', 'name', 'sex-at-birth']);
+const KNOWN_PERSON_KEYS = new Set(['name']);
 
 function extractCustomAttributes(
   obj: Record<string, unknown>,
@@ -43,10 +43,7 @@ function buildParentFromNew(
   isSurrogate: boolean,
   variableConfig: VariableConfig,
 ): ParentEntry {
-  const nameKnown = Boolean(personValues['name-known']);
-  const name = nameKnown
-    ? ((personValues.name as string | undefined) ?? '')
-    : '';
+  const name = (personValues.name as string | undefined) ?? '';
   const extraAttrs = extractCustomAttributes(personValues);
 
   let relationshipType: 'biological' | 'donor' | 'surrogate' = 'biological';
@@ -59,7 +56,6 @@ function buildParentFromNew(
       isEgo: false,
       attributes: {
         [variableConfig.nodeLabelVariable]: name,
-        [variableConfig.biologicalSexVariable]: personValues['sex-at-birth'],
         ...extraAttrs,
       },
     },
@@ -79,7 +75,6 @@ export function childCellTransform(
 
   const childValues = values.child as Record<string, unknown> | undefined;
   const childName = (childValues?.name as string | undefined) ?? '';
-  const childSex = childValues?.['sex-at-birth'];
   const childExtraAttrs = childValues
     ? extractCustomAttributes(childValues)
     : undefined;
@@ -90,7 +85,6 @@ export function childCellTransform(
       isEgo: false,
       attributes: {
         [variableConfig.nodeLabelVariable]: childName,
-        [variableConfig.biologicalSexVariable]: childSex,
         ...childExtraAttrs,
       },
     },
@@ -212,7 +206,6 @@ export function childCellTransform(
           isEgo: false,
           attributes: {
             [variableConfig.nodeLabelVariable]: apName,
-            [variableConfig.biologicalSexVariable]: ap['sex-at-birth'],
             ...apExtraAttrs,
           },
         },

@@ -5,7 +5,7 @@ import {
   type VariableConfig,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 
-const KNOWN_PERSON_KEYS = new Set(['name-known', 'name', 'sex-at-birth']);
+const KNOWN_PERSON_KEYS = new Set(['name']);
 
 function extractCustomAttributes(
   obj: Record<string, unknown>,
@@ -25,15 +25,13 @@ function buildPersonNode(
   person: Record<string, unknown>,
   variableConfig: VariableConfig,
 ): NodeData {
-  const nameKnown = person['name-known'] !== false;
-  const name = nameKnown ? ((person.name as string | undefined) ?? '') : '';
+  const name = (person.name as string | undefined) ?? '';
   const extraAttrs = extractCustomAttributes(person);
 
   return {
     isEgo: false,
     attributes: {
       [variableConfig.nodeLabelVariable]: name,
-      [variableConfig.biologicalSexVariable]: person['sex-at-birth'],
       ...extraAttrs,
     },
   };
@@ -184,7 +182,6 @@ export function siblingCellTransform(
           isEgo: false,
           attributes: {
             [variableConfig.nodeLabelVariable]: apName,
-            [variableConfig.biologicalSexVariable]: ap['sex-at-birth'],
             ...apExtraAttrs,
           },
         },

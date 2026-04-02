@@ -11,7 +11,6 @@ export type AdoptionStatus = 'in' | 'out' | 'by-relative';
 
 export type VariableConfig = {
   nodeLabelVariable: string;
-  biologicalSexVariable: string;
   egoVariable: string;
   relationshipTypeVariable: string;
   isActiveVariable: string;

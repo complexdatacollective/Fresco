@@ -1,17 +1,3 @@
-export type Sex = 'male' | 'female' | 'intersex' | 'unknown';
-
-export type Gender =
-  | 'man'
-  | 'woman'
-  | 'non-binary'
-  | 'transgender-man'
-  | 'transgender-woman'
-  | 'genderqueer'
-  | 'agender'
-  | 'two-spirit'
-  | 'other'
-  | 'unknown';
-
 export type ParentEdgeType = 'biological' | 'social' | 'donor' | 'surrogate';
 
 export type ParentConnection = {
@@ -38,9 +24,7 @@ export type Relation = {
 
 export type PedigreeInput = {
   id: string[];
-  sex: Sex[];
-  gender: Gender[];
-  parents: ParentConnection[][]; // parents[i] = all parent connections for person i
+  parents: ParentConnection[][];
   partners?: PartnerConnection[];
   relation?: Relation[];
   hints?: Hints;
@@ -121,7 +105,12 @@ export type ParentChildConnector = {
 
 export type AuxiliaryConnector = {
   type: 'auxiliary';
-  edgeType: 'donor' | 'surrogate' | 'unpartnered-parent' | 'social';
+  edgeType:
+    | 'donor'
+    | 'surrogate'
+    | 'unpartnered-parent'
+    | 'social'
+    | 'biological';
   segment: LineSegment;
 };
 

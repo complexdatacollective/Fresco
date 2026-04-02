@@ -101,6 +101,35 @@ export default function PedigreeChecklist({
     return false;
   }, [egoId, egoParentIds, edges]);
 
+  const hasParentSiblings = useMemo(() => {
+    if (!egoId || egoParentIds.length === 0) return false;
+    for (const parentId of egoParentIds) {
+      const grandparentIds: string[] = [];
+      for (const edge of edges.values()) {
+        if (
+          edge.target === parentId &&
+          edge.relationshipType !== 'partner' &&
+          edge.relationshipType !== 'social'
+        ) {
+          grandparentIds.push(edge.source);
+        }
+      }
+      for (const gpId of grandparentIds) {
+        for (const edge of edges.values()) {
+          if (
+            edge.source === gpId &&
+            edge.relationshipType !== 'partner' &&
+            edge.relationshipType !== 'social' &&
+            edge.target !== parentId
+          ) {
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }, [egoId, egoParentIds, edges]);
+
   const hasChildren = useMemo(() => {
     if (!egoId) return false;
     for (const edge of edges.values()) {
@@ -148,6 +177,13 @@ export default function PedigreeChecklist({
     }
 
     list.push({
+      id: 'parent-siblings',
+      label: "Add parent's siblings",
+      done: hasParentSiblings || manuallyChecked.has('parent-siblings'),
+      required: false,
+    });
+
+    list.push({
       id: 'siblings',
       label: 'Add siblings',
       done: hasSiblings || manuallyChecked.has('siblings'),
@@ -175,6 +211,7 @@ export default function PedigreeChecklist({
     nodes,
     edges,
     nodeLabelVariable,
+    hasParentSiblings,
     hasSiblings,
     hasPartner,
     hasChildren,

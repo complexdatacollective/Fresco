@@ -44,19 +44,19 @@ export const surfaceSpacingVariants = cva({
       spacing: 'md',
       dynamicSpacing: true,
       className:
-        'phone-landscape:px-8 phone-landscape:py-6 tablet-landscape:px-10 tablet-landscape:py-8 desktop:px-12 desktop:py-10',
+        'phone-landscape:px-8 phone-landscape:py-6 tablet-landscape:px-10 tablet-landscape:py-6 desktop:px-12 desktop:py-8',
     },
     {
       spacing: 'lg',
       dynamicSpacing: true,
       className:
-        'phone-landscape:px-8 phone-landscape:py-6 tablet-portrait:px-10 tablet-portrait:py-8 tablet-landscape:px-12 tablet-landscape:py-10 desktop:px-16 desktop:py-12',
+        'phone-landscape:px-8 phone-landscape:py-6 tablet-portrait:px-10 tablet-portrait:py-6 tablet-landscape:px-12 tablet-landscape:py-8 desktop:px-16 desktop:py-10',
     },
     {
       spacing: 'xl',
       dynamicSpacing: true,
       className:
-        'phone-landscape:px-10 phone-landscape:py-8 tablet-portrait:px-12 tablet-portrait:py-10 tablet-landscape:px-16 tablet-landscape:py-12 desktop:px-20 desktop:py-16',
+        'phone-landscape:px-10 phone-landscape:py-8 tablet-portrait:px-12 tablet-portrait:py-8 tablet-landscape:px-16 tablet-landscape:py-10 desktop:px-20 desktop:py-12',
     },
   ],
   defaultVariants: {

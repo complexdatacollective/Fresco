@@ -100,7 +100,7 @@ export default function AddPersonFields({
 
   return (
     <>
-      <PersonFields nameToggle={mode === 'partner'} />
+      <PersonFields />
 
       {mode === 'parent' && (
         <Field

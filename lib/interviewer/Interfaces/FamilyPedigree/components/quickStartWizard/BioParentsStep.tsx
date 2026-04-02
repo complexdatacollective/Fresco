@@ -10,16 +10,13 @@ import FieldGroup from '~/lib/form/components/FieldGroup';
 import FieldNamespace from '~/lib/form/components/FieldNamespace';
 import BooleanField from '~/lib/form/components/fields/Boolean';
 import InputField from '~/lib/form/components/fields/InputField';
-import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import {
-  getBiologicalSexOptions,
   getNodeForm,
   getNodeType,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 
 export default function BioParentsForm() {
-  const sexOptions = useSelector(getBiologicalSexOptions);
   const nodeType = useSelector(getNodeType);
   const nodeForm = useSelector(getNodeForm);
 
@@ -54,23 +51,11 @@ export default function BioParentsForm() {
               </Alert>
             </div>
             <Field
-              name="name-known"
-              label="Do you know this person's name?"
-              component={BooleanField}
-              required
+              name="name"
+              label="What is their name?"
+              component={InputField}
+              hint="Leave blank if the name is not known"
             />
-            <FieldGroup
-              watch={['name-known']}
-              condition={(values) => values['name-known'] === true}
-            >
-              <Field
-                name="name"
-                label="What is their name?"
-                component={InputField}
-                autoFocus
-                required
-              />
-            </FieldGroup>
             <Field
               name="is-donor"
               label="Was this person an egg donor?"
@@ -83,14 +68,6 @@ export default function BioParentsForm() {
               hint="If you were carried by a different person (e.g. a gestational carrier or surrogate), select 'No' here and we'll ask you about the carrier in the next step."
               component={BooleanField}
               initialValue={true}
-              required
-            />
-            <Field
-              name="sex-at-birth"
-              label="What was this person's sex assigned at birth?"
-              component={RadioGroupField}
-              options={sexOptions}
-              initialValue="female"
               required
             />
             {fieldComponents}
@@ -107,36 +84,17 @@ export default function BioParentsForm() {
                 raise you.
               </AlertDescription>
             </Alert>
+
+            <Field
+              name="name"
+              label="What is their name?"
+              component={InputField}
+              hint="Leave blank if the name is not known"
+            />
             <Field
               name="is-donor"
               label="Was this person a sperm donor?"
               component={BooleanField}
-              required
-            />
-            <Field
-              name="name-known"
-              label="Do you know this person's name?"
-              component={BooleanField}
-              required
-            />
-            <FieldGroup
-              watch={['name-known']}
-              condition={(values) => values['name-known'] === true}
-            >
-              <Field
-                name="name"
-                label="What is their name?"
-                component={InputField}
-                autoFocus
-                required
-              />
-            </FieldGroup>
-            <Field
-              name="sex-at-birth"
-              label="What was this person's sex assigned at birth?"
-              component={RadioGroupField}
-              options={sexOptions}
-              initialValue="male"
               required
             />
             {fieldComponents}
@@ -167,30 +125,10 @@ export default function BioParentsForm() {
                 required
               />
               <Field
-                name="name-known"
-                label="Do you know this person's name?"
-                component={BooleanField}
-                required
-              />
-              <FieldGroup
-                watch={['name-known']}
-                condition={(values) => values['name-known'] === true}
-              >
-                <Field
-                  name="name"
-                  label="What is their name?"
-                  component={InputField}
-                  autoFocus
-                  required
-                />
-              </FieldGroup>
-              <Field
-                name="sex-at-birth"
-                label="What was this person's sex assigned at birth?"
-                component={RadioGroupField}
-                options={sexOptions}
-                initialValue="female"
-                required
+                name="name"
+                label="What is their name?"
+                component={InputField}
+                hint="Leave blank if the name is not known"
               />
               {fieldComponents}
             </FieldNamespace>

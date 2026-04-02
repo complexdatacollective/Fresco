@@ -8,7 +8,6 @@ import { siblingCellTransform } from '~/lib/interviewer/Interfaces/FamilyPedigre
 
 const variableConfig: VariableConfig = {
   nodeLabelVariable: 'name',
-  biologicalSexVariable: 'sex',
   egoVariable: 'isEgo',
   relationshipTypeVariable: 'relationship',
   isActiveVariable: 'isActive',
@@ -41,11 +40,8 @@ describe('siblingCellTransform', () => {
   it('creates full sibling sharing all existing parents', () => {
     const nodes = makeNodes([
       ['anchor', { isEgo: false, attributes: { name: 'Anchor' } }],
-      [
-        'parent-a',
-        { isEgo: false, attributes: { name: 'Mom', sex: 'female' } },
-      ],
-      ['parent-b', { isEgo: false, attributes: { name: 'Dad', sex: 'male' } }],
+      ['parent-a', { isEgo: false, attributes: { name: 'Mom' } }],
+      ['parent-b', { isEgo: false, attributes: { name: 'Dad' } }],
     ]);
 
     const edges = makeEdges([
@@ -74,7 +70,6 @@ describe('siblingCellTransform', () => {
       'sibling': {
         'name-known': true,
         'name': 'Alice',
-        'sex-at-birth': 'female',
       },
       'egg-source': 'parent-a',
       'sperm-source': 'parent-b',
@@ -94,7 +89,7 @@ describe('siblingCellTransform', () => {
       tempId: 'sibling',
       data: {
         isEgo: false,
-        attributes: { name: 'Alice', sex: 'female' },
+        attributes: { name: 'Alice' },
       },
     });
 
@@ -121,10 +116,7 @@ describe('siblingCellTransform', () => {
   it('creates half sibling with a new sperm parent', () => {
     const nodes = makeNodes([
       ['anchor', { isEgo: false, attributes: { name: 'Anchor' } }],
-      [
-        'parent-a',
-        { isEgo: false, attributes: { name: 'Mom', sex: 'female' } },
-      ],
+      ['parent-a', { isEgo: false, attributes: { name: 'Mom' } }],
     ]);
 
     const edges = makeEdges([
@@ -144,14 +136,12 @@ describe('siblingCellTransform', () => {
       'sibling': {
         'name-known': true,
         'name': 'Ben',
-        'sex-at-birth': 'male',
       },
       'egg-source': 'parent-a',
       'sperm-source': 'new',
       'new-sperm-source': {
         'name-known': true,
         'name': 'Carlos',
-        'sex-at-birth': 'male',
       },
       'egg-parent-carried': true,
       'partnership-egg-source-sperm-source': 'ex',
@@ -171,7 +161,7 @@ describe('siblingCellTransform', () => {
       tempId: 'new-sperm-source',
       data: {
         isEgo: false,
-        attributes: { name: 'Carlos', sex: 'male' },
+        attributes: { name: 'Carlos' },
       },
     });
 
@@ -202,10 +192,7 @@ describe('siblingCellTransform', () => {
   it('creates sibling with unknown sperm parent', () => {
     const nodes = makeNodes([
       ['anchor', { isEgo: false, attributes: { name: 'Anchor' } }],
-      [
-        'parent-a',
-        { isEgo: false, attributes: { name: 'Mom', sex: 'female' } },
-      ],
+      ['parent-a', { isEgo: false, attributes: { name: 'Mom' } }],
     ]);
 
     const edges = makeEdges([
@@ -225,11 +212,10 @@ describe('siblingCellTransform', () => {
       'sibling': {
         'name-known': true,
         'name': 'Cara',
-        'sex-at-birth': 'female',
       },
       'egg-source': 'parent-a',
       'sperm-source': 'new',
-      'new-sperm-source': { 'name-known': false, 'sex-at-birth': 'male' },
+      'new-sperm-source': { 'name-known': false },
       'egg-parent-carried': true,
     };
 
@@ -249,7 +235,7 @@ describe('siblingCellTransform', () => {
       tempId: 'new-sperm-source',
       data: {
         isEgo: false,
-        attributes: { name: '', sex: 'male' },
+        attributes: { name: '' },
       },
     });
 
@@ -270,11 +256,8 @@ describe('siblingCellTransform', () => {
   it('uses egg parent as carrier without creating a duplicate edge', () => {
     const nodes = makeNodes([
       ['anchor', { isEgo: false, attributes: { name: 'Anchor' } }],
-      [
-        'parent-a',
-        { isEgo: false, attributes: { name: 'Mom', sex: 'female' } },
-      ],
-      ['parent-b', { isEgo: false, attributes: { name: 'Dad', sex: 'male' } }],
+      ['parent-a', { isEgo: false, attributes: { name: 'Mom' } }],
+      ['parent-b', { isEgo: false, attributes: { name: 'Dad' } }],
     ]);
 
     const edges = makeEdges([
@@ -303,7 +286,6 @@ describe('siblingCellTransform', () => {
       'sibling': {
         'name-known': true,
         'name': 'Diana',
-        'sex-at-birth': 'female',
       },
       'egg-source': 'parent-a',
       'sperm-source': 'parent-b',

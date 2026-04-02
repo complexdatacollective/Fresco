@@ -40,7 +40,6 @@ const mockProtocol = {
       subject: { entity: 'node', type: 'person' },
       nodeConfig: {
         type: 'person',
-        biologicalSexVariable: 'sex',
         nodeLabelVariable: 'name',
         egoVariable: 'isEgo',
         relationshipVariable: 'rel',
@@ -97,7 +96,6 @@ function createNode(
     isEgo: boolean;
     readOnly: boolean;
     interviewNetworkId: string;
-    biologicalSex: string;
     label: string;
   }> = {},
 ): NodeData & { id: string } {
@@ -108,7 +106,6 @@ function createNode(
     interviewNetworkId: overrides.interviewNetworkId,
     attributes: {
       name: overrides.label ?? '',
-      sex: overrides.biologicalSex,
     },
   };
 }
@@ -131,70 +128,70 @@ type Story = StoryObj<typeof PedigreeNode>;
 
 export const NamedMale: Story = {
   args: {
-    node: createNode({ id: 'p1', label: 'John', biologicalSex: 'male' }),
+    node: createNode({ id: 'p1', label: 'John' }),
     displayLabel: 'John',
   },
 };
 
 export const NamedFemale: Story = {
   args: {
-    node: createNode({ id: 'p2', label: 'Mary', biologicalSex: 'female' }),
+    node: createNode({ id: 'p2', label: 'Mary' }),
     displayLabel: 'Mary',
   },
 };
 
 export const UnnamedFather: Story = {
   args: {
-    node: createNode({ id: 'p3', biologicalSex: 'male' }),
+    node: createNode({ id: 'p3' }),
     displayLabel: 'Father',
   },
 };
 
 export const UnnamedMother: Story = {
   args: {
-    node: createNode({ id: 'p4', biologicalSex: 'female' }),
+    node: createNode({ id: 'p4' }),
     displayLabel: 'Mother',
   },
 };
 
 export const SpermDonor: Story = {
   args: {
-    node: createNode({ id: 'p5', biologicalSex: 'male' }),
+    node: createNode({ id: 'p5' }),
     displayLabel: 'Sperm Donor',
   },
 };
 
 export const EggDonor: Story = {
   args: {
-    node: createNode({ id: 'p6', biologicalSex: 'female' }),
+    node: createNode({ id: 'p6' }),
     displayLabel: 'Egg Donor',
   },
 };
 
 export const SpermDonorNumbered: Story = {
   args: {
-    node: createNode({ id: 'p7', biologicalSex: 'male' }),
+    node: createNode({ id: 'p7' }),
     displayLabel: 'Sperm Donor #1',
   },
 };
 
 export const Surrogate: Story = {
   args: {
-    node: createNode({ id: 'p8', biologicalSex: 'female' }),
+    node: createNode({ id: 'p8' }),
     displayLabel: 'Surrogate',
   },
 };
 
 export const EgoNode: Story = {
   args: {
-    node: createNode({ id: 'p9', biologicalSex: 'female', isEgo: true }),
+    node: createNode({ id: 'p9', isEgo: true }),
     displayLabel: 'You',
   },
 };
 
 export const Selected: Story = {
   args: {
-    node: createNode({ id: 'p10', label: 'Mike', biologicalSex: 'male' }),
+    node: createNode({ id: 'p10', label: 'Mike' }),
     displayLabel: 'Mike',
     selected: true,
   },
@@ -202,7 +199,7 @@ export const Selected: Story = {
 
 export const NonBinary: Story = {
   args: {
-    node: createNode({ id: 'p11', biologicalSex: 'non-binary' }),
+    node: createNode({ id: 'p11' }),
     displayLabel: 'Sibling',
   },
 };
@@ -212,17 +209,17 @@ export const AllStates: Story = {
     <div className="flex flex-wrap gap-8">
       {[
         {
-          node: createNode({ id: 'a1', biologicalSex: 'male' }),
+          node: createNode({ id: 'a1' }),
           displayLabel: 'Father',
           label: 'Father (unnamed)',
         },
         {
-          node: createNode({ id: 'a2', biologicalSex: 'female' }),
+          node: createNode({ id: 'a2' }),
           displayLabel: 'Mother',
           label: 'Mother (unnamed)',
         },
         {
-          node: createNode({ id: 'a3', label: 'John', biologicalSex: 'male' }),
+          node: createNode({ id: 'a3', label: 'John' }),
           displayLabel: 'John',
           label: 'Named male',
         },
@@ -230,7 +227,6 @@ export const AllStates: Story = {
           node: createNode({
             id: 'a4',
             label: 'Mary',
-            biologicalSex: 'female',
           }),
           displayLabel: 'Mary',
           label: 'Named female',
@@ -238,19 +234,19 @@ export const AllStates: Story = {
         {
           node: createNode({
             id: 'a5',
-            biologicalSex: 'female',
+
             isEgo: true,
           }),
           displayLabel: 'You',
           label: 'Ego',
         },
         {
-          node: createNode({ id: 'a6', biologicalSex: 'male' }),
+          node: createNode({ id: 'a6' }),
           displayLabel: 'Sperm Donor #1',
           label: 'Donor #1',
         },
         {
-          node: createNode({ id: 'a7', biologicalSex: 'non-binary' }),
+          node: createNode({ id: 'a7' }),
           displayLabel: 'Sibling',
           label: 'Non-binary',
         },

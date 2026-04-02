@@ -9,7 +9,6 @@ import { type useAppDispatch } from '~/lib/interviewer/store';
 
 const testConfig: VariableConfig = {
   nodeLabelVariable: 'label',
-  biologicalSexVariable: 'sex',
   egoVariable: 'isEgo',
   relationshipTypeVariable: 'relationshipType',
   isActiveVariable: 'isActive',
@@ -34,7 +33,6 @@ describe('store creation', () => {
           isEgo: true,
           attributes: {
             [testConfig.nodeLabelVariable]: 'ego',
-            [testConfig.biologicalSexVariable]: 'male',
           },
         },
       ],
@@ -44,7 +42,6 @@ describe('store creation', () => {
           isEgo: false,
           attributes: {
             [testConfig.nodeLabelVariable]: 'mother',
-            [testConfig.biologicalSexVariable]: 'female',
           },
         },
       ],
@@ -79,7 +76,6 @@ describe('addNode', () => {
       isEgo: false,
       attributes: {
         [testConfig.nodeLabelVariable]: 'test',
-        [testConfig.biologicalSexVariable]: 'male',
       },
     });
 
@@ -94,7 +90,6 @@ describe('addNode', () => {
       readOnly: false,
       attributes: {
         [testConfig.nodeLabelVariable]: 'ego',
-        [testConfig.biologicalSexVariable]: 'female',
       },
     });
 
@@ -104,7 +99,6 @@ describe('addNode', () => {
       readOnly: false,
       attributes: {
         [testConfig.nodeLabelVariable]: 'ego',
-        [testConfig.biologicalSexVariable]: 'female',
       },
     });
     expect(node).not.toHaveProperty('id');
@@ -131,7 +125,6 @@ describe('updateNode', () => {
       readOnly: false,
       attributes: {
         [testConfig.nodeLabelVariable]: 'test',
-        [testConfig.biologicalSexVariable]: 'male',
       },
     });
 
@@ -139,14 +132,12 @@ describe('updateNode', () => {
       readOnly: true,
       attributes: {
         [testConfig.nodeLabelVariable]: 'updated',
-        [testConfig.biologicalSexVariable]: 'male',
       },
     });
 
     const node = store.getState().network.nodes.get(id);
     expect(node?.attributes[testConfig.nodeLabelVariable]).toBe('updated');
     expect(node?.readOnly).toBe(true);
-    expect(node?.attributes[testConfig.biologicalSexVariable]).toBe('male');
     expect(node?.isEgo).toBe(false);
   });
 });
@@ -158,21 +149,18 @@ describe('removeNode', () => {
       isEgo: false,
       attributes: {
         [testConfig.nodeLabelVariable]: 'parent',
-        [testConfig.biologicalSexVariable]: 'female',
       },
     });
     const childId = store.getState().addNode({
       isEgo: false,
       attributes: {
         [testConfig.nodeLabelVariable]: 'child',
-        [testConfig.biologicalSexVariable]: 'male',
       },
     });
     const unrelatedId = store.getState().addNode({
       isEgo: false,
       attributes: {
         [testConfig.nodeLabelVariable]: 'other',
-        [testConfig.biologicalSexVariable]: 'male',
       },
     });
 

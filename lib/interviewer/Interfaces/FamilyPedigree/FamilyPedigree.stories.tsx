@@ -191,7 +191,7 @@ export const Default: Story = {
           type: nodeType.id,
           nodeLabelVariable: nameVar.id,
           egoVariable: isEgoVar.id,
-          biologicalSexVariable: sexVar.id,
+
           relationshipVariable: relationshipToEgoVar.id,
           form: [
             {
@@ -261,7 +261,6 @@ function buildScenarioInterview() {
       type: nodeType.id,
       nodeLabelVariable: nameVar.id,
       egoVariable: isEgoVar.id,
-      biologicalSexVariable: sexVar.id,
       relationshipVariable: relationshipToEgoVar.id,
       form: [{ variable: genderVar.id, prompt: 'Gender Identity' }],
     },

@@ -19,7 +19,7 @@ export default function PartnerAndChildrenStep() {
         watch={['hasPartner']}
         condition={(values) => values.hasPartner === true}
       >
-        <PersonFields namespace="partner" nameToggle={false} />
+        <PersonFields namespace="partner" />
         <Field
           label="How many children do you have with this partner?"
           name="childrenWithPartnerCount"

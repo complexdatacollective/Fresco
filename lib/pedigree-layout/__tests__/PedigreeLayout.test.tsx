@@ -6,8 +6,6 @@ import {
   type StoreEdge,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 
-const TEST_BIO_SEX_VAR = 'biologicalSex';
-
 const DIMS = {
   nodeWidth: 100,
   nodeHeight: 100,
@@ -16,17 +14,12 @@ const DIMS = {
 function makeNodes(
   entries: {
     id: string;
-    biologicalSex?: string;
     isEgo?: boolean;
   }[],
 ) {
   const map = new Map<string, NodeData>();
-  for (const { id, biologicalSex, isEgo } of entries) {
-    const attributes: Record<string, unknown> = {};
-    if (biologicalSex !== undefined) {
-      attributes[TEST_BIO_SEX_VAR] = biologicalSex;
-    }
-    map.set(id, { attributes, isEgo: isEgo ?? false });
+  for (const { id, isEgo } of entries) {
+    map.set(id, { attributes: {}, isEgo: isEgo ?? false });
   }
   return map;
 }
@@ -45,14 +38,11 @@ const renderNode = (node: { id: string }) => (
 
 describe('PedigreeLayout', () => {
   test('shows spinner when nodeWidth is 0', () => {
-    const nodes = makeNodes([
-      { id: 'ego', isEgo: true, biologicalSex: 'male' },
-    ]);
+    const nodes = makeNodes([{ id: 'ego', isEgo: true }]);
     const { container } = render(
       <PedigreeLayout
         nodes={nodes}
         edges={new Map()}
-        biologicalSexVariable={TEST_BIO_SEX_VAR}
         {...DIMS}
         nodeWidth={0}
         renderNode={renderNode}
@@ -62,14 +52,11 @@ describe('PedigreeLayout', () => {
   });
 
   test('shows spinner when nodeHeight is 0', () => {
-    const nodes = makeNodes([
-      { id: 'ego', isEgo: true, biologicalSex: 'male' },
-    ]);
+    const nodes = makeNodes([{ id: 'ego', isEgo: true }]);
     const { container } = render(
       <PedigreeLayout
         nodes={nodes}
         edges={new Map()}
-        biologicalSexVariable={TEST_BIO_SEX_VAR}
         {...DIMS}
         nodeHeight={0}
         renderNode={renderNode}
@@ -83,7 +70,6 @@ describe('PedigreeLayout', () => {
       <PedigreeLayout
         nodes={new Map()}
         edges={new Map()}
-        biologicalSexVariable={TEST_BIO_SEX_VAR}
         {...DIMS}
         renderNode={renderNode}
       />,
@@ -93,9 +79,9 @@ describe('PedigreeLayout', () => {
 
   test('renders nodes for a simple family', () => {
     const nodes = makeNodes([
-      { id: 'father', biologicalSex: 'male' },
-      { id: 'mother', biologicalSex: 'female' },
-      { id: 'ego', biologicalSex: 'male', isEgo: true },
+      { id: 'father' },
+      { id: 'mother' },
+      { id: 'ego', isEgo: true },
     ]);
     const edges = makeEdges([
       {
@@ -122,7 +108,6 @@ describe('PedigreeLayout', () => {
       <PedigreeLayout
         nodes={nodes}
         edges={edges}
-        biologicalSexVariable={TEST_BIO_SEX_VAR}
         {...DIMS}
         renderNode={renderNode}
       />,
@@ -135,9 +120,9 @@ describe('PedigreeLayout', () => {
 
   test('positions nodes with absolute positioning', () => {
     const nodes = makeNodes([
-      { id: 'father', biologicalSex: 'male' },
-      { id: 'mother', biologicalSex: 'female' },
-      { id: 'ego', biologicalSex: 'male', isEgo: true },
+      { id: 'father' },
+      { id: 'mother' },
+      { id: 'ego', isEgo: true },
     ]);
     const edges = makeEdges([
       {
@@ -164,7 +149,6 @@ describe('PedigreeLayout', () => {
       <PedigreeLayout
         nodes={nodes}
         edges={edges}
-        biologicalSexVariable={TEST_BIO_SEX_VAR}
         {...DIMS}
         renderNode={renderNode}
       />,
@@ -179,9 +163,9 @@ describe('PedigreeLayout', () => {
 
   test('container has explicit width and height', () => {
     const nodes = makeNodes([
-      { id: 'father', biologicalSex: 'male' },
-      { id: 'mother', biologicalSex: 'female' },
-      { id: 'ego', biologicalSex: 'male', isEgo: true },
+      { id: 'father' },
+      { id: 'mother' },
+      { id: 'ego', isEgo: true },
     ]);
     const edges = makeEdges([
       {
@@ -208,7 +192,6 @@ describe('PedigreeLayout', () => {
       <PedigreeLayout
         nodes={nodes}
         edges={edges}
-        biologicalSexVariable={TEST_BIO_SEX_VAR}
         {...DIMS}
         renderNode={renderNode}
       />,
@@ -223,9 +206,9 @@ describe('PedigreeLayout', () => {
 
   test('renders an SVG element for edges', () => {
     const nodes = makeNodes([
-      { id: 'father', biologicalSex: 'male' },
-      { id: 'mother', biologicalSex: 'female' },
-      { id: 'ego', biologicalSex: 'male', isEgo: true },
+      { id: 'father' },
+      { id: 'mother' },
+      { id: 'ego', isEgo: true },
     ]);
     const edges = makeEdges([
       {
@@ -252,7 +235,6 @@ describe('PedigreeLayout', () => {
       <PedigreeLayout
         nodes={nodes}
         edges={edges}
-        biologicalSexVariable={TEST_BIO_SEX_VAR}
         {...DIMS}
         renderNode={renderNode}
       />,
@@ -263,10 +245,7 @@ describe('PedigreeLayout', () => {
   });
 
   test('calls renderNode with node id and data', () => {
-    const nodes = makeNodes([
-      { id: 'ego', biologicalSex: 'female', isEgo: true },
-      { id: 'partner', biologicalSex: 'male' },
-    ]);
+    const nodes = makeNodes([{ id: 'ego', isEgo: true }, { id: 'partner' }]);
     const edges = makeEdges([
       {
         source: 'ego',
@@ -280,25 +259,24 @@ describe('PedigreeLayout', () => {
       <PedigreeLayout
         nodes={nodes}
         edges={edges}
-        biologicalSexVariable={TEST_BIO_SEX_VAR}
         {...DIMS}
         renderNode={(node) => (
           <div data-testid={`rendered-${node.id}`}>
-            {`${node.id}-${String(node.attributes[TEST_BIO_SEX_VAR])}-${String(node.isEgo)}`}
+            {`${node.id}-${String(node.isEgo)}`}
           </div>
         )}
       />,
     );
 
     const rendered = screen.getByTestId('rendered-ego');
-    expect(rendered.textContent).toBe('ego-female-true');
+    expect(rendered.textContent).toBe('ego-true');
   });
 
   test('parent generation is above child generation', () => {
     const nodes = makeNodes([
-      { id: 'father', biologicalSex: 'male' },
-      { id: 'mother', biologicalSex: 'female' },
-      { id: 'ego', biologicalSex: 'male', isEgo: true },
+      { id: 'father' },
+      { id: 'mother' },
+      { id: 'ego', isEgo: true },
     ]);
     const edges = makeEdges([
       {
@@ -325,7 +303,6 @@ describe('PedigreeLayout', () => {
       <PedigreeLayout
         nodes={nodes}
         edges={edges}
-        biologicalSexVariable={TEST_BIO_SEX_VAR}
         {...DIMS}
         renderNode={renderNode}
       />,

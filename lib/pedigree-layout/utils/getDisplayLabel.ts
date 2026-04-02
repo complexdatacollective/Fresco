@@ -186,15 +186,6 @@ const RELATIONSHIP_LABELS: Record<RelationshipKind, string> = {
   'great-grandchild': 'Great-Grandchild',
 };
 
-// Relationships that use maternal/paternal lineage prefix
-const LINEAGE_RELATIONSHIPS = new Set<RelationshipKind>([
-  'grandparent',
-  'grandparent-partner',
-  'great-grandparent',
-  'aunt-uncle',
-  'cousin',
-]);
-
 /**
  * Find the nearest named intermediary on the path, searching from the
  * target node back toward ego.
@@ -225,33 +216,6 @@ function getLastHopLabel(path: PathStep[]): string {
   if (lastStep === 'child') return 'Child';
   if (lastStep === 'partner') return 'Partner';
   return 'Relative';
-}
-
-/**
- * Determine lineage prefix (Maternal/Paternal) based on the ego's parent
- * through whom the path passes.
- */
-function getLineagePrefix(
-  entry: BfsEntry,
-  _egoId: string,
-  nodes: Map<string, NodeData>,
-  _edges: Map<string, StoreEdge>,
-  variableConfig: VariableConfig,
-): string {
-  // The first step in the path should be 'parent' for lineage relationships.
-  // The first intermediary (or the node itself for 1-hop) is ego's parent.
-  const firstIntermediaryId = entry.intermediaries[0] ?? entry.nodeId;
-
-  // If the first intermediary is the node itself (direct parent), check the
-  // node's own sex. Otherwise check the intermediary's sex.
-  const parentNode = nodes.get(firstIntermediaryId);
-  const parentSex = parentNode?.attributes[
-    variableConfig.biologicalSexVariable
-  ] as string | undefined;
-
-  if (parentSex === 'female') return 'Maternal';
-  if (parentSex === 'male') return 'Paternal';
-  return '';
 }
 
 /**
@@ -313,14 +277,7 @@ export function getDisplayLabel(
     }
   }
 
-  // Tier 2: Lineage-based fallback
-  const baseLabel = RELATIONSHIP_LABELS[kind];
-  if (LINEAGE_RELATIONSHIPS.has(kind)) {
-    const prefix = getLineagePrefix(entry, egoId, nodes, edges, variableConfig);
-    return prefix ? `${prefix} ${baseLabel}` : baseLabel;
-  }
-
-  return baseLabel;
+  return RELATIONSHIP_LABELS[kind];
 }
 
 /**
@@ -382,19 +339,7 @@ export function computeAllDisplayLabels(
       }
     }
 
-    const baseLabel = RELATIONSHIP_LABELS[kind];
-    if (LINEAGE_RELATIONSHIPS.has(kind)) {
-      const prefix = getLineagePrefix(
-        entry,
-        egoId,
-        nodes,
-        edges,
-        variableConfig,
-      );
-      labels.set(nodeId, prefix ? `${prefix} ${baseLabel}` : baseLabel);
-    } else {
-      labels.set(nodeId, baseLabel);
-    }
+    labels.set(nodeId, RELATIONSHIP_LABELS[kind]);
   }
 
   return labels;

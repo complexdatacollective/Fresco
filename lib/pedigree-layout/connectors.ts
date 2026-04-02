@@ -157,8 +157,22 @@ export function computeConnectors(
       const firstIdx = whoIdx[0] ?? marriedInIdx[0]!;
       const firstChildId = layout.nid[i]![firstIdx]!;
       const childParents = parents[firstChildId] ?? [];
-      const primaryEdgeType =
-        childParents.find((p) => isPrimaryEdge(p.edgeType))?.edgeType ??
+
+      // Determine the edge type for the primary couple→child connector.
+      // Only consider edges from parents in this couple, and prefer
+      // biological over social so the connector style is deterministic.
+      const coupleLeftId = layout.nid[i - 1]![coupleLeft]!;
+      const coupleRightId =
+        coupleLeft !== coupleRight
+          ? layout.nid[i - 1]![coupleRight]!
+          : coupleLeftId;
+      const coupleEdges = childParents.filter(
+        (p) =>
+          p.parentIndex === coupleLeftId || p.parentIndex === coupleRightId,
+      );
+      const primaryEdgeType: ParentEdgeType =
+        coupleEdges.find((p) => p.edgeType === 'biological')?.edgeType ??
+        coupleEdges.find((p) => isPrimaryEdge(p.edgeType))?.edgeType ??
         'biological';
 
       if (whoIdx.length === 0) {
@@ -530,7 +544,7 @@ export function computeConnectors(
     string,
     {
       parentIndex: number;
-      edgeType: 'social' | 'unpartnered-parent';
+      edgeType: 'social' | 'unpartnered-parent' | 'biological';
       childLevel: number;
       famId: number;
       childColumns: number[];
@@ -589,8 +603,15 @@ export function computeConnectors(
         const parentEdge = childParents.find(
           (pc) => pc.parentIndex === parentId,
         );
-        const edgeType: 'social' | 'unpartnered-parent' =
-          parentEdge?.edgeType === 'social' ? 'social' : 'unpartnered-parent';
+
+        // Preserve the actual edge type so biological unpartnered parents
+        // get a solid line.
+        const edgeType: 'social' | 'unpartnered-parent' | 'biological' =
+          parentEdge?.edgeType === 'social'
+            ? 'social'
+            : parentEdge?.edgeType === 'biological'
+              ? 'biological'
+              : 'unpartnered-parent';
 
         const key = `${parentId},${i},${famId}`;
         const existing = socialConnections.get(key);

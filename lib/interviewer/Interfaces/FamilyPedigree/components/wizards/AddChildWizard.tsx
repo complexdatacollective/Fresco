@@ -35,57 +35,12 @@ function buildNodeOptions(
   return options;
 }
 
-function getPreselection(
-  anchorNodeId: string,
-  nodes: Map<string, NodeData>,
-  edges: Map<string, StoreEdge>,
-  variableConfig: VariableConfig,
-): { eggSource?: string; spermSource?: string; carrier?: string } {
-  const anchorNode = nodes.get(anchorNodeId);
-  if (!anchorNode) return {};
-
-  const anchorSex = anchorNode.attributes[
-    variableConfig.biologicalSexVariable
-  ] as string | undefined;
-
-  const partnerIds: string[] = [];
-  for (const edge of edges.values()) {
-    if (edge.relationshipType !== 'partner') continue;
-    if (edge.source === anchorNodeId) partnerIds.push(edge.target);
-    else if (edge.target === anchorNodeId) partnerIds.push(edge.source);
-  }
-
-  const preselection: {
-    eggSource?: string;
-    spermSource?: string;
-    carrier?: string;
-  } = {};
-
-  if (anchorSex === 'female') {
-    preselection.eggSource = anchorNodeId;
-    const malePartner = partnerIds.find((id) => {
-      const partner = nodes.get(id);
-      return (
-        partner?.attributes[variableConfig.biologicalSexVariable] === 'male'
-      );
-    });
-    if (malePartner) preselection.spermSource = malePartner;
-  } else if (anchorSex === 'male') {
-    preselection.spermSource = anchorNodeId;
-    const femalePartner = partnerIds.find((id) => {
-      const partner = nodes.get(id);
-      return (
-        partner?.attributes[variableConfig.biologicalSexVariable] === 'female'
-      );
-    });
-    if (femalePartner) preselection.eggSource = femalePartner;
-  }
-
-  if (preselection.eggSource) {
-    preselection.carrier = 'egg-source';
-  }
-
-  return preselection;
+function getPreselection(): {
+  eggSource?: string;
+  spermSource?: string;
+  carrier?: string;
+} {
+  return {};
 }
 
 export async function openAddChildWizard(
@@ -95,12 +50,7 @@ export async function openAddChildWizard(
   edges: Map<string, StoreEdge>,
   variableConfig: VariableConfig,
 ): Promise<CommitBatch | null> {
-  const preselection = getPreselection(
-    anchorNodeId,
-    nodes,
-    edges,
-    variableConfig,
-  );
+  const preselection = getPreselection();
   const existingNodes = buildNodeOptions(nodes, variableConfig);
 
   const result = await openDialog({
@@ -113,7 +63,7 @@ export async function openAddChildWizard(
         content: () => (
           <>
             <Heading level="h4">Child details</Heading>
-            <PersonFields namespace="child" nameToggle={false} />
+            <PersonFields namespace="child" />
           </>
         ),
       },

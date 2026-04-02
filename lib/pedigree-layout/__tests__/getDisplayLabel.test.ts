@@ -8,7 +8,6 @@ import { getDisplayLabel } from '~/lib/pedigree-layout/utils/getDisplayLabel';
 
 const variableConfig: VariableConfig = {
   nodeLabelVariable: 'name',
-  biologicalSexVariable: 'sex',
   egoVariable: 'isEgo',
   relationshipTypeVariable: 'rel',
   isActiveVariable: 'isActive',
@@ -16,16 +15,15 @@ const variableConfig: VariableConfig = {
 };
 
 function makeNodes(
-  entries: [string, { name?: string; sex?: string; isEgo?: boolean }][],
+  entries: [string, { name?: string; isEgo?: boolean }][],
 ): Map<string, NodeData> {
   return new Map(
-    entries.map(([id, { name, sex, isEgo }]) => [
+    entries.map(([id, { name, isEgo }]) => [
       id,
       {
         isEgo: isEgo ?? false,
         attributes: {
           ...(name !== undefined ? { name } : {}),
-          ...(sex !== undefined ? { sex } : {}),
         },
       },
     ]),
@@ -47,7 +45,7 @@ describe('getDisplayLabel', () => {
   it('returns stored name when present', () => {
     const nodes = makeNodes([
       ['ego', { name: 'Me', isEgo: true }],
-      ['dad', { name: 'Rob', sex: 'male' }],
+      ['dad', { name: 'Rob' }],
     ]);
     const edges = makeEdges([
       ['e1', { source: 'dad', target: 'ego', relationshipType: 'biological' }],
@@ -61,7 +59,7 @@ describe('getDisplayLabel', () => {
   it('labels unnamed parent as "Parent"', () => {
     const nodes = makeNodes([
       ['ego', { name: 'Me', isEgo: true }],
-      ['dad', { sex: 'male' }],
+      ['dad', {}],
     ]);
     const edges = makeEdges([
       ['e1', { source: 'dad', target: 'ego', relationshipType: 'biological' }],
@@ -86,10 +84,10 @@ describe('getDisplayLabel', () => {
     );
   });
 
-  it('labels unnamed donor by sex', () => {
+  it('labels unnamed donor', () => {
     const nodes = makeNodes([
       ['ego', { name: 'Me', isEgo: true }],
-      ['donor', { sex: 'male' }],
+      ['donor', {}],
     ]);
     const edges = makeEdges([
       ['e1', { source: 'donor', target: 'ego', relationshipType: 'donor' }],
@@ -163,7 +161,7 @@ describe('getDisplayLabel', () => {
       const nodes = makeNodes([
         ['ego', { name: 'Me', isEgo: true }],
         ['dad', { name: 'Rob' }],
-        ['grandpa', { sex: 'male' }],
+        ['grandpa', {}],
       ]);
       const edges = makeEdges([
         [
@@ -181,10 +179,10 @@ describe('getDisplayLabel', () => {
       ).toBe("Rob's Parent");
     });
 
-    it('labels unnamed grandparent without named intermediary using lineage — paternal', () => {
+    it('labels unnamed grandparent without named intermediary', () => {
       const nodes = makeNodes([
         ['ego', { name: 'Me', isEgo: true }],
-        ['dad', { sex: 'male' }],
+        ['dad', {}],
         ['grandpa', {}],
       ]);
       const edges = makeEdges([
@@ -200,29 +198,7 @@ describe('getDisplayLabel', () => {
 
       expect(
         getDisplayLabel('grandpa', 'ego', nodes, edges, variableConfig),
-      ).toBe('Paternal Grandparent');
-    });
-
-    it('labels unnamed grandparent without named intermediary using lineage — maternal', () => {
-      const nodes = makeNodes([
-        ['ego', { name: 'Me', isEgo: true }],
-        ['mom', { sex: 'female' }],
-        ['grandma', {}],
-      ]);
-      const edges = makeEdges([
-        [
-          'e1',
-          { source: 'mom', target: 'ego', relationshipType: 'biological' },
-        ],
-        [
-          'e2',
-          { source: 'grandma', target: 'mom', relationshipType: 'biological' },
-        ],
-      ]);
-
-      expect(
-        getDisplayLabel('grandma', 'ego', nodes, edges, variableConfig),
-      ).toBe('Maternal Grandparent');
+      ).toBe('Grandparent');
     });
 
     it('labels step-parent as "{parent}\'s Partner"', () => {
@@ -278,10 +254,10 @@ describe('getDisplayLabel', () => {
       ).toBe("Bill's Child");
     });
 
-    it('labels aunt/uncle without named intermediary using lineage', () => {
+    it('labels aunt/uncle without named intermediary', () => {
       const nodes = makeNodes([
         ['ego', { name: 'Me', isEgo: true }],
-        ['dad', { sex: 'male' }],
+        ['dad', {}],
         ['grandpa', {}],
         ['uncle', {}],
       ]);
@@ -306,7 +282,7 @@ describe('getDisplayLabel', () => {
 
       expect(
         getDisplayLabel('uncle', 'ego', nodes, edges, variableConfig),
-      ).toBe('Paternal Aunt/Uncle');
+      ).toBe('Aunt/Uncle');
     });
 
     it('labels cousin with named aunt/uncle', () => {

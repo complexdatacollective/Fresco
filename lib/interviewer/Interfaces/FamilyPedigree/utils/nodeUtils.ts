@@ -18,10 +18,6 @@ export const getEgoVariable = createSelector(
   getNodeConfig,
   (c) => c.egoVariable,
 );
-export const getBiologicalSexVariable = createSelector(
-  getNodeConfig,
-  (c) => c.biologicalSexVariable,
-);
 export const getNodeForm = createSelector(getNodeConfig, (c) => c.form);
 
 /**
@@ -65,20 +61,5 @@ export const getNodeShapeDefinition = createSelector(
   getNodeType,
   (codebook, nodeType) => {
     return (codebook as Codebook).node?.[nodeType]?.shape ?? null;
-  },
-);
-
-export const getBiologicalSexOptions = createSelector(
-  getCodebook,
-  getNodeType,
-  getBiologicalSexVariable,
-  (codebook, nodeType, sexVariable) => {
-    const variable = (codebook as Codebook).node?.[nodeType]?.variables?.[
-      sexVariable
-    ];
-    if (variable && 'options' in variable) {
-      return variable.options as { label: string; value: string }[];
-    }
-    return [];
   },
 );

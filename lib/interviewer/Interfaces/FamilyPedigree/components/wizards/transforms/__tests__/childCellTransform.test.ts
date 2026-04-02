@@ -8,7 +8,6 @@ import { childCellTransform } from '~/lib/interviewer/Interfaces/FamilyPedigree/
 
 const variableConfig: VariableConfig = {
   nodeLabelVariable: 'name',
-  biologicalSexVariable: 'sex',
   egoVariable: 'isEgo',
   relationshipTypeVariable: 'relationship',
   isActiveVariable: 'isActive',
@@ -24,14 +23,14 @@ function makeNodes(extras?: [string, NodeData][]): Map<string, NodeData> {
       egoId,
       {
         isEgo: true,
-        attributes: { name: 'Ego', sex: 'female' },
+        attributes: { name: 'Ego' },
       },
     ],
     [
       partnerId,
       {
         isEgo: false,
-        attributes: { name: 'Partner', sex: 'male' },
+        attributes: { name: 'Partner' },
       },
     ],
   ]);
@@ -66,7 +65,7 @@ function makeEdges(extras?: [string, StoreEdge][]): Map<string, StoreEdge> {
 describe('childCellTransform', () => {
   it('creates child with both existing bio parents', () => {
     const values: Record<string, unknown> = {
-      'child': { 'name': 'Baby', 'sex-at-birth': 'female' },
+      'child': { name: 'Baby' },
       'egg-source': egoId,
       'sperm-source': partnerId,
       'egg-parent-carried': true,
@@ -85,7 +84,7 @@ describe('childCellTransform', () => {
       tempId: 'child',
       data: {
         isEgo: false,
-        attributes: { name: 'Baby', sex: 'female' },
+        attributes: { name: 'Baby' },
       },
     });
 
@@ -117,13 +116,11 @@ describe('childCellTransform', () => {
 
   it('creates child with donor parent', () => {
     const values: Record<string, unknown> = {
-      'child': { 'name': 'Baby', 'sex-at-birth': 'male' },
+      'child': { name: 'Baby' },
       'egg-source': egoId,
       'sperm-source': 'new',
       'new-sperm-source': {
-        'name-known': true,
-        'name': 'Donor Dan',
-        'sex-at-birth': 'male',
+        name: 'Donor Dan',
       },
       'sperm-source-is-donor': true,
       'egg-parent-carried': true,
@@ -143,7 +140,7 @@ describe('childCellTransform', () => {
       tempId: 'new-sperm-source',
       data: {
         isEgo: false,
-        attributes: { name: 'Donor Dan', sex: 'male' },
+        attributes: { name: 'Donor Dan' },
       },
     });
 
@@ -156,10 +153,10 @@ describe('childCellTransform', () => {
 
   it('creates child with unnamed other parent', () => {
     const values: Record<string, unknown> = {
-      'child': { 'name': 'Baby', 'sex-at-birth': 'female' },
+      'child': { name: 'Baby' },
       'egg-source': egoId,
       'sperm-source': 'new',
-      'new-sperm-source': { 'name-known': false, 'sex-at-birth': 'male' },
+      'new-sperm-source': { name: '' },
       'egg-parent-carried': true,
     };
 
@@ -176,7 +173,7 @@ describe('childCellTransform', () => {
       tempId: 'new-sperm-source',
       data: {
         isEgo: false,
-        attributes: { name: '', sex: 'male' },
+        attributes: { name: '' },
       },
     });
 
@@ -191,7 +188,7 @@ describe('childCellTransform', () => {
 
   it('creates child with new surrogate carrier', () => {
     const values: Record<string, unknown> = {
-      'child': { 'name': 'Baby', 'sex-at-birth': 'male' },
+      'child': { name: 'Baby' },
       'egg-source': egoId,
       'sperm-source': partnerId,
       'egg-parent-carried': false,
@@ -199,7 +196,6 @@ describe('childCellTransform', () => {
       'new-carrier': {
         'name-known': true,
         'name': 'Surrogate Sue',
-        'sex-at-birth': 'female',
       },
       'carrier-is-surrogate': true,
     };
@@ -215,7 +211,6 @@ describe('childCellTransform', () => {
     const surrogateNode = batch.nodes.find((n) => n.tempId === 'new-carrier');
     expect(surrogateNode?.data.attributes).toMatchObject({
       name: 'Surrogate Sue',
-      sex: 'female',
     });
 
     const surrogateEdge = batch.edges.find((e) => e.source === 'new-carrier');
@@ -228,7 +223,7 @@ describe('childCellTransform', () => {
 
   it('carrier same as egg source does not duplicate node', () => {
     const values: Record<string, unknown> = {
-      'child': { 'name': 'Baby', 'sex-at-birth': 'female' },
+      'child': { name: 'Baby' },
       'egg-source': egoId,
       'sperm-source': partnerId,
       'egg-parent-carried': true,

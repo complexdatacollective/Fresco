@@ -25,7 +25,6 @@ export default function ChildrenDetailStep() {
             <Heading level="h3">Child {i + 1}</Heading>
             <PersonFields
               namespace={`childWithPartner[${String(i)}]`}
-              nameToggle={false}
             />
           </Surface>
         ))}

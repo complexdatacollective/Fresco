@@ -14,7 +14,7 @@ import {
   type VariableConfig,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 
-const KNOWN_PERSON_KEYS = new Set(['name-known', 'name', 'sex-at-birth']);
+const KNOWN_PERSON_KEYS = new Set(['name']);
 
 function extractCustomAttributes(
   obj: Record<string, unknown>,
@@ -39,7 +39,7 @@ const partnershipOptions = [
 function ParentDetailsStep() {
   return (
     <>
-      <PersonFields namespace="parent" nameToggle />
+      <PersonFields namespace="parent" />
       <Field
         name="edgeType"
         label="Parent type"
@@ -95,11 +95,7 @@ function transformToCommitBatch(
   variableConfig: VariableConfig,
 ): CommitBatch {
   const parentValues = (formValues.parent ?? {}) as Record<string, unknown>;
-  const nameKnown = Boolean(parentValues['name-known']);
-  const name = nameKnown
-    ? ((parentValues.name as string | undefined) ?? '')
-    : '';
-  const biologicalSex = parentValues['sex-at-birth'] as string | undefined;
+  const name = (parentValues.name as string | undefined) ?? '';
   const customAttrs = extractCustomAttributes(parentValues);
 
   const edgeType = (formValues.edgeType as string | undefined) ?? 'biological';
@@ -114,7 +110,6 @@ function transformToCommitBatch(
           isEgo: false,
           attributes: {
             [variableConfig.nodeLabelVariable]: name,
-            [variableConfig.biologicalSexVariable]: biologicalSex,
             ...customAttrs,
           },
         },

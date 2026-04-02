@@ -680,7 +680,7 @@ describe('SyntheticInterview', () => {
           { label: 'Child', value: 'child' },
         ],
       });
-      const sexVar = nt.addVariable({
+      const _sexVar = nt.addVariable({
         type: 'categorical',
         name: 'Sex',
         options: [
@@ -710,7 +710,6 @@ describe('SyntheticInterview', () => {
           type: nt.id,
           nodeLabelVariable: nameVar.id,
           egoVariable: egoVar.id,
-          biologicalSexVariable: sexVar.id,
           relationshipVariable: relToEgoVar.id,
           form: [{ variable: nameVar.id, prompt: 'Name' }],
         },
@@ -734,7 +733,6 @@ describe('SyntheticInterview', () => {
       const nodeConfig = stageConfig.nodeConfig as Record<string, unknown>;
       expect(nodeConfig.type).toBe(nt.id);
       expect(nodeConfig.nodeLabelVariable).toBe(nameVar.id);
-      expect(nodeConfig.biologicalSexVariable).toBe(sexVar.id);
 
       const edgeConfig = stageConfig.edgeConfig as Record<string, unknown>;
       expect(edgeConfig.type).toBe(et.id);

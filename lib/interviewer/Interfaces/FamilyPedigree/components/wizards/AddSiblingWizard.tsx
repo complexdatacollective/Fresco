@@ -76,7 +76,7 @@ function derivePreselection(
 }
 
 function PersonDetailsStep() {
-  return <PersonFields namespace="sibling" nameToggle />;
+  return <PersonFields namespace="sibling" />;
 }
 
 export async function openAddSiblingWizard(

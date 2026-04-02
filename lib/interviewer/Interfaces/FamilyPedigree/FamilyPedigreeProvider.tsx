@@ -17,7 +17,6 @@ import {
   getRelationshipTypeVariable,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/edgeUtils';
 import {
-  getBiologicalSexVariable,
   getEgoVariable,
   getNodeLabelVariable,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
@@ -42,7 +41,6 @@ export const FamilyPedigreeProvider = ({
   const dispatch = useAppDispatch();
 
   const nodeLabelVariable = useSelector(getNodeLabelVariable);
-  const biologicalSexVariable = useSelector(getBiologicalSexVariable);
   const egoVariable = useSelector(getEgoVariable);
   const relationshipTypeVariable = useSelector(getRelationshipTypeVariable);
   const isActiveVariable = useSelector(getIsActiveVariable);
@@ -51,7 +49,6 @@ export const FamilyPedigreeProvider = ({
   );
   const variableConfig: VariableConfig = {
     nodeLabelVariable,
-    biologicalSexVariable,
     egoVariable,
     relationshipTypeVariable,
     isActiveVariable,

@@ -100,7 +100,7 @@ function ParentSection({
         watch={[roleKey]}
         condition={(values) => values[roleKey] === 'new'}
       >
-        <PersonFields namespace={`new-${roleKey}`} nameToggle />
+        <PersonFields namespace={`new-${roleKey}`}  />
       </FieldGroup>
       <FieldGroup
         watch={[roleKey]}
@@ -193,7 +193,7 @@ export default function BioTriadStep() {
             watch={['carrier-source']}
             condition={(values) => values['carrier-source'] === 'new'}
           >
-            <PersonFields namespace="new-carrier" nameToggle />
+            <PersonFields namespace="new-carrier"  />
           </FieldGroup>
           <FieldGroup
             watch={['carrier-source']}

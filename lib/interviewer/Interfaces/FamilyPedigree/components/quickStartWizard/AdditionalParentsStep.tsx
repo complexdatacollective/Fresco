@@ -11,7 +11,6 @@ import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import { useFormValue } from '~/lib/form/hooks/useFormValue';
 import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
 import {
-  getBiologicalSexOptions,
   getNodeForm,
   getNodeType,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
@@ -23,7 +22,6 @@ const PARENT_ROLE_OPTIONS = [
 ];
 
 function AdditionalParentFields({ index }: { index: number }) {
-  const sexOptions = useSelector(getBiologicalSexOptions);
   const nodeType = useSelector(getNodeType);
   const nodeForm = useSelector(getNodeForm);
 
@@ -51,13 +49,6 @@ function AdditionalParentFields({ index }: { index: number }) {
           label="What is their name?"
           component={InputField}
           autoFocus
-          required
-        />
-        <Field
-          name="sex-at-birth"
-          label="What was this person's sex assigned at birth?"
-          component={RadioGroupField}
-          options={sexOptions}
           required
         />
         {fieldComponents}

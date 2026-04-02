@@ -15,8 +15,6 @@ const sp = (parentIndex: number): ParentConnection => ({
  */
 export const nuclearFamily: PedigreeInput = {
   id: ['parent1', 'parent2', 'child1', 'child2', 'child3'],
-  sex: ['male', 'female', 'male', 'female', 'male'],
-  gender: ['man', 'woman', 'man', 'woman', 'man'],
   parents: [[], [], [sp(0), sp(1)], [sp(0), sp(1)], [sp(0), sp(1)]],
 };
 
@@ -28,8 +26,6 @@ export const nuclearFamily: PedigreeInput = {
  */
 export const threeGeneration: PedigreeInput = {
   id: ['gp1', 'gp2', 'parent1', 'parent2', 'child'],
-  sex: ['male', 'female', 'male', 'female', 'male'],
-  gender: ['man', 'woman', 'man', 'woman', 'man'],
   parents: [[], [], [sp(0), sp(1)], [], [sp(2), sp(3)]],
 };
 
@@ -39,8 +35,6 @@ export const threeGeneration: PedigreeInput = {
  */
 export const multipleMarriages: PedigreeInput = {
   id: ['parent1', 'partner1', 'partner2', 'child1', 'child2'],
-  sex: ['male', 'female', 'female', 'male', 'female'],
-  gender: ['man', 'woman', 'woman', 'man', 'woman'],
   parents: [[], [], [], [sp(0), sp(1)], [sp(0), sp(2)]],
   relation: [
     { id1: 0, id2: 1, code: 4 },
@@ -57,8 +51,6 @@ export const multipleMarriages: PedigreeInput = {
  */
 export const twinFamily: PedigreeInput = {
   id: ['parent1', 'parent2', 'twin1', 'twin2', 'singleton'],
-  sex: ['male', 'female', 'male', 'male', 'female'],
-  gender: ['man', 'woman', 'man', 'man', 'woman'],
   parents: [[], [], [sp(0), sp(1)], [sp(0), sp(1)], [sp(0), sp(1)]],
   relation: [{ id1: 2, id2: 3, code: 1 }],
 };
@@ -68,8 +60,6 @@ export const twinFamily: PedigreeInput = {
  */
 export const wideFamily: PedigreeInput = {
   id: ['p1', 'p2', 'c1', 'c2', 'c3', 'c4', 'c5'],
-  sex: ['male', 'female', 'male', 'female', 'male', 'female', 'male'],
-  gender: ['man', 'woman', 'man', 'woman', 'man', 'woman', 'man'],
   parents: [
     [],
     [],
@@ -88,8 +78,6 @@ export const wideFamily: PedigreeInput = {
  */
 export const sameSeParents: PedigreeInput = {
   id: ['parent1', 'parent2', 'child'],
-  sex: ['female', 'female', 'male'],
-  gender: ['woman', 'woman', 'man'],
   parents: [[], [], [sp(0), sp(1)]],
 };
 
@@ -98,8 +86,6 @@ export const sameSeParents: PedigreeInput = {
  */
 export const threeCoParents: PedigreeInput = {
   id: ['parent1', 'parent2', 'parent3', 'child'],
-  sex: ['female', 'female', 'male', 'male'],
-  gender: ['woman', 'woman', 'man', 'man'],
   parents: [
     [],
     [],
@@ -117,8 +103,6 @@ export const threeCoParents: PedigreeInput = {
  */
 export const surrogacyFamily: PedigreeInput = {
   id: ['parent1', 'parent2', 'surrogate', 'child'],
-  sex: ['male', 'male', 'female', 'female'],
-  gender: ['man', 'man', 'woman', 'woman'],
   parents: [
     [],
     [],
@@ -136,8 +120,6 @@ export const surrogacyFamily: PedigreeInput = {
  */
 export const singleParent: PedigreeInput = {
   id: ['parent', 'child'],
-  sex: ['female', 'male'],
-  gender: ['woman', 'man'],
   parents: [[], [sp(0)]],
 };
 
@@ -146,8 +128,6 @@ export const singleParent: PedigreeInput = {
  */
 export const blendedFamily: PedigreeInput = {
   id: ['custodialMom', 'stepDad', 'bioDad', 'child'],
-  sex: ['female', 'male', 'male', 'female'],
-  gender: ['woman', 'man', 'man', 'woman'],
   parents: [
     [],
     [],
