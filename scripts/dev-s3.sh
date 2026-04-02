@@ -1,12 +1,12 @@
 #!/bin/bash
-# Start a local S3-compatible storage server for development.
-# Uses local-s3 (lightweight S3 mock, ~18MB native image).
+# Start a local MinIO container for S3-compatible storage in development.
 # Container and volume names are scoped to the current git branch for isolation.
 
 set -e
 
-IMAGE="luofuxiang/local-s3:native-2.3.1"
+IMAGE="minio/minio:latest"
 PORT=9000
+CONSOLE_PORT=9001
 BUCKET="fresco-dev"
 
 BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "default")
@@ -16,7 +16,7 @@ VOLUME_NAME="fresco-dev-s3-${SAFE_BRANCH}"
 
 if docker container inspect "$CONTAINER_NAME" &>/dev/null; then
   if [ "$(docker inspect -f '{{.State.Running}}' "$CONTAINER_NAME")" = "true" ]; then
-    echo "Local S3 already running ($CONTAINER_NAME) on port $PORT"
+    echo "MinIO already running ($CONTAINER_NAME) on port $PORT"
     docker logs -f "$CONTAINER_NAME"
     exit 0
   fi
@@ -25,34 +25,34 @@ fi
 
 docker volume inspect "$VOLUME_NAME" &>/dev/null 2>&1 || docker volume create "$VOLUME_NAME" >/dev/null
 
-echo "Starting local S3 on port $PORT [branch: $BRANCH]..."
+echo "Starting MinIO on port $PORT [branch: $BRANCH]..."
 
 docker run --rm -d \
   --name "$CONTAINER_NAME" \
-  -p "$PORT:80" \
+  -p "$PORT:9000" \
+  -p "$CONSOLE_PORT:9001" \
+  -e MINIO_ROOT_USER=minioadmin \
+  -e MINIO_ROOT_PASSWORD=minioadmin \
   -v "$VOLUME_NAME:/data" \
-  "$IMAGE"
+  "$IMAGE" server /data --console-address ":9001"
 
-# Wait for the server to be ready, then create the bucket
-echo "Waiting for local S3 to start..."
+echo "Waiting for MinIO to start..."
 for i in $(seq 1 30); do
-  if curl -sf "http://localhost:$PORT/" >/dev/null 2>&1; then
+  if docker exec "$CONTAINER_NAME" mc alias set local http://localhost:9000 minioadmin minioadmin &>/dev/null 2>&1; then
     break
   fi
-  sleep 0.5
+  sleep 1
 done
 
-# Create bucket via S3 PUT request (idempotent)
-HTTP_STATUS=$(curl -sf -o /dev/null -w "%{http_code}" -X PUT "http://localhost:$PORT/$BUCKET" 2>/dev/null || true)
-if [ "$HTTP_STATUS" = "200" ] || [ "$HTTP_STATUS" = "409" ]; then
-  echo "Local S3 ready — bucket '$BUCKET' available"
-else
-  echo "Local S3 ready — bucket creation returned $HTTP_STATUS (may already exist)"
-fi
+docker exec "$CONTAINER_NAME" mc mb --ignore-existing local/$BUCKET
+docker exec "$CONTAINER_NAME" mc anonymous set download local/$BUCKET
 
+echo "MinIO ready — bucket '$BUCKET' created with public-read access"
 echo "  Endpoint: http://localhost:$PORT"
+echo "  Console:  http://localhost:$CONSOLE_PORT (minioadmin/minioadmin)"
 echo "  Bucket:   $BUCKET"
 echo "  Region:   us-east-1"
-echo "  Credentials: any non-empty string (no auth enforced)"
+echo "  Access Key ID:     minioadmin"
+echo "  Secret Access Key: minioadmin"
 
 docker logs -f "$CONTAINER_NAME"
