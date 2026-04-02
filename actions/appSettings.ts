@@ -127,9 +127,23 @@ export async function setUploadThingToken(rawData: unknown) {
 
 async function verifyUploadThingToken(token: string): Promise<string | null> {
   try {
-    const { UTApi } = await import('uploadthing/server');
-    const utapi = new UTApi({ token });
-    await utapi.listFiles({ limit: 1 });
+    const decoded = Buffer.from(token, 'base64').toString('utf-8');
+    const { apiKey } = JSON.parse(decoded) as { apiKey: string };
+
+    const response = await fetch('https://api.uploadthing.com/v6/listFiles', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-uploadthing-api-key': apiKey,
+      },
+      body: JSON.stringify({ limit: 1 }),
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      return `Token verification failed (${String(response.status)}): ${text}`;
+    }
+
     return null;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
