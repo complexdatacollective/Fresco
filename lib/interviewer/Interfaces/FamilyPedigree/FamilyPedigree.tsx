@@ -205,6 +205,7 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
       await openDialog({
         type: 'acknowledge',
         title: 'Pedigree is incomplete',
+        intent: 'destructive',
         description: 'The following issues must be resolved before finalizing:',
         children: (
           <ul className="list-disc space-y-1 pl-5">
@@ -214,7 +215,7 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
           </ul>
         ),
         actions: {
-          primary: { label: 'OK', value: true as const },
+          primary: { label: 'Return to editing', value: true as const },
         },
       });
       return;
