@@ -7,11 +7,11 @@ import {
   createFamilyPedigreeStore,
   type FamilyPedigreeStore,
   type FamilyPedigreeStoreApi,
-  type NodeData,
-  type StoreEdge,
+  type NodeMetadata,
   type VariableConfig,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import {
+  getEdgeTypeKey,
   getIsActiveVariable,
   getIsGestationalCarrierVariable,
   getRelationshipTypeVariable,
@@ -19,6 +19,7 @@ import {
 import {
   getEgoVariable,
   getNodeLabelVariable,
+  getNodeTypeKey,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 import { useAppDispatch } from '~/lib/interviewer/store';
 
@@ -38,6 +39,8 @@ export const FamilyPedigreeProvider = ({
   const storeRef = useRef<FamilyPedigreeStoreApi>(undefined);
   const dispatch = useAppDispatch();
 
+  const nodeType = useSelector(getNodeTypeKey);
+  const edgeType = useSelector(getEdgeTypeKey);
   const nodeLabelVariable = useSelector(getNodeLabelVariable);
   const egoVariable = useSelector(getEgoVariable);
   const relationshipTypeVariable = useSelector(getRelationshipTypeVariable);
@@ -46,6 +49,8 @@ export const FamilyPedigreeProvider = ({
     getIsGestationalCarrierVariable,
   );
   const variableConfig: VariableConfig = {
+    nodeType,
+    edgeType,
     nodeLabelVariable,
     egoVariable,
     relationshipTypeVariable,
@@ -53,53 +58,25 @@ export const FamilyPedigreeProvider = ({
     isGestationalCarrierVariable,
   };
 
-  const initialNodes = new Map<string, NodeData>(
-    nodes.map((node) => [
-      node._uid,
-      {
-        isEgo: node.attributes[egoVariable] === true,
-        readOnly: false,
-        interviewNetworkId: node._uid,
-        attributes: { ...node.attributes },
-      },
-    ]),
+  const initialNodes = new Map<string, NcNode>(
+    nodes.map((node) => [node._uid, node]),
   );
 
-  const initialEdges = new Map<string, StoreEdge>(
-    edges.map((edge) => {
-      const relationshipType = (edge.attributes[relationshipTypeVariable] ??
-        'biological') as StoreEdge['relationshipType'];
-      const isActive = edge.attributes[isActiveVariable] !== false;
-      const isGestationalCarrier = edge.attributes[
-        isGestationalCarrierVariable
-      ] as boolean | undefined;
+  const initialEdges = new Map<string, NcEdge>(
+    edges.map((edge) => [edge._uid, edge]),
+  );
 
-      const base = {
-        source: edge.from,
-        target: edge.to,
-        isActive,
-      };
-
-      if (relationshipType === 'partner') {
-        return [edge._uid, { ...base, relationshipType }];
-      }
-
-      return [
-        edge._uid,
-        {
-          ...base,
-          relationshipType,
-          ...(isGestationalCarrier !== undefined
-            ? { isGestationalCarrier }
-            : {}),
-        },
-      ];
-    }),
+  const initialNodeMetadata = new Map<string, NodeMetadata>(
+    nodes.map((node) => [
+      node._uid,
+      { readOnly: node.attributes[egoVariable] === true },
+    ]),
   );
 
   storeRef.current ??= createFamilyPedigreeStore(
     initialNodes,
     initialEdges,
+    initialNodeMetadata,
     variableConfig,
     dispatch,
   );

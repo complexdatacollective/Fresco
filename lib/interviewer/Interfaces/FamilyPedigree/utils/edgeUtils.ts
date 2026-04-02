@@ -7,6 +7,8 @@ const getEdgeConfig = createSelector(getCurrentStage, (stage) => {
   return stage.edgeConfig;
 });
 
+export const getEdgeTypeKey = createSelector(getEdgeConfig, (c) => c.type);
+
 export const getRelationshipTypeVariable = createSelector(
   getEdgeConfig,
   (c) => c.relationshipTypeVariable,

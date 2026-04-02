@@ -14,7 +14,11 @@ import { Button } from '~/components/ui/Button';
 import CloseButton from '~/components/ui/CloseButton';
 import Checkbox from '~/lib/form/components/fields/Checkbox';
 import { useFamilyPedigreeStore } from '~/lib/interviewer/Interfaces/FamilyPedigree/FamilyPedigreeProvider';
-import { getNodeLabelVariable } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
+import { getRelationshipTypeVariable } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/edgeUtils';
+import {
+  getEgoVariable,
+  getNodeLabelVariable,
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 
 type ChecklistItem = {
   id: string;
@@ -33,6 +37,8 @@ export default function PedigreeChecklist({
   const nodes = useFamilyPedigreeStore((s) => s.network.nodes);
   const edges = useFamilyPedigreeStore((s) => s.network.edges);
   const nodeLabelVariable = useSelector(getNodeLabelVariable);
+  const egoVariable = useSelector(getEgoVariable);
+  const relationshipTypeVariable = useSelector(getRelationshipTypeVariable);
 
   const [dismissed, setDismissed] = useState(false);
   const [manuallyChecked, setManuallyChecked] = useState<Set<string>>(
@@ -53,74 +59,82 @@ export default function PedigreeChecklist({
 
   const egoId = useMemo(() => {
     for (const [id, node] of nodes) {
-      if (node.isEgo) return id;
+      if (node.attributes[egoVariable] === true) return id;
     }
     return null;
-  }, [nodes]);
+  }, [nodes, egoVariable]);
 
   const egoParentIds = useMemo(() => {
     if (!egoId) return [];
     const parents: string[] = [];
     for (const edge of edges.values()) {
-      if (
-        edge.target === egoId &&
-        edge.relationshipType !== 'partner' &&
-        edge.relationshipType !== 'social'
-      ) {
-        parents.push(edge.source);
+      const relType = edge.attributes[relationshipTypeVariable] as
+        | string
+        | undefined;
+      if (edge.to === egoId && relType !== 'partner' && relType !== 'social') {
+        parents.push(edge.from);
       }
     }
     return parents;
-  }, [egoId, edges]);
+  }, [egoId, edges, relationshipTypeVariable]);
 
   const hasPartner = useMemo(() => {
     if (!egoId) return false;
     for (const edge of edges.values()) {
       if (
-        edge.relationshipType === 'partner' &&
-        (edge.source === egoId || edge.target === egoId)
+        edge.attributes[relationshipTypeVariable] === 'partner' &&
+        (edge.from === egoId || edge.to === egoId)
       ) {
         return true;
       }
     }
     return false;
-  }, [egoId, edges]);
+  }, [egoId, edges, relationshipTypeVariable]);
 
   const hasSiblings = useMemo(() => {
     if (!egoId || egoParentIds.length === 0) return false;
     for (const edge of edges.values()) {
+      const relType = edge.attributes[relationshipTypeVariable] as
+        | string
+        | undefined;
       if (
-        edge.relationshipType !== 'partner' &&
-        edge.relationshipType !== 'social' &&
-        egoParentIds.includes(edge.source) &&
-        edge.target !== egoId
+        relType !== 'partner' &&
+        relType !== 'social' &&
+        egoParentIds.includes(edge.from) &&
+        edge.to !== egoId
       ) {
         return true;
       }
     }
     return false;
-  }, [egoId, egoParentIds, edges]);
+  }, [egoId, egoParentIds, edges, relationshipTypeVariable]);
 
   const hasParentSiblings = useMemo(() => {
     if (!egoId || egoParentIds.length === 0) return false;
     for (const parentId of egoParentIds) {
       const grandparentIds: string[] = [];
       for (const edge of edges.values()) {
+        const relType = edge.attributes[relationshipTypeVariable] as
+          | string
+          | undefined;
         if (
-          edge.target === parentId &&
-          edge.relationshipType !== 'partner' &&
-          edge.relationshipType !== 'social'
+          edge.to === parentId &&
+          relType !== 'partner' &&
+          relType !== 'social'
         ) {
-          grandparentIds.push(edge.source);
+          grandparentIds.push(edge.from);
         }
       }
       for (const gpId of grandparentIds) {
         for (const edge of edges.values()) {
+          const relType = edge.attributes[relationshipTypeVariable] as
+            | string
+            | undefined;
           if (
-            edge.source === gpId &&
-            edge.relationshipType !== 'partner' &&
-            edge.relationshipType !== 'social' &&
-            edge.target !== parentId
+            edge.from === gpId &&
+            relType !== 'partner' &&
+            relType !== 'social' &&
+            edge.to !== parentId
           ) {
             return true;
           }
@@ -128,17 +142,20 @@ export default function PedigreeChecklist({
       }
     }
     return false;
-  }, [egoId, egoParentIds, edges]);
+  }, [egoId, egoParentIds, edges, relationshipTypeVariable]);
 
   const hasChildren = useMemo(() => {
     if (!egoId) return false;
     for (const edge of edges.values()) {
-      if (edge.source === egoId && edge.relationshipType !== 'partner') {
+      if (
+        edge.from === egoId &&
+        edge.attributes[relationshipTypeVariable] !== 'partner'
+      ) {
         return true;
       }
     }
     return false;
-  }, [egoId, edges]);
+  }, [egoId, edges, relationshipTypeVariable]);
 
   const items = useMemo<ChecklistItem[]>(() => {
     if (!egoId) return [];
@@ -153,22 +170,20 @@ export default function PedigreeChecklist({
       if (!nameKnown) continue;
 
       const edgeToEgo = [...edges.values()].find(
-        (e) => e.source === parentId && e.target === egoId,
+        (e) => e.from === parentId && e.to === egoId,
       );
-      if (
-        edgeToEgo?.relationshipType === 'donor' ||
-        edgeToEgo?.relationshipType === 'surrogate'
-      ) {
+      const edgeToEgoRelType = edgeToEgo?.attributes[
+        relationshipTypeVariable
+      ] as string | undefined;
+      if (edgeToEgoRelType === 'donor' || edgeToEgoRelType === 'surrogate') {
         continue;
       }
 
       const parentName = rawName;
-      const grandparentCount = [...edges.values()].filter(
-        (e) =>
-          e.target === parentId &&
-          e.relationshipType !== 'partner' &&
-          e.relationshipType !== 'social',
-      ).length;
+      const grandparentCount = [...edges.values()].filter((e) => {
+        const rt = e.attributes[relationshipTypeVariable] as string | undefined;
+        return e.to === parentId && rt !== 'partner' && rt !== 'social';
+      }).length;
       const done =
         grandparentCount >= 2 ||
         manuallyChecked.has(`grandparents-${parentId}`);
@@ -226,6 +241,7 @@ export default function PedigreeChecklist({
     hasPartner,
     hasChildren,
     manuallyChecked,
+    relationshipTypeVariable,
   ]);
 
   const sortedItems = useMemo(

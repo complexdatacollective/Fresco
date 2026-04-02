@@ -10,20 +10,19 @@ import NewParentPartnershipsStep, {
   shouldSkipNewParentPartnerships,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/wizards/steps/NewParentPartnershipsStep';
 import { siblingCellTransform } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/wizards/transforms/siblingCellTransform';
+import { type NcEdge, type NcNode } from '@codaco/shared-consts';
 import {
   type CommitBatch,
-  type NodeData,
-  type StoreEdge,
   type VariableConfig,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 
 function buildNodeOptions(
-  nodes: Map<string, NodeData>,
+  nodes: Map<string, NcNode>,
   variableConfig: VariableConfig,
 ): { value: string; label: string }[] {
   const options: { value: string; label: string }[] = [];
   for (const [id, node] of nodes) {
-    if (node.isEgo) {
+    if (node.attributes[variableConfig.egoVariable] === true) {
       options.push({ value: id, label: 'You' });
       continue;
     }
@@ -37,16 +36,20 @@ function buildNodeOptions(
 
 function derivePreselection(
   anchorNodeId: string,
-  edges: Map<string, StoreEdge>,
+  edges: Map<string, NcEdge>,
+  variableConfig: VariableConfig,
 ): BioTriadConfig['preselection'] {
   const parentEdges: { source: string; isGestationalCarrier: boolean }[] = [];
 
   for (const edge of edges.values()) {
-    if (edge.target === anchorNodeId && edge.relationshipType !== 'partner') {
+    if (
+      edge.to === anchorNodeId &&
+      edge.attributes[variableConfig.relationshipTypeVariable] !== 'partner'
+    ) {
       parentEdges.push({
-        source: edge.source,
+        source: edge.from,
         isGestationalCarrier:
-          'isGestationalCarrier' in edge && edge.isGestationalCarrier === true,
+          edge.attributes[variableConfig.isGestationalCarrierVariable] === true,
       });
     }
   }
@@ -82,11 +85,11 @@ function PersonDetailsStep() {
 export async function openAddSiblingWizard(
   openDialog: ReturnType<typeof useDialog>['openDialog'],
   anchorNodeId: string,
-  nodes: Map<string, NodeData>,
-  edges: Map<string, StoreEdge>,
+  nodes: Map<string, NcNode>,
+  edges: Map<string, NcEdge>,
   variableConfig: VariableConfig,
 ): Promise<CommitBatch | null> {
-  const preselection = derivePreselection(anchorNodeId, edges);
+  const preselection = derivePreselection(anchorNodeId, edges, variableConfig);
   const existingNodes = buildNodeOptions(nodes, variableConfig);
 
   function WrappedBioTriadStep() {

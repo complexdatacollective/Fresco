@@ -3,10 +3,8 @@ import type { Meta, StoryFn } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
 import Node from '~/components/Node';
 import { useNodeMeasurement } from '~/hooks/useNodeMeasurement';
-import {
-  type NodeData,
-  type StoreEdge,
-} from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import { type NcEdge, type NcNode } from '@codaco/shared-consts';
+import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 
 import {
   AdoptionBrackets,
@@ -74,8 +72,16 @@ export default meta;
 faker.seed(42);
 
 type NetworkData = {
-  nodes: Map<string, NodeData>;
-  edges: Map<string, StoreEdge>;
+  nodes: Map<string, NcNode>;
+  edges: Map<string, NcEdge>;
+};
+
+type EdgeDef = {
+  source: string;
+  target: string;
+  relationshipType: string;
+  isActive: boolean;
+  isGestationalCarrier?: boolean;
 };
 
 function fakeName(sex?: 'male' | 'female') {
@@ -83,6 +89,20 @@ function fakeName(sex?: 'male' | 'female') {
 }
 
 const STORY_LABEL_VAR = 'label';
+const STORY_EGO_VAR = 'isEgo';
+const STORY_REL_TYPE_VAR = 'relationshipType';
+const STORY_IS_ACTIVE_VAR = 'isActive';
+const STORY_IS_GC_VAR = 'isGestationalCarrier';
+
+const storyVariableConfig: VariableConfig = {
+  nodeType: 'person',
+  edgeType: 'relationship',
+  nodeLabelVariable: STORY_LABEL_VAR,
+  egoVariable: STORY_EGO_VAR,
+  relationshipTypeVariable: STORY_REL_TYPE_VAR,
+  isActiveVariable: STORY_IS_ACTIVE_VAR,
+  isGestationalCarrierVariable: STORY_IS_GC_VAR,
+};
 
 function buildNetwork(
   nodeDefs: {
@@ -90,24 +110,38 @@ function buildNetwork(
     label: string;
     isEgo?: boolean;
   }[],
-  edgeDefs: StoreEdge[],
+  edgeDefs: EdgeDef[],
 ): NetworkData {
-  const nodes = new Map<string, NodeData>();
+  const nodes = new Map<string, NcNode>();
   for (const { id, label, isEgo } of nodeDefs) {
-    const attributes: Record<string, unknown> = {
-      [STORY_LABEL_VAR]: label,
-    };
     nodes.set(id, {
-      attributes,
-      isEgo: isEgo ?? false,
-      readOnly: false,
+      _uid: id,
+      type: 'person',
+      attributes: {
+        [STORY_LABEL_VAR]: label,
+        [STORY_EGO_VAR]: isEgo ?? false,
+      },
     });
   }
 
-  const edges = new Map<string, StoreEdge>();
+  const edges = new Map<string, NcEdge>();
   for (let i = 0; i < edgeDefs.length; i++) {
     const e = edgeDefs[i]!;
-    edges.set(`e${i}`, e);
+    const eid = `e${i}`;
+    const attrs: NcEdge['attributes'] = {
+      [STORY_REL_TYPE_VAR]: e.relationshipType,
+      [STORY_IS_ACTIVE_VAR]: e.isActive,
+    };
+    if (e.isGestationalCarrier !== undefined) {
+      attrs[STORY_IS_GC_VAR] = e.isGestationalCarrier;
+    }
+    edges.set(eid, {
+      _uid: eid,
+      type: 'relationship',
+      from: e.source,
+      to: e.target,
+      attributes: attrs,
+    });
   }
 
   return { nodes, edges };
@@ -1852,13 +1886,13 @@ const NETWORKS: Record<string, NetworkData> = {
 };
 
 type NodeRenderer = (
-  node: NodeData & { id: string },
-  edges: Map<string, StoreEdge>,
+  node: NcNode & { id: string },
+  edges: Map<string, NcEdge>,
 ) => React.ReactNode;
 
-function isNodeAdopted(nodeId: string, edges: Map<string, StoreEdge>): boolean {
+function isNodeAdopted(nodeId: string, edges: Map<string, NcEdge>): boolean {
   return [...edges.values()].some(
-    (e) => e.target === nodeId && e.relationshipType === 'adoptive',
+    (e) => e.to === nodeId && e.attributes[STORY_REL_TYPE_VAR] === 'adoptive',
   );
 }
 
@@ -1889,10 +1923,10 @@ const NODE_RENDERERS: Record<string, NodeRenderer> = {
     const nodeEl = (
       <Node
         color="node-color-seq-1"
-        label={!node.isEgo ? (label ?? '') : ''}
+        label={!node.attributes[STORY_EGO_VAR] === true ? (label ?? '') : ''}
         size="sm"
       >
-        {node.isEgo && (
+        {node.attributes[STORY_EGO_VAR] === true && (
           <EgoIcon
             className="pointer-events-none absolute top-1/2 left-1/2 size-8 -translate-1/2"
             variant="platinum"
@@ -1911,10 +1945,10 @@ const NODE_RENDERERS: Record<string, NodeRenderer> = {
       <Node
         className="shrink-0"
         color="node-color-seq-1"
-        label={!node.isEgo ? (label ?? '') : ''}
+        label={!node.attributes[STORY_EGO_VAR] === true ? (label ?? '') : ''}
         size="sm"
       >
-        {node.isEgo && (
+        {node.attributes[STORY_EGO_VAR] === true && (
           <EgoIcon
             className="pointer-events-none absolute top-1/2 left-1/2 size-8 -translate-1/2"
             variant="platinum"
@@ -1937,7 +1971,7 @@ const NODE_RENDERERS: Record<string, NodeRenderer> = {
   },
   'Responsive': (node, _edges) => (
     <div
-      className={`rounded-full ${node.isEgo ? 'bg-node-2' : 'bg-node-1'}`}
+      className={`rounded-full ${node.attributes[STORY_EGO_VAR] === true ? 'bg-node-2' : 'bg-node-1'}`}
       style={{
         width: 'clamp(24px, 5vw, 80px)',
         height: 'clamp(24px, 5vw, 80px)',
@@ -1947,7 +1981,7 @@ const NODE_RENDERERS: Record<string, NodeRenderer> = {
   ),
   'Dot': (node, _edges) => (
     <div
-      className={`m-4 size-4 rounded-full ${node.isEgo ? 'bg-mustard' : 'bg-white'}`}
+      className={`m-4 size-4 rounded-full ${node.attributes[STORY_EGO_VAR] === true ? 'bg-mustard' : 'bg-white'}`}
       title={node.attributes[STORY_LABEL_VAR] as string | undefined}
     />
   ),
@@ -1979,6 +2013,7 @@ export const Playground: StoryFn<StoryArgs> = ({ network, nodeStyle }) => {
         <PedigreeLayout
           nodes={stableNodes}
           edges={stableEdges}
+          variableConfig={storyVariableConfig}
           nodeWidth={nodeWidth}
           nodeHeight={nodeHeight}
           renderNode={(node) => renderNode(node, stableEdges)}

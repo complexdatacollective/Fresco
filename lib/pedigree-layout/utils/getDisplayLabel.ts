@@ -1,8 +1,5 @@
-import {
-  type NodeData,
-  type StoreEdge,
-  type VariableConfig,
-} from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import { type NcEdge, type NcNode } from '@codaco/shared-consts';
+import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 
 type PathStep = 'parent' | 'child' | 'partner';
 
@@ -19,8 +16,9 @@ type BfsEntry = {
  */
 function bfsFromEgo(
   egoId: string,
-  nodes: Map<string, NodeData>,
-  edges: Map<string, StoreEdge>,
+  nodes: Map<string, NcNode>,
+  edges: Map<string, NcEdge>,
+  variableConfig: VariableConfig,
 ): Map<string, BfsEntry> {
   const result = new Map<string, BfsEntry>();
   const visited = new Set<string>([egoId]);
@@ -30,11 +28,15 @@ function bfsFromEgo(
     const current = queue.shift()!;
 
     for (const edge of edges.values()) {
-      if (edge.relationshipType === 'partner') {
+      const relType = edge.attributes[
+        variableConfig.relationshipTypeVariable
+      ] as string | undefined;
+
+      if (relType === 'partner') {
         // Partner edges are bidirectional
         let neighborId: string | null = null;
-        if (edge.source === current.nodeId) neighborId = edge.target;
-        else if (edge.target === current.nodeId) neighborId = edge.source;
+        if (edge.from === current.nodeId) neighborId = edge.to;
+        else if (edge.to === current.nodeId) neighborId = edge.from;
 
         if (neighborId && !visited.has(neighborId) && nodes.has(neighborId)) {
           visited.add(neighborId);
@@ -52,10 +54,10 @@ function bfsFromEgo(
         continue;
       }
 
-      // Parent edge: source is parent, target is child
-      // Traversing "up" (child -> parent): current is target, neighbor is source
-      if (edge.target === current.nodeId) {
-        const neighborId = edge.source;
+      // Parent edge: from is parent, to is child
+      // Traversing "up" (child -> parent): current is to, neighbor is from
+      if (edge.to === current.nodeId) {
+        const neighborId = edge.from;
         if (!visited.has(neighborId) && nodes.has(neighborId)) {
           visited.add(neighborId);
           const entry: BfsEntry = {
@@ -71,9 +73,9 @@ function bfsFromEgo(
         }
       }
 
-      // Traversing "down" (parent -> child): current is source, neighbor is target
-      if (edge.source === current.nodeId) {
-        const neighborId = edge.target;
+      // Traversing "down" (parent -> child): current is from, neighbor is to
+      if (edge.from === current.nodeId) {
+        const neighborId = edge.to;
         if (!visited.has(neighborId) && nodes.has(neighborId)) {
           visited.add(neighborId);
           const entry: BfsEntry = {
@@ -150,15 +152,15 @@ function classifyPath(path: PathStep[]): RelationshipKind | null {
 function getParentEdgeType(
   nodeId: string,
   egoId: string,
-  edges: Map<string, StoreEdge>,
-): StoreEdge['relationshipType'] | null {
+  edges: Map<string, NcEdge>,
+  variableConfig: VariableConfig,
+): string | null {
   for (const edge of edges.values()) {
-    if (
-      edge.source === nodeId &&
-      edge.target === egoId &&
-      edge.relationshipType !== 'partner'
-    ) {
-      return edge.relationshipType;
+    const relType = edge.attributes[variableConfig.relationshipTypeVariable] as
+      | string
+      | undefined;
+    if (edge.from === nodeId && edge.to === egoId && relType !== 'partner') {
+      return relType ?? null;
     }
   }
   return null;
@@ -192,7 +194,7 @@ const RELATIONSHIP_LABELS: Record<RelationshipKind, string> = {
  */
 function findNearestNamedIntermediary(
   intermediaries: string[],
-  nodes: Map<string, NodeData>,
+  nodes: Map<string, NcNode>,
   variableConfig: VariableConfig,
 ): { name: string; index: number } | null {
   // Search from end (closest to target) back toward ego
@@ -228,8 +230,8 @@ function getLastHopLabel(path: PathStep[]): string {
 export function getDisplayLabel(
   nodeId: string,
   egoId: string,
-  nodes: Map<string, NodeData>,
-  edges: Map<string, StoreEdge>,
+  nodes: Map<string, NcNode>,
+  edges: Map<string, NcEdge>,
   variableConfig: VariableConfig,
 ): string {
   const node = nodes.get(nodeId);
@@ -242,7 +244,7 @@ export function getDisplayLabel(
   if (storedName) return storedName;
 
   // BFS to find path from ego to this node
-  const bfsResults = bfsFromEgo(egoId, nodes, edges);
+  const bfsResults = bfsFromEgo(egoId, nodes, edges, variableConfig);
   const entry = bfsResults.get(nodeId);
   if (!entry) return 'Family Member';
 
@@ -252,7 +254,7 @@ export function getDisplayLabel(
 
   // For direct parents, refine the kind based on edge type
   if (kind === 'parent') {
-    const edgeType = getParentEdgeType(nodeId, egoId, edges);
+    const edgeType = getParentEdgeType(nodeId, egoId, edges, variableConfig);
     if (edgeType === 'social') kind = 'social-parent';
     else if (edgeType === 'donor') kind = 'donor';
     else if (edgeType === 'surrogate') kind = 'surrogate';
@@ -287,11 +289,11 @@ export function getDisplayLabel(
  */
 export function computeAllDisplayLabels(
   egoId: string,
-  nodes: Map<string, NodeData>,
-  edges: Map<string, StoreEdge>,
+  nodes: Map<string, NcNode>,
+  edges: Map<string, NcEdge>,
   variableConfig: VariableConfig,
 ): Map<string, string> {
-  const bfsResults = bfsFromEgo(egoId, nodes, edges);
+  const bfsResults = bfsFromEgo(egoId, nodes, edges, variableConfig);
   const labels = new Map<string, string>();
 
   const SKIP_INTERMEDIARY = new Set<RelationshipKind>([
@@ -300,7 +302,7 @@ export function computeAllDisplayLabels(
   ]);
 
   for (const [nodeId, node] of nodes) {
-    if (node.isEgo) continue;
+    if (node.attributes[variableConfig.egoVariable] === true) continue;
 
     const storedName = node.attributes[variableConfig.nodeLabelVariable] as
       | string
@@ -320,7 +322,7 @@ export function computeAllDisplayLabels(
     }
 
     if (kind === 'parent') {
-      const edgeType = getParentEdgeType(nodeId, egoId, edges);
+      const edgeType = getParentEdgeType(nodeId, egoId, edges, variableConfig);
       if (edgeType === 'social') kind = 'social-parent';
       else if (edgeType === 'donor') kind = 'donor';
       else if (edgeType === 'surrogate') kind = 'surrogate';

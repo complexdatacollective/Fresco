@@ -1,3 +1,4 @@
+import { type NcNode, type VariableValue } from '@codaco/shared-consts';
 import { useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Paragraph from '~/components/typography/Paragraph';
@@ -13,12 +14,9 @@ import {
   FamilyPedigreeProvider,
   useFamilyPedigreeStore,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/FamilyPedigreeProvider';
+import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import {
-  type NodeData,
-  type StoreEdge,
-  type VariableConfig,
-} from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
-import {
+  getEdgeTypeKey,
   getIsActiveVariable,
   getIsGestationalCarrierVariable,
   getRelationshipTypeVariable,
@@ -26,6 +24,7 @@ import {
 import {
   getEgoVariable,
   getNodeLabelVariable,
+  getNodeTypeKey,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 import { validatePedigreeCompleteness } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/validatePedigree';
 import {
@@ -57,6 +56,8 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
     (s) => s.setActiveNominationVariable,
   );
 
+  const nodeType = useSelector(getNodeTypeKey);
+  const edgeType = useSelector(getEdgeTypeKey);
   const nodeLabelVariable = useSelector(getNodeLabelVariable);
   const egoVariable = useSelector(getEgoVariable);
   const relationshipTypeVariable = useSelector(getRelationshipTypeVariable);
@@ -65,6 +66,8 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
     getIsGestationalCarrierVariable,
   );
   const variableConfig: VariableConfig = {
+    nodeType,
+    edgeType,
     nodeLabelVariable,
     egoVariable,
     relationshipTypeVariable,
@@ -77,8 +80,12 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
     | undefined;
   const isNetworkCommitted = stageMetadata?.isNetworkCommitted === true;
 
-  const egoId = [...nodesMap.entries()].find(([, n]) => n.isEgo)?.[0];
-  const nonEgoNodeCount = [...nodesMap.values()].filter((n) => !n.isEgo).length;
+  const egoId = [...nodesMap.entries()].find(
+    ([, n]) => n.attributes[egoVariable] === true,
+  )?.[0];
+  const nonEgoNodeCount = [...nodesMap.values()].filter(
+    (n) => n.attributes[egoVariable] !== true,
+  ).length;
   const hasNodes = nonEgoNodeCount > 0;
 
   const scaffoldingPrompt = {
@@ -127,7 +134,7 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
     const issues = validatePedigreeCompleteness(
       nodesMap,
       edgesMap,
-      nodeLabelVariable,
+      variableConfig,
     );
 
     if (issues.length > 0) {
@@ -227,15 +234,36 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
                   if (!json) return;
                   try {
                     const data = JSON.parse(json) as {
-                      nodes: Record<string, NodeData>;
-                      edges: Record<string, StoreEdge>;
+                      nodes: Record<string, NcNode>;
+                      edges: Record<
+                        string,
+                        {
+                          from: string;
+                          to: string;
+                          attributes: Record<string, unknown>;
+                        }
+                      >;
                     };
                     clearNetwork();
                     for (const [id, node] of Object.entries(data.nodes)) {
-                      addNode({ id, ...node });
+                      addNode({
+                        id,
+                        attributes: node.attributes as Record<
+                          string,
+                          VariableValue
+                        >,
+                      });
                     }
                     for (const [id, edge] of Object.entries(data.edges)) {
-                      addEdge({ id, ...edge });
+                      addEdge({
+                        id,
+                        from: edge.from,
+                        to: edge.to,
+                        attributes: edge.attributes as Record<
+                          string,
+                          VariableValue
+                        >,
+                      });
                     }
                   } catch {
                     // eslint-disable-next-line no-console
@@ -292,7 +320,7 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
             onSubmit={(result) => {
               commitBatch(result.batch);
               if (egoId && result.egoAttributes) {
-                updateNode(egoId, { attributes: result.egoAttributes });
+                updateNode(egoId, result.egoAttributes);
               }
             }}
             variableConfig={variableConfig}

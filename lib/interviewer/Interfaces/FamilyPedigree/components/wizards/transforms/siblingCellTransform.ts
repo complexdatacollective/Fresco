@@ -1,7 +1,10 @@
 import {
+  type NcEdge,
+  type NcNode,
+  type VariableValue,
+} from '@codaco/shared-consts';
+import {
   type CommitBatch,
-  type NodeData,
-  type StoreEdge,
   type VariableConfig,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 
@@ -9,31 +12,29 @@ const KNOWN_PERSON_KEYS = new Set(['name']);
 
 function extractCustomAttributes(
   obj: Record<string, unknown>,
-): Record<string, unknown> | undefined {
-  const attrs: Record<string, unknown> = {};
+): Record<string, VariableValue> | undefined {
+  const attrs: Record<string, VariableValue> = {};
   let hasAttrs = false;
   for (const [key, val] of Object.entries(obj)) {
     if (!KNOWN_PERSON_KEYS.has(key) && val !== undefined) {
-      attrs[key] = val;
+      attrs[key] = val as VariableValue;
       hasAttrs = true;
     }
   }
   return hasAttrs ? attrs : undefined;
 }
 
-function buildPersonNode(
+function buildPersonAttributes(
   person: Record<string, unknown>,
   variableConfig: VariableConfig,
-): NodeData {
+): Record<string, VariableValue> {
   const name = (person.name as string | undefined) ?? '';
   const extraAttrs = extractCustomAttributes(person);
 
   return {
-    isEgo: false,
-    attributes: {
-      [variableConfig.nodeLabelVariable]: name,
-      ...extraAttrs,
-    },
+    [variableConfig.nodeLabelVariable]: name,
+    [variableConfig.egoVariable]: false,
+    ...extraAttrs,
   };
 }
 
@@ -50,8 +51,8 @@ type ResolvedParent = {
 export function siblingCellTransform(
   values: Record<string, unknown>,
   _anchorNodeId: string,
-  nodes: Map<string, NodeData>,
-  _edges: Map<string, StoreEdge>,
+  nodes: Map<string, NcNode>,
+  _edges: Map<string, NcEdge>,
   variableConfig: VariableConfig,
 ): CommitBatch {
   const batch: CommitBatch = { nodes: [], edges: [] };
@@ -59,7 +60,9 @@ export function siblingCellTransform(
   const siblingData = values.sibling as Record<string, unknown>;
   batch.nodes.push({
     tempId: 'sibling',
-    data: buildPersonNode(siblingData, variableConfig),
+    data: {
+      attributes: buildPersonAttributes(siblingData, variableConfig),
+    },
   });
 
   const resolvedParents: ResolvedParent[] = [];
@@ -82,7 +85,9 @@ export function siblingCellTransform(
       const tempId = `new-${roleKey}`;
       batch.nodes.push({
         tempId,
-        data: buildPersonNode(newPersonData, variableConfig),
+        data: {
+          attributes: buildPersonAttributes(newPersonData, variableConfig),
+        },
       });
       resolvedParents.push({ roleKey, tempId, isExisting: false });
       tempIdByRole.set(roleKey, tempId);
@@ -126,14 +131,18 @@ export function siblingCellTransform(
 
     const shouldMarkGC = isCarrier || parent.tempId === carrierTempId;
 
+    const edgeAttributes: Record<string, VariableValue> = {
+      [variableConfig.relationshipTypeVariable]: relationshipType,
+      [variableConfig.isActiveVariable]: true,
+    };
+    if (shouldMarkGC) {
+      edgeAttributes[variableConfig.isGestationalCarrierVariable] = true;
+    }
+
     batch.edges.push({
       source: parent.tempId,
       target: 'sibling',
-      data: {
-        relationshipType,
-        isActive: true,
-        ...(shouldMarkGC ? { isGestationalCarrier: true } : {}),
-      },
+      data: { attributes: edgeAttributes },
     });
   }
 
@@ -159,8 +168,10 @@ export function siblingCellTransform(
       source: sourceId,
       target: targetId,
       data: {
-        relationshipType: 'partner',
-        isActive: val === 'current',
+        attributes: {
+          [variableConfig.relationshipTypeVariable]: 'partner',
+          [variableConfig.isActiveVariable]: val === 'current',
+        },
       },
     });
   }
@@ -179,9 +190,9 @@ export function siblingCellTransform(
       batch.nodes.push({
         tempId,
         data: {
-          isEgo: false,
           attributes: {
             [variableConfig.nodeLabelVariable]: apName,
+            [variableConfig.egoVariable]: false,
             ...apExtraAttrs,
           },
         },
@@ -190,7 +201,12 @@ export function siblingCellTransform(
       batch.edges.push({
         source: tempId,
         target: 'sibling',
-        data: { relationshipType: 'social', isActive: true },
+        data: {
+          attributes: {
+            [variableConfig.relationshipTypeVariable]: 'social',
+            [variableConfig.isActiveVariable]: true,
+          },
+        },
       });
     }
   }

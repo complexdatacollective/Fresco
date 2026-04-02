@@ -16,6 +16,7 @@ import { openDefineParentsWizard } from '~/lib/interviewer/Interfaces/FamilyPedi
 import { useFamilyPedigreeStore } from '~/lib/interviewer/Interfaces/FamilyPedigree/FamilyPedigreeProvider';
 import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import {
+  getEdgeTypeKey,
   getIsActiveVariable,
   getIsGestationalCarrierVariable,
   getRelationshipTypeVariable,
@@ -23,6 +24,7 @@ import {
 import {
   getEgoVariable,
   getNodeLabelVariable,
+  getNodeTypeKey,
   getResolvedNodeFormFields,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 import NodeContextMenu, {
@@ -32,11 +34,13 @@ import PedigreeLayout from '~/lib/pedigree-layout/components/PedigreeLayout';
 import PedigreeNode, {
   computeNodeDisplayLabels,
 } from '~/lib/pedigree-layout/components/PedigreeNode';
+import { type VariableValue } from '@codaco/shared-consts';
 import { type ParentEdge } from '~/schemas/familyPedigree';
 
 export default function PedigreeView() {
   const nodes = useFamilyPedigreeStore((s) => s.network.nodes);
   const edges = useFamilyPedigreeStore((s) => s.network.edges);
+  const nodeMetadata = useFamilyPedigreeStore((s) => s.nodeMetadata);
   const addNode = useFamilyPedigreeStore((s) => s.addNode);
   const addEdge = useFamilyPedigreeStore((s) => s.addEdge);
   const updateNode = useFamilyPedigreeStore((s) => s.updateNode);
@@ -49,6 +53,8 @@ export default function PedigreeView() {
     (s) => s.toggleNodeAttribute,
   );
 
+  const nodeType = useSelector(getNodeTypeKey);
+  const edgeType = useSelector(getEdgeTypeKey);
   const nodeLabelVariable = useSelector(getNodeLabelVariable);
   const egoVariable = useSelector(getEgoVariable);
   const relationshipTypeVariable = useSelector(getRelationshipTypeVariable);
@@ -59,6 +65,8 @@ export default function PedigreeView() {
   const resolvedFormFields = useSelector(getResolvedNodeFormFields);
 
   const variableConfig: VariableConfig = {
+    nodeType,
+    edgeType,
     nodeLabelVariable,
     egoVariable,
     relationshipTypeVariable,
@@ -84,6 +92,7 @@ export default function PedigreeView() {
           anchorNodeId={nodeId}
           nodes={nodes}
           edges={edges}
+          variableConfig={variableConfig}
         />
       ),
     });
@@ -92,17 +101,17 @@ export default function PedigreeView() {
 
     const name = typeof result.name === 'string' ? result.name : '';
 
-    const formAttrs: Record<string, unknown> = {};
+    const formAttrs: Record<string, VariableValue> = {};
     for (const field of resolvedFormFields) {
       if (result[field.variableId] !== undefined) {
-        formAttrs[field.variableId] = result[field.variableId];
+        formAttrs[field.variableId] = result[field.variableId] as VariableValue;
       }
     }
 
     const newNodeId = addNode({
-      isEgo: false,
       attributes: {
         [nodeLabelVariable]: name,
+        [egoVariable]: false,
         ...formAttrs,
       },
     });
@@ -110,24 +119,27 @@ export default function PedigreeView() {
     switch (mode) {
       case 'parent': {
         addEdge({
-          source: newNodeId,
-          target: nodeId,
-          relationshipType:
-            (result.edgeType as ParentEdge['relationshipType'] | undefined) ??
-            'biological',
-          isActive: true,
+          from: newNodeId,
+          to: nodeId,
+          attributes: {
+            [relationshipTypeVariable]:
+              (result.edgeType as ParentEdge['relationshipType'] | undefined) ??
+              'biological',
+            [isActiveVariable]: true,
+          },
         });
 
-        // Create partner edges with existing parents if specified
         for (const [key, value] of Object.entries(result)) {
           if (!key.startsWith('partnership-')) continue;
           const parentId = key.replace('partnership-', '');
           if (value === 'current' || value === 'ex') {
             addEdge({
-              source: newNodeId,
-              target: parentId,
-              relationshipType: 'partner',
-              isActive: value === 'current',
+              from: newNodeId,
+              to: parentId,
+              attributes: {
+                [relationshipTypeVariable]: 'partner',
+                [isActiveVariable]: value === 'current',
+              },
             });
           }
         }
@@ -135,31 +147,36 @@ export default function PedigreeView() {
       }
       case 'child': {
         addEdge({
-          source: nodeId,
-          target: newNodeId,
-          relationshipType: 'biological',
-          isActive: true,
+          from: nodeId,
+          to: newNodeId,
+          attributes: {
+            [relationshipTypeVariable]: 'biological',
+            [isActiveVariable]: true,
+          },
         });
         const partnerId = result.partnerId as string | undefined;
         if (partnerId) {
           addEdge({
-            source: partnerId,
-            target: newNodeId,
-            relationshipType: 'biological',
-            isActive: true,
+            from: partnerId,
+            to: newNodeId,
+            attributes: {
+              [relationshipTypeVariable]: 'biological',
+              [isActiveVariable]: true,
+            },
           });
         }
         break;
       }
       case 'partner': {
         addEdge({
-          source: nodeId,
-          target: newNodeId,
-          relationshipType: 'partner',
-          isActive: result.current !== 'ex',
+          from: nodeId,
+          to: newNodeId,
+          attributes: {
+            [relationshipTypeVariable]: 'partner',
+            [isActiveVariable]: result.current !== 'ex',
+          },
         });
 
-        // Create parent edges to the anchor's children if specified
         for (const [key, value] of Object.entries(result)) {
           if (!key.startsWith('parentType-')) continue;
           const childId = key.replace('parentType-', '');
@@ -170,10 +187,12 @@ export default function PedigreeView() {
             value === 'surrogate'
           ) {
             addEdge({
-              source: newNodeId,
-              target: childId,
-              relationshipType: value,
-              isActive: true,
+              from: newNodeId,
+              to: childId,
+              attributes: {
+                [relationshipTypeVariable]: value,
+                [isActiveVariable]: true,
+              },
             });
           }
         }
@@ -185,15 +204,17 @@ export default function PedigreeView() {
           : null;
 
         for (const edge of edges.values()) {
-          if (edge.relationshipType !== 'partner' && edge.target === nodeId) {
-            // If sharedParents was specified, only copy edges for selected parents
-            if (sharedParents && !sharedParents.has(edge.source)) continue;
+          const edgeRelType = edge.attributes[relationshipTypeVariable];
+          if (edgeRelType !== 'partner' && edge.to === nodeId) {
+            if (sharedParents && !sharedParents.has(edge.from)) continue;
 
             addEdge({
-              source: edge.source,
-              target: newNodeId,
-              relationshipType: edge.relationshipType,
-              isActive: true,
+              from: edge.from,
+              to: newNodeId,
+              attributes: {
+                [relationshipTypeVariable]: edgeRelType as string,
+                [isActiveVariable]: true,
+              },
             });
           }
         }
@@ -231,7 +252,8 @@ export default function PedigreeView() {
     const name = typeof result.name === 'string' ? result.name : '';
     if (!currentNode) return;
     updateNode(nodeId, {
-      attributes: { ...currentNode.attributes, [nodeLabelVariable]: name },
+      ...currentNode.attributes,
+      [nodeLabelVariable]: name,
     });
   };
 
@@ -264,9 +286,9 @@ export default function PedigreeView() {
   const handleAddParent = async (nodeId: string) => {
     const bioParentCount = [...edges.values()].filter(
       (e) =>
-        e.target === nodeId &&
-        e.relationshipType !== 'partner' &&
-        e.relationshipType !== 'social',
+        e.to === nodeId &&
+        e.attributes[relationshipTypeVariable] !== 'partner' &&
+        e.attributes[relationshipTypeVariable] !== 'social',
     ).length;
 
     const result =
@@ -319,17 +341,22 @@ export default function PedigreeView() {
         <PedigreeLayout
           nodes={nodes}
           edges={edges}
-          nodeLabelVariable={nodeLabelVariable}
+          variableConfig={variableConfig}
           nodeWidth={nodeWidth}
           nodeHeight={nodeHeight}
           renderNode={(node) => {
+            const isEgo = node.attributes[egoVariable] === true;
             const isAdopted = [...edges.values()].some(
-              (e) => e.target === node.id && e.relationshipType === 'adoptive',
+              (e) =>
+                e.to === node.id &&
+                e.attributes[relationshipTypeVariable] === 'adoptive',
             );
+            const meta = nodeMetadata.get(node.id);
 
             return activeNominationVariable ? (
               <PedigreeNode
                 node={node}
+                isEgo={isEgo}
                 displayLabel={displayLabels.get(node.id) ?? ''}
                 allowDrag={false}
                 isAdopted={isAdopted}
@@ -341,20 +368,21 @@ export default function PedigreeView() {
             ) : (
               <NodeContextMenu
                 isBiological={
-                  node.isEgo ||
+                  isEgo ||
                   [...edges.values()].some(
                     (e) =>
-                      e.relationshipType !== 'partner' &&
-                      (e.source === node.id || e.target === node.id),
+                      e.attributes[relationshipTypeVariable] !== 'partner' &&
+                      (e.from === node.id || e.to === node.id),
                   )
                 }
-                isEgo={node.isEgo}
+                isEgo={isEgo}
                 onAction={(action) => handleMenuAction(node.id, action)}
               >
                 <PedigreeNode
                   node={node}
+                  isEgo={isEgo}
                   displayLabel={displayLabels.get(node.id) ?? ''}
-                  allowDrag={node.readOnly !== true}
+                  allowDrag={meta?.readOnly !== true}
                   isAdopted={isAdopted}
                 />
               </NodeContextMenu>

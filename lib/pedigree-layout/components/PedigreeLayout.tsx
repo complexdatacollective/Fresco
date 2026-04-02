@@ -1,13 +1,10 @@
 'use client';
 
+import { type NcEdge, type NcNode } from '@codaco/shared-consts';
 import { useMemo, type ReactNode } from 'react';
 import Spinner from '~/components/Spinner';
-import {
-  type NodeData,
-  type StoreEdge,
-} from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import { alignPedigree } from '~/lib/pedigree-layout/alignPedigree';
-import { computeBioRelatives } from '~/lib/pedigree-layout/computeBioRelatives';
 import { PedigreeEdgeSvg } from '~/lib/pedigree-layout/components/EdgeRenderer';
 import {
   computeLayoutMetrics,
@@ -19,12 +16,12 @@ import {
   storeToPedigreeInput,
 } from '~/lib/pedigree-layout/pedigreeAdapter';
 
-type PedigreeLayoutNode = NodeData & { id: string };
+type PedigreeLayoutNode = NcNode & { id: string };
 
 type PedigreeLayoutProps = {
-  nodes: Map<string, NodeData>;
-  edges: Map<string, StoreEdge>;
-  nodeLabelVariable?: string;
+  nodes: Map<string, NcNode>;
+  edges: Map<string, NcEdge>;
+  variableConfig: VariableConfig;
   nodeWidth: number;
   nodeHeight: number;
   renderNode: (node: PedigreeLayoutNode) => ReactNode;
@@ -33,7 +30,7 @@ type PedigreeLayoutProps = {
 export default function PedigreeLayout({
   nodes,
   edges,
-  nodeLabelVariable,
+  variableConfig,
   nodeWidth,
   nodeHeight,
   renderNode,
@@ -52,15 +49,19 @@ export default function PedigreeLayout({
     if (dimensions.nodeWidth === 0 || dimensions.nodeHeight === 0) return null;
     if (nodes.size === 0) return null;
 
-    const { input, indexToId, idToIndex } = storeToPedigreeInput(nodes, edges);
+    const { input, indexToId, idToIndex } = storeToPedigreeInput(
+      nodes,
+      edges,
+      variableConfig,
+    );
     if (input.id.length === 0) return null;
 
     const layout = alignPedigree(input);
     const positions = pedigreeLayoutToPositions(layout, indexToId, dimensions);
-    const nodeNames = nodeLabelVariable
+    const nodeNames = variableConfig.nodeLabelVariable
       ? indexToId.map((id) => {
           const node = nodes.get(id);
-          const name = node?.attributes[nodeLabelVariable];
+          const name = node?.attributes[variableConfig.nodeLabelVariable];
           return typeof name === 'string' ? name : '';
         })
       : undefined;
@@ -69,19 +70,14 @@ export default function PedigreeLayout({
       layout,
       edges,
       dimensions,
+      variableConfig,
       input.parents,
       idToIndex,
       nodeNames,
     );
 
     return { positions, connectorData };
-  }, [nodes, edges, dimensions, nodeLabelVariable]);
-
-  const bioRelatives = useMemo(() => {
-    const egoEntry = [...nodes.entries()].find(([, n]) => n.isEgo);
-    if (!egoEntry) return new Set<string>();
-    return computeBioRelatives(egoEntry[0], edges);
-  }, [nodes, edges]);
+  }, [nodes, edges, dimensions, variableConfig]);
 
   if (nodeWidth === 0 || nodeHeight === 0) {
     return (
@@ -142,7 +138,7 @@ export default function PedigreeLayout({
               height: metrics.containerHeight,
             }}
           >
-            {renderNode({ id, ...node, isBioRelative: bioRelatives.has(id) })}
+            {renderNode({ id, ...node })}
           </div>
         );
       })}

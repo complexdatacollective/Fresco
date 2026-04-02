@@ -1,7 +1,5 @@
-import {
-  type NodeData,
-  type StoreEdge,
-} from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import { type NcEdge, type NcNode } from '@codaco/shared-consts';
+import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 
 type ValidationIssue = {
   nodeId: string;
@@ -11,34 +9,36 @@ type ValidationIssue = {
 
 function getBiologicalParentIds(
   nodeId: string,
-  edges: Map<string, StoreEdge>,
+  edges: Map<string, NcEdge>,
+  variableConfig: VariableConfig,
 ): string[] {
   const parentIds: string[] = [];
   for (const edge of edges.values()) {
-    if (
-      edge.target === nodeId &&
-      edge.relationshipType !== 'partner' &&
-      edge.relationshipType !== 'social'
-    ) {
-      parentIds.push(edge.source);
+    const relType = edge.attributes[variableConfig.relationshipTypeVariable] as
+      | string
+      | undefined;
+    if (edge.to === nodeId && relType !== 'partner' && relType !== 'social') {
+      parentIds.push(edge.from);
     }
   }
   return parentIds;
 }
 
 export function validatePedigreeCompleteness(
-  nodes: Map<string, NodeData>,
-  edges: Map<string, StoreEdge>,
-  nodeLabelVariable: string,
+  nodes: Map<string, NcNode>,
+  edges: Map<string, NcEdge>,
+  variableConfig: VariableConfig,
 ): ValidationIssue[] {
   const issues: ValidationIssue[] = [];
 
-  const egoEntry = [...nodes.entries()].find(([, node]) => node.isEgo);
+  const egoEntry = [...nodes.entries()].find(
+    ([, node]) => node.attributes[variableConfig.egoVariable] === true,
+  );
   if (!egoEntry) return issues;
 
   const [egoId] = egoEntry;
 
-  const egoParentIds = getBiologicalParentIds(egoId, edges);
+  const egoParentIds = getBiologicalParentIds(egoId, edges, variableConfig);
   if (egoParentIds.length < 2) {
     issues.push({
       nodeId: egoId,
@@ -49,13 +49,17 @@ export function validatePedigreeCompleteness(
 
   for (const parentId of egoParentIds) {
     const parent = nodes.get(parentId);
-    const name = parent?.attributes[nodeLabelVariable];
+    const name = parent?.attributes[variableConfig.nodeLabelVariable];
     const nameKnown = typeof name === 'string' && name.length > 0;
 
     if (!nameKnown) continue;
 
     const parentName = name;
-    const grandparentIds = getBiologicalParentIds(parentId, edges);
+    const grandparentIds = getBiologicalParentIds(
+      parentId,
+      edges,
+      variableConfig,
+    );
     if (grandparentIds.length < 2) {
       issues.push({
         nodeId: parentId,

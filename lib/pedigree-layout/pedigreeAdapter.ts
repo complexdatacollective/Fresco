@@ -1,14 +1,13 @@
+import { type NcEdge, type NcNode } from '@codaco/shared-consts';
 import {
   computeLayoutMetrics,
   type LayoutDimensions,
 } from '~/lib/pedigree-layout/layoutDimensions';
-import {
-  type NodeData,
-  type StoreEdge,
-} from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import { computeConnectors } from '~/lib/pedigree-layout/connectors';
 import {
   type ParentConnection,
+  type ParentEdgeType,
   type PartnerConnection,
   type PedigreeConnectors,
   type PedigreeInput,
@@ -27,9 +26,21 @@ type ConversionResult = {
   idToIndex: Map<string, number>;
 };
 
+function readEdge(edge: NcEdge, config: VariableConfig) {
+  return {
+    relationshipType:
+      (edge.attributes[config.relationshipTypeVariable] as string) ??
+      'biological',
+    isActive: edge.attributes[config.isActiveVariable] !== false,
+    isGestationalCarrier:
+      edge.attributes[config.isGestationalCarrierVariable] === true,
+  };
+}
+
 export function storeToPedigreeInput(
-  nodes: Map<string, NodeData>,
-  edges: Map<string, StoreEdge>,
+  nodes: Map<string, NcNode>,
+  edges: Map<string, NcEdge>,
+  variableConfig: VariableConfig,
 ): ConversionResult {
   const indexToId: string[] = [];
   const idToIndex = new Map<string, number>();
@@ -48,25 +59,30 @@ export function storeToPedigreeInput(
   const partnerConnections: PartnerConnection[] = [];
 
   for (const edge of edges.values()) {
-    if (edge.relationshipType === 'partner') {
-      const i1 = idToIndex.get(edge.source);
-      const i2 = idToIndex.get(edge.target);
+    const { relationshipType, isActive, isGestationalCarrier } = readEdge(
+      edge,
+      variableConfig,
+    );
+
+    if (relationshipType === 'partner') {
+      const i1 = idToIndex.get(edge.from);
+      const i2 = idToIndex.get(edge.to);
       if (i1 === undefined || i2 === undefined) continue;
       relations.push({ id1: i1, id2: i2, code: 4 });
       partnerConnections.push({
         partnerIndex1: i1,
         partnerIndex2: i2,
-        isActive: edge.isActive,
+        isActive,
       });
     } else {
-      const childIdx = idToIndex.get(edge.target);
-      const parentIdx = idToIndex.get(edge.source);
+      const childIdx = idToIndex.get(edge.to);
+      const parentIdx = idToIndex.get(edge.from);
       if (childIdx === undefined || parentIdx === undefined) continue;
 
       parents[childIdx]!.push({
         parentIndex: parentIdx,
-        edgeType: edge.relationshipType,
-        isGestationalCarrier: edge.isGestationalCarrier,
+        edgeType: relationshipType as ParentEdgeType,
+        isGestationalCarrier,
       });
     }
   }
@@ -145,8 +161,9 @@ export function pedigreeLayoutToPositions(
 
 export function buildConnectorData(
   layout: PedigreeLayout,
-  edges: Map<string, StoreEdge>,
+  edges: Map<string, NcEdge>,
   dimensions: LayoutDimensions,
+  variableConfig: VariableConfig,
   parents: ParentConnection[][] = [],
   idToIndex?: Map<string, number>,
   nodeNames?: string[],
@@ -166,9 +183,10 @@ export function buildConnectorData(
   if (idToIndex) {
     activePartnerPairs = new Set<string>();
     for (const edge of edges.values()) {
-      if (edge.relationshipType !== 'partner' || !edge.isActive) continue;
-      const i1 = idToIndex.get(edge.source);
-      const i2 = idToIndex.get(edge.target);
+      const { relationshipType, isActive } = readEdge(edge, variableConfig);
+      if (relationshipType !== 'partner' || !isActive) continue;
+      const i1 = idToIndex.get(edge.from);
+      const i2 = idToIndex.get(edge.to);
       if (i1 === undefined || i2 === undefined) continue;
       activePartnerPairs.add(`${Math.min(i1, i2)},${Math.max(i1, i2)}`);
     }

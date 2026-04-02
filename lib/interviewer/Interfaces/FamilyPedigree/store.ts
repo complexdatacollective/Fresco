@@ -1,3 +1,8 @@
+import {
+  type NcEdge,
+  type NcNode,
+  type VariableValue,
+} from '@codaco/shared-consts';
 import { enableMapSet } from 'immer';
 import { createStore } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
@@ -8,6 +13,8 @@ import { computeAllDisplayLabels } from '~/lib/pedigree-layout/utils/getDisplayL
 enableMapSet();
 
 export type VariableConfig = {
+  nodeType: string;
+  edgeType: string;
   nodeLabelVariable: string;
   egoVariable: string;
   relationshipTypeVariable: string;
@@ -15,50 +22,23 @@ export type VariableConfig = {
   isGestationalCarrierVariable: string;
 };
 
-export type NodeData = {
-  isEgo: boolean;
-  readOnly?: boolean;
-  interviewNetworkId?: string;
-  isBioRelative?: boolean;
-  attributes: Record<string, unknown>;
+export type NodeMetadata = {
+  readOnly: boolean;
 };
 
-export type StoreEdge = {
-  source: string;
-  target: string;
-} & (
-  | {
-      relationshipType:
-        | 'biological'
-        | 'social'
-        | 'donor'
-        | 'surrogate'
-        | 'adoptive';
-      isActive: boolean;
-      isGestationalCarrier?: boolean;
-    }
-  | { relationshipType: 'partner'; isActive: boolean }
-);
-
-export type CommitBatchEdgeData =
-  | {
-      relationshipType:
-        | 'biological'
-        | 'social'
-        | 'donor'
-        | 'surrogate'
-        | 'adoptive';
-      isActive: boolean;
-      isGestationalCarrier?: boolean;
-    }
-  | { relationshipType: 'partner'; isActive: boolean };
-
 export type CommitBatch = {
-  nodes: { tempId: string; data: NodeData }[];
+  nodes: {
+    tempId: string;
+    data: {
+      attributes: Record<string, VariableValue>;
+    };
+  }[];
   edges: {
     source: string;
     target: string;
-    data: CommitBatchEdgeData;
+    data: {
+      attributes: Record<string, VariableValue>;
+    };
   }[];
 };
 
@@ -66,16 +46,26 @@ type FamilyPedigreeState = {
   step: 'scaffolding' | 'diseaseNomination';
   activeNominationVariable: string | null;
   network: {
-    nodes: Map<string, NodeData>;
-    edges: Map<string, StoreEdge>;
+    nodes: Map<string, NcNode>;
+    edges: Map<string, NcEdge>;
   };
+  nodeMetadata: Map<string, NodeMetadata>;
+  storeToReduxIdMap: Map<string, string>;
 };
 
 type NetworkActions = {
-  addNode: (node: NodeData & { id?: string }) => string;
-  updateNode: (id: string, updates: Partial<NodeData>) => void;
+  addNode: (node: {
+    attributes: Record<string, VariableValue>;
+    id?: string;
+  }) => string;
+  updateNode: (id: string, attributes: Record<string, VariableValue>) => void;
   removeNode: (id: string) => void;
-  addEdge: (edge: StoreEdge & { id?: string }) => string;
+  addEdge: (edge: {
+    from: string;
+    to: string;
+    attributes: Record<string, VariableValue>;
+    id?: string;
+  }) => string;
   removeEdge: (id: string) => void;
   clearNetwork: () => void;
   setStep: (step: FamilyPedigreeState['step']) => void;
@@ -88,8 +78,9 @@ type NetworkActions = {
 export type FamilyPedigreeStore = FamilyPedigreeState & NetworkActions;
 
 export const createFamilyPedigreeStore = (
-  initialNodes: Map<string, NodeData>,
-  initialEdges: Map<string, StoreEdge>,
+  initialNodes: Map<string, NcNode>,
+  initialEdges: Map<string, NcEdge>,
+  initialNodeMetadata: Map<string, NodeMetadata>,
   variableConfig: VariableConfig,
   dispatch?: ReturnType<typeof useAppDispatch>,
 ) => {
@@ -102,6 +93,8 @@ export const createFamilyPedigreeStore = (
           nodes: initialNodes,
           edges: initialEdges,
         },
+        nodeMetadata: initialNodeMetadata,
+        storeToReduxIdMap: new Map<string, string>(),
 
         setStep: (step) =>
           set((state) => {
@@ -121,21 +114,27 @@ export const createFamilyPedigreeStore = (
           }),
 
         addNode: (node) => {
-          const { id, ...data } = node;
+          const { id, attributes } = node;
           const nodeId = id ?? crypto.randomUUID();
+          const isEgo = attributes[variableConfig.egoVariable] === true;
 
           set((state) => {
-            state.network.nodes.set(nodeId, data);
+            state.network.nodes.set(nodeId, {
+              _uid: nodeId,
+              type: variableConfig.nodeType,
+              attributes,
+            });
+            state.nodeMetadata.set(nodeId, { readOnly: isEgo });
           });
 
           return nodeId;
         },
 
-        updateNode: (id, updates) => {
+        updateNode: (id, attributes) => {
           set((state) => {
             const node = state.network.nodes.get(id);
             if (node) {
-              Object.assign(node, updates);
+              Object.assign(node.attributes, attributes);
             }
           });
         },
@@ -143,10 +142,11 @@ export const createFamilyPedigreeStore = (
         removeNode: (id) => {
           set((state) => {
             state.network.nodes.delete(id);
+            state.nodeMetadata.delete(id);
 
             const edgesToRemove: string[] = [];
             state.network.edges.forEach((edge, edgeId) => {
-              if (edge.source === id || edge.target === id) {
+              if (edge.from === id || edge.to === id) {
                 edgesToRemove.push(edgeId);
               }
             });
@@ -157,11 +157,17 @@ export const createFamilyPedigreeStore = (
         },
 
         addEdge: (edge) => {
-          const { id, ...data } = edge;
+          const { id, from, to, attributes } = edge;
           const edgeId = id ?? crypto.randomUUID();
 
           set((state) => {
-            state.network.edges.set(edgeId, data);
+            state.network.edges.set(edgeId, {
+              _uid: edgeId,
+              type: variableConfig.edgeType,
+              from,
+              to,
+              attributes,
+            });
           });
 
           return edgeId;
@@ -177,6 +183,7 @@ export const createFamilyPedigreeStore = (
           set((state) => {
             state.network.nodes.clear();
             state.network.edges.clear();
+            state.nodeMetadata.clear();
           });
         },
 
@@ -187,7 +194,14 @@ export const createFamilyPedigreeStore = (
             for (const { tempId, data } of batch.nodes) {
               const realId = crypto.randomUUID();
               tempIdToRealId.set(tempId, realId);
-              state.network.nodes.set(realId, data);
+              const isEgo =
+                data.attributes[variableConfig.egoVariable] === true;
+              state.network.nodes.set(realId, {
+                _uid: realId,
+                type: variableConfig.nodeType,
+                attributes: data.attributes,
+              });
+              state.nodeMetadata.set(realId, { readOnly: isEgo });
             }
 
             for (const edge of batch.edges) {
@@ -197,9 +211,11 @@ export const createFamilyPedigreeStore = (
                 tempIdToRealId.get(edge.target) ?? edge.target;
               const edgeId = crypto.randomUUID();
               state.network.edges.set(edgeId, {
-                source: resolvedSource,
-                target: resolvedTarget,
-                ...edge.data,
+                _uid: edgeId,
+                type: variableConfig.edgeType,
+                from: resolvedSource,
+                to: resolvedTarget,
+                attributes: edge.data.attributes,
               });
             }
           });
@@ -208,7 +224,9 @@ export const createFamilyPedigreeStore = (
         syncMetadata: () => {
           const { nodes, edges } = get().network;
 
-          const egoEntry = [...nodes.entries()].find(([, n]) => n.isEgo);
+          const egoEntry = [...nodes.entries()].find(
+            ([, n]) => n.attributes[variableConfig.egoVariable] === true,
+          );
           const egoId = egoEntry?.[0];
 
           const computedLabels = egoId
@@ -216,25 +234,27 @@ export const createFamilyPedigreeStore = (
             : new Map<string, string>();
 
           const serializedNodes = [...nodes.entries()].map(([id, node]) => {
+            const isEgo = node.attributes[variableConfig.egoVariable] === true;
             let label =
               (node.attributes[variableConfig.nodeLabelVariable] as string) ??
               '';
 
-            if (!label && !node.isEgo) {
+            if (!label && !isEgo) {
               label = computedLabels.get(id) ?? 'Family Member';
             }
 
             return {
               id,
-              interviewNetworkId: node.interviewNetworkId,
               label,
-              isEgo: node.isEgo,
+              isEgo,
             };
           });
 
           const serializedEdges = [...edges.entries()].map(([id, edge]) => ({
             id,
-            ...edge,
+            from: edge.from,
+            to: edge.to,
+            attributes: edge.attributes,
           }));
 
           dispatch?.(

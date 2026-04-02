@@ -1,6 +1,6 @@
+import { type VariableValue } from '@codaco/shared-consts';
 import {
   type CommitBatch,
-  type NodeData,
   type VariableConfig,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 
@@ -17,12 +17,12 @@ const KNOWN_PERSON_KEYS = new Set(['name']);
 function extractUnknownAttributes(
   obj: Record<string, unknown>,
   knownKeys: Set<string>,
-): Record<string, unknown> | undefined {
-  const attrs: Record<string, unknown> = {};
+): Record<string, VariableValue> | undefined {
+  const attrs: Record<string, VariableValue> = {};
   let hasAttrs = false;
   for (const [key, val] of Object.entries(obj)) {
     if (!knownKeys.has(key) && val !== undefined) {
-      attrs[key] = val;
+      attrs[key] = val as VariableValue;
       hasAttrs = true;
     }
   }
@@ -31,7 +31,7 @@ function extractUnknownAttributes(
 
 type ParentEntry = {
   tempId: string;
-  nodeData: NodeData;
+  attributes: Record<string, VariableValue>;
   relationshipType:
     | 'biological'
     | 'donor'
@@ -53,12 +53,10 @@ function buildBioParent(
 
   return {
     tempId: key,
-    nodeData: {
-      isEgo: false,
-      attributes: {
-        [variableConfig.nodeLabelVariable]: name,
-        ...extraAttrs,
-      },
+    attributes: {
+      [variableConfig.nodeLabelVariable]: name,
+      [variableConfig.egoVariable]: false,
+      ...extraAttrs,
     },
     relationshipType: isDonor ? donorType : 'biological',
     isGestationalCarrier: false,
@@ -77,13 +75,11 @@ function buildAdditionalParent(
 
   return {
     tempId: `additional-parent-${String(index)}`,
-    nodeData: {
-      isEgo: false,
-      attributes: {
-        [variableConfig.nodeLabelVariable]:
-          (parent.name as string | undefined) ?? '',
-        ...extraAttrs,
-      },
+    attributes: {
+      [variableConfig.nodeLabelVariable]:
+        (parent.name as string | undefined) ?? '',
+      [variableConfig.egoVariable]: false,
+      ...extraAttrs,
     },
     relationshipType: parent.role === 'adoptive-parent' ? 'adoptive' : 'social',
     isGestationalCarrier: false,
@@ -92,7 +88,7 @@ function buildAdditionalParent(
 
 export type EgoCellResult = {
   batch: CommitBatch;
-  egoAttributes?: Record<string, unknown>;
+  egoAttributes?: Record<string, VariableValue>;
 };
 
 export function egoCellTransform(
@@ -168,18 +164,18 @@ export function egoCellTransform(
     'childrenWithPartnerCount',
     'childWithPartner',
   ]);
-  const egoCustomAttrs: Record<string, unknown> = {};
+  const egoCustomAttrs: Record<string, VariableValue> = {};
   for (const [key, val] of Object.entries(values)) {
     if (
       !egoKnownKeys.has(key) &&
       !key.startsWith('partnership-') &&
       val !== undefined
     ) {
-      egoCustomAttrs[key] = val;
+      egoCustomAttrs[key] = val as VariableValue;
     }
   }
 
-  const egoAttributes: Record<string, unknown> = {
+  const egoAttributes: Record<string, VariableValue> = {
     [variableConfig.nodeLabelVariable]: '',
     [variableConfig.egoVariable]: true,
     ...egoCustomAttrs,
@@ -189,25 +185,29 @@ export function egoCellTransform(
     batch.nodes.push({
       tempId: 'ego',
       data: {
-        isEgo: true,
         attributes: egoAttributes,
       },
     });
   }
 
   for (const parent of parents) {
-    batch.nodes.push({ tempId: parent.tempId, data: parent.nodeData });
+    batch.nodes.push({
+      tempId: parent.tempId,
+      data: { attributes: parent.attributes },
+    });
 
-    const edgeData: CommitBatch['edges'][number]['data'] = {
-      relationshipType: parent.relationshipType,
-      isActive: true,
-      ...(parent.isGestationalCarrier ? { isGestationalCarrier: true } : {}),
+    const edgeAttributes: Record<string, VariableValue> = {
+      [variableConfig.relationshipTypeVariable]: parent.relationshipType,
+      [variableConfig.isActiveVariable]: true,
     };
+    if (parent.isGestationalCarrier) {
+      edgeAttributes[variableConfig.isGestationalCarrierVariable] = true;
+    }
 
     batch.edges.push({
       source: parent.tempId,
       target: egoRef,
-      data: edgeData,
+      data: { attributes: edgeAttributes },
     });
   }
 
@@ -222,8 +222,10 @@ export function egoCellTransform(
           source: parentTempIds[i]!,
           target: parentTempIds[j]!,
           data: {
-            relationshipType: 'partner',
-            isActive: val === 'current',
+            attributes: {
+              [variableConfig.relationshipTypeVariable]: 'partner',
+              [variableConfig.isActiveVariable]: val === 'current',
+            },
           },
         });
       }
@@ -244,9 +246,9 @@ export function egoCellTransform(
     batch.nodes.push({
       tempId: 'partner',
       data: {
-        isEgo: false,
         attributes: {
           [variableConfig.nodeLabelVariable]: partnerName,
+          [variableConfig.egoVariable]: false,
           ...partnerExtraAttrs,
         },
       },
@@ -255,7 +257,12 @@ export function egoCellTransform(
     batch.edges.push({
       source: egoRef,
       target: 'partner',
-      data: { relationshipType: 'partner', isActive: true },
+      data: {
+        attributes: {
+          [variableConfig.relationshipTypeVariable]: 'partner',
+          [variableConfig.isActiveVariable]: true,
+        },
+      },
     });
   }
 
@@ -278,9 +285,9 @@ export function egoCellTransform(
     batch.nodes.push({
       tempId,
       data: {
-        isEgo: false,
         attributes: {
           [variableConfig.nodeLabelVariable]: childName,
+          [variableConfig.egoVariable]: false,
           ...childExtraAttrs,
         },
       },
@@ -289,14 +296,24 @@ export function egoCellTransform(
     batch.edges.push({
       source: egoRef,
       target: tempId,
-      data: { relationshipType: 'biological', isActive: true },
+      data: {
+        attributes: {
+          [variableConfig.relationshipTypeVariable]: 'biological',
+          [variableConfig.isActiveVariable]: true,
+        },
+      },
     });
 
     if (hasPartner) {
       batch.edges.push({
         source: 'partner',
         target: tempId,
-        data: { relationshipType: 'biological', isActive: true },
+        data: {
+          attributes: {
+            [variableConfig.relationshipTypeVariable]: 'biological',
+            [variableConfig.isActiveVariable]: true,
+          },
+        },
       });
     }
   }

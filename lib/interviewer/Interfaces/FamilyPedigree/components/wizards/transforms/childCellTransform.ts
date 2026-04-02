@@ -1,7 +1,10 @@
 import {
+  type NcEdge,
+  type NcNode,
+  type VariableValue,
+} from '@codaco/shared-consts';
+import {
   type CommitBatch,
-  type NodeData,
-  type StoreEdge,
   type VariableConfig,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 
@@ -9,12 +12,12 @@ const KNOWN_PERSON_KEYS = new Set(['name']);
 
 function extractCustomAttributes(
   obj: Record<string, unknown>,
-): Record<string, unknown> | undefined {
-  const attrs: Record<string, unknown> = {};
+): Record<string, VariableValue> | undefined {
+  const attrs: Record<string, VariableValue> = {};
   let hasAttrs = false;
   for (const [key, val] of Object.entries(obj)) {
     if (!KNOWN_PERSON_KEYS.has(key) && val !== undefined) {
-      attrs[key] = val;
+      attrs[key] = val as VariableValue;
       hasAttrs = true;
     }
   }
@@ -31,7 +34,7 @@ const NEW_PERSON_NAMESPACE: Record<RoleKey, string> = {
 
 type ParentEntry = {
   tempId: string;
-  nodeData: NodeData;
+  attributes: Record<string, VariableValue>;
   relationshipType: 'biological' | 'donor' | 'surrogate';
   isGestationalCarrier: boolean;
 };
@@ -52,12 +55,10 @@ function buildParentFromNew(
 
   return {
     tempId: NEW_PERSON_NAMESPACE[roleKey],
-    nodeData: {
-      isEgo: false,
-      attributes: {
-        [variableConfig.nodeLabelVariable]: name,
-        ...extraAttrs,
-      },
+    attributes: {
+      [variableConfig.nodeLabelVariable]: name,
+      [variableConfig.egoVariable]: false,
+      ...extraAttrs,
     },
     relationshipType,
     isGestationalCarrier: roleKey === 'carrier-source',
@@ -66,9 +67,9 @@ function buildParentFromNew(
 
 export function childCellTransform(
   values: Record<string, unknown>,
-  anchorNodeId: string,
-  _nodes: Map<string, NodeData>,
-  _edges: Map<string, StoreEdge>,
+  _anchorNodeId: string,
+  _nodes: Map<string, NcNode>,
+  _edges: Map<string, NcEdge>,
   variableConfig: VariableConfig,
 ): CommitBatch {
   const batch: CommitBatch = { nodes: [], edges: [] };
@@ -82,9 +83,9 @@ export function childCellTransform(
   batch.nodes.push({
     tempId: 'child',
     data: {
-      isEgo: false,
       attributes: {
         [variableConfig.nodeLabelVariable]: childName,
+        [variableConfig.egoVariable]: false,
         ...childExtraAttrs,
       },
     },
@@ -165,27 +166,39 @@ export function childCellTransform(
   }
 
   for (const entry of parentEntries) {
-    batch.nodes.push({ tempId: entry.tempId, data: entry.nodeData });
+    batch.nodes.push({
+      tempId: entry.tempId,
+      data: { attributes: entry.attributes },
+    });
+
+    const edgeAttributes: Record<string, VariableValue> = {
+      [variableConfig.relationshipTypeVariable]: entry.relationshipType,
+      [variableConfig.isActiveVariable]: true,
+    };
+    if (entry.isGestationalCarrier) {
+      edgeAttributes[variableConfig.isGestationalCarrierVariable] = true;
+    }
+
     batch.edges.push({
       source: entry.tempId,
       target: 'child',
-      data: {
-        relationshipType: entry.relationshipType,
-        isActive: true,
-        ...(entry.isGestationalCarrier ? { isGestationalCarrier: true } : {}),
-      },
+      data: { attributes: edgeAttributes },
     });
   }
 
   for (const entry of existingParentEdges) {
+    const edgeAttributes: Record<string, VariableValue> = {
+      [variableConfig.relationshipTypeVariable]: entry.relationshipType,
+      [variableConfig.isActiveVariable]: true,
+    };
+    if (entry.isGestationalCarrier) {
+      edgeAttributes[variableConfig.isGestationalCarrierVariable] = true;
+    }
+
     batch.edges.push({
       source: entry.sourceId,
       target: 'child',
-      data: {
-        relationshipType: entry.relationshipType,
-        isActive: true,
-        ...(entry.isGestationalCarrier ? { isGestationalCarrier: true } : {}),
-      },
+      data: { attributes: edgeAttributes },
     });
   }
 
@@ -203,9 +216,9 @@ export function childCellTransform(
       batch.nodes.push({
         tempId,
         data: {
-          isEgo: false,
           attributes: {
             [variableConfig.nodeLabelVariable]: apName,
+            [variableConfig.egoVariable]: false,
             ...apExtraAttrs,
           },
         },
@@ -214,7 +227,12 @@ export function childCellTransform(
       batch.edges.push({
         source: tempId,
         target: 'child',
-        data: { relationshipType: 'social', isActive: true },
+        data: {
+          attributes: {
+            [variableConfig.relationshipTypeVariable]: 'social',
+            [variableConfig.isActiveVariable]: true,
+          },
+        },
       });
     }
   }
@@ -241,8 +259,10 @@ export function childCellTransform(
           source: allParentIds[i]!,
           target: allParentIds[j]!,
           data: {
-            relationshipType: 'partner',
-            isActive: val === 'current',
+            attributes: {
+              [variableConfig.relationshipTypeVariable]: 'partner',
+              [variableConfig.isActiveVariable]: val === 'current',
+            },
           },
         });
       }

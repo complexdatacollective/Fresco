@@ -2,7 +2,7 @@ import { entityAttributesProperty } from '@codaco/shared-consts';
 import { configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Provider } from 'react-redux';
-import { type NodeData } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import { type NcNode } from '@codaco/shared-consts';
 import PedigreeNode from '~/lib/pedigree-layout/components/PedigreeNode';
 
 const mockProtocol = {
@@ -94,18 +94,17 @@ function createNode(
   overrides: Partial<{
     id: string;
     isEgo: boolean;
-    readOnly: boolean;
-    interviewNetworkId: string;
     label: string;
   }> = {},
-): NodeData & { id: string } {
+): NcNode & { id: string } {
+  const id = overrides.id ?? `node-${crypto.randomUUID()}`;
   return {
-    id: overrides.id ?? `node-${crypto.randomUUID()}`,
-    isEgo: overrides.isEgo ?? false,
-    readOnly: overrides.readOnly,
-    interviewNetworkId: overrides.interviewNetworkId,
+    id,
+    _uid: id,
+    type: 'person',
     attributes: {
       name: overrides.label ?? '',
+      isEgo: overrides.isEgo ?? false,
     },
   };
 }
@@ -185,6 +184,7 @@ export const Surrogate: Story = {
 export const EgoNode: Story = {
   args: {
     node: createNode({ id: 'p9', isEgo: true }),
+    isEgo: true,
     displayLabel: 'You',
   },
 };
@@ -234,9 +234,9 @@ export const AllStates: Story = {
         {
           node: createNode({
             id: 'a5',
-
             isEgo: true,
           }),
+          isEgo: true,
           displayLabel: 'You',
           label: 'Ego',
         },
@@ -250,10 +250,11 @@ export const AllStates: Story = {
           displayLabel: 'Sibling',
           label: 'Non-binary',
         },
-      ].map(({ node, displayLabel, label }) => (
+      ].map(({ node, displayLabel, label, isEgo }) => (
         <div key={node.id} className="flex flex-col items-center gap-2">
           <PedigreeNode
             node={node}
+            isEgo={isEgo}
             displayLabel={displayLabel}
             allowDrag={false}
           />

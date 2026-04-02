@@ -1,4 +1,5 @@
-import { type StoreEdge } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import { type NcEdge } from '@codaco/shared-consts';
+import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 
 /**
  * Compute which nodes are biological relatives of ego.
@@ -13,7 +14,8 @@ import { type StoreEdge } from '~/lib/interviewer/Interfaces/FamilyPedigree/stor
  */
 export function computeBioRelatives(
   egoId: string,
-  edges: Map<string, StoreEdge>,
+  edges: Map<string, NcEdge>,
+  variableConfig: VariableConfig,
 ): Set<string> {
   const bioRelatives = new Set<string>();
   bioRelatives.add(egoId);
@@ -30,13 +32,14 @@ export function computeBioRelatives(
   };
 
   for (const edge of edges.values()) {
-    if (edge.relationshipType === 'partner') continue;
-    const isGenetic =
-      edge.relationshipType === 'biological' ||
-      edge.relationshipType === 'donor';
+    const relType = edge.attributes[variableConfig.relationshipTypeVariable] as
+      | string
+      | undefined;
+    if (relType === 'partner') continue;
+    const isGenetic = relType === 'biological' || relType === 'donor';
     if (!isGenetic) continue;
-    addLink(edge.source, edge.target);
-    addLink(edge.target, edge.source);
+    addLink(edge.from, edge.to);
+    addLink(edge.to, edge.from);
   }
 
   const queue = [egoId];

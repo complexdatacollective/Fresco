@@ -1,5 +1,6 @@
 'use client';
 
+import { type NcEdge, type NcNode } from '@codaco/shared-consts';
 import { useSelector } from 'react-redux';
 import Field from '~/lib/form/components/Field/Field';
 import CheckboxGroupField from '~/lib/form/components/fields/CheckboxGroup';
@@ -7,10 +8,7 @@ import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import RichSelectGroupField from '~/lib/form/components/fields/RichSelectGroup';
 import { PARENT_EDGE_TYPE_OPTIONS_ALTER } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/fieldOptions';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
-import {
-  type NodeData,
-  type StoreEdge,
-} from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import { getNodeLabelVariable } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 
 export type AddPersonMode = 'parent' | 'child' | 'partner' | 'sibling';
@@ -24,13 +22,14 @@ const CURRENT_EX_OPTIONS = [
 type AddPersonFieldsProps = {
   mode: AddPersonMode;
   anchorNodeId: string;
-  nodes: Map<string, NodeData>;
-  edges: Map<string, StoreEdge>;
+  nodes: Map<string, NcNode>;
+  edges: Map<string, NcEdge>;
+  variableConfig: VariableConfig;
 };
 
 function getNodeName(
   nodeId: string,
-  nodes: Map<string, NodeData>,
+  nodes: Map<string, NcNode>,
   nodeLabelVariable: string,
 ): string {
   const node = nodes.get(nodeId);
@@ -42,6 +41,7 @@ export default function AddPersonFields({
   anchorNodeId,
   nodes,
   edges,
+  variableConfig,
 }: AddPersonFieldsProps) {
   const nodeLabelVariable = useSelector(getNodeLabelVariable);
 
@@ -51,16 +51,17 @@ export default function AddPersonFields({
       ? [...edges.values()]
           .filter(
             (edge) =>
-              edge.relationshipType === 'partner' &&
-              (edge.source === anchorNodeId || edge.target === anchorNodeId),
+              edge.attributes[variableConfig.relationshipTypeVariable] ===
+                'partner' &&
+              (edge.from === anchorNodeId || edge.to === anchorNodeId),
           )
           .map((edge) => {
             const otherNodeId =
-              edge.source === anchorNodeId ? edge.target : edge.source;
+              edge.from === anchorNodeId ? edge.to : edge.from;
             return { id: otherNodeId, node: nodes.get(otherNodeId) };
           })
           .filter(
-            (p): p is { id: string; node: NodeData } => p.node !== undefined,
+            (p): p is { id: string; node: NcNode } => p.node !== undefined,
           )
       : [];
 
@@ -78,10 +79,10 @@ export default function AddPersonFields({
       ? [...edges.values()]
           .filter(
             (edge) =>
-              edge.relationshipType !== 'partner' &&
-              edge.target === anchorNodeId,
+              edge.attributes[variableConfig.relationshipTypeVariable] !==
+                'partner' && edge.to === anchorNodeId,
           )
-          .map((edge) => edge.source)
+          .map((edge) => edge.from)
           .filter((id) => nodes.has(id))
       : [];
 
@@ -91,10 +92,10 @@ export default function AddPersonFields({
       ? [...edges.values()]
           .filter(
             (edge) =>
-              edge.relationshipType !== 'partner' &&
-              edge.source === anchorNodeId,
+              edge.attributes[variableConfig.relationshipTypeVariable] !==
+                'partner' && edge.from === anchorNodeId,
           )
-          .map((edge) => edge.target)
+          .map((edge) => edge.to)
           .filter((id) => nodes.has(id))
       : [];
 

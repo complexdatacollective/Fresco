@@ -10,20 +10,19 @@ import NewParentPartnershipsStep, {
   shouldSkipNewParentPartnerships,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/wizards/steps/NewParentPartnershipsStep';
 import { childCellTransform } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/wizards/transforms/childCellTransform';
+import { type NcEdge, type NcNode } from '@codaco/shared-consts';
 import {
   type CommitBatch,
-  type NodeData,
-  type StoreEdge,
   type VariableConfig,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 
 function buildNodeOptions(
-  nodes: Map<string, NodeData>,
+  nodes: Map<string, NcNode>,
   variableConfig: VariableConfig,
 ): { value: string; label: string }[] {
   const options: { value: string; label: string }[] = [];
   for (const [id, node] of nodes) {
-    if (node.isEgo) {
+    if (node.attributes[variableConfig.egoVariable] === true) {
       options.push({ value: id, label: 'You' });
       continue;
     }
@@ -46,8 +45,8 @@ function getPreselection(): {
 export async function openAddChildWizard(
   openDialog: ReturnType<typeof useDialog>['openDialog'],
   anchorNodeId: string,
-  nodes: Map<string, NodeData>,
-  edges: Map<string, StoreEdge>,
+  nodes: Map<string, NcNode>,
+  edges: Map<string, NcEdge>,
   variableConfig: VariableConfig,
 ): Promise<CommitBatch | null> {
   const preselection = getPreselection();

@@ -7,21 +7,20 @@ import {
   egoCellTransform,
   type EgoCellResult,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/wizards/transforms/egoCellTransform';
+import { type NcEdge, type NcNode } from '@codaco/shared-consts';
 import {
   type CommitBatch,
-  type NodeData,
-  type StoreEdge,
   type VariableConfig,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 
 function getNodeDisplayName(
   nodeId: string,
-  nodes: Map<string, NodeData>,
+  nodes: Map<string, NcNode>,
   variableConfig: VariableConfig,
 ): string {
   const node = nodes.get(nodeId);
   if (!node) return "This Person's";
-  if (node.isEgo) return 'Your';
+  if (node.attributes[variableConfig.egoVariable] === true) return 'Your';
   const name = node.attributes[variableConfig.nodeLabelVariable];
   return typeof name === 'string' && name.length > 0
     ? `${name}'s`
@@ -31,8 +30,8 @@ function getNodeDisplayName(
 export async function openDefineParentsWizard(
   openDialog: ReturnType<typeof useDialog>['openDialog'],
   focalNodeId: string,
-  nodes: Map<string, NodeData>,
-  _edges: Map<string, StoreEdge>,
+  nodes: Map<string, NcNode>,
+  _edges: Map<string, NcEdge>,
   variableConfig: VariableConfig,
 ): Promise<CommitBatch | null> {
   const displayName = getNodeDisplayName(focalNodeId, nodes, variableConfig);

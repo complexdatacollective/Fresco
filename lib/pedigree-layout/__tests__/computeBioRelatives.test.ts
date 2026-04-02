@@ -1,132 +1,103 @@
+import { type NcEdge } from '@codaco/shared-consts';
 import { describe, expect, it } from 'vitest';
 import { computeBioRelatives } from '~/lib/pedigree-layout/computeBioRelatives';
-import { type StoreEdge } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 
-function buildEdges(defs: StoreEdge[]): Map<string, StoreEdge> {
-  const edges = new Map<string, StoreEdge>();
-  defs.forEach((e, i) => edges.set(`e${i}`, e));
+const variableConfig: VariableConfig = {
+  nodeType: 'person',
+  edgeType: 'relationship',
+  nodeLabelVariable: 'name',
+  egoVariable: 'isEgo',
+  relationshipTypeVariable: 'relationshipType',
+  isActiveVariable: 'isActive',
+  isGestationalCarrierVariable: 'isGestationalCarrier',
+};
+
+function makeEdge(
+  from: string,
+  to: string,
+  relationshipType: string,
+  isActive = true,
+): NcEdge {
+  const uid = crypto.randomUUID();
+  return {
+    _uid: uid,
+    type: 'relationship',
+    from,
+    to,
+    attributes: {
+      relationshipType,
+      isActive,
+    },
+  };
+}
+
+function buildEdges(defs: NcEdge[]): Map<string, NcEdge> {
+  const edges = new Map<string, NcEdge>();
+  for (const e of defs) {
+    edges.set(e._uid, e);
+  }
   return edges;
 }
 
 describe('computeBioRelatives', () => {
   it('includes ego', () => {
-    const result = computeBioRelatives('ego', new Map());
+    const result = computeBioRelatives('ego', new Map(), variableConfig);
     expect(result.has('ego')).toBe(true);
   });
 
   it('includes biological parents', () => {
     const edges = buildEdges([
-      {
-        source: 'mom',
-        target: 'ego',
-        relationshipType: 'biological',
-        isActive: true,
-      },
-      {
-        source: 'dad',
-        target: 'ego',
-        relationshipType: 'biological',
-        isActive: true,
-      },
+      makeEdge('mom', 'ego', 'biological'),
+      makeEdge('dad', 'ego', 'biological'),
     ]);
-    const result = computeBioRelatives('ego', edges);
+    const result = computeBioRelatives('ego', edges, variableConfig);
     expect(result.has('mom')).toBe(true);
     expect(result.has('dad')).toBe(true);
   });
 
   it('excludes social parents', () => {
-    const edges = buildEdges([
-      {
-        source: 'stepdad',
-        target: 'ego',
-        relationshipType: 'social',
-        isActive: true,
-      },
-    ]);
-    const result = computeBioRelatives('ego', edges);
+    const edges = buildEdges([makeEdge('stepdad', 'ego', 'social')]);
+    const result = computeBioRelatives('ego', edges, variableConfig);
     expect(result.has('stepdad')).toBe(false);
   });
 
   it('includes donors', () => {
-    const edges = buildEdges([
-      {
-        source: 'donor',
-        target: 'ego',
-        relationshipType: 'donor',
-        isActive: true,
-      },
-    ]);
-    const result = computeBioRelatives('ego', edges);
+    const edges = buildEdges([makeEdge('donor', 'ego', 'donor')]);
+    const result = computeBioRelatives('ego', edges, variableConfig);
     expect(result.has('donor')).toBe(true);
   });
 
   it('excludes surrogates', () => {
-    const edges = buildEdges([
-      {
-        source: 'surrogate',
-        target: 'ego',
-        relationshipType: 'surrogate',
-        isActive: true,
-      },
-    ]);
-    const result = computeBioRelatives('ego', edges);
+    const edges = buildEdges([makeEdge('surrogate', 'ego', 'surrogate')]);
+    const result = computeBioRelatives('ego', edges, variableConfig);
     expect(result.has('surrogate')).toBe(false);
   });
 
   it('traverses multi-generational chains', () => {
     const edges = buildEdges([
-      {
-        source: 'grandpa',
-        target: 'dad',
-        relationshipType: 'biological',
-        isActive: true,
-      },
-      {
-        source: 'dad',
-        target: 'ego',
-        relationshipType: 'biological',
-        isActive: true,
-      },
+      makeEdge('grandpa', 'dad', 'biological'),
+      makeEdge('dad', 'ego', 'biological'),
     ]);
-    const result = computeBioRelatives('ego', edges);
+    const result = computeBioRelatives('ego', edges, variableConfig);
     expect(result.has('grandpa')).toBe(true);
   });
 
   it('includes biological siblings', () => {
     const edges = buildEdges([
-      {
-        source: 'mom',
-        target: 'ego',
-        relationshipType: 'biological',
-        isActive: true,
-      },
-      {
-        source: 'mom',
-        target: 'sibling',
-        relationshipType: 'biological',
-        isActive: true,
-      },
+      makeEdge('mom', 'ego', 'biological'),
+      makeEdge('mom', 'sibling', 'biological'),
     ]);
-    const result = computeBioRelatives('ego', edges);
+    const result = computeBioRelatives('ego', edges, variableConfig);
     expect(result.has('sibling')).toBe(true);
   });
 
   it('excludes non-biological siblings', () => {
     const edges = buildEdges([
-      {
-        source: 'stepmom',
-        target: 'ego',
-        relationshipType: 'social',
-        isActive: true,
-      },
-      {
-        source: 'stepmom',
-        target: 'stepsibling',
-        relationshipType: 'biological',
-        isActive: true,
-      },
+      makeEdge('stepmom', 'ego', 'social'),
+      makeEdge('stepmom', 'stepsibling', 'biological'),
     ]);
-    const result = computeBioRelatives('ego', edges);
+    const result = computeBioRelatives('ego', edges, variableConfig);
     expect(result.has('stepsibling')).toBe(false);
   });
 });

@@ -8,9 +8,12 @@ import RichSelectGroupField from '~/lib/form/components/fields/RichSelectGroup';
 import { PARENT_EDGE_TYPE_OPTIONS_ALTER } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/fieldOptions';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
 import {
+  type NcEdge,
+  type NcNode,
+  type VariableValue,
+} from '@codaco/shared-consts';
+import {
   type CommitBatch,
-  type NodeData,
-  type StoreEdge,
   type VariableConfig,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 
@@ -18,12 +21,12 @@ const KNOWN_PERSON_KEYS = new Set(['name']);
 
 function extractCustomAttributes(
   obj: Record<string, unknown>,
-): Record<string, unknown> | undefined {
-  const attrs: Record<string, unknown> = {};
+): Record<string, VariableValue> | undefined {
+  const attrs: Record<string, VariableValue> = {};
   let hasAttrs = false;
   for (const [key, val] of Object.entries(obj)) {
     if (!KNOWN_PERSON_KEYS.has(key) && val !== undefined) {
-      attrs[key] = val;
+      attrs[key] = val as VariableValue;
       hasAttrs = true;
     }
   }
@@ -77,12 +80,16 @@ function ExistingParentPartnershipsStep({
 
 function getExistingParentIds(
   anchorNodeId: string,
-  edges: Map<string, StoreEdge>,
+  edges: Map<string, NcEdge>,
+  variableConfig: VariableConfig,
 ): string[] {
   const parentIds: string[] = [];
   for (const edge of edges.values()) {
-    if (edge.target === anchorNodeId && edge.relationshipType !== 'partner') {
-      parentIds.push(edge.source);
+    if (
+      edge.to === anchorNodeId &&
+      edge.attributes[variableConfig.relationshipTypeVariable] !== 'partner'
+    ) {
+      parentIds.push(edge.from);
     }
   }
   return parentIds;
@@ -91,7 +98,7 @@ function getExistingParentIds(
 function transformToCommitBatch(
   formValues: Record<string, unknown>,
   anchorNodeId: string,
-  edges: Map<string, StoreEdge>,
+  edges: Map<string, NcEdge>,
   variableConfig: VariableConfig,
 ): CommitBatch {
   const parentValues = (formValues.parent ?? {}) as Record<string, unknown>;
@@ -102,14 +109,22 @@ function transformToCommitBatch(
 
   const parentTempId = '__new-parent__';
 
+  const edgeAttributes: Record<string, VariableValue> = {
+    [variableConfig.relationshipTypeVariable]: edgeType,
+    [variableConfig.isActiveVariable]: true,
+  };
+  if (edgeType === 'surrogate') {
+    edgeAttributes[variableConfig.isGestationalCarrierVariable] = true;
+  }
+
   const batch: CommitBatch = {
     nodes: [
       {
         tempId: parentTempId,
         data: {
-          isEgo: false,
           attributes: {
             [variableConfig.nodeLabelVariable]: name,
+            [variableConfig.egoVariable]: false,
             ...customAttrs,
           },
         },
@@ -119,20 +134,16 @@ function transformToCommitBatch(
       {
         source: parentTempId,
         target: anchorNodeId,
-        data: {
-          relationshipType: edgeType as
-            | 'biological'
-            | 'social'
-            | 'donor'
-            | 'surrogate',
-          isActive: true,
-          ...(edgeType === 'surrogate' ? { isGestationalCarrier: true } : {}),
-        },
+        data: { attributes: edgeAttributes },
       },
     ],
   };
 
-  const existingParentIds = getExistingParentIds(anchorNodeId, edges);
+  const existingParentIds = getExistingParentIds(
+    anchorNodeId,
+    edges,
+    variableConfig,
+  );
   for (const parentId of existingParentIds) {
     const value = formValues[`partnership-${parentId}`] as string | undefined;
     if (value === 'current' || value === 'ex') {
@@ -140,8 +151,10 @@ function transformToCommitBatch(
         source: parentTempId,
         target: parentId,
         data: {
-          relationshipType: 'partner',
-          isActive: value === 'current',
+          attributes: {
+            [variableConfig.relationshipTypeVariable]: 'partner',
+            [variableConfig.isActiveVariable]: value === 'current',
+          },
         },
       });
     }
@@ -153,11 +166,15 @@ function transformToCommitBatch(
 export async function openAddParentWizard(
   openDialog: ReturnType<typeof useDialog>['openDialog'],
   anchorNodeId: string,
-  nodes: Map<string, NodeData>,
-  edges: Map<string, StoreEdge>,
+  nodes: Map<string, NcNode>,
+  edges: Map<string, NcEdge>,
   variableConfig: VariableConfig,
 ): Promise<CommitBatch | null> {
-  const existingParentIds = getExistingParentIds(anchorNodeId, edges);
+  const existingParentIds = getExistingParentIds(
+    anchorNodeId,
+    edges,
+    variableConfig,
+  );
   const existingParents = existingParentIds
     .map((id) => {
       const node = nodes.get(id);

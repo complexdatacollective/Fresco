@@ -83,38 +83,33 @@ const FamilyPedigreeStageMetadataSchema = z.object({
     z.array(
       z.object({
         id: z.string(),
-        interviewNetworkId: z.optional(z.string()),
         label: z.string(),
-        shape: z.optional(z.enum(['circle', 'square', 'diamond'])),
         isEgo: z.boolean(),
       }),
     ),
   ),
   edges: z.optional(
     z.array(
-      z.union([
-        z.object({
-          id: z.string(),
-          source: z.string(),
-          target: z.string(),
-          relationshipType: z.enum([
-            'biological',
-            'social',
-            'donor',
-            'surrogate',
-            'adoptive',
+      z.object({
+        id: z.string(),
+        from: z.string(),
+        to: z.string(),
+        attributes: z.record(
+          z.string(),
+          z.union([
+            z.string(),
+            z.number(),
+            z.boolean(),
+            z.null(),
+            z.array(z.number()),
+            z.array(z.union([z.string(), z.number(), z.boolean()])),
+            z.record(
+              z.string(),
+              z.union([z.string(), z.boolean(), z.number()]),
+            ),
           ]),
-          isActive: z.boolean(),
-          isGestationalCarrier: z.optional(z.boolean()),
-        }),
-        z.object({
-          id: z.string(),
-          source: z.string(),
-          target: z.string(),
-          relationshipType: z.literal('partner'),
-          isActive: z.boolean(),
-        }),
-      ]),
+        ),
+      }),
     ),
   ),
 });

@@ -1,12 +1,9 @@
+import { type NcEdge, type NcNode } from '@codaco/shared-consts';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import Node from '~/components/Node';
 import { useDragSource } from '~/lib/dnd';
-import {
-  type NodeData,
-  type StoreEdge,
-  type VariableConfig,
-} from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import { getNodeShapeDefinition } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 import {
   getNodeColorSelector,
@@ -95,11 +92,13 @@ export function EgoIcon({
  * label with numbering when multiple nodes share the same role.
  */
 export function computeNodeDisplayLabels(
-  nodes: Map<string, NodeData>,
-  edges: Map<string, StoreEdge>,
+  nodes: Map<string, NcNode>,
+  edges: Map<string, NcEdge>,
   variableConfig: VariableConfig,
 ): Map<string, string> {
-  const egoEntry = [...nodes.entries()].find(([, n]) => n.isEgo);
+  const egoEntry = [...nodes.entries()].find(
+    ([, n]) => n.attributes[variableConfig.egoVariable] === true,
+  );
   if (!egoEntry) return new Map();
   const egoId = egoEntry[0];
 
@@ -114,7 +113,7 @@ export function computeNodeDisplayLabels(
   const roleBuckets = new Map<string, string[]>();
 
   for (const [nodeId, node] of nodes) {
-    if (node.isEgo) continue;
+    if (node.attributes[variableConfig.egoVariable] === true) continue;
 
     const storedName = node.attributes[variableConfig.nodeLabelVariable] as
       | string
@@ -144,7 +143,8 @@ export function computeNodeDisplayLabels(
 }
 
 type PedigreeNodeProps = {
-  node: NodeData & { id: string };
+  node: NcNode & { id: string };
+  isEgo?: boolean;
   displayLabel: string;
   allowDrag: boolean;
   isAdopted?: boolean;
@@ -154,6 +154,7 @@ type PedigreeNodeProps = {
 
 export default function PedigreeNode({
   node,
+  isEgo,
   displayLabel,
   allowDrag,
   isAdopted,
@@ -161,7 +162,7 @@ export default function PedigreeNode({
   onClick,
   ...rest
 }: PedigreeNodeProps) {
-  const { id, isEgo } = node;
+  const { id } = node;
 
   const nodeColor = useSelector(getNodeColorSelector);
   const shapeDef = useSelector(getNodeShapeDefinition);
