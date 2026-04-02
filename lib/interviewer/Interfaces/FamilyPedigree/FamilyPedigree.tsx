@@ -324,7 +324,8 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
                   margin="none"
                   className="text-center"
                 >
-                  Your family pedigree will appear here
+                  Your family pedigree will appear here. Click the button below
+                  to get started.
                 </Paragraph>
               </div>
             </>
