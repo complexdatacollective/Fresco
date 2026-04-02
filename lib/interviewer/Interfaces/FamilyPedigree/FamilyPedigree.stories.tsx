@@ -23,8 +23,8 @@ function createFamilyPedigreeInterview(seed: number) {
     name: 'Current Gender Identity',
     type: 'categorical',
     options: [
-      { label: 'Man', value: 'man' },
-      { label: 'Woman', value: 'woman' },
+      { label: 'Man/boy', value: 'man' },
+      { label: 'Woman/girl', value: 'woman' },
       { label: 'Non-binary', value: 'non_binary' },
       { label: 'Genderqueer/Gender non-conforming', value: 'genderqueer' },
       { label: 'Two-Spirit', value: 'two_spirit' },
@@ -401,12 +401,12 @@ export const NuclearFamily: ScenarioStory = {
     await setFieldInput('egg-parent.name', 'Linda');
     await setFieldInput('egg-parent.gestationalCarrier', true);
 
-    await setFieldInput('egg-parent.gender_identity', 'Woman');
+    await setFieldInput('egg-parent.gender_identity', 'Woman/girl');
 
     await setFieldInput('sperm-parent.is-donor', false);
     await setFieldInput('sperm-parent.name', 'Robert');
 
-    await setFieldInput('sperm-parent.gender_identity', 'Man');
+    await setFieldInput('sperm-parent.gender_identity', 'Man/boy');
     await clickContinue();
 
     await setFieldInput('hasOtherParents', false);
@@ -421,15 +421,15 @@ export const NuclearFamily: ScenarioStory = {
     // Partner and children
     await setFieldInput('hasPartner', true);
     await setFieldInput('partner.name', 'Sophia');
-    await setFieldInput('partner.gender_identity', 'Woman');
+    await setFieldInput('partner.gender_identity', 'Woman/girl');
     await setFieldInput('childrenWithPartnerCount', 2);
     await clickContinue();
 
     // Children details
     await setFieldInput('childWithPartner[0].name', 'Olivia');
-    await setFieldInput('childWithPartner[0].gender_identity', 'Woman');
+    await setFieldInput('childWithPartner[0].gender_identity', 'Woman/girl');
     await setFieldInput('childWithPartner[1].name', 'Liam');
-    await setFieldInput('childWithPartner[1].gender_identity', 'Man');
+    await setFieldInput('childWithPartner[1].gender_identity', 'Man/boy');
     await clickContinue();
   },
 };
@@ -445,11 +445,11 @@ export const SingleParent: ScenarioStory = {
     await setFieldInput('egg-parent.name', 'Linda');
     await setFieldInput('egg-parent.gestationalCarrier', true);
 
-    await setFieldInput('egg-parent.gender_identity', 'Woman');
+    await setFieldInput('egg-parent.gender_identity', 'Woman/girl');
 
     await setFieldInput('sperm-parent.is-donor', false);
 
-    await setFieldInput('sperm-parent.gender_identity', 'Man');
+    await setFieldInput('sperm-parent.gender_identity', 'Man/boy');
 
     await clickContinue();
 
@@ -480,11 +480,11 @@ export const SameSexMothers: ScenarioStory = {
     await setFieldInput('egg-parent.name', 'Linda');
     await setFieldInput('egg-parent.gestationalCarrier', true);
 
-    await setFieldInput('egg-parent.gender_identity', 'Woman');
+    await setFieldInput('egg-parent.gender_identity', 'Woman/girl');
 
     await setFieldInput('sperm-parent.is-donor', true);
 
-    await setFieldInput('sperm-parent.gender_identity', 'Man');
+    await setFieldInput('sperm-parent.gender_identity', 'Man/boy');
     await clickContinue();
 
     // OtherParentsStep: Patricia is a social parent
@@ -495,7 +495,7 @@ export const SameSexMothers: ScenarioStory = {
     // AdditionalParentsStep: Patricia
     await setFieldInput('additional-parent[0].role', 'Parent who raised me');
     await setFieldInput('additional-parent[0].name', 'Patricia');
-    await setFieldInput('additional-parent[0].gender_identity', 'Woman');
+    await setFieldInput('additional-parent[0].gender_identity', 'Woman/girl');
     await clickContinue();
 
     await setFieldInput(
@@ -528,12 +528,12 @@ export const SpermDonor: ScenarioStory = {
     await setFieldInput('egg-parent.name', 'Linda');
     await setFieldInput('egg-parent.gestationalCarrier', true);
 
-    await setFieldInput('egg-parent.gender_identity', 'Woman');
+    await setFieldInput('egg-parent.gender_identity', 'Woman/girl');
 
     await setFieldInput('sperm-parent.is-donor', true);
     await setFieldInput('sperm-parent.name', 'Carlos');
 
-    await setFieldInput('sperm-parent.gender_identity', 'Man');
+    await setFieldInput('sperm-parent.gender_identity', 'Man/boy');
     await clickContinue();
 
     await setFieldInput('hasOtherParents', true);
@@ -542,7 +542,7 @@ export const SpermDonor: ScenarioStory = {
 
     await setFieldInput('additional-parent[0].role', 'Parent who raised me');
     await setFieldInput('additional-parent[0].name', 'Patricia');
-    await setFieldInput('additional-parent[0].gender_identity', 'Woman');
+    await setFieldInput('additional-parent[0].gender_identity', 'Woman/girl');
     await clickContinue();
 
     await setFieldInput(
@@ -576,12 +576,12 @@ export const BlendedFamily: ScenarioStory = {
     await setFieldInput('egg-parent.name', 'Susan');
     await setFieldInput('egg-parent.gestationalCarrier', true);
 
-    await setFieldInput('egg-parent.gender_identity', 'Woman');
+    await setFieldInput('egg-parent.gender_identity', 'Woman/girl');
 
     await setFieldInput('sperm-parent.is-donor', false);
     await setFieldInput('sperm-parent.name', 'Robert');
 
-    await setFieldInput('sperm-parent.gender_identity', 'Man');
+    await setFieldInput('sperm-parent.gender_identity', 'Man/boy');
     await clickContinue();
 
     // OtherParentsStep: Karen is a step-parent
@@ -592,7 +592,7 @@ export const BlendedFamily: ScenarioStory = {
     // AdditionalParentsStep: Karen
     await setFieldInput('additional-parent[0].role', 'Step-parent');
     await setFieldInput('additional-parent[0].name', 'Karen');
-    await setFieldInput('additional-parent[0].gender_identity', 'Woman');
+    await setFieldInput('additional-parent[0].gender_identity', 'Woman/girl');
     await clickContinue();
 
     await setFieldInput('partnership-egg-parent-sperm-parent', 'Ex-partners');
@@ -624,11 +624,11 @@ export const TransParent: ScenarioStory = {
     await setFieldInput('egg-parent.name', 'Alex');
     await setFieldInput('egg-parent.gestationalCarrier', true);
 
-    await setFieldInput('egg-parent.gender_identity', 'Man');
+    await setFieldInput('egg-parent.gender_identity', 'Man/boy');
 
     await setFieldInput('sperm-parent.is-donor', true);
 
-    await setFieldInput('sperm-parent.gender_identity', 'Man');
+    await setFieldInput('sperm-parent.gender_identity', 'Man/boy');
     await clickContinue();
 
     // OtherParentsStep: Priya is a social parent
@@ -639,7 +639,7 @@ export const TransParent: ScenarioStory = {
     // AdditionalParentsStep: Priya
     await setFieldInput('additional-parent[0].role', 'Parent who raised me');
     await setFieldInput('additional-parent[0].name', 'Priya');
-    await setFieldInput('additional-parent[0].gender_identity', 'Woman');
+    await setFieldInput('additional-parent[0].gender_identity', 'Woman/girl');
     await clickContinue();
 
     await setFieldInput(
@@ -673,12 +673,12 @@ export const NonBinaryEgo: ScenarioStory = {
     await setFieldInput('egg-parent.name', 'Tomoko');
     await setFieldInput('egg-parent.gestationalCarrier', true);
 
-    await setFieldInput('egg-parent.gender_identity', 'Woman');
+    await setFieldInput('egg-parent.gender_identity', 'Woman/girl');
 
     await setFieldInput('sperm-parent.is-donor', false);
     await setFieldInput('sperm-parent.name', 'Kenji');
 
-    await setFieldInput('sperm-parent.gender_identity', 'Man');
+    await setFieldInput('sperm-parent.gender_identity', 'Man/boy');
     await clickContinue();
 
     await setFieldInput('hasOtherParents', false);
@@ -714,11 +714,11 @@ export const AdoptedIn: ScenarioStory = {
     await setFieldInput('egg-parent.is-donor', false);
     await setFieldInput('egg-parent.gestationalCarrier', true);
 
-    await setFieldInput('egg-parent.gender_identity', 'Woman');
+    await setFieldInput('egg-parent.gender_identity', 'Woman/girl');
 
     await setFieldInput('sperm-parent.is-donor', false);
 
-    await setFieldInput('sperm-parent.gender_identity', 'Man');
+    await setFieldInput('sperm-parent.gender_identity', 'Man/boy');
     await clickContinue();
 
     // OtherParentsStep: 2 adoptive parents
@@ -729,11 +729,11 @@ export const AdoptedIn: ScenarioStory = {
     // AdditionalParentsStep: James and Barbara
     await setFieldInput('additional-parent[0].role', 'Adoptive parent');
     await setFieldInput('additional-parent[0].name', 'James');
-    await setFieldInput('additional-parent[0].gender_identity', 'Man');
+    await setFieldInput('additional-parent[0].gender_identity', 'Man/boy');
 
     await setFieldInput('additional-parent[1].role', 'Adoptive parent');
     await setFieldInput('additional-parent[1].name', 'Barbara');
-    await setFieldInput('additional-parent[1].gender_identity', 'Woman');
+    await setFieldInput('additional-parent[1].gender_identity', 'Woman/girl');
     await clickContinue();
 
     await setFieldInput(
@@ -779,17 +779,17 @@ export const SingleParentTwoDonors: ScenarioStory = {
     await setFieldInput('egg-parent.is-donor', true);
     await setFieldInput('egg-parent.gestationalCarrier', false);
 
-    await setFieldInput('egg-parent.gender_identity', 'Woman');
+    await setFieldInput('egg-parent.gender_identity', 'Woman/girl');
 
     await setFieldInput('sperm-parent.is-donor', true);
 
-    await setFieldInput('sperm-parent.gender_identity', 'Man');
+    await setFieldInput('sperm-parent.gender_identity', 'Man/boy');
 
     // Gestational carrier: Mum (not a surrogate — she is the intended mother)
     await setFieldInput('gestational-carrier.is-donor', false);
     await setFieldInput('gestational-carrier.name', 'Mum');
 
-    await setFieldInput('gestational-carrier.gender_identity', 'Woman');
+    await setFieldInput('gestational-carrier.gender_identity', 'Woman/girl');
     await clickContinue();
 
     // OtherParentsStep: no additional parents (Mum is the gestational carrier)
@@ -827,12 +827,12 @@ export const WithPartnerAndChildren: ScenarioStory = {
     await setFieldInput('egg-parent.name', 'Linda');
     await setFieldInput('egg-parent.gestationalCarrier', true);
 
-    await setFieldInput('egg-parent.gender_identity', 'Woman');
+    await setFieldInput('egg-parent.gender_identity', 'Woman/girl');
 
     await setFieldInput('sperm-parent.is-donor', false);
     await setFieldInput('sperm-parent.name', 'Robert');
 
-    await setFieldInput('sperm-parent.gender_identity', 'Man');
+    await setFieldInput('sperm-parent.gender_identity', 'Man/boy');
     await clickContinue();
 
     await setFieldInput('hasOtherParents', false);
@@ -847,15 +847,15 @@ export const WithPartnerAndChildren: ScenarioStory = {
     // Partner and children
     await setFieldInput('hasPartner', true);
     await setFieldInput('partner.name', 'Jennifer');
-    await setFieldInput('partner.gender_identity', 'Woman');
+    await setFieldInput('partner.gender_identity', 'Woman/girl');
     await setFieldInput('childrenWithPartnerCount', 2);
     await clickContinue();
 
     // Children details
     await setFieldInput('childWithPartner[0].name', 'Daniel');
-    await setFieldInput('childWithPartner[0].gender_identity', 'Man');
+    await setFieldInput('childWithPartner[0].gender_identity', 'Man/boy');
     await setFieldInput('childWithPartner[1].name', 'Emma');
-    await setFieldInput('childWithPartner[1].gender_identity', 'Woman');
+    await setFieldInput('childWithPartner[1].gender_identity', 'Woman/girl');
     await clickContinue();
   },
 };
