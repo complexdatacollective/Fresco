@@ -61,6 +61,8 @@ services:
     networks:
       - fresco_network
 
+  # One-shot container that creates the default bucket after MinIO starts.
+  # Runs once and exits — it does not stay running.
   minio-init:
     image: minio/minio:latest
     depends_on:
