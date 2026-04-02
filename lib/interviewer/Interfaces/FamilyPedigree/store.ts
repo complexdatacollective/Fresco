@@ -31,7 +31,12 @@ export type StoreEdge = {
   target: string;
 } & (
   | {
-      relationshipType: 'biological' | 'social' | 'donor' | 'surrogate';
+      relationshipType:
+        | 'biological'
+        | 'social'
+        | 'donor'
+        | 'surrogate'
+        | 'adoptive';
       isActive: boolean;
       isGestationalCarrier?: boolean;
     }
@@ -40,7 +45,12 @@ export type StoreEdge = {
 
 export type CommitBatchEdgeData =
   | {
-      relationshipType: 'biological' | 'social' | 'donor' | 'surrogate';
+      relationshipType:
+        | 'biological'
+        | 'social'
+        | 'donor'
+        | 'surrogate'
+        | 'adoptive';
       isActive: boolean;
       isGestationalCarrier?: boolean;
     }

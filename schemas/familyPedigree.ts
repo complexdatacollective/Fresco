@@ -12,7 +12,13 @@ import { z } from 'zod';
 //                Also used when a person is both egg donor AND gestational carrier
 //                (traditional surrogacy), per the paper's recommendation.
 //   surrogate  — gestational carrier only, not providing gametes ("S" label)
-const ParentTypeSchema = z.enum(['biological', 'social', 'donor', 'surrogate']);
+const ParentTypeSchema = z.enum([
+  'biological',
+  'social',
+  'donor',
+  'surrogate',
+  'adoptive',
+]);
 
 export const ParentEdgeSchema = z.object({
   relationshipType: ParentTypeSchema,

@@ -39,7 +39,11 @@ type PedigreeGraph = {
 };
 
 function isPrimaryEdge(edgeType: ParentEdgeType): boolean {
-  return edgeType === 'biological' || edgeType === 'social';
+  return (
+    edgeType === 'biological' ||
+    edgeType === 'social' ||
+    edgeType === 'adoptive'
+  );
 }
 
 function isAuxiliaryEdge(edgeType: ParentEdgeType): boolean {

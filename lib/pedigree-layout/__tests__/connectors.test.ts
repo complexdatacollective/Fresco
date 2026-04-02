@@ -663,6 +663,51 @@ describe('computeConnectors', () => {
     expect(inactiveLine!.slashSide).toBe('left');
   });
 
+  it('treats adoptive edges as primary', () => {
+    // adoptiveMom(0) + adoptiveDad(1) as couple, bioMom(2) separate, child(3)
+    const adoptiveLayout: PedigreeLayout = {
+      n: [3, 1],
+      nid: [
+        [0, 1, 2],
+        [3, 0, 0],
+      ],
+      pos: [
+        [0, 1, 3],
+        [0.5, 0, 0],
+      ],
+      fam: [
+        [0, 0, 0],
+        [1, 0, 0],
+      ],
+      group: [
+        [1, 0, 0],
+        [0, 0, 0],
+      ],
+      twins: null,
+      groupMember: [
+        [false, false, false],
+        [false, false, false],
+      ],
+    };
+    const adoptiveParents: ParentConnection[][] = [
+      [],
+      [],
+      [],
+      [
+        { parentIndex: 0, edgeType: 'adoptive' },
+        { parentIndex: 1, edgeType: 'adoptive' },
+        { parentIndex: 2, edgeType: 'biological' },
+      ],
+    ];
+    const connectors = computeConnectors(
+      adoptiveLayout,
+      scaling,
+      adoptiveParents,
+    );
+    expect(connectors.parentChildLines.length).toBeGreaterThan(0);
+    expect(connectors.parentChildLines[0]!.edgeType).toBe('adoptive');
+  });
+
   it('uses standard parent link (not diagonal joins) for inactive partnerships', () => {
     // Two parents, inactive partnership, one child
     const inactiveLayout: PedigreeLayout = {

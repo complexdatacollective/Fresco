@@ -1,4 +1,9 @@
-export type ParentEdgeType = 'biological' | 'social' | 'donor' | 'surrogate';
+export type ParentEdgeType =
+  | 'biological'
+  | 'social'
+  | 'donor'
+  | 'surrogate'
+  | 'adoptive';
 
 export type ParentConnection = {
   parentIndex: number;

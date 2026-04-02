@@ -102,6 +102,7 @@ const FamilyPedigreeStageMetadataSchema = z.object({
             'social',
             'donor',
             'surrogate',
+            'adoptive',
           ]),
           isActive: z.boolean(),
           isGestationalCarrier: z.optional(z.boolean()),
