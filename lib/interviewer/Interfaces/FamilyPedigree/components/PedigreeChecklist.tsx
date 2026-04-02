@@ -152,6 +152,16 @@ export default function PedigreeChecklist({
 
       if (!nameKnown) continue;
 
+      const edgeToEgo = [...edges.values()].find(
+        (e) => e.source === parentId && e.target === egoId,
+      );
+      if (
+        edgeToEgo?.relationshipType === 'donor' ||
+        edgeToEgo?.relationshipType === 'surrogate'
+      ) {
+        continue;
+      }
+
       const parentName = rawName;
       const grandparentCount = [...edges.values()].filter(
         (e) =>
