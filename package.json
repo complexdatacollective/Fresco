@@ -184,7 +184,7 @@
     "playwright": "^1.58.2",
     "prettier": "^3.8.1",
     "prettier-plugin-tailwindcss": "^0.7.2",
-    "prisma": "^7.5.0",
+    "prisma": "^7.6.0",
     "sass": "^1.98.0",
     "sass-embedded": "^1.98.0",
     "storybook": "^10.3.3",
