@@ -32,6 +32,15 @@ services:
   # Optional: S3-compatible storage using MinIO.
   # If you prefer UploadThing, remove this service and configure
   # UploadThing during Fresco setup instead.
+  #
+  # During Fresco setup, select "S3 / S3-Compatible" and use:
+  #   Endpoint URL:      http://minio:9000
+  #   Bucket Name:       fresco  (create via the console first)
+  #   Region:            us-east-1
+  #   Access Key ID:     value of MINIO_ROOT_USER (default: minioadmin)
+  #   Secret Access Key: value of MINIO_ROOT_PASSWORD (default: minioadmin)
+  #
+  # MinIO console is available at http://localhost:9001
   minio:
     image: minio/minio:latest
     restart: always
