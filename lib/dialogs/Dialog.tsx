@@ -137,7 +137,7 @@ const DialogFooter = ({
   return (
     <footer
       className={cx(
-        'phone-landscape:flex-row phone-landscape:justify-between mt-4 flex flex-col gap-2',
+        'phone-landscape:flex-row phone-landscape:justify-between phone-landscape:[&>:only-child]:ml-auto mt-4 flex flex-col gap-2',
         children && 'mt-6',
         surfaceSpacingVariants({ section: 'footer' }),
         className,
