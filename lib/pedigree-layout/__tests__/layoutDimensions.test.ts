@@ -10,9 +10,9 @@ describe('computeLayoutMetrics', () => {
     nodeHeight: 100,
   };
 
-  test('derives rowGap as 60% of nodeHeight', () => {
+  test('derives rowGap as 100% of nodeHeight', () => {
     const metrics = computeLayoutMetrics(dims);
-    expect(metrics.rowGap).toBe(Math.round(100 * 0.6));
+    expect(metrics.rowGap).toBe(Math.round(100 * 1));
   });
 
   test('derives columnGap as 60% of nodeWidth', () => {
@@ -53,7 +53,7 @@ describe('computeLayoutMetrics', () => {
       nodeHeight: 80,
     };
     const metrics = computeLayoutMetrics(small);
-    expect(metrics.rowGap).toBe(Math.round(80 * 0.6));
+    expect(metrics.rowGap).toBe(Math.round(80 * 1));
     expect(metrics.columnGap).toBe(Math.round(50 * 0.6));
   });
 
