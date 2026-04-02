@@ -807,7 +807,13 @@ function encodePedigreeLayout(
     const layerN = n[layer]!;
     if (layerN === 0) continue;
     const childLayer = layer + 1;
-    if (childLayer >= maxLayer || n[childLayer]! === 0) continue;
+    const childLayerCount = n[childLayer];
+    if (
+      childLayer >= maxLayer ||
+      childLayerCount === undefined ||
+      childLayerCount === 0
+    )
+      continue;
 
     const layerNodes = nid[layer]!.slice(0, layerN);
 
@@ -944,8 +950,8 @@ function encodePedigreeLayout(
     let globalMin = 0;
     for (let layer = 0; layer < maxLayer; layer++) {
       const layerPos = pos[layer]!;
-      for (let col = 0; col < layerPos.length; col++) {
-        if (layerPos[col]! < globalMin) globalMin = layerPos[col]!;
+      for (const val of layerPos) {
+        if (val < globalMin) globalMin = val;
       }
     }
     if (globalMin < 0) {
@@ -1128,8 +1134,6 @@ function sugiyamaLayout(ped: PedigreeInput): PedigreeLayout {
 export {
   buildPedigreeGraph,
   countCrossings,
-  encodePedigreeLayout,
   minimizeCrossings,
   sugiyamaLayout,
 };
-export type { PedigreeGraph, PartnerGroup, FamilyUnit, SiblingGroup };

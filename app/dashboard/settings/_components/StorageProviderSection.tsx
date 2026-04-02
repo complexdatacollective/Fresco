@@ -11,7 +11,7 @@ export default async function StorageProviderSection() {
   const [
     storageProvider,
     uploadThingKey,
-    protocolsExist,
+    ,
     s3Endpoint,
     s3Bucket,
     s3Region,

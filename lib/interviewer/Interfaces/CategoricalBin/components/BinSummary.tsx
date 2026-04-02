@@ -8,7 +8,7 @@ type BinSummaryProps = {
 
 const BinSummary = ({ nodes }: BinSummaryProps) => {
   const firstNode = nodes[0];
-  const label = useNodeLabel(firstNode!);
+  const label = useNodeLabel(firstNode);
   const count = nodes.length - 1;
 
   return (

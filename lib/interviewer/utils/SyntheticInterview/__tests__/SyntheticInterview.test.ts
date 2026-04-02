@@ -680,7 +680,7 @@ describe('SyntheticInterview', () => {
           { label: 'Child', value: 'child' },
         ],
       });
-      const _sexVar = nt.addVariable({
+      nt.addVariable({
         type: 'categorical',
         name: 'Sex',
         options: [

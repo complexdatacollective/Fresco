@@ -349,32 +349,6 @@ export function resolveNodeShape(
   return shapeDef.default;
 }
 
-export const getNodeShapeDefinition = createSelector(
-  getCodebook,
-  getSubjectType,
-  (codebook, nodeType): NodeDefinition['shape'] | null => {
-    if (!nodeType) return null;
-    return codebook.node?.[nodeType]?.shape ?? null;
-  },
-);
-
-/**
- * Selector for returning node attributes based on entityPrimaryKeyProperty
- */
-export const makeGetNodeAttributesById = createSelector(
-  getNetworkNodes,
-  (nodes) => (nodeId: NcNode[EntityPrimaryKey]) => {
-    if (!nodes) {
-      return null;
-    }
-
-    const node = nodes.find(
-      (node) => node[entityPrimaryKeyProperty] === nodeId,
-    );
-    return node?.[entityAttributesProperty] ?? null;
-  },
-);
-
 const getEdgeColor = createSelector(
   getCodebook,
   getStageSubject,

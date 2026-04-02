@@ -14,11 +14,7 @@ import { openAddParentWizard } from '~/lib/interviewer/Interfaces/FamilyPedigree
 import { openAddSiblingWizard } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/wizards/AddSiblingWizard';
 import { openDefineParentsWizard } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/wizards/DefineParentsWizard';
 import { useFamilyPedigreeStore } from '~/lib/interviewer/Interfaces/FamilyPedigree/FamilyPedigreeProvider';
-import {
-  type NodeData,
-  type StoreEdge,
-  type VariableConfig,
-} from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import {
   getIsActiveVariable,
   getIsGestationalCarrierVariable,
@@ -45,7 +41,6 @@ export default function PedigreeView() {
   const addEdge = useFamilyPedigreeStore((s) => s.addEdge);
   const updateNode = useFamilyPedigreeStore((s) => s.updateNode);
   const removeNode = useFamilyPedigreeStore((s) => s.removeNode);
-  const clearNetwork = useFamilyPedigreeStore((s) => s.clearNetwork);
   const commitBatch = useFamilyPedigreeStore((s) => s.commitBatch);
 
   const nodeLabelVariable = useSelector(getNodeLabelVariable);

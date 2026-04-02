@@ -760,21 +760,6 @@ it('adoption by relative: no duplicate group lines', () => {
 
   const conn = computeConnectors(result, defaultScaling, ped.parents);
 
-  // Log for debugging
-  console.log('Group lines:', conn.groupLines.length);
-  for (const gl of conn.groupLines) {
-    console.log(
-      `  ${gl.segment.x1.toFixed(2)} -> ${gl.segment.x2.toFixed(2)} active=${gl.isActive} double=${gl.double}`,
-    );
-  }
-  console.log('Parent-child lines:', conn.parentChildLines.length);
-  console.log('Auxiliary lines:', conn.auxiliaryLines.length);
-  for (const al of conn.auxiliaryLines) {
-    console.log(
-      `  ${al.edgeType}: (${al.segment.x1.toFixed(2)},${al.segment.y1.toFixed(2)}) -> (${al.segment.x2.toFixed(2)},${al.segment.y2.toFixed(2)})`,
-    );
-  }
-
   // There should be exactly 2 group lines (grandpa+grandma, aunt+uncle)
   expect(conn.groupLines.length).toBe(2);
 });

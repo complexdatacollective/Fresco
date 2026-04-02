@@ -40,19 +40,6 @@ export type Hints = {
   groups?: GroupHint[];
 };
 
-// [member indices..., anchorSide, anchorType]
-// Variable length — first N-2 elements are member indices
-export type GroupEntry = number[];
-
-// Internal alignment result passed between alignped functions
-export type AlignmentArrays = {
-  n: number[]; // count of subjects per generation
-  nid: number[][]; // person indices (row=gen, col=pos); .5 = group member marker
-  pos: number[][]; // horizontal positions
-  fam: number[][]; // parent family linkage
-  grouplist: GroupEntry[];
-};
-
 // Public output from alignPedigree
 export type PedigreeLayout = {
   n: number[];

@@ -75,7 +75,7 @@ export default function PedigreeLayout({
     );
 
     return { positions, connectorData };
-  }, [nodes, edges, dimensions]);
+  }, [nodes, edges, dimensions, nodeLabelVariable]);
 
   const bioRelatives = useMemo(() => {
     const egoEntry = [...nodes.entries()].find(([, n]) => n.isEgo);
