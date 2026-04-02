@@ -48,7 +48,7 @@ test.describe('Settings Page', () => {
   });
 
   test('displays configuration section', async ({ page }) => {
-    await expect(page.getByTestId('configuration-card')).toBeVisible();
+    await expect(page.getByTestId('app-details-card')).toBeVisible();
   });
 
   test('displays interview settings section', async ({ page }) => {
