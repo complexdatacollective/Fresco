@@ -16,7 +16,7 @@ export default function FormErrors({ errors, className }: FormErrorsProps) {
         className,
       )}
     >
-      <div className="flex gap-2">
+      <div className="flex gap-2 align-middle">
         <AlertCircle className="text-destructive size-5 shrink-0" />
         <div className="space-y-1">
           {errors.map((error, index) => (

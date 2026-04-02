@@ -93,7 +93,7 @@ export const sliderTickStyles = cx(
 // Base variants for all 'control' like components (inputs, buttons, etc)
 export const controlVariants = cva({
   base: cx(
-    'flex min-w-auto items-center justify-between',
+    'flex min-w-fit items-center justify-between',
     'overflow-hidden',
     'truncate text-nowrap',
     'rounded',
