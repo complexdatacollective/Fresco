@@ -8,7 +8,6 @@ import { cx } from '~/utils/cva';
 import ConfigureStorage from '../_components/OnboardSteps/ConfigureStorage';
 import CreateAccount from '../_components/OnboardSteps/CreateAccount';
 import Documentation from '../_components/OnboardSteps/Documentation';
-import ManageParticipants from '../_components/OnboardSteps/ManageParticipants';
 import UploadProtocol from '../_components/OnboardSteps/UploadProtocol';
 import OnboardSteps from '../_components/Sidebar';
 import type { SetupData } from './page';
@@ -28,15 +27,6 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
     {
       label: 'Upload Protocol',
       component: UploadProtocol,
-    },
-    {
-      label: 'Configure Participation',
-      component: () => (
-        <ManageParticipants
-          allowAnonymousRecruitment={setupData.allowAnonymousRecruitment}
-          limitInterviews={setupData.limitInterviews}
-        />
-      ),
     },
     {
       label: 'Documentation',
