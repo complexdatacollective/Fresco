@@ -18,7 +18,7 @@ export const S3ConfigForm = () => {
       return {
         success: false as const,
         fieldErrors: result.fieldErrors ?? {},
-        error: 'error' in result ? result.error : undefined,
+        formErrors: 'error' in result && result.error ? [result.error] : [],
       };
     }
 
@@ -27,7 +27,7 @@ export const S3ConfigForm = () => {
   };
 
   return (
-    <Form onSubmit={handleSubmit} className="flex w-full flex-col gap-4">
+    <Form onSubmit={handleSubmit}>
       <Field
         name="s3Endpoint"
         label="Endpoint URL"

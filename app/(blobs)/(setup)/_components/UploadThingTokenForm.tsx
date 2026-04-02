@@ -22,9 +22,14 @@ export const UploadThingTokenForm = () => {
       };
     }
 
-    await setStorageProvider('uploadthing');
+    const providerResult = await setStorageProvider('uploadthing');
+    if (!providerResult.success) {
+      return {
+        success: false as const,
+        formErrors: [providerResult.error ?? 'Failed to set storage provider.'],
+      };
+    }
 
-    // Navigate to step 3 (Upload Protocol)
     router.push('/setup?step=3');
 
     return {
