@@ -1,4 +1,5 @@
 import { type Locator, type Page, expect } from '@playwright/test';
+import { expectURL } from '~/tests/e2e/helpers/expectations.js';
 
 type CaptureOptions = {
   mask?: Locator[];
@@ -121,6 +122,35 @@ export class InterviewFixture {
       await this.capture(`${prefix}stage-${step}-final`, captureOptions);
     }
     await this.nextButton.click();
+  }
+
+  /**
+   * Complete the FinishSession stage: click Finish, confirm the dialog,
+   * and verify redirect to the finished page.
+   *
+   * Expects the page to already be on the FinishSession stage
+   */
+  async finishInterview(): Promise<void> {
+    // Verify we're on the FinishSession stage
+    await expect(
+      this.page.getByRole('heading', { name: 'Finish Interview' }),
+    ).toBeVisible();
+
+    // Click the Finish button
+    await this.page.getByRole('button', { name: 'Finish' }).click();
+
+    // Confirmation dialog appears
+    const dialog = this.page.getByRole('dialog');
+    await expect(dialog).toBeVisible();
+
+    // Confirm finish
+    await dialog.getByRole('button', { name: 'Finish Interview' }).click();
+
+    // Should redirect to finished page
+    await expectURL(this.page, /\/interview\/finished/);
+    await expect(
+      this.page.getByRole('heading', { name: 'Thank you for participating!' }),
+    ).toBeVisible();
   }
 
   /**

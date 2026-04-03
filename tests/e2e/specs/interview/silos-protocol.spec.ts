@@ -498,9 +498,7 @@ test.describe('SILOS Protocol', () => {
       await interview.nextButton.click();
 
       // Verify we're on the second prompt (drug use)
-      await expect(
-        stage.getPrompt(/marijuana|drugs/i),
-      ).toBeVisible();
+      await expect(stage.getPrompt(/marijuana|drugs/i)).toBeVisible();
 
       // --- Test drag and drop from side panel ---
       // The side panel should show previously added nodes
@@ -849,9 +847,7 @@ test.describe('SILOS Protocol', () => {
 
       // ========== PROMPT 3: Race/Ethnicity ==========
       await interview.nextButton.click();
-      await expect(
-        stage.getPrompt(/race|ethnic/i),
-      ).toBeVisible();
+      await expect(stage.getPrompt(/race|ethnic/i)).toBeVisible();
 
       // Verify bins
       await expect(stage.categoricalBin.getBin('White')).toBeVisible();
@@ -872,9 +868,7 @@ test.describe('SILOS Protocol', () => {
 
       // ========== PROMPT 4: Sexual Identity ==========
       await interview.nextButton.click();
-      await expect(
-        stage.getPrompt(/sexual identity/i),
-      ).toBeVisible();
+      await expect(stage.getPrompt(/sexual identity/i)).toBeVisible();
 
       // Verify bins
       await expect(stage.categoricalBin.getBin('Gay')).toBeVisible();
@@ -910,10 +904,7 @@ test.describe('SILOS Protocol', () => {
       ).toBeVisible();
 
       // Drag nodes to bins — Dan and Alice live in Chicago, Bob and Evan do not
-      await stage.categoricalBin.dragNodeToBin(
-        'Dan',
-        'Yes, lives in Chicago',
-      );
+      await stage.categoricalBin.dragNodeToBin('Dan', 'Yes, lives in Chicago');
       await stage.categoricalBin.dragNodeToBin(
         'Alice',
         'Yes, lives in Chicago',
@@ -978,20 +969,28 @@ test.describe('SILOS Protocol', () => {
       await interview.goto(19);
 
       // This geospatial stage iterates over nodes that live in Chicago (Dan, Alice)
+
+      // --- Node 1 (first Chicago alter) ---
       await expect(stage.getPrompt()).toBeVisible();
       await expect(stage.geospatial.mapContainer).toBeVisible();
-
-      // Wait for map to load
       await stage.geospatial.waitForMapLoad();
-
-      // Click on map to select an area for the first node
       await stage.geospatial.clickOnMap(0.5, 0.5);
-
-      // Wait for pulse to indicate selection
       await expect
         .poll(() => interview.nextButtonHasPulse(), { timeout: 5000 })
         .toBe(true);
 
+      // Click next — beforeNext advances to node 2 (stays in stage)
+      await interview.nextButton.click();
+
+      // --- Node 2 (second Chicago alter) ---
+      await expect(stage.geospatial.mapContainer).toBeVisible();
+      await stage.geospatial.waitForMapLoad();
+      await stage.geospatial.clickOnMap(0.5, 0.5);
+      await expect
+        .poll(() => interview.nextButtonHasPulse(), { timeout: 5000 })
+        .toBe(true);
+
+      // Click next — last node, exits stage
       await expect(interview.nextButton).toBeEnabled();
       await interview.next();
     });
@@ -1050,9 +1049,7 @@ test.describe('SILOS Protocol', () => {
       await stage.categoricalBin.dragNodeToBin('Bob', 'Anal sex');
       await stage.categoricalBin.dragNodeToBin('Evan', 'Anal sex');
 
-      expect(
-        await stage.categoricalBin.getNodeCountInBin('Anal sex'),
-      ).toBe(2);
+      expect(await stage.categoricalBin.getNodeCountInBin('Anal sex')).toBe(2);
 
       await expect(interview.nextButton).toBeEnabled();
 
@@ -1076,29 +1073,17 @@ test.describe('SILOS Protocol', () => {
 
       // Slide 1 (first sex partner with anal sex — Bob or Evan)
       // 1. Number of times anal sex (Number)
-      await stage.form.fillNumber(
-        'a61f8d2d-f3d1-4c4d-9236-34e709effb9f',
-        '5',
-      );
+      await stage.form.fillNumber('a61f8d2d-f3d1-4c4d-9236-34e709effb9f', '5');
 
       // 2. Number of times without condom (Number — lessThanVariable validation)
-      await stage.form.fillNumber(
-        '315d540c-92fe-4acd-81c7-0b6ea2dacc17',
-        '2',
-      );
+      await stage.form.fillNumber('315d540c-92fe-4acd-81c7-0b6ea2dacc17', '2');
 
       // Advance to next slide
       await interview.nextButton.click();
 
       // Slide 2 (second sex partner with anal sex)
-      await stage.form.fillNumber(
-        'a61f8d2d-f3d1-4c4d-9236-34e709effb9f',
-        '3',
-      );
-      await stage.form.fillNumber(
-        '315d540c-92fe-4acd-81c7-0b6ea2dacc17',
-        '1',
-      );
+      await stage.form.fillNumber('a61f8d2d-f3d1-4c4d-9236-34e709effb9f', '3');
+      await stage.form.fillNumber('315d540c-92fe-4acd-81c7-0b6ea2dacc17', '1');
 
       // Submit last slide to flush form data to Redux
       await interview.next();
@@ -1349,10 +1334,7 @@ test.describe('SILOS Protocol', () => {
       await interview.next();
     });
 
-    test('Stage 31: Name App Met (AlterForm)', async ({
-      interview,
-      stage,
-    }) => {
+    test('Stage 31: Name App Met (AlterForm)', async ({ interview, stage }) => {
       await interview.goto(31);
 
       // Only shows partners who met online
@@ -1506,9 +1488,7 @@ test.describe('SILOS Protocol', () => {
       );
       await stage.categoricalBin.dragNodeToBin('Club X', 'Bar/Club');
 
-      expect(
-        await stage.categoricalBin.getNodeCountInBin('Bar/Club'),
-      ).toBe(2);
+      expect(await stage.categoricalBin.getNodeCountInBin('Bar/Club')).toBe(2);
 
       await expect(interview.nextButton).toBeEnabled();
       await interview.next();
@@ -1543,18 +1523,23 @@ test.describe('SILOS Protocol', () => {
 
       await interview.goto(40);
 
-      await expect(stage.getPrompt()).toBeVisible();
-      await expect(stage.geospatial.mapContainer).toBeVisible();
+      // 4 venues: The Bar, Boystown, Lakeshore, Club X
+      for (let i = 0; i < 4; i++) {
+        await expect(stage.getPrompt()).toBeVisible();
+        await expect(stage.geospatial.mapContainer).toBeVisible();
+        await stage.geospatial.waitForMapLoad();
+        await stage.geospatial.clickOnMap(0.5, 0.5);
+        await expect
+          .poll(() => interview.nextButtonHasPulse(), { timeout: 5000 })
+          .toBe(true);
 
-      await stage.geospatial.waitForMapLoad();
+        if (i < 3) {
+          // Advance to next node (stays in stage)
+          await interview.nextButton.click();
+        }
+      }
 
-      // Click on map to select area for first venue
-      await stage.geospatial.clickOnMap(0.5, 0.5);
-
-      await expect
-        .poll(() => interview.nextButtonHasPulse(), { timeout: 5000 })
-        .toBe(true);
-
+      // Exit stage on last node
       await expect(interview.nextButton).toBeEnabled();
       await interview.next();
     });
@@ -1672,11 +1657,7 @@ test.describe('SILOS Protocol', () => {
       await interview.next();
     });
 
-    test('Stage 46: App Nomination', async ({
-      interview,
-      stage,
-      protocol,
-    }) => {
+    test('Stage 46: App Nomination', async ({ interview, stage, protocol }) => {
       await interview.goto(46);
 
       await expect(stage.getPrompt()).toBeVisible();
@@ -1901,6 +1882,17 @@ test.describe('SILOS Protocol', () => {
       // Submit form to flush data to Redux
       await interview.next();
     });
+
+    test('Finish Interview', async ({ interview, database }) => {
+      await interview.goto(53);
+      await interview.finishInterview();
+
+      // Verify interview has finishTime set in database
+      const finishedInterview = await database.prisma.interview.findUnique({
+        where: { id: interviewId },
+      });
+      expect(finishedInterview?.finishTime).not.toBeNull();
+    });
   }); // End of Happy Path describe
 
   /**
@@ -2069,7 +2061,10 @@ test.describe('SILOS Protocol', () => {
       );
     });
 
-    test('Stage 5: Ineligibility Notice', async ({ page, interview }) => {
+    test('Stage 5: Ineligibility Notice and Finish Interview', async ({
+      page,
+      interview,
+    }) => {
       await interview.goto(5);
 
       await expect(
@@ -2080,8 +2075,14 @@ test.describe('SILOS Protocol', () => {
       await interview.next();
     });
 
-    test.fixme('Skip to End and Finish Interview', async () => {
-      // TODO: proceed to end and verify end screen, verify finish interview
+    test('Finish interview', async ({ interview, database }) => {
+      await interview.goto(53);
+      await interview.finishInterview();
+      // Verify interview has finishTime set in database
+      const finishedInterview = await database.prisma.interview.findUnique({
+        where: { id: interviewId },
+      });
+      expect(finishedInterview?.finishTime).not.toBeNull();
     });
   }); // End of Female Ineligibility Path describe
 });
