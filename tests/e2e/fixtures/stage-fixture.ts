@@ -703,34 +703,19 @@ class GeospatialFixture {
   }
 
   /**
-   * Wait for the Mapbox map to be fully loaded with all layers.
-   * Checks for the data-map-loaded attribute which indicates all layers are ready.
+   * Wait for the map to reach idle state — all tiles rendered and all
+   * animations/transitions completed. Use this before taking snapshots
+   * or after any map interaction (zoom, fly-to, search selection).
    */
-  async waitForMapLoad(): Promise<void> {
-    // First wait for the canvas to render
+  async waitForMapIdle(): Promise<void> {
     const canvas = this.mapContainer.locator('canvas.mapboxgl-canvas');
     await expect(canvas).toBeVisible({ timeout: 30000 });
-
-    // Then wait for all layers to be loaded (data-map-loaded="true")
     await expect(this.mapContainer).toHaveAttribute('data-map-loaded', 'true', {
       timeout: 30000,
     });
-  }
-
-  /**
-   * Check if the map has fully loaded with all layers.
-   */
-  async isMapLoaded(): Promise<boolean> {
-    const attr = await this.mapContainer.getAttribute('data-map-loaded');
-    return attr === 'true';
-  }
-
-  /**
-   * Wait for the map canvas to be visible (basic map render, not layers).
-   */
-  async waitForMapCanvas(): Promise<void> {
-    const canvas = this.mapContainer.locator('canvas.mapboxgl-canvas');
-    await expect(canvas).toBeVisible({ timeout: 30000 });
+    await expect(this.mapContainer).toHaveAttribute('data-map-idle', 'true', {
+      timeout: 30000,
+    });
   }
 
   /**
@@ -755,6 +740,8 @@ class GeospatialFixture {
         .poll(() => this.getZoomLevel(), { timeout: 3000 })
         .toBeGreaterThan(zoomBefore);
     }
+
+    await this.waitForMapIdle();
   }
 
   /**
@@ -770,6 +757,8 @@ class GeospatialFixture {
         .poll(() => this.getZoomLevel(), { timeout: 3000 })
         .toBeLessThan(zoomBefore);
     }
+
+    await this.waitForMapIdle();
   }
 
   /**
@@ -777,8 +766,7 @@ class GeospatialFixture {
    */
   async recenter(): Promise<void> {
     await this.recenterButton.click();
-    // Wait for pan/zoom animation
-    await this.page.waitForTimeout(500);
+    await this.waitForMapIdle();
   }
 
   /**
@@ -858,8 +846,7 @@ class GeospatialFixture {
     const suggestion = this.page.getByRole('option', { name: text });
     await expect(suggestion).toBeVisible();
     await suggestion.click();
-    // Wait for map to fly to location
-    await this.page.waitForTimeout(1000);
+    await this.waitForMapIdle();
   }
 
   /**

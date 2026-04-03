@@ -131,6 +131,7 @@ export default function GeospatialInterface({
     mapRef,
     accessToken,
     isMapLoaded,
+    isMapIdle,
     zoomLevel,
     handleResetMapZoom,
     handleZoomIn,
@@ -237,6 +238,7 @@ export default function GeospatialInterface({
         variants={fadeVariants}
         data-testid="map-container"
         data-map-loaded={isMapLoaded}
+        data-map-idle={isMapIdle}
         data-zoom-level={zoomLevel}
       >
         {/* if outside-selectable-areas, add an overlay */}

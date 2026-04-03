@@ -18,6 +18,10 @@ const SILOS_PROTOCOL_PATH = path.resolve(
 let sharedProtocolId: string;
 
 test.describe('SILOS Protocol', () => {
+  // Run all nested suites in one worker to prevent parallel workers from
+  // calling restoreSnapshot() and wiping each other's dynamically installed protocols.
+  test.describe.configure({ mode: 'serial' });
+
   // Install protocol once for all nested suites
   test.beforeAll(async ({ database, protocol }) => {
     await database.restoreSnapshot();
@@ -263,8 +267,7 @@ test.describe('SILOS Protocol', () => {
       await expect(stage.geospatial.getNode('Me')).toBeVisible();
 
       // --- Wait for map to fully load with all layers ---
-      await stage.geospatial.waitForMapLoad();
-      expect(await stage.geospatial.isMapLoaded()).toBe(true);
+      await stage.geospatial.waitForMapIdle();
 
       // --- Test zoom controls ---
       await expect(stage.geospatial.zoomInButton).toBeVisible();
@@ -973,7 +976,7 @@ test.describe('SILOS Protocol', () => {
       // --- Node 1 (first Chicago alter) ---
       await expect(stage.getPrompt()).toBeVisible();
       await expect(stage.geospatial.mapContainer).toBeVisible();
-      await stage.geospatial.waitForMapLoad();
+      await stage.geospatial.waitForMapIdle();
       await stage.geospatial.clickOnMap(0.5, 0.5);
       await expect
         .poll(() => interview.nextButtonHasPulse(), { timeout: 5000 })
@@ -984,7 +987,7 @@ test.describe('SILOS Protocol', () => {
 
       // --- Node 2 (second Chicago alter) ---
       await expect(stage.geospatial.mapContainer).toBeVisible();
-      await stage.geospatial.waitForMapLoad();
+      await stage.geospatial.waitForMapIdle();
       await stage.geospatial.clickOnMap(0.5, 0.5);
       await expect
         .poll(() => interview.nextButtonHasPulse(), { timeout: 5000 })
@@ -1527,7 +1530,7 @@ test.describe('SILOS Protocol', () => {
       for (let i = 0; i < 4; i++) {
         await expect(stage.getPrompt()).toBeVisible();
         await expect(stage.geospatial.mapContainer).toBeVisible();
-        await stage.geospatial.waitForMapLoad();
+        await stage.geospatial.waitForMapIdle();
         await stage.geospatial.clickOnMap(0.5, 0.5);
         await expect
           .poll(() => interview.nextButtonHasPulse(), { timeout: 5000 })
@@ -1758,7 +1761,7 @@ test.describe('SILOS Protocol', () => {
       await expect(stage.getPrompt()).toBeVisible();
       await expect(stage.geospatial.mapContainer).toBeVisible();
 
-      await stage.geospatial.waitForMapLoad();
+      await stage.geospatial.waitForMapIdle();
 
       // Click on map to select area for the healthcare provider
       await stage.geospatial.clickOnMap(0.5, 0.5);

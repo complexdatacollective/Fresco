@@ -116,6 +116,7 @@ export const useMapbox = ({
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const [isMapIdle, setIsMapIdle] = useState(false);
   const [zoomLevel, setZoomLevel] = useState<number>(initialZoom);
 
   // get token value from asset manifest, using id
@@ -318,6 +319,15 @@ export const useMapbox = ({
       }
     });
 
+    // Track map idle state for e2e tests — idle means all tiles are
+    // rendered and all animations/transitions have completed.
+    mapRef.current.on('idle', () => {
+      setIsMapIdle(true);
+    });
+    mapRef.current.on('movestart', () => {
+      setIsMapIdle(false);
+    });
+
     return () => {
       mapRef.current?.remove();
     };
@@ -446,6 +456,7 @@ export const useMapbox = ({
     mapRef,
     accessToken,
     isMapLoaded,
+    isMapIdle,
     zoomLevel,
     handleResetMapZoom,
     handleZoomIn,

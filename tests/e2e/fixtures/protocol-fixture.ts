@@ -513,7 +513,9 @@ export class ProtocolFixture {
   }
 
   async uninstall(protocolId: string): Promise<void> {
-    await this.prisma.protocol.delete({
+    // Use deleteMany to avoid throwing if the record was already removed
+    // (e.g., by restoreSnapshot() truncating all tables).
+    await this.prisma.protocol.deleteMany({
       where: { id: protocolId },
     });
 

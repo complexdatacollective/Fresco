@@ -573,7 +573,7 @@ Map-based location selection.
 
 #### Interactions
 
-1. Wait for map: `stage.geospatial.waitForMapLoad()`
+1. Wait for map: `stage.geospatial.waitForMapIdle()`
 2. Zoom: `stage.geospatial.zoomIn()`, `stage.geospatial.zoomOut()`
 3. Recenter: `stage.geospatial.recenter()`
 4. Search: `stage.geospatial.search('query')`
@@ -589,7 +589,7 @@ Map-based location selection.
 
 #### Edge Cases
 
-- **Map loading**: Must `waitForMapLoad()` before interacting — map loads layers asynchronously (up to 30s timeout)
+- **Map loading**: Must `waitForMapIdle()` before interacting — waits for layers, tiles, and animations to complete (up to 30s timeout)
 - **Multi-node**: Iterates through nodes (one location per node per prompt)
 - **Search debounce**: Search API calls are debounced — suggestions may take time to appear
 - **Mapbox token**: Requires valid API key — may need mocking in tests
