@@ -1,5 +1,10 @@
 /* eslint-disable no-process-env */
-import { type ChildProcess, execSync, spawn } from 'node:child_process';
+import {
+  type ChildProcess,
+  execFileSync,
+  execSync,
+  spawn,
+} from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
@@ -60,13 +65,13 @@ export class AppServer {
     const staticSrc = path.join(PROJECT_ROOT, '.next/static');
     const staticDest = path.join(PROJECT_ROOT, '.next/standalone/.next/static');
     if (fs.existsSync(staticSrc) && !fs.existsSync(staticDest)) {
-      execSync(`cp -r "${staticSrc}" "${staticDest}"`, { stdio: 'pipe' });
+      execFileSync('cp', ['-r', staticSrc, staticDest], { stdio: 'pipe' });
     }
 
     const publicSrc = path.join(PROJECT_ROOT, 'public');
     const publicDest = path.join(PROJECT_ROOT, '.next/standalone/public');
     if (fs.existsSync(publicSrc) && !fs.existsSync(publicDest)) {
-      execSync(`cp -r "${publicSrc}" "${publicDest}"`, { stdio: 'pipe' });
+      execFileSync('cp', ['-r', publicSrc, publicDest], { stdio: 'pipe' });
     }
 
     // Clear cache in standalone
@@ -81,7 +86,7 @@ export class AppServer {
     safeStandaloneDir = fs.mkdtempSync(
       path.join(os.tmpdir(), 'e2e-standalone-'),
     );
-    execSync(`cp -r "${standaloneDir}/." "${safeStandaloneDir}"`, {
+    execFileSync('cp', ['-r', `${standaloneDir}/.`, safeStandaloneDir], {
       stdio: 'pipe',
     });
     log('setup', `Build completed (copied to ${safeStandaloneDir})`);
