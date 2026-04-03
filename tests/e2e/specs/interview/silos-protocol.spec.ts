@@ -592,10 +592,10 @@ test.describe('SILOS Protocol', () => {
       stage,
     }) => {
       // Sociogram has non-deterministic force-directed node layout
-      await interview.goto(13, { maxDiffPixelRatio: 0.1 });
-
-      // Verify the first prompt is visible (connect close ties)
-      await expect(stage.getPrompt()).toBeVisible();
+      await interview.goto(13, {
+        maxDiffPixelRatio: 0.1,
+        waitFor: stage.getPrompt(),
+      });
 
       // Verify nodes are visible on the canvas
       await expect(stage.sociogram.getNode('Dan')).toBeVisible();
@@ -660,10 +660,10 @@ test.describe('SILOS Protocol', () => {
 
     test('Stage 14: Sex Sociogram', async ({ interview, stage }) => {
       // Sociogram has non-deterministic force-directed node layout
-      await interview.goto(14, { maxDiffPixelRatio: 0.1 });
-
-      // Verify prompt is visible (connect sex partners who had sex with each other)
-      await expect(stage.getPrompt()).toBeVisible();
+      await interview.goto(14, {
+        maxDiffPixelRatio: 0.1,
+        waitFor: stage.getPrompt(),
+      });
 
       // Only sex partners should be visible (Bob and Evan)
       await expect(stage.sociogram.getNode('Bob')).toBeVisible();
@@ -1549,9 +1549,10 @@ test.describe('SILOS Protocol', () => {
       stage,
     }) => {
       // Sociogram has non-deterministic force-directed node layout
-      await interview.goto(41, { maxDiffPixelRatio: 0.1 });
-
-      await expect(stage.getPrompt()).toBeVisible();
+      await interview.goto(41, {
+        maxDiffPixelRatio: 0.1,
+        waitFor: stage.getPrompt(),
+      });
 
       // Verify venue nodes are visible on canvas
       await expect(stage.sociogram.getNode('The Bar')).toBeVisible();
