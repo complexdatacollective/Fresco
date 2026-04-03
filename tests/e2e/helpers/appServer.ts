@@ -1,11 +1,16 @@
 /* eslint-disable no-process-env */
 import { type ChildProcess, execSync, spawn } from 'node:child_process';
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { log, logError } from './logger.js';
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '../../../');
 const STANDALONE_SERVER = path.join(PROJECT_ROOT, '.next/standalone/server.js');
+
+// copy standalone build outside the bind-mount to avoid
+// potential race conditions when running in Docker.
+let safeStandaloneDir: string | null = null;
 
 // Port 4100+ avoids "Not allowed to use restricted network port" errors from
 // Playwright's WebKitGTK build on Linux (Docker).
@@ -70,7 +75,24 @@ export class AppServer {
       fs.rmSync(cacheDir, { recursive: true, force: true });
     }
 
-    log('setup', 'Build completed');
+    // Copy to temp directory (see module-level comment).
+    // Uses cp -r (not fs.cpSync) to preserve symlinks in node_modules.
+    const standaloneDir = path.join(PROJECT_ROOT, '.next/standalone');
+    safeStandaloneDir = fs.mkdtempSync(
+      path.join(os.tmpdir(), 'e2e-standalone-'),
+    );
+    execSync(`cp -r "${standaloneDir}/." "${safeStandaloneDir}"`, {
+      stdio: 'pipe',
+    });
+    log('setup', `Build completed (copied to ${safeStandaloneDir})`);
+  }
+
+  static cleanupBuild(): void {
+    if (safeStandaloneDir && fs.existsSync(safeStandaloneDir)) {
+      fs.rmSync(safeStandaloneDir, { recursive: true, force: true });
+      log('teardown', `Removed standalone copy at ${safeStandaloneDir}`);
+      safeStandaloneDir = null;
+    }
   }
 
   static async start(opts: {
@@ -78,11 +100,18 @@ export class AppServer {
     port?: number;
     databaseUrl: string;
   }): Promise<AppServer> {
+    if (!safeStandaloneDir) {
+      throw new Error(
+        'ensureBuild() must be called before start(). No standalone copy available.',
+      );
+    }
+
     const port = opts.port ?? allocatePort();
     log('setup', `Starting app server "${opts.suiteId}" on port ${port}...`);
 
-    const child = spawn('node', [STANDALONE_SERVER], {
-      cwd: path.join(PROJECT_ROOT, '.next/standalone'),
+    const serverPath = path.join(safeStandaloneDir, 'server.js');
+    const child = spawn(process.execPath, [serverPath], {
+      cwd: safeStandaloneDir,
       env: {
         ...process.env,
         NODE_ENV: 'production',

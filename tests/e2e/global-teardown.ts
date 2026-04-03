@@ -1,3 +1,4 @@
+import { AppServer } from './helpers/appServer.js';
 import { clearContext } from './helpers/context.js';
 import { log, logError } from './helpers/logger.js';
 
@@ -32,6 +33,9 @@ export default async function globalTeardown() {
         logError('teardown', 'Failed to stop database', error);
       }
     }
+
+    // Remove the standalone build copy from /tmp
+    AppServer.cleanupBuild();
 
     await clearContext();
 
