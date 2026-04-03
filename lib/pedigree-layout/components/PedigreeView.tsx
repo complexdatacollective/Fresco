@@ -414,7 +414,7 @@ export default function PedigreeView({
                   node={node}
                   isEgo={isEgo}
                   displayLabel={displayLabels.get(node.id) ?? ''}
-                  allowDrag={meta?.readOnly !== true}
+                  allowDrag={false}
                   isAdopted={isAdopted}
                 />
               </NodeContextMenu>

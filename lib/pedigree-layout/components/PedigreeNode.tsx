@@ -189,7 +189,7 @@ export default function PedigreeNode({
       ariaLabel={displayLabel}
       shape={shape}
       selected={selected}
-      {...dragProps}
+      {...(allowDrag ? dragProps : {})}
       {...rest}
     >
       {isEgo && (
