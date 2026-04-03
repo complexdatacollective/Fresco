@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import Node from '~/components/Node';
 import { useNodeMeasurement } from '~/hooks/useNodeMeasurement';
@@ -356,6 +357,13 @@ export default function PedigreeView({
     }
   };
 
+  const egoId = useMemo(() => {
+    for (const [id, node] of nodes) {
+      if (node.attributes[egoVariable] === true) return id;
+    }
+    return null;
+  }, [nodes, egoVariable]);
+
   const displayLabels = computeNodeDisplayLabels(nodes, edges, variableConfig);
 
   return (
@@ -395,6 +403,15 @@ export default function PedigreeView({
                   [...edges.values()].some(
                     (e) =>
                       e.attributes[relationshipTypeVariable] !== 'partner' &&
+                      (e.from === node.id || e.to === node.id),
+                  )
+                }
+                canAddParent={
+                  isEgo ||
+                  ![...edges.values()].some(
+                    (e) =>
+                      e.attributes[relationshipTypeVariable] === 'partner' &&
+                      (e.from === egoId || e.to === egoId) &&
                       (e.from === node.id || e.to === node.id),
                   )
                 }

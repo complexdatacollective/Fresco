@@ -17,6 +17,7 @@ export type NodeContextMenuAction =
 type NodeContextMenuProps = {
   isBiological: boolean;
   isEgo: boolean;
+  canAddParent: boolean;
   canAddSibling: boolean;
   onAction: (action: NodeContextMenuAction) => void;
   children: ReactElement;
@@ -35,6 +36,7 @@ const destructiveMenuItemClass = cx(
 export default function NodeContextMenu({
   isBiological,
   isEgo,
+  canAddParent,
   canAddSibling,
   onAction,
   children,
@@ -61,7 +63,7 @@ export default function NodeContextMenu({
               exit={{ opacity: 0, scale: 0.96 }}
               transition={{ type: 'spring', duration: 0.5 }}
             >
-              {isBiological && (
+              {canAddParent && (
                 <Menu.Item
                   className={menuItemClass}
                   onClick={() => onAction('parent')}
