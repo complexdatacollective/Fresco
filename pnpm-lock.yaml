@@ -176,8 +176,8 @@ importers:
         specifier: ^8.5.8
         version: 8.5.8
       posthog-js:
-        specifier: ^1.363.6
-        version: 1.363.6
+        specifier: ^1.364.7
+        version: 1.364.7
       posthog-node:
         specifier: ^5.28.8
         version: 5.28.8(rxjs@7.8.2)
@@ -2080,14 +2080,17 @@ packages:
   '@posthog/core@1.24.3':
     resolution: {integrity: sha512-nTyL1R/8V5vfdH37MbjXDYWFnUoxVijb2TnfJSNHz0+RBLtNnq0hNnBDCwWLl5yh1bzeJBYTT8UF+dV7D8y03w==}
 
+  '@posthog/core@1.24.6':
+    resolution: {integrity: sha512-9WkcRKqmXSWIJcca6m3VwA9YbFd4HiG2hKEtDq6FcwEHlvfDhQQUZ5/sJZ47Fw8OtyNMHQ6rW4+COttk4Bg5NQ==}
+
   '@posthog/nextjs-config@1.8.23':
     resolution: {integrity: sha512-x0vwmpy6KCw891hmh/Mfok49yMqaK6wLFPxPzbI2ifL/afqLKYRYYSUHm1pk5/lkMSBhI+rxBHDveKrBuiFyaQ==}
     engines: {node: ^20.20.0 || >=22.22.0}
     peerDependencies:
       next: '>12.1.0'
 
-  '@posthog/types@1.363.6':
-    resolution: {integrity: sha512-SPU8psjrpK8prfFyYwvb25F1AgqSM32zdU1XPVIhUa107Cyw+VGw38Gv+AeqkEoAYQE2TFlWJT8DWUrw/mNDoQ==}
+  '@posthog/types@1.364.7':
+    resolution: {integrity: sha512-Rg6q4wSu8krrn8f3Nv44kGXjor4qh5iG0typt2sB7/SYQFRSbXYE2C46+qDMcBYGxmRMsWBitBcZ9x94DQCnfA==}
 
   '@posthog/webpack-plugin@1.3.1':
     resolution: {integrity: sha512-B63lo8iVZQMV3KK5xSnOyOR6bi7PFjgHJ+9ECWtYnF8/EP53v1in1N+Y6YNT4DEUSP5HsSCFaeekig9njtA8yQ==}
@@ -3895,8 +3898,8 @@ packages:
   '@types/node@22.19.12':
     resolution: {integrity: sha512-0QEp0aPJYSyf6RrTjDB7HlKgNMTY+V2C7ESTaVt6G9gQ0rPLzTGz7OF2NXTLR5vcy7HJEtIUsyWLsfX0kTqJBA==}
 
-  '@types/node@22.19.15':
-    resolution: {integrity: sha512-F0R/h2+dsy5wJAUe3tAU6oqa2qbWY5TpNfL/RGmo1y38hiyO1w3x2jPtt76wmuaJI4DQnOBu21cNXQ2STIUUWg==}
+  '@types/node@22.19.17':
+    resolution: {integrity: sha512-wGdMcf+vPYM6jikpS/qhg6WiqSV/OhG+jeeHT/KlVqxYfD40iYJf9/AE1uQxVWFvU7MipKRkRv8NSHiCGgPr8Q==}
 
   '@types/node@22.19.3':
     resolution: {integrity: sha512-1N9SBnWYOJTrNZCdh/yJE+t910Y128BoyY+zBLWhL3r0TYzlTmFdXrPwHL9DyFZmlEXNQQolTZh3KHV31QDhyA==}
@@ -4546,8 +4549,8 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
 
-  baseline-browser-mapping@2.10.13:
-    resolution: {integrity: sha512-BL2sTuHOdy0YT1lYieUxTw/QMtPBC3pmlJC6xk8BBYVv6vcw3SGdKemQ+Xsx9ik2F/lYDO9tqsFQH1r9PFuHKw==}
+  baseline-browser-mapping@2.10.15:
+    resolution: {integrity: sha512-1nfKCq9wuAZFTkA2ey/3OXXx7GzFjLdkTiFVNwlJ9WqdI706CZRIhEqjuwanjMIja+84jDLa9rcyZDPDiVkASQ==}
     engines: {node: '>=6.0.0'}
     hasBin: true
 
@@ -4664,8 +4667,8 @@ packages:
   caniuse-lite@1.0.30001781:
     resolution: {integrity: sha512-RdwNCyMsNBftLjW6w01z8bKEvT6e/5tpPVEgtn22TiLGlstHOVecsX2KHFkD5e/vRnIE4EGzpuIODb3mtswtkw==}
 
-  caniuse-lite@1.0.30001784:
-    resolution: {integrity: sha512-WU346nBTklUV9YfUl60fqRbU5ZqyXlqvo1SgigE1OAXK5bFL8LL9q1K7aap3N739l4BvNqnkm3YrGHiY9sfUQw==}
+  caniuse-lite@1.0.30001786:
+    resolution: {integrity: sha512-4oxTZEvqmLLrERwxO76yfKM7acZo310U+v4kqexI2TL1DkkUEMT8UijrxxcnVdxR3qkVf5awGRX+4Z6aPHVKrA==}
 
   ccount@2.0.1:
     resolution: {integrity: sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg==}
@@ -6750,8 +6753,8 @@ packages:
     resolution: {integrity: sha512-Jtc2612XINuBjIl/QTWsV5UvE8UHuNblcO3vVADSrKsrc6RqGX6lOW1cEo3CM2v0XG4Nat8nI+YM7/f26VxXLw==}
     engines: {node: '>=12'}
 
-  posthog-js@1.363.6:
-    resolution: {integrity: sha512-eQ+Ypml3JOEMQWt21XEea6J8vD77TNyoz4Yv/xxjlTRja+ilmJtQw/SuVAB3BobjgHKYUomXX7Fc4gH/zTVpbg==}
+  posthog-js@1.364.7:
+    resolution: {integrity: sha512-mjYUjim0PSNUjxbGR8MGl7hnbbJMCU+Dy4gRexMRGMRlZT9tskGzsgS4Q6Cvx+63lpkQg5kJrC4bHCuILnQ4/A==}
 
   posthog-node@5.28.8:
     resolution: {integrity: sha512-UD55SdSbgUvoOb3HkvNC22ZgpdeNknDrao8+yYTB/rDnwgaibPB7pJJzgn4j7MIUw7DOTEHEmJRqza1EDtK2Zw==}
@@ -6765,8 +6768,8 @@ packages:
   potpack@2.1.0:
     resolution: {integrity: sha512-pcaShQc1Shq0y+E7GqJqvZj8DTthWV1KeHGdi0Z6IAin2Oi3JnLCOfwnCo84qc+HAp52wT9nK9H7FAJp5a44GQ==}
 
-  preact@10.29.0:
-    resolution: {integrity: sha512-wSAGyk2bYR1c7t3SZ3jHcM6xy0lcBcDel6lODcs9ME6Th++Dx2KU+6D3HD8wMMKGA8Wpw7OMd3/4RGzYRpzwRg==}
+  preact@10.29.1:
+    resolution: {integrity: sha512-gQCLc/vWroE8lIpleXtdJhTFDogTdZG9AjMUpVkDf2iTCNwYNWA+u16dL41TqUDJO4gm2IgrcMv3uTpjd4Pwmg==}
 
   prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}
@@ -10122,6 +10125,8 @@ snapshots:
     dependencies:
       cross-spawn: 7.0.6
 
+  '@posthog/core@1.24.6': {}
+
   '@posthog/nextjs-config@1.8.23(next@16.2.1(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.58.2)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(sass@1.98.0))(webpack@5.105.2(esbuild@0.27.4))':
     dependencies:
       '@posthog/cli': 0.7.4
@@ -10133,7 +10138,7 @@ snapshots:
       - debug
       - webpack
 
-  '@posthog/types@1.363.6': {}
+  '@posthog/types@1.364.7': {}
 
   '@posthog/webpack-plugin@1.3.1(webpack@5.105.2(esbuild@0.27.4))':
     dependencies:
@@ -12462,7 +12467,7 @@ snapshots:
     dependencies:
       undici-types: 6.21.0
 
-  '@types/node@22.19.15':
+  '@types/node@22.19.17':
     dependencies:
       undici-types: 6.21.0
 
@@ -12506,7 +12511,7 @@ snapshots:
 
   '@types/ssh2-streams@0.1.13':
     dependencies:
-      '@types/node': 22.19.3
+      '@types/node': 22.19.17
 
   '@types/ssh2@0.5.52':
     dependencies:
@@ -13199,7 +13204,7 @@ snapshots:
 
   baseline-browser-mapping@2.10.10: {}
 
-  baseline-browser-mapping@2.10.13: {}
+  baseline-browser-mapping@2.10.15: {}
 
   baseline-browser-mapping@2.9.12: {}
 
@@ -13260,8 +13265,8 @@ snapshots:
 
   browserslist@4.28.2:
     dependencies:
-      baseline-browser-mapping: 2.10.13
-      caniuse-lite: 1.0.30001784
+      baseline-browser-mapping: 2.10.15
+      caniuse-lite: 1.0.30001786
       electron-to-chromium: 1.5.331
       node-releases: 2.0.37
       update-browserslist-db: 1.2.3(browserslist@4.28.2)
@@ -13329,7 +13334,7 @@ snapshots:
 
   caniuse-lite@1.0.30001781: {}
 
-  caniuse-lite@1.0.30001784: {}
+  caniuse-lite@1.0.30001786: {}
 
   ccount@2.0.1: {}
 
@@ -14717,7 +14722,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 22.19.15
+      '@types/node': 22.19.17
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -15709,19 +15714,19 @@ snapshots:
 
   postgres@3.4.7: {}
 
-  posthog-js@1.363.6:
+  posthog-js@1.364.7:
     dependencies:
       '@opentelemetry/api': 1.9.1
       '@opentelemetry/api-logs': 0.208.0
       '@opentelemetry/exporter-logs-otlp-http': 0.208.0(@opentelemetry/api@1.9.1)
       '@opentelemetry/resources': 2.6.1(@opentelemetry/api@1.9.1)
       '@opentelemetry/sdk-logs': 0.208.0(@opentelemetry/api@1.9.1)
-      '@posthog/core': 1.24.1
-      '@posthog/types': 1.363.6
+      '@posthog/core': 1.24.6
+      '@posthog/types': 1.364.7
       core-js: 3.49.0
       dompurify: 3.3.3
       fflate: 0.4.8
-      preact: 10.29.0
+      preact: 10.29.1
       query-selector-shadow-dom: 1.0.1
       web-vitals: 5.2.0
 
@@ -15733,7 +15738,7 @@ snapshots:
 
   potpack@2.1.0: {}
 
-  preact@10.29.0: {}
+  preact@10.29.1: {}
 
   prelude-ls@1.2.1: {}
 
@@ -15906,7 +15911,7 @@ snapshots:
       '@protobufjs/path': 1.1.2
       '@protobufjs/pool': 1.1.0
       '@protobufjs/utf8': 1.1.0
-      '@types/node': 22.19.3
+      '@types/node': 22.19.17
       long: 5.3.2
 
   protocol-buffers-schema@3.6.0: {}
