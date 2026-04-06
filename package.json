@@ -87,7 +87,7 @@
     "dotenv": "^17.3.1",
     "effect": "^3.21.0",
     "es-toolkit": "^1.45.1",
-    "fuse.js": "^7.1.0",
+    "fuse.js": "^7.3.0",
     "immer": "^11.1.4",
     "jszip": "^3.10.1",
     "lucide-react": "^1.7.0",
