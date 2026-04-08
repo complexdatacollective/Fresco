@@ -8,10 +8,10 @@ export const headingVariants = cva({
   base: 'font-heading scroll-m-20 text-balance',
   variants: {
     level: {
-      h1: 'text-3xl font-semibold',
-      h2: 'text-2xl font-semibold',
-      h3: 'text-xl font-semibold',
-      h4: 'text-lg font-bold',
+      h1: 'text-3xl font-bold',
+      h2: 'text-2xl font-bold',
+      h3: 'text-xl font-bold',
+      h4: 'text-lg font-extrabold',
       label: 'text-base leading-snug font-bold text-pretty',
     },
     variant: {
@@ -30,7 +30,7 @@ export const headingVariants = cva({
     margin: 'default',
   },
   compoundVariants: [
-    { level: 'h4', variant: 'all-caps', className: 'text-base font-extrabold' },
+    { level: 'h4', variant: 'all-caps', className: 'text-base font-black' },
   ],
 });
 

@@ -598,7 +598,19 @@ This custom variant lets you target only elements with the readonly attribute.
 
   /* These tags are semantic, so I think its okay to apply styles to them directly in the global styles. */
   strong {
-    @apply font-extrabold;
+    @apply font-bold;
+  }
+
+  /* Within contexts that are already bold (headings, labels), push strong
+     to weight 900 so it remains visually distinct. */
+  :is(h1, h2, h3, h4, h5, h6) strong {
+    @apply font-black tracking-normal;
+  }
+
+  /* Labels additionally get slightly wider tracking on strong to further
+     reinforce the visual distinction. */
+  label strong {
+    @apply font-black tracking-wide;
   }
 
   em {

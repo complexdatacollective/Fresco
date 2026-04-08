@@ -16,7 +16,7 @@ import { Skeleton } from './skeleton';
 
 const buttonSpecificVariants = cva({
   base: cx(
-    'inline-flex shrink-0 cursor-pointer border-0 font-semibold tracking-wide',
+    'font-heading inline-flex shrink-0 cursor-pointer border-0 font-bold tracking-wide',
     'items-center justify-center',
     'disabled:cursor-not-allowed disabled:opacity-50',
     'focusable',

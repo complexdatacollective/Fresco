@@ -126,22 +126,29 @@ export default function ModalPopup({
     }
   }, [isPresent, scope, safeToRemove, animate, hasLayoutId]);
 
-  return (
-    <LayoutGroup id={id}>
-      <Dialog.Popup
-        // Must render motion.div to properly detect animation completion for Base-UI's Dialog
-        render={
-          <motion.div
-            ref={scope}
-            className={className}
-            {...props}
-            {...animation}
-            style={{ borderRadius: 28 }}
-          />
-        }
-      >
-        {children}
-      </Dialog.Popup>
-    </LayoutGroup>
+  const popup = (
+    <Dialog.Popup
+      // Must render motion.div to properly detect animation completion for Base-UI's Dialog
+      render={
+        <motion.div
+          ref={scope}
+          className={className}
+          {...props}
+          {...animation}
+          style={{ borderRadius: 28 }}
+        />
+      }
+    >
+      {children}
+    </Dialog.Popup>
   );
+
+  // When using layoutId for shared-element morph, we must NOT wrap in a
+  // LayoutGroup with a unique id — that namespaces the layoutId and prevents
+  // it from matching the trigger element rendered outside the popup.
+  if (hasLayoutId) {
+    return popup;
+  }
+
+  return <LayoutGroup id={id}>{popup}</LayoutGroup>;
 }

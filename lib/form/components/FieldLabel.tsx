@@ -55,20 +55,7 @@ const FieldLabel = React.forwardRef<HTMLLabelElement, FieldLabelProps>(
         {typeof processedChildren === 'string' ? (
           <ReactMarkdown
             allowedElements={ALLOWED_MARKDOWN_LABEL_TAGS}
-            components={{
-              ...defaultMarkdownRenderers,
-              strong: ({ children }) => (
-                <strong
-                  style={{
-                    paintOrder: 'stroke fill',
-                    WebkitTextStroke: '1.5px currentColor',
-                    letterSpacing: '0.04em',
-                  }}
-                >
-                  {children}
-                </strong>
-              ),
-            }}
+            components={defaultMarkdownRenderers}
             remarkPlugins={[remarkGemoji]}
             rehypePlugins={[rehypeRaw, rehypeSanitize]}
             unwrapDisallowed

@@ -28,7 +28,12 @@ function StatCard({
     <Surface className={statCardClasses} spacing="none">
       <div className="hidden @3xs:block">{icon}</div>
       <div>
-        <Heading level="h4" variant="all-caps" margin="none">
+        <Heading
+          level="h4"
+          variant="all-caps"
+          margin="none"
+          className="font-medium"
+        >
           {title}
         </Heading>
         <Heading level="h1" margin="none">
