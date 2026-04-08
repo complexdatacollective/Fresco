@@ -45,6 +45,7 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
     acceptsFilter,
     allowedDropPositions = ['before', 'after'],
     getItemMetadata,
+    renderPreview,
     announcedName,
   } = options;
 
@@ -146,9 +147,12 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
 
         const dragType = firstItem?.type ?? 'collection-item';
 
+        const preview = renderPreview ? renderPreview(key, metadata) : undefined;
+
         const { dragProps, isDragging } = useDragSource({
           type: dragType,
           metadata,
+          preview,
           announcedName:
             dragKeys.size > 1 ? `${dragKeys.size} items` : `Item ${key}`,
           disabled: isDisabled,
@@ -296,6 +300,7 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
     [
       getItems,
       getItemMetadata,
+      renderPreview,
       handleDrop,
       dropTarget,
       allowedDropPositions,

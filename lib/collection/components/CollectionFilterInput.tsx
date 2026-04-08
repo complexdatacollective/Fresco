@@ -126,8 +126,8 @@ export function CollectionFilterInput({
       prefixComponent={prefixContent}
       suffixComponent={suffixContent}
       size={size}
-      className={cx('w-full max-w-xs', className)}
-      aria-label="Filter collection"
+      className={cx('w-full', className)}
+      aria-label="Filter"
     />
   );
 }

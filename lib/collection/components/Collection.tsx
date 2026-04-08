@@ -75,7 +75,6 @@ function CollectionContent<T extends Record<string, unknown>>({
   filterFuseOptions,
   filterDebounceMs,
   filterMinQueryLength,
-  // Children for sort/filter UI
   children,
 }: CollectionContentProps<T>) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -163,68 +162,69 @@ function CollectionContent<T extends Record<string, unknown>>({
   void tabIndex;
   const mergedRef = useMergeRefs({ containerRef, dndRef });
 
+  const collectionElements = (
+    <div
+      className={cx('min-h-0 w-full flex-1', className)}
+      data-drop-target-over={dropState?.isOver ?? undefined}
+      data-drop-target-valid={dropState?.willAccept ?? undefined}
+      data-dragging={dropState?.isDragging ?? undefined}
+    >
+      <ScrollArea
+        ref={mergedRef}
+        role="listbox"
+        id={collectionId}
+        viewportClassName={viewportClassName}
+        orientation={orientation}
+        aria-label={ariaLabel}
+        aria-labelledby={ariaLabelledBy}
+        aria-multiselectable={selectionMode === 'multiple' || undefined}
+        aria-activedescendant={
+          selectionManager.focusedKey !== null
+            ? `${collectionId}-item-${selectionManager.focusedKey}`
+            : undefined
+        }
+        {...collectionProps}
+        {...restDndProps}
+        className="size-full"
+      >
+        {virtualized ? (
+          <VirtualizedRenderer
+            layout={layout}
+            collection={collection}
+            renderItem={renderItem}
+            animate={animate}
+            animationKey={animationKey}
+            collectionId={collectionId}
+            dragAndDropHooks={dragAndDropHooks}
+            scrollRef={containerRef}
+            overscan={overscan}
+            layoutGroupId={layoutGroupId}
+          />
+        ) : (
+          <StaticRenderer
+            layout={layout}
+            collection={collection}
+            renderItem={renderItem}
+            animate={animate}
+            animationKey={animationKey}
+            collectionId={collectionId}
+            dragAndDropHooks={dragAndDropHooks}
+            layoutGroupId={layoutGroupId}
+          />
+        )}
+        {collection.size === 0 && emptyState && (
+          <div className="text-center text-current/70">{emptyState}</div>
+        )}
+      </ScrollArea>
+    </div>
+  );
+
   return (
     <SelectionManagerContext.Provider value={selectionManager}>
       <SortManagerContext.Provider value={sortManager}>
         <FilterManagerContext.Provider value={filterManager}>
           <CollectionIdContext.Provider value={collectionId}>
-            {children}
-            <div
-              className={cx('min-h-0 w-full flex-1', className)}
-              data-drop-target-over={dropState?.isOver ?? undefined}
-              data-drop-target-valid={dropState?.willAccept ?? undefined}
-              data-dragging={dropState?.isDragging ?? undefined}
-            >
-              <ScrollArea
-                ref={mergedRef}
-                role="listbox"
-                id={collectionId}
-                viewportClassName={viewportClassName}
-                orientation={orientation}
-                aria-label={ariaLabel}
-                aria-labelledby={ariaLabelledBy}
-                aria-multiselectable={selectionMode === 'multiple' || undefined}
-                aria-activedescendant={
-                  selectionManager.focusedKey !== null
-                    ? `${collectionId}-item-${selectionManager.focusedKey}`
-                    : undefined
-                }
-                {...collectionProps}
-                {...restDndProps}
-                className="size-full"
-              >
-                {virtualized ? (
-                  <VirtualizedRenderer
-                    layout={layout}
-                    collection={collection}
-                    renderItem={renderItem}
-                    animate={animate}
-                    animationKey={animationKey}
-                    collectionId={collectionId}
-                    dragAndDropHooks={dragAndDropHooks}
-                    scrollRef={containerRef}
-                    overscan={overscan}
-                    layoutGroupId={layoutGroupId}
-                  />
-                ) : (
-                  <StaticRenderer
-                    layout={layout}
-                    collection={collection}
-                    renderItem={renderItem}
-                    animate={animate}
-                    animationKey={animationKey}
-                    collectionId={collectionId}
-                    dragAndDropHooks={dragAndDropHooks}
-                    layoutGroupId={layoutGroupId}
-                  />
-                )}
-                {collection.size === 0 && emptyState && (
-                  <div className="text-center text-current/70">
-                    {emptyState}
-                  </div>
-                )}
-              </ScrollArea>
-            </div>
+            {children(collectionElements)}
           </CollectionIdContext.Provider>
         </FilterManagerContext.Provider>
       </SortManagerContext.Provider>
@@ -307,7 +307,6 @@ export function Collection<T extends Record<string, unknown>>({
   filterFuseOptions,
   filterDebounceMs,
   filterMinQueryLength,
-  // Children for sort/filter UI
   children,
 }: CollectionProps<T>) {
   return (

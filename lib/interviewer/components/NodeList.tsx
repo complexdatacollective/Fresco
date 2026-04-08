@@ -23,7 +23,8 @@ type InternalCollectionProps =
   | 'renderItem'
   | 'layout'
   | 'dragAndDropHooks'
-  | 'items';
+  | 'items'
+  | 'children';
 
 type NodeListProps = Omit<CollectionProps<NcNode>, InternalCollectionProps> & {
   items?: NcNode[];
@@ -236,7 +237,9 @@ const NodeList = memo(
             aria-label={ariaLabel}
             emptyState={emptyState}
             viewportClassName="p-2"
-          />
+          >
+            {(CollectionElements) => CollectionElements}
+          </Collection>
         )}
       </motion.div>
     );

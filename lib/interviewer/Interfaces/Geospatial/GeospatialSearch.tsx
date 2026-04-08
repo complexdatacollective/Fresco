@@ -297,7 +297,9 @@ export default function GeospatialSearch({
                       aria-label="Search suggestions"
                       className="flex flex-col p-1"
                       renderItem={renderItem}
-                    />
+                    >
+                      {(CollectionElements) => CollectionElements}
+                    </Collection>
                   )}
                 </MotionSurface>
               )}

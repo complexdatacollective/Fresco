@@ -84,20 +84,24 @@ const useItems = (props: NameGeneratorRosterProps) => {
   // It is safe to ignore the encryption state here because this is external
   // data, meaning we do not expect it to be encrypted.
   // TODO: this must be updated if we want rosters to support encrypted data.
-  const getNodeLabel = useCallback((node: NcNode) => {
-    const attribute = getNodeLabelAttribute(
-      undefined,
-      node[entityAttributesProperty],
-    );
-
-    if (attribute) {
-      return String(
-        node[entityAttributesProperty][attribute] as string | number,
+  const codebookVariables = nodeTypeDefinition?.variables;
+  const getNodeLabel = useCallback(
+    (node: NcNode) => {
+      const attribute = getNodeLabelAttribute(
+        codebookVariables,
+        node[entityAttributesProperty],
       );
-    }
 
-    return node[entityPrimaryKeyProperty];
-  }, []);
+      if (attribute) {
+        return String(
+          node[entityAttributesProperty][attribute] as string | number,
+        );
+      }
+
+      return node[entityPrimaryKeyProperty];
+    },
+    [codebookVariables],
+  );
 
   const items = useMemo(() => {
     if (!externalData) {

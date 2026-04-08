@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import SuperJSON from 'superjson';
 import StoryInterviewShell from '~/.storybook/StoryInterviewShell';
 import { SyntheticInterview } from '~/lib/interviewer/utils/SyntheticInterview/SyntheticInterview';
@@ -19,10 +20,10 @@ function buildInterview(args: StoryArgs) {
   const si = new SyntheticInterview();
 
   const nodeType = si.addNodeType({ name: 'Person' });
-  const nameVar = nodeType.addVariable({ name: 'Name', type: 'text' });
-  const ageVar = nodeType.addVariable({ name: 'Age', type: 'number' });
+  const nameVar = nodeType.addVariable({ name: 'name', type: 'text' });
+  const ageVar = nodeType.addVariable({ name: 'age', type: 'number' });
   const locationVar = nodeType.addVariable({
-    name: 'Location',
+    name: 'location',
     type: 'text',
   });
 
@@ -189,5 +190,122 @@ export const MultiplePrompts: Story = {
   args: {
     promptCount: 3,
     initialSelectedCount: 2,
+  },
+};
+
+/**
+ * Waits for the roster to finish loading and returns the available-to-add
+ * panel canvas (the source listbox), bypassing the destination NodeList.
+ */
+const waitForSourceCanvas = async (canvasElement: HTMLElement) => {
+  const canvas = within(canvasElement);
+  const sourceListbox = await waitFor(
+    () => {
+      const source = canvas.getByRole('listbox', {
+        name: 'Available Roster Nodes',
+      });
+      const options = within(source).queryAllByRole('option');
+      if (options.length === 0) throw new Error('Roster items not yet loaded');
+      return source;
+    },
+    { timeout: 10000 },
+  );
+  return within(sourceListbox);
+};
+
+/**
+ * Reads the accessible name (`aria-label`) of each card in the source
+ * listbox. Each option contains a `<DataCard>` rendered as
+ * `<article aria-label="...">`, which gives us the card title without
+ * the description-list contents bleeding into the string.
+ */
+const readSourceLabels = (source: ReturnType<typeof within>): string[] =>
+  source
+    .getAllByRole('option')
+    .map(
+      (el: HTMLElement) =>
+        el.querySelector('article[aria-label]')?.getAttribute('aria-label') ??
+        '',
+    );
+
+/**
+ * Interaction test: clicking "Sort by Name" reorders the roster
+ * alphabetically. Regression guard for the UUID-keyed attribute path
+ * in sort rules — if `useExternalData`'s UUID replacer or
+ * `getNodeLabelAttribute` codebook lookup ever silently breaks again,
+ * the items will not be in alphabetical order and this test will fail.
+ */
+export const SortInteraction: Story = {
+  render: (args) => <NameGeneratorRosterStoryWrapper {...args} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const source = await waitForSourceCanvas(canvasElement);
+
+    const sortByNameButton = canvas.getByRole('button', {
+      name: /^Sort by Name/,
+    });
+    await userEvent.click(sortByNameButton);
+
+    await waitFor(() => {
+      const labels = readSourceLabels(source).slice(0, 5);
+
+      // Sort must be ascending alphabetical
+      const sortedCopy = [...labels].sort((a, b) => a.localeCompare(b));
+      expect(labels).toEqual(sortedCopy);
+
+      // The first label must start with 'A' (otherwise the sort silently
+      // failed and items are still in their original load order).
+      expect(labels[0]?.[0]?.toLowerCase()).toBe('a');
+    });
+
+    // Toggle to descending and verify the order reverses
+    await userEvent.click(sortByNameButton);
+
+    await waitFor(() => {
+      const labels = readSourceLabels(source).slice(0, 5);
+      const sortedDescCopy = [...labels].sort((a, b) => b.localeCompare(a));
+      expect(labels).toEqual(sortedDescCopy);
+    });
+  },
+};
+
+/**
+ * Interaction test: typing into the filter input narrows the roster.
+ * Regression guard for the filter-keys-by-UUID path. If the UUID
+ * conversion ever breaks, the search worker will index against missing
+ * properties and the result count will not change when typing. We
+ * cannot count visible options because the source list is virtualized,
+ * so we read the "N results" badge that CollectionFilterInput renders
+ * once a filter query becomes active.
+ */
+export const FilterInteraction: Story = {
+  render: (args) => <NameGeneratorRosterStoryWrapper {...args} />,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const source = await waitForSourceCanvas(canvasElement);
+    expect(source.getAllByRole('option').length).toBeGreaterThan(10);
+
+    const filterInput = canvas.getByRole('searchbox', { name: 'Filter' });
+    await userEvent.type(filterInput, 'Moses Crist');
+
+    // Wait for debounced search + result count to settle, then assert
+    // that there are strictly fewer matches than the dataset (100), and
+    // that the top-ranked result is the exact-match seed. We read the
+    // accessible name of the first card (the <article aria-label=...>)
+    // rather than its textContent so the description-list contents
+    // don't bleed into the comparison.
+    await waitFor(
+      () => {
+        const resultBadge = canvas.getByText(/\d+ results?/);
+        const matches = resultBadge.textContent?.match(/(\d+)/);
+        const count = Number(matches?.[1]);
+        expect(count).toBeGreaterThan(0);
+        expect(count).toBeLessThan(100);
+
+        const firstLabel = readSourceLabels(source)[0];
+        expect(firstLabel).toBe('Moses Crist');
+      },
+      { timeout: 5000 },
+    );
   },
 };

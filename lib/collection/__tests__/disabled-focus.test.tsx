@@ -37,7 +37,9 @@ describe('Collection - Disabled Item Focus', () => {
             {item.name}
           </div>
         )}
-      />,
+      >
+        {(CollectionElements) => CollectionElements}
+      </Collection>,
     );
 
     const item1 = screen.getByTestId('item-1');
@@ -78,7 +80,9 @@ describe('Collection - Disabled Item Focus', () => {
             {item.name}
           </div>
         )}
-      />,
+      >
+        {(CollectionElements) => CollectionElements}
+      </Collection>,
     );
 
     const item1 = screen.getByTestId('item-1');
@@ -116,7 +120,9 @@ describe('Collection - Disabled Item Focus', () => {
             {item.name}
           </div>
         )}
-      />,
+      >
+        {(CollectionElements) => CollectionElements}
+      </Collection>,
     );
 
     const item1 = screen.getByTestId('item-1');
@@ -150,7 +156,9 @@ describe('Collection - Disabled Item Focus', () => {
             {item.name}
           </div>
         )}
-      />,
+      >
+        {(CollectionElements) => CollectionElements}
+      </Collection>,
     );
 
     const item1 = screen.getByTestId('item-1');
@@ -184,7 +192,9 @@ describe('Collection - Disabled Item Focus', () => {
             {item.name}
           </div>
         )}
-      />,
+      >
+        {(CollectionElements) => CollectionElements}
+      </Collection>,
     );
 
     const item1 = screen.getByTestId('item-1');
@@ -223,7 +233,9 @@ describe('Collection - Disabled Item Focus', () => {
             {item.name}
           </div>
         )}
-      />,
+      >
+        {(CollectionElements) => CollectionElements}
+      </Collection>,
     );
 
     const item1 = screen.getByTestId('item-1');
@@ -253,7 +265,9 @@ describe('Collection - Disabled Item Focus', () => {
             {item.name}
           </div>
         )}
-      />,
+      >
+        {(CollectionElements) => CollectionElements}
+      </Collection>,
     );
 
     testItems.forEach((item) => {

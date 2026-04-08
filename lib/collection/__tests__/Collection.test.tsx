@@ -69,7 +69,9 @@ function ControlledCollection({
           {item.name}
         </div>
       )}
-    />
+    >
+      {(CollectionElements) => CollectionElements}
+    </Collection>
   );
 }
 
@@ -98,7 +100,9 @@ describe('Collection', () => {
           renderItem={(item, itemProps) => (
             <div {...itemProps}>{item.name}</div>
           )}
-        />,
+        >
+          {(CollectionElements) => CollectionElements}
+        </Collection>,
       );
 
       expect(screen.getByTestId('empty')).toBeDefined();
@@ -482,7 +486,9 @@ describe('Collection', () => {
               {item.name}
             </div>
           )}
-        />,
+        >
+          {(CollectionElements) => CollectionElements}
+        </Collection>,
       );
 
       expect(screen.getByTestId('item-1').getAttribute('data-selected')).toBe(

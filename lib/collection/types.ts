@@ -243,8 +243,28 @@ export type CollectionProps<T> = SortProps &
     'layoutGroupId'?: string | null;
 
     /**
-     * Children for sort UI components.
-     * Use with CollectionSortButton, CollectionSortSelect, or custom UI via useSortManager hook.
+     * Render function that receives the rendered collection items node
+     * (`CollectionElements`) and must render it somewhere in its output.
+     * This lets callers compose arbitrary UI (sort buttons, filter inputs,
+     * headings, etc.) around the items container while leaving the item
+     * rendering, scroll area, and drop-target wiring owned by Collection.
+     *
+     * @example
+     * ```tsx
+     * <Collection ...>
+     *   {(CollectionElements) => (
+     *     <>
+     *       <CollectionSortButton ... />
+     *       {CollectionElements}
+     *       <CollectionFilterInput ... />
+     *     </>
+     *   )}
+     * </Collection>
+     * ```
      */
-    'children'?: React.ReactNode;
+    'children': CollectionChildrenRenderer;
   };
+
+export type CollectionChildrenRenderer = (
+  CollectionElements: React.ReactNode,
+) => React.ReactNode;

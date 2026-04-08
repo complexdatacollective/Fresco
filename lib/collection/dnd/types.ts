@@ -158,6 +158,16 @@ export type DragAndDropOptions<_T = unknown> = {
   allowedDropPositions?: DropPosition[];
   /** Additional data to include with drag operations */
   getItemMetadata?: (key: Key) => Record<string, unknown>;
+  /**
+   * Optional render function for the drag preview. Called per draggable
+   * item with the item's key and its computed metadata; the returned
+   * ReactNode is rendered as the drag ghost instead of the default
+   * cloned-element preview.
+   */
+  renderPreview?: (
+    key: Key,
+    metadata: Record<string, unknown>,
+  ) => React.ReactNode;
   /** Name for accessibility announcements */
   announcedName: string;
 };

@@ -67,7 +67,9 @@ function List({
         textValueExtractor={(item) => item.name}
         layout={new InlineGridLayout()}
         animate
-      />
+      >
+        {(CollectionElements) => CollectionElements}
+      </Collection>
     </div>
   );
 }

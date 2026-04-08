@@ -5,6 +5,7 @@ import {
 import { AnimatePresence } from 'motion/react';
 import { useCallback, useEffect, useId, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
+import Node from '~/components/Node';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { ResizableFlexPanel } from '~/components/ui/ResizableFlexPanel';
@@ -42,8 +43,8 @@ import {
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { mapNCType } from '~/lib/interviewer/utils/createSorter';
 import getParentKeyByNameValue from '~/lib/interviewer/utils/getParentKeyByNameValue';
-import { cx } from '~/utils/cva';
 import { usePassphrase } from '../Anonymisation/usePassphrase';
+import DataCard from './DataCard';
 import DropOverlay from './DropOverlay';
 import { convertNamesToUUIDs, type NameGeneratorRosterProps } from './helpers';
 import useItems, { type UseItemElement } from './useItems';
@@ -101,6 +102,7 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
   const nodeVariables = useSelector(getNodeVariables);
 
   const filterKeys = useMemo(() => {
+    console.log('searchOptions', searchOptions, stage);
     if (!searchOptions) return undefined;
     return convertNamesToUUIDs(
       nodeVariables,
@@ -249,8 +251,6 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
     [dispatch],
   );
 
-  const nodeListClasses = cx('relative flex flex-1');
-
   const disabled = useMemo(() => {
     if (!passphrase && useEncryption) {
       return true;
@@ -295,6 +295,17 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
         ? { ...item, itemType: 'SOURCE_NODES' }
         : { itemType: 'SOURCE_NODES' };
     },
+    renderPreview: (_key, metadata) => {
+      const item = metadata as UseItemElement | undefined;
+      if (!item?.props?.label) return null;
+      return (
+        <Node
+          color={dropNodeColor ?? 'node-color-seq-1'}
+          label={item.props.label}
+          size="md"
+        />
+      );
+    },
   });
 
   // --- Drop overlay state ---
@@ -311,27 +322,31 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
   // --- Render item callback ---
   const renderItem = useCallback(
     (item: UseItemElement, itemProps: ItemProps) => (
-      <div {...itemProps}>
-        <div className="bg-platinum text-charcoal rounded-sm p-4">
-          <Heading level="label">{item.props.label}</Heading>
-        </div>
-      </div>
+      <DataCard
+        {...itemProps}
+        label={item.props.label}
+        details={item.props.data}
+      />
     ),
     [],
   );
+
+  console.log('filteredItems', filteredItems);
 
   return (
     <div className="interface" ref={interfaceRef}>
       <Prompts />
       <ResizableFlexPanel
         storageKey="name-generator-roster-panels"
-        defaultBasis={50}
+        defaultBasis={33}
         className="min-h-0 w-full flex-1 basis-full"
         aria-label="Resize panel and node list areas"
       >
         <Panel title="Available to add" panelNumber={0} noCollapse>
           {itemsStatus.isLoading ? (
-            <Loading message="Loading..." />
+            <div className="flex flex-1 items-center justify-center">
+              <Loading message="Loading..." />
+            </div>
           ) : itemsStatus.error ? (
             <ErrorMessage error={itemsStatus.error} />
           ) : (
@@ -340,6 +355,7 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
                 items={filteredItems}
                 keyExtractor={keyExtractor}
                 textValueExtractor={(item: UseItemElement) => item.props.label}
+                viewportClassName="px-2"
                 layout={layout}
                 renderItem={renderItem}
                 filterKeys={filterKeys}
@@ -349,37 +365,41 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
                 disabledKeys={disabledKeys}
                 virtualized
                 emptyState={<>Nothing matched your search term.</>}
-                aria-label="Source nodes"
+                aria-label="List of available items to add"
                 id={sourceCollectionId}
               >
-                {sortableProperties && sortableProperties.length > 0 && (
-                  <div className="flex w-full flex-col gap-2">
-                    <div className="flex flex-wrap gap-2 p-2">
-                      {sortableProperties.map((sp) => (
-                        <CollectionSortButton
-                          key={
-                            Array.isArray(sp.property)
-                              ? sp.property.join('-')
-                              : String(sp.property)
-                          }
-                          property={sp.property}
-                          type={sp.type}
-                          label={sp.label}
-                        />
-                      ))}
-                    </div>
-                    <CollectionFilterInput
-                      className="grow"
-                      placeholder="Enter a search term..."
-                    />
-                  </div>
+                {(CollectionElements) => (
+                  <>
+                    {sortableProperties && sortableProperties.length > 0 && (
+                      <div className="flex flex-wrap gap-2 p-2">
+                        {sortableProperties.map((sp) => (
+                          <CollectionSortButton
+                            key={
+                              Array.isArray(sp.property)
+                                ? sp.property.join('-')
+                                : String(sp.property)
+                            }
+                            property={sp.property}
+                            type={sp.type}
+                            label={sp.label}
+                          />
+                        ))}
+                      </div>
+                    )}
+                    {CollectionElements}
+                    {searchOptions && (
+                      <div className="flex flex-wrap gap-2 p-2">
+                        <CollectionFilterInput placeholder="Enter a search term..." />
+                      </div>
+                    )}
+                  </>
                 )}
               </Collection>
               <AnimatePresence>
                 {willAcceptDrop && (
                   <DropOverlay
                     isOver={isOverSource}
-                    nodeColor={dropNodeColor ?? 'node-color-seq-1'}
+                    nodeColor={dropNodeColor}
                     message="Drop here to remove"
                   />
                 )}
@@ -389,12 +409,11 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
         </Panel>
         <NodeList
           id="node-list"
-          className={nodeListClasses}
+          className="flex flex-1 rounded"
           itemType="ADDED_NODES"
           accepts={['SOURCE_NODES']}
           onDrop={handleAddNode}
           items={nodesForPrompt}
-          virtualized
           announcedName="Added Nodes"
         />
       </ResizableFlexPanel>

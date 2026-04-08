@@ -81,7 +81,12 @@ function FilterableCollection({
         </div>
       )}
     >
-      <CollectionFilterInput placeholder="Search..." />
+      {(CollectionElements) => (
+        <>
+          <CollectionFilterInput placeholder="Search..." />
+          {CollectionElements}
+        </>
+      )}
     </Collection>
   );
 }
@@ -120,7 +125,12 @@ function CollectionWithFilterManager({
       filterKeys={['name', 'category']}
       renderItem={(item, itemProps) => <div {...itemProps}>{item.name}</div>}
     >
-      <FilterManagerConsumer />
+      {(CollectionElements) => (
+        <>
+          <FilterManagerConsumer />
+          {CollectionElements}
+        </>
+      )}
     </Collection>
   );
 }
@@ -159,7 +169,12 @@ describe('Collection Filtering', () => {
             <div {...itemProps}>{item.name}</div>
           )}
         >
-          <CollectionFilterInput placeholder="Search..." />
+          {(CollectionElements) => (
+            <>
+              <CollectionFilterInput placeholder="Search..." />
+              {CollectionElements}
+            </>
+          )}
         </Collection>,
       );
 
@@ -262,7 +277,12 @@ describe('Collection Filtering', () => {
               <div {...itemProps}>{item.name}</div>
             )}
           >
-            <FilterManagerConsumer />
+            {(CollectionElements) => (
+              <>
+                <FilterManagerConsumer />
+                {CollectionElements}
+              </>
+            )}
           </Collection>,
         );
       }).toThrow(

@@ -354,19 +354,24 @@ function PrimaryStoryRender(args: PrimaryStoryArgs) {
           filterFuseOptions: { threshold: filterThreshold },
         })}
       >
-        {hasSortOrFilter && (
-          <div className="mb-4 flex flex-wrap items-center gap-4">
-            {filterEnabled && (
-              <CollectionFilterInput
-                placeholder="Search..."
-                showResultCount
-                showClearButton
-                className="flex-1"
-                data-testid="filter-input"
-              />
+        {(CollectionElements) => (
+          <>
+            {hasSortOrFilter && (
+              <div className="mb-4 flex flex-wrap items-center gap-4">
+                {filterEnabled && (
+                  <CollectionFilterInput
+                    placeholder="Search..."
+                    showResultCount
+                    showClearButton
+                    className="flex-1"
+                    data-testid="filter-input"
+                  />
+                )}
+                <SortUI sortUIType={sortUIType} />
+              </div>
             )}
-            <SortUI sortUIType={sortUIType} />
-          </div>
+            {CollectionElements}
+          </>
         )}
       </Collection>
     </div>
@@ -480,7 +485,9 @@ function DragDropStoryRender(args: DragDropStoryArgs) {
           animate={animate}
           dragAndDropHooks={leftDndHooks}
           aria-label="Team A collection"
-        />
+        >
+          {(CollectionElements) => CollectionElements}
+        </Collection>
       </div>
 
       <div className={cx(collectionClasses, 'flex-1')}>
@@ -498,7 +505,9 @@ function DragDropStoryRender(args: DragDropStoryArgs) {
           animate={animate}
           dragAndDropHooks={rightDndHooks}
           aria-label="Team B collection"
-        />
+        >
+          {(CollectionElements) => CollectionElements}
+        </Collection>
       </div>
     </div>
   );
@@ -538,7 +547,9 @@ const layout = new ListLayout({ gap: 8 });
   )}
   selectionMode="multiple"
   aria-label="My collection"
-/>
+  >
+    {(CollectionElements) => CollectionElements}
+</Collection>
 \`\`\`
 
 ## Required Props
@@ -597,13 +608,17 @@ Selected items receive \`data-selected="true"\` and \`aria-selected="true"\` on 
   selectedKeys={selectedKeys}
   onSelectionChange={(keys) => setSelectedKeys(keys)}
   ...
-/>
+  >
+    {(CollectionElements) => CollectionElements}
+</Collection>
 
 // Uncontrolled
 <Collection
   defaultSelectedKeys={['1', '3']}
   ...
-/>
+  >
+    {(CollectionElements) => CollectionElements}
+</Collection>
 \`\`\`
 
 ### Disabled Items
@@ -611,7 +626,10 @@ Selected items receive \`data-selected="true"\` and \`aria-selected="true"\` on 
 Pass \`disabledKeys\` to prevent selection and skip items during keyboard navigation. Disabled items receive \`data-disabled="true"\`.
 
 \`\`\`tsx
-<Collection disabledKeys={['item-2', 'item-4']} ... />
+<Collection disabledKeys={['item-2', 'item-4']} ...
+  >
+    {(CollectionElements) => CollectionElements}
+</Collection>
 \`\`\`
 
 ## Keyboard Navigation
@@ -659,7 +677,10 @@ const rules = [
   { property: 'priority', direction: 'desc', type: 'number' },
 ];
 
-<Collection sortRules={rules} ... />
+<Collection sortRules={rules} ...
+  >
+    {(CollectionElements) => CollectionElements}
+</Collection>
 \`\`\`
 
 The special property \`'*'\` sorts by original array order (useful for a "reset" button). Nested properties are supported as arrays: \`['profile', 'displayName']\`.
@@ -702,7 +723,10 @@ const { dragAndDropHooks } = useDragAndDrop({
   acceptTypes: ['person'],
 });
 
-<Collection dragAndDropHooks={dragAndDropHooks} ... />
+<Collection dragAndDropHooks={dragAndDropHooks} ...
+  >
+    {(CollectionElements) => CollectionElements}
+</Collection>
 \`\`\`
 
 Dragging is multi-select aware: if a selected item is dragged, all selected items move together. Disabled items cannot be dragged.
@@ -716,7 +740,9 @@ For large lists, enable virtualization to only render visible items:
   virtualized
   overscan={5}  // extra rows rendered beyond viewport
   ...
-/>
+  >
+    {(CollectionElements) => CollectionElements}
+</Collection>
 \`\`\`
 
 ## Animation
@@ -772,7 +798,9 @@ Provide a custom empty state component:
   items={[]}
   emptyState={<div>No items found</div>}
   ...
-/>
+  >
+    {(CollectionElements) => CollectionElements}
+</Collection>
 \`\`\`
 `,
       },
@@ -1035,7 +1063,9 @@ function InteractionTestRender({
         disabledKeys={disabledKeys}
         animate={false}
         aria-label="Test collection"
-      />
+      >
+        {(CollectionElements) => CollectionElements}
+      </Collection>
     </div>
   );
 }

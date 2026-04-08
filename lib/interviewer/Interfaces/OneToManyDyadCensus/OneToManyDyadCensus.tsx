@@ -234,7 +234,9 @@ function OneToManyDyadCensus(props: OneToManyDyadCensusProps) {
           viewportClassName={isTransitioning ? 'overflow-visible p-4' : 'p-4'}
           aria-label="Target nodes"
           emptyState={<h3>No nodes to display.</h3>}
-        />
+        >
+          {(CollectionElements) => CollectionElements}
+        </Collection>
       </Surface>
     </div>
   );
