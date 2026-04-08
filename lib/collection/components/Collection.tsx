@@ -55,6 +55,7 @@ function CollectionContent<T extends Record<string, unknown>>({
   virtualized,
   overscan,
   viewportClassName,
+  fade,
   orientation,
   layoutGroupId,
   // Sort props
@@ -174,6 +175,7 @@ function CollectionContent<T extends Record<string, unknown>>({
         role="listbox"
         id={collectionId}
         viewportClassName={viewportClassName}
+        fade={fade}
         orientation={orientation}
         aria-label={ariaLabel}
         aria-labelledby={ariaLabelledBy}
@@ -287,6 +289,7 @@ export function Collection<T extends Record<string, unknown>>({
   virtualized,
   overscan,
   viewportClassName,
+  fade,
   orientation,
   layoutGroupId,
   // Sort props
@@ -337,6 +340,7 @@ export function Collection<T extends Record<string, unknown>>({
         virtualized={virtualized}
         overscan={overscan}
         viewportClassName={viewportClassName}
+        fade={fade}
         orientation={orientation}
         layoutGroupId={layoutGroupId}
         // Sort props

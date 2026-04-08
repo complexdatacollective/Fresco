@@ -1,5 +1,6 @@
 import { motion } from 'motion/react';
 import UINode, { type NodeColorSequence } from '~/components/Node';
+import { useDndStore, type DndStore } from '~/lib/dnd';
 
 const variants = {
   visible: { opacity: 1 },
@@ -25,24 +26,34 @@ const iconVariants = {
 };
 
 type DropOverlayProps = {
-  isOver: boolean;
+  dropTargetId: string;
   nodeColor: NodeColorSequence;
   message: string;
 };
 
-const DropOverlay = ({ isOver, nodeColor, message }: DropOverlayProps) => (
-  <motion.div
-    className="absolute inset-0 flex flex-col items-center justify-center bg-[rgb(58_58_117/80%)] [text-shadow:1px_1px_0.5em_var(--color-rich-black)]"
-    variants={variants}
-    initial="hidden"
-    animate="visible"
-    exit="hidden"
-  >
-    <motion.div variants={iconVariants} animate={isOver ? 'over' : 'initial'}>
-      <UINode label="" color={nodeColor} />
+const DropOverlay = ({
+  dropTargetId,
+  nodeColor,
+  message,
+}: DropOverlayProps) => {
+  const isOver = useDndStore(
+    (state: DndStore) => state.activeDropTargetId === dropTargetId,
+  );
+
+  return (
+    <motion.div
+      className="absolute inset-0 flex flex-col items-center justify-center bg-[rgb(58_58_117/80%)] [text-shadow:1px_1px_0.5em_var(--color-rich-black)]"
+      variants={variants}
+      initial="hidden"
+      animate="visible"
+      exit="hidden"
+    >
+      <motion.div variants={iconVariants} animate={isOver ? 'over' : 'initial'}>
+        <UINode label="" color={nodeColor} />
+      </motion.div>
+      <h2>{message}</h2>
     </motion.div>
-    <h2>{message}</h2>
-  </motion.div>
-);
+  );
+};
 
 export default DropOverlay;

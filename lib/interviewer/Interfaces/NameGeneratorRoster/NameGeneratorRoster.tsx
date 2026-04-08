@@ -102,7 +102,6 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
   const nodeVariables = useSelector(getNodeVariables);
 
   const filterKeys = useMemo(() => {
-    console.log('searchOptions', searchOptions, stage);
     if (!searchOptions) return undefined;
     return convertNamesToUUIDs(
       nodeVariables,
@@ -309,15 +308,16 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
   });
 
   // --- Drop overlay state ---
-  const isDragging = useDndStore((state: DndStore) => state.isDragging);
-  const activeDropTargetId = useDndStore(
-    (state: DndStore) => state.activeDropTargetId,
+  // Selecting a derived boolean (rather than raw dragItem/isDragging) keeps
+  // this parent from re-rendering on every drag-position update — it only
+  // re-renders when acceptance actually toggles.
+  const willAcceptDrop = useDndStore(
+    (state: DndStore) =>
+      state.isDragging &&
+      (state.dragItem?.metadata as { itemType?: string })?.itemType ===
+        'ADDED_NODES',
   );
-  const dragItem = useDndStore((state: DndStore) => state.dragItem);
-
-  const dragItemType = (dragItem?.metadata as { itemType?: string })?.itemType;
-  const willAcceptDrop = isDragging && dragItemType === 'ADDED_NODES';
-  const isOverSource = activeDropTargetId === `${sourceCollectionId}-container`;
+  const sourceDropTargetId = `${sourceCollectionId}-container`;
 
   // --- Render item callback ---
   const renderItem = useCallback(
@@ -330,8 +330,6 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
     ),
     [],
   );
-
-  console.log('filteredItems', filteredItems);
 
   return (
     <div className="interface" ref={interfaceRef}>
@@ -398,7 +396,7 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
               <AnimatePresence>
                 {willAcceptDrop && (
                   <DropOverlay
-                    isOver={isOverSource}
+                    dropTargetId={sourceDropTargetId}
                     nodeColor={dropNodeColor}
                     message="Drop here to remove"
                   />

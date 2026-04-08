@@ -297,7 +297,7 @@ export const FilterInteraction: Story = {
     await waitFor(
       () => {
         const resultBadge = canvas.getByText(/\d+ results?/);
-        const matches = resultBadge.textContent?.match(/(\d+)/);
+        const matches = /(\d+)/.exec(resultBadge.textContent);
         const count = Number(matches?.[1]);
         expect(count).toBeGreaterThan(0);
         expect(count).toBeLessThan(100);

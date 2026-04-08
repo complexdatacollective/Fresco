@@ -231,6 +231,12 @@ export type CollectionProps<T> = SortProps &
     /** Additional class names for the ScrollArea viewport (inner scrollable element) */
     'viewportClassName'?: string;
 
+    /**
+     * Whether the ScrollArea shows gradient fade indicators at the scroll
+     * edges. Forwarded to the inner ScrollArea. Defaults to true.
+     */
+    'fade'?: boolean;
+
     /** Scroll orientation for the collection's ScrollArea. Defaults to 'vertical'. */
     'orientation'?: 'vertical' | 'horizontal';
 

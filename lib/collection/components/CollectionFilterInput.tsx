@@ -93,7 +93,7 @@ export function CollectionFilterInput({
         <span className="text-sm text-current/70">{statusText}</span>
       </div>
     ) : (
-      <Search className="size-4" aria-hidden="true" />
+      <Search aria-hidden="true" />
     );
 
   const suffixContent = (
@@ -107,7 +107,6 @@ export function CollectionFilterInput({
       {showClearButton && hasQuery && (
         <IconButton
           variant="text"
-          size="sm"
           onClick={handleClear}
           aria-label="Clear search"
           icon={<X className="size-3.5" />}
