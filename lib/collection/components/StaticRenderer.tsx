@@ -1,4 +1,5 @@
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
+import { memo } from 'react';
 import { useStaggerAnimation } from '../hooks/useStaggerAnimation';
 import { type Layout } from '../layout/Layout';
 import {
@@ -24,8 +25,12 @@ type StaticRendererProps<T> = {
  * Uses the layout's getContainerStyles() method to determine CSS layout properties.
  * All items are rendered regardless of viewport visibility.
  * Supports optional stagger enter animation using the imperative useAnimate API.
+ *
+ * Memoized so that unrelated parent re-renders (e.g. context value changes)
+ * do not force reconciliation of all N children, which is critical for large
+ * collections where each child is a `motion.div` + `CollectionItem`.
  */
-export function StaticRenderer<T>({
+function StaticRendererComponent<T>({
   layout,
   collection,
   renderItem,
@@ -50,6 +55,30 @@ export function StaticRenderer<T>({
   const effectiveLayoutGroupId =
     layoutGroupId === undefined ? collectionId : (layoutGroupId ?? undefined);
 
+  // Fast path: no animation requested → skip the motion/LayoutGroup stack
+  // entirely and render plain divs. Motion wrappers have a measurable cost
+  // per instance even when no animation is active (context subscriptions,
+  // frame-loop registration, etc.), and `motion.div` forwarding through
+  // motion's internals added ~5 ms of post-commit work on a 500-item list.
+  if (!shouldAnimate) {
+    return (
+      <div ref={scope} style={containerStyle}>
+        {Array.from(collection).map((node) => (
+          <div key={node.key} style={layoutItemStyle}>
+            <div data-stagger-item data-stagger-key={animationKey}>
+              <CollectionItem
+                node={node}
+                renderItem={renderItem}
+                dragAndDropHooks={dragAndDropHooks}
+                layout={layout}
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
   return (
     <LayoutGroup id={effectiveLayoutGroupId}>
       <div ref={scope} style={containerStyle}>
@@ -57,10 +86,10 @@ export function StaticRenderer<T>({
           {Array.from(collection).map((node) => (
             <motion.div
               key={node.key}
-              layout={shouldAnimate ? 'position' : undefined}
-              initial={shouldAnimate ? { scale: 0.6, opacity: 0 } : false}
+              layout="position"
+              initial={{ scale: 0.6, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={shouldAnimate ? { scale: 0.6, opacity: 0 } : undefined}
+              exit={{ scale: 0.6, opacity: 0 }}
               style={layoutItemStyle}
             >
               <div data-stagger-item data-stagger-key={animationKey}>
@@ -78,3 +107,7 @@ export function StaticRenderer<T>({
     </LayoutGroup>
   );
 }
+
+export const StaticRenderer = memo(
+  StaticRendererComponent,
+) as typeof StaticRendererComponent;

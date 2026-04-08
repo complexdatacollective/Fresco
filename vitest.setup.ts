@@ -272,6 +272,14 @@ class ResizeObserverMock implements ResizeObserver {
 
 global.ResizeObserver = ResizeObserverMock;
 
+// jsdom doesn't implement Element.scrollTo — polyfill as a no-op so code
+// that calls scrollTo after navigation/resets doesn't throw under tests.
+if (typeof Element.prototype.scrollTo !== 'function') {
+  Element.prototype.scrollTo = function scrollTo() {
+    // no-op
+  };
+}
+
 // Mock offsetWidth and offsetHeight on HTMLElement for immediate container width detection
 // This allows hooks like useCollectionSetup to get initial dimensions synchronously
 Object.defineProperty(HTMLElement.prototype, 'offsetWidth', {

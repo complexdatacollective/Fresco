@@ -232,6 +232,20 @@ export const createCollectionStore = <T>(
       ) => {
         const state = get();
 
+        // Idempotency guard: if the inputs are referentially identical to the
+        // last call, skip everything. This catches React StrictMode's effect
+        // double-invoke (which would otherwise create a fresh items Map on
+        // each invocation and cascade invalidation through every memoised
+        // `useCollectionData` consumer), and also handles parents that
+        // re-render without changing the items prop.
+        if (
+          state._originalItems === items &&
+          state._keyExtractor === keyExtractor &&
+          state._textValueExtractor === textValueExtractor
+        ) {
+          return;
+        }
+
         // Store original items and extractors for re-sorting
         const originalItems = items;
         const storedKeyExtractor = keyExtractor;

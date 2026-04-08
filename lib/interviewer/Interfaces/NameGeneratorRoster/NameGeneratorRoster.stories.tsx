@@ -194,39 +194,37 @@ export const MultiplePrompts: Story = {
 };
 
 /**
- * Waits for the roster to finish loading and returns the available-to-add
- * panel canvas (the source listbox), bypassing the destination NodeList.
+ * Waits for the roster to finish loading and returns the source listbox
+ * element (the "Available to add" panel), bypassing the destination
+ * NodeList.
  */
-const waitForSourceCanvas = async (canvasElement: HTMLElement) => {
+const waitForSourceListbox = async (
+  canvasElement: HTMLElement,
+): Promise<HTMLElement> => {
   const canvas = within(canvasElement);
-  const sourceListbox = await waitFor(
+  return waitFor(
     () => {
       const source = canvas.getByRole('listbox', {
         name: 'Available Roster Nodes',
       });
-      const options = within(source).queryAllByRole('option');
+      const options = source.querySelectorAll('[role="option"]');
       if (options.length === 0) throw new Error('Roster items not yet loaded');
       return source;
     },
     { timeout: 10000 },
   );
-  return within(sourceListbox);
 };
 
 /**
  * Reads the accessible name (`aria-label`) of each card in the source
- * listbox. Each option contains a `<DataCard>` rendered as
- * `<article aria-label="...">`, which gives us the card title without
- * the description-list contents bleeding into the string.
+ * listbox. Each option element is the `<DataCard>` itself — an
+ * `<article aria-label="...">` — so we read the label directly off the
+ * option element rather than searching descendants.
  */
-const readSourceLabels = (source: ReturnType<typeof within>): string[] =>
-  source
-    .getAllByRole('option')
-    .map(
-      (el: HTMLElement) =>
-        el.querySelector('article[aria-label]')?.getAttribute('aria-label') ??
-        '',
-    );
+const readSourceLabels = (sourceListbox: HTMLElement): string[] =>
+  Array.from(sourceListbox.querySelectorAll('[role="option"]')).map(
+    (el) => el.getAttribute('aria-label') ?? '',
+  );
 
 /**
  * Interaction test: clicking "Sort by Name" reorders the roster
@@ -239,32 +237,32 @@ export const SortInteraction: Story = {
   render: (args) => <NameGeneratorRosterStoryWrapper {...args} />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const source = await waitForSourceCanvas(canvasElement);
+    const sourceListbox = await waitForSourceListbox(canvasElement);
 
     const sortByNameButton = canvas.getByRole('button', {
       name: /^Sort by Name/,
     });
     await userEvent.click(sortByNameButton);
 
-    await waitFor(() => {
-      const labels = readSourceLabels(source).slice(0, 5);
+    await waitFor(async () => {
+      const labels = readSourceLabels(sourceListbox).slice(0, 5);
 
       // Sort must be ascending alphabetical
       const sortedCopy = [...labels].sort((a, b) => a.localeCompare(b));
-      expect(labels).toEqual(sortedCopy);
+      await expect(labels).toEqual(sortedCopy);
 
       // The first label must start with 'A' (otherwise the sort silently
       // failed and items are still in their original load order).
-      expect(labels[0]?.[0]?.toLowerCase()).toBe('a');
+      await expect(labels[0]?.[0]?.toLowerCase()).toBe('a');
     });
 
     // Toggle to descending and verify the order reverses
     await userEvent.click(sortByNameButton);
 
-    await waitFor(() => {
-      const labels = readSourceLabels(source).slice(0, 5);
+    await waitFor(async () => {
+      const labels = readSourceLabels(sourceListbox).slice(0, 5);
       const sortedDescCopy = [...labels].sort((a, b) => b.localeCompare(a));
-      expect(labels).toEqual(sortedDescCopy);
+      await expect(labels).toEqual(sortedDescCopy);
     });
   },
 };
@@ -282,8 +280,13 @@ export const FilterInteraction: Story = {
   render: (args) => <NameGeneratorRosterStoryWrapper {...args} />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const source = await waitForSourceCanvas(canvasElement);
-    expect(source.getAllByRole('option').length).toBeGreaterThan(10);
+    const sourceListbox = await waitForSourceListbox(canvasElement);
+    // Virtualized list only renders what fits the viewport plus overscan,
+    // so we only assert on "enough to run the test" rather than a specific
+    // count tied to viewport height.
+    await expect(
+      sourceListbox.querySelectorAll('[role="option"]').length,
+    ).toBeGreaterThanOrEqual(5);
 
     const filterInput = canvas.getByRole('searchbox', { name: 'Filter' });
     await userEvent.type(filterInput, 'Moses Crist');
@@ -295,15 +298,15 @@ export const FilterInteraction: Story = {
     // rather than its textContent so the description-list contents
     // don't bleed into the comparison.
     await waitFor(
-      () => {
+      async () => {
         const resultBadge = canvas.getByText(/\d+ results?/);
         const matches = /(\d+)/.exec(resultBadge.textContent);
         const count = Number(matches?.[1]);
-        expect(count).toBeGreaterThan(0);
-        expect(count).toBeLessThan(100);
+        await expect(count).toBeGreaterThan(0);
+        await expect(count).toBeLessThan(100);
 
-        const firstLabel = readSourceLabels(source)[0];
-        expect(firstLabel).toBe('Moses Crist');
+        const firstLabel = readSourceLabels(sourceListbox)[0];
+        await expect(firstLabel).toBe('Moses Crist');
       },
       { timeout: 5000 },
     );

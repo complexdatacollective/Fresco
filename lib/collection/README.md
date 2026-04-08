@@ -430,8 +430,7 @@ The separate `VirtualizedCollection` component has been merged into `Collection`
 
 // After
 const layout = useMemo(
-  () =>
-    new ListLayout<Item>({ gap: 8, virtualized: true }),
+  () => new ListLayout<Item>({ gap: 8, virtualized: true }),
   [],
 );
 

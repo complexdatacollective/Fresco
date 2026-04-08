@@ -16,13 +16,13 @@ export default defineConfig({
     tsconfigPaths: true,
   },
   test: {
-    environment: 'jsdom',
     globals: true,
     exclude: ['**/node_modules/**', '**/tests/e2e/**'], // Exclude Playwright E2E tests
     projects: [
       {
         extends: true,
         test: {
+          environment: 'jsdom',
           exclude: [
             '**/*.stories.tsx', // Exclude Storybook files from unit tests
             '**/*.stories.ts',
@@ -36,6 +36,8 @@ export default defineConfig({
         plugins: [
           storybookTest({
             configDir: path.join(dirname, '.storybook'),
+            storybookScript:
+              'SKIP_ENV_VALIDATION=true storybook dev -p 6006 --no-open',
           }),
         ],
         test: {
@@ -51,7 +53,6 @@ export default defineConfig({
             '**/*.test.ts', // Exclude regular test files from Storybook tests
             '**/*.test.tsx',
           ],
-          setupFiles: ['./.storybook/vitest.setup.ts'],
         },
       },
     ],

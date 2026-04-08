@@ -2,7 +2,7 @@ import { type VariableValue } from '@codaco/shared-consts';
 import Heading from '~/components/typography/Heading';
 import { cx } from '~/utils/cva';
 
-export type DataCardDetails = Record<string, VariableValue | undefined>;
+type DataCardDetails = Record<string, VariableValue | undefined>;
 
 type DataCardProps = Omit<
   React.ComponentPropsWithRef<'article'>,

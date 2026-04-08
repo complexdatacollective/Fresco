@@ -1,9 +1,13 @@
 'use client';
 
 import { useCallback, useEffect } from 'react';
+import { useShallow } from 'zustand/shallow';
 import { useCollectionStore } from '../contexts';
 import { type SelectionManager } from '../selection/SelectionManager';
-import { type SelectableItemResult } from '../selection/types';
+import {
+  type SelectableItemResult,
+  type SelectionMode,
+} from '../selection/types';
 import { type Key } from '../types';
 
 type UseSelectableItemOptions = {
@@ -48,28 +52,36 @@ export function useSelectableItem(
 ): SelectableItemResult {
   const { key, selectionManager, ref, selectOnFocus = false } = options;
 
-  // Subscribe to this item's state
-  const isSelected = useCollectionStore<unknown, boolean>((state) => {
-    if (state.selectedKeys === 'all') {
-      return !state.disabledKeys.has(key);
-    }
-    return state.selectedKeys.has(key);
-  });
+  // Subscribe to all of this item's derived state in a single store
+  // subscription with shallow comparison. Previously we had five separate
+  // `useCollectionStore` calls, each installing its own `useSyncExternalStore`
+  // subscription; for a list of N items that multiplies the selector and
+  // subscription overhead by 5 on every store update.
+  type ItemSelectionSnapshot = {
+    isSelected: boolean;
+    isFocused: boolean;
+    isDisabled: boolean;
+    isFocusedCollection: boolean;
+    selectionMode: SelectionMode;
+  };
 
-  const isFocused = useCollectionStore<unknown, boolean>(
-    (state) => state.focusedKey === key,
-  );
-
-  const isDisabled = useCollectionStore<unknown, boolean>((state) =>
-    state.disabledKeys.has(key),
-  );
-
-  const isFocusedCollection = useCollectionStore<unknown, boolean>(
-    (state) => state.isFocused,
-  );
-
-  const selectionMode = useCollectionStore<unknown, string>(
-    (state) => state.selectionMode,
+  const {
+    isSelected,
+    isFocused,
+    isDisabled,
+    isFocusedCollection,
+    selectionMode,
+  } = useCollectionStore<unknown, ItemSelectionSnapshot>(
+    useShallow((state) => ({
+      isSelected:
+        state.selectedKeys === 'all'
+          ? !state.disabledKeys.has(key)
+          : state.selectedKeys.has(key),
+      isFocused: state.focusedKey === key,
+      isDisabled: state.disabledKeys.has(key),
+      isFocusedCollection: state.isFocused,
+      selectionMode: state.selectionMode,
+    })),
   );
 
   // Focus management: focus the DOM element when this item becomes focused
@@ -104,31 +116,19 @@ export function useSelectableItem(
     }
   }, [key, selectionManager, selectOnFocus, selectionMode, isDisabled]);
 
-  // Handle click event
+  // Handle click event. Delegates to `handleItemClick`, which batches the
+  // focus and selection changes into a single store write so subscribers
+  // only wake once per click.
   const handleClick = useCallback(
     (e: React.MouseEvent) => {
       if (isDisabled || selectionMode === 'none') {
         return;
       }
-
-      // Set focus
-      selectionManager.setFocusedKey(key);
-
-      // Handle selection based on modifiers
-      if (e.shiftKey && selectionMode === 'multiple') {
-        // Extend selection
-        selectionManager.extendSelection(key);
-      } else if (e.ctrlKey || e.metaKey) {
-        // Toggle selection
-        selectionManager.toggleSelection(key);
-      } else {
-        // Replace or toggle based on selection behavior
-        if (selectionManager.selectionBehavior === 'toggle') {
-          selectionManager.toggleSelection(key);
-        } else {
-          selectionManager.replaceSelection(key);
-        }
-      }
+      selectionManager.handleItemClick(key, {
+        shiftKey: e.shiftKey,
+        ctrlKey: e.ctrlKey,
+        metaKey: e.metaKey,
+      });
     },
     [key, selectionManager, isDisabled, selectionMode],
   );

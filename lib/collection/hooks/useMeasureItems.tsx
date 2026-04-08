@@ -27,6 +27,24 @@ type UseMeasureItemsResult = {
 const WIDTH_CHANGE_THRESHOLD = 10;
 
 /**
+ * Maximum number of items to render into the hidden measurement container in
+ * a single measurement pass. For collections larger than this we measure a
+ * representative sample and extrapolate using the largest observed size.
+ *
+ * Rationale: measurement forces synchronous layout on every rendered item
+ * (`getBoundingClientRect` × N). With a 5 000-item list that's ~180 ms of
+ * main-thread work per measurement, and because the pass runs on every
+ * significant width change (e.g. scrollbar appearing), it can block the
+ * initial stagger animation and cause subsequent stutters.
+ *
+ * Trade-off: items that would have measured smaller than the sample's max
+ * will have extra whitespace in the virtualized layout until they're
+ * actually rendered into the viewport. For the common case of roughly
+ * uniform items (cards, list rows) the visual effect is imperceptible.
+ */
+const SAMPLE_SIZE = 32;
+
+/**
  * Hook that measures item dimensions for virtualization.
  * Renders items in a hidden container and measures their bounding boxes.
  *
@@ -75,6 +93,18 @@ export function useMeasureItems<T>({
     () => Array.from(collection.getKeys()),
     [collection],
   );
+
+  // Keys we actually render into the hidden measurement container. For large
+  // collections this is capped at SAMPLE_SIZE; the rest get an extrapolated
+  // size after the sample completes. See SAMPLE_SIZE comment for rationale.
+  const sampledKeys = useMemo(
+    () =>
+      orderedKeys.length > SAMPLE_SIZE
+        ? orderedKeys.slice(0, SAMPLE_SIZE)
+        : orderedKeys,
+    [orderedKeys],
+  );
+  const isSampled = sampledKeys.length < orderedKeys.length;
 
   // Create ref callback for each item
   const createItemRef = useCallback((key: Key) => {
@@ -154,7 +184,11 @@ export function useMeasureItems<T>({
 
     const newMeasurements = new Map<Key, Size>();
 
-    for (const key of orderedKeys) {
+    // Measure the rendered sample (which equals `orderedKeys` when the
+    // collection is small enough, or the first SAMPLE_SIZE items otherwise).
+    let maxWidth = 0;
+    let maxHeight = 0;
+    for (const key of sampledKeys) {
       const element = itemRefsRef.current.get(key);
       if (!element) continue;
 
@@ -170,10 +204,26 @@ export function useMeasureItems<T>({
         }
       }
 
-      newMeasurements.set(key, {
-        width: rect.width,
-        height: rect.height,
-      });
+      const size = { width: rect.width, height: rect.height };
+      newMeasurements.set(key, size);
+      if (size.width > maxWidth) maxWidth = size.width;
+      if (size.height > maxHeight) maxHeight = size.height;
+    }
+
+    // If we sampled (collection larger than SAMPLE_SIZE), fill in estimated
+    // sizes for the unmeasured tail using the largest observed size. The
+    // layout expects a measurement for every key, and over-estimating is
+    // preferable to under-estimating because it prevents content overlap in
+    // the initial virtualized layout. Real measurements replace these as
+    // items actually scroll into the viewport (future lazy-measure pass).
+    if (isSampled && maxHeight > 0) {
+      const estimate: Size = { width: maxWidth, height: maxHeight };
+      for (let i = sampledKeys.length; i < orderedKeys.length; i++) {
+        const key = orderedKeys[i];
+        if (key !== undefined) {
+          newMeasurements.set(key, estimate);
+        }
+      }
     }
 
     // Capture sentinel size at measurement time so the ResizeObserver
@@ -190,7 +240,9 @@ export function useMeasureItems<T>({
     setMeasurements(newMeasurements);
     setIsComplete(newMeasurements.size === orderedKeys.length);
   }, [
+    sampledKeys,
     orderedKeys,
+    isSampled,
     measurementInfo.mode,
     skip,
     containerWidth,
@@ -198,8 +250,17 @@ export function useMeasureItems<T>({
     isComplete,
   ]);
 
-  // Reset measurements when collection or layout changes
+  // Reset measurements when collection or layout *actually* changes.
+  // Skipping the first run avoids a redundant reset on mount — state is
+  // already empty at that point, and the extra `setMeasurements(new Map())`
+  // schedules an unnecessary re-render because the new Map has a different
+  // reference than the initial one.
+  const hasTrackedCollectionLayoutRef = useRef(false);
   useLayoutEffect(() => {
+    if (!hasTrackedCollectionLayoutRef.current) {
+      hasTrackedCollectionLayoutRef.current = true;
+      return;
+    }
     setIsComplete(false);
     setMeasurements(new Map());
     lastMeasuredSentinelSizeRef.current = null;
@@ -249,7 +310,7 @@ export function useMeasureItems<T>({
           // when external stylesheets load and change root font-size.
         }}
       >
-        {orderedKeys.map((key) => {
+        {sampledKeys.map((key) => {
           const node = collection.getItem(key);
           if (!node) return null;
 
@@ -275,6 +336,7 @@ export function useMeasureItems<T>({
     skip,
     measurementInfo,
     orderedKeys,
+    sampledKeys,
     collection,
     renderItem,
     containerWidth,

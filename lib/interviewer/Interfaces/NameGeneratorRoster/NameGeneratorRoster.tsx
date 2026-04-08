@@ -319,7 +319,6 @@ const NameGeneratorRoster = (props: NameGeneratorRosterProps) => {
   );
   const sourceDropTargetId = `${sourceCollectionId}-container`;
 
-  // --- Render item callback ---
   const renderItem = useCallback(
     (item: UseItemElement, itemProps: ItemProps) => (
       <DataCard

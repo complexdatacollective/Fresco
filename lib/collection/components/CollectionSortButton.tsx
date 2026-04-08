@@ -2,10 +2,15 @@
 
 import { ArrowUpIcon } from 'lucide-react';
 import { motion } from 'motion/react';
+import { useShallow } from 'zustand/shallow';
 import { Button, type ButtonProps } from '~/components/ui/Button';
 import { cx } from '~/utils/cva';
-import { useOptionalSortManager } from '../contexts';
-import { type SortProperty, type SortType } from '../sorting/types';
+import { useCollectionStore, useOptionalSortManager } from '../contexts';
+import {
+  type SortDirection,
+  type SortProperty,
+  type SortType,
+} from '../sorting/types';
 
 const MotionArrowIcon = motion.create(ArrowUpIcon);
 
@@ -52,6 +57,18 @@ export function CollectionSortButton({
 }: CollectionSortButtonProps) {
   const sortManager = useOptionalSortManager();
 
+  // Subscribe directly to the sort state we render. SortManager is stable,
+  // so it cannot trigger re-renders on its own.
+  const { sortProperty, sortDirection } = useCollectionStore<
+    unknown,
+    { sortProperty: SortProperty | null; sortDirection: SortDirection }
+  >(
+    useShallow((state) => ({
+      sortProperty: state.sortProperty,
+      sortDirection: state.sortDirection,
+    })),
+  );
+
   if (!sortManager) {
     // eslint-disable-next-line no-console
     console.warn(
@@ -60,8 +77,13 @@ export function CollectionSortButton({
     return null;
   }
 
-  const isActive = sortManager.isSortedBy(property);
-  const direction = sortManager.getDirectionFor(property);
+  const isActive =
+    sortProperty !== null &&
+    (Array.isArray(property) && Array.isArray(sortProperty)
+      ? property.length === sortProperty.length &&
+        property.every((p, i) => p === sortProperty[i])
+      : sortProperty === property);
+  const direction: SortDirection | null = isActive ? sortDirection : null;
 
   const handleClick = () => {
     sortManager.sortBy(property, type);

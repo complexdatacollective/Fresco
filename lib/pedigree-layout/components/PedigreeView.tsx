@@ -40,13 +40,11 @@ import {
   type NcNode,
   type VariableValue,
 } from '@codaco/shared-consts';
-import { type NodeMetadata } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import { type ParentEdge } from '~/schemas/familyPedigree';
 
 type PedigreeViewProps = {
   overrideNodes?: Map<string, NcNode>;
   overrideEdges?: Map<string, NcEdge>;
-  overrideNodeMetadata?: Map<string, NodeMetadata>;
   activeNominationVariable?: string | null;
   onToggleAttribute?: (nodeId: string, variable: string) => void;
 };
@@ -54,20 +52,17 @@ type PedigreeViewProps = {
 export default function PedigreeView({
   overrideNodes,
   overrideEdges,
-  overrideNodeMetadata,
   activeNominationVariable: activeNominationVariableProp,
   onToggleAttribute,
 }: PedigreeViewProps = {}) {
   const storeNodes = useFamilyPedigreeStore((s) => s.network.nodes);
   const storeEdges = useFamilyPedigreeStore((s) => s.network.edges);
-  const storeNodeMetadata = useFamilyPedigreeStore((s) => s.nodeMetadata);
   const storeActiveNominationVariable = useFamilyPedigreeStore(
     (s) => s.activeNominationVariable,
   );
 
   const nodes = overrideNodes ?? storeNodes;
   const edges = overrideEdges ?? storeEdges;
-  const nodeMetadata = overrideNodeMetadata ?? storeNodeMetadata;
   const activeNominationVariable =
     activeNominationVariableProp ?? storeActiveNominationVariable;
 
@@ -382,7 +377,6 @@ export default function PedigreeView({
                 e.to === node.id &&
                 e.attributes[relationshipTypeVariable] === 'adoptive',
             );
-            const meta = nodeMetadata.get(node.id);
 
             return activeNominationVariable ? (
               <PedigreeNode

@@ -1,6 +1,7 @@
 'use client';
 
 import { ArrowDownIcon, ArrowUpIcon, ChevronsUpDownIcon } from 'lucide-react';
+import { useShallow } from 'zustand/shallow';
 import { Button, type ButtonProps } from '~/components/ui/Button';
 import {
   DropdownMenu,
@@ -10,8 +11,12 @@ import {
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
 import { cx } from '~/utils/cva';
-import { useOptionalSortManager } from '../contexts';
-import { type SortableProperty, type SortProperty } from '../sorting/types';
+import { useCollectionStore, useOptionalSortManager } from '../contexts';
+import {
+  type SortableProperty,
+  type SortDirection,
+  type SortProperty,
+} from '../sorting/types';
 
 type CollectionSortSelectProps = {
   /** Array of sortable properties to display in the dropdown */
@@ -70,6 +75,25 @@ export function CollectionSortSelect({
 }: CollectionSortSelectProps) {
   const sortManager = useOptionalSortManager();
 
+  // Subscribe directly to the slice of sort state that we render. SortManager
+  // is stable (by design), so it does not trigger re-renders on state change.
+  const { currentProperty, currentDirection, isSorted } = useCollectionStore<
+    unknown,
+    {
+      currentProperty: SortProperty | null;
+      currentDirection: SortDirection;
+      isSorted: boolean;
+    }
+  >(
+    useShallow((state) => ({
+      currentProperty: state.sortProperty,
+      currentDirection: state.sortDirection,
+      isSorted:
+        state.sortProperty !== null ||
+        (state.sortRules).length > 0,
+    })),
+  );
+
   if (!sortManager) {
     // eslint-disable-next-line no-console
     console.warn(
@@ -77,10 +101,6 @@ export function CollectionSortSelect({
     );
     return null;
   }
-
-  const currentProperty = sortManager.sortProperty;
-  const currentDirection = sortManager.sortDirection;
-  const isSorted = sortManager.isSorted;
 
   // Find the current option label
   const currentOption = currentProperty

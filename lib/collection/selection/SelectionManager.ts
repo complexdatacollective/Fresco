@@ -22,21 +22,32 @@ type SelectionManagerOptions = {
  * convenient methods for common selection operations.
  */
 export class SelectionManager {
-  private collection: Collection<unknown>;
-  private state: SelectionState;
+  private _getCollection: () => Collection<unknown>;
+  private _getState: () => SelectionState;
   private setState: (updates: Partial<SelectionState>) => void;
   private options: SelectionManagerOptions;
 
   constructor(
-    collection: Collection<unknown>,
-    state: SelectionState,
+    collection: Collection<unknown> | (() => Collection<unknown>),
+    state: SelectionState | (() => SelectionState),
     setState: (updates: Partial<SelectionState>) => void,
     options: SelectionManagerOptions = {},
   ) {
-    this.collection = collection;
-    this.state = state;
+    this._getCollection =
+      typeof collection === 'function' ? collection : () => collection;
+    this._getState = typeof state === 'function' ? state : () => state;
     this.setState = setState;
     this.options = options;
+  }
+
+  /** Lazily resolve the current state - allows the manager to be stable across renders */
+  private get state(): SelectionState {
+    return this._getState();
+  }
+
+  /** Lazily resolve the current collection */
+  private get collection(): Collection<unknown> {
+    return this._getCollection();
   }
 
   // ============================================================
@@ -121,6 +132,31 @@ export class SelectionManager {
       return false;
     }
     return this.state.selectedKeys.size === 0;
+  }
+
+  /**
+   * Get the number of selected items without materialising a new Set.
+   * Cheaper than `selectedKeys.size` when you only need the count.
+   */
+  get selectionSize(): number {
+    const { selectedKeys } = this.state;
+    if (selectedKeys === 'all') {
+      return this.getAllSelectableKeys().length;
+    }
+    return selectedKeys.size;
+  }
+
+  /**
+   * Returns the raw underlying selection without copying — either the
+   * `Selection` instance from state, or a fresh Set when the selection is
+   * `'all'`. Callers must not mutate the result.
+   */
+  get rawSelectedKeys(): ReadonlySet<Key> {
+    const { selectedKeys } = this.state;
+    if (selectedKeys === 'all') {
+      return new Set(this.getAllSelectableKeys());
+    }
+    return selectedKeys;
   }
 
   /** Check if all selectable items are selected */
@@ -351,5 +387,71 @@ export class SelectionManager {
   private updateSelection(selection: Selection): void {
     this.setState({ selectedKeys: selection });
     this.options.onSelectionChange?.(new Set(selection));
+  }
+
+  /**
+   * Handle an item click in a single atomic store update.
+   * Batches the focus change and the selection change so subscribers
+   * only wake once per click — previously two separate `setFocusedKey`
+   * + selection calls fired two notification rounds.
+   */
+  handleItemClick(
+    key: Key,
+    modifiers: {
+      shiftKey?: boolean;
+      ctrlKey?: boolean;
+      metaKey?: boolean;
+    } = {},
+  ): void {
+    const { state } = this;
+    if (state.selectionMode === 'none') return;
+    if (!this.canSelectItem(key)) return;
+
+    const currentSelection = this.ensureSelection();
+    let newSelection: Selection;
+
+    if (modifiers.shiftKey && state.selectionMode === 'multiple') {
+      // Extend range selection
+      const anchorKey = currentSelection.anchorKey ?? state.focusedKey ?? key;
+      const previousCurrentKey = currentSelection.currentKey ?? anchorKey;
+      newSelection = new Selection(currentSelection, anchorKey, key);
+      for (const k of this.getKeyRange(anchorKey, previousCurrentKey)) {
+        newSelection.delete(k);
+      }
+      for (const k of this.getKeyRange(anchorKey, key)) {
+        if (this.canSelectItem(k)) {
+          newSelection.add(k);
+        }
+      }
+    } else if (
+      modifiers.ctrlKey ||
+      modifiers.metaKey ||
+      state.selectionBehavior === 'toggle'
+    ) {
+      // Toggle selection
+      if (currentSelection.has(key)) {
+        if (state.disallowEmptySelection && currentSelection.size === 1) {
+          // Can't deselect the last item — still move focus though
+          this.setState({ focusedKey: key, childFocusStrategy: 'first' });
+          return;
+        }
+        newSelection = currentSelection.deleteKey(key);
+      } else if (state.selectionMode === 'single') {
+        newSelection = new Selection([key], key, key);
+      } else {
+        newSelection = currentSelection.addKey(key);
+      }
+    } else {
+      // Replace selection
+      newSelection = new Selection([key], key, key);
+    }
+
+    // Single atomic store write — focus + selection together
+    this.setState({
+      selectedKeys: newSelection,
+      focusedKey: key,
+      childFocusStrategy: 'first',
+    });
+    this.options.onSelectionChange?.(new Set(newSelection));
   }
 }

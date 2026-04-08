@@ -72,7 +72,9 @@ export function useSortState(props: SortProps = {}): SortManager {
     });
   }
 
-  // Subscribe to sort state with shallow comparison
+  // Subscribe to sort state with shallow comparison. This hook drives the
+  // SortManager's reactive reads for external consumers (e.g. user code that
+  // reads `sortManager.sortProperty` during render).
   const sortState = useCollectionStore<unknown, SortState>(
     useShallow((state) => ({
       sortProperty: state.sortProperty,

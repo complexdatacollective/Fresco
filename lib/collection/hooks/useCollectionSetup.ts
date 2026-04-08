@@ -75,7 +75,10 @@ export function useCollectionSetup<T>(
     }
   }, [containerRef, containerWidth]);
 
-  // Main effect to track container width using ResizeObserver
+  // Main effect to track container width using ResizeObserver.
+  // Intentionally does not depend on `containerWidth`: the effect sets
+  // `containerWidth` but never reads it, so including it in deps would cause
+  // the ResizeObserver to disconnect/reconnect on every width change.
   useEffect(() => {
     const element = containerRef?.current;
     if (!element) return;
@@ -98,7 +101,7 @@ export function useCollectionSetup<T>(
 
     resizeObserver.observe(element);
     return () => resizeObserver.disconnect();
-  }, [refVersion, containerWidth, containerRef]);
+  }, [refVersion, containerRef]);
 
   // Set container ref on layout for DOM-based position queries
   // This allows layouts like InlineGridLayout to query actual item positions

@@ -1,8 +1,9 @@
 'use client';
 
-import { AnimatePresence, LayoutGroup } from 'motion/react';
+import { LayoutGroup } from 'motion/react';
 import {
   type RefObject,
+  memo,
   useEffect,
   useLayoutEffect,
   useMemo,
@@ -48,7 +49,7 @@ type VirtualizedRendererProps<T> = {
  * - Layout animations work for items within visible rows
  * - Initial stagger animation applies to first visible items
  */
-export function VirtualizedRenderer<T>({
+function VirtualizedRendererComponent<T>({
   layout,
   collection,
   renderItem,
@@ -185,6 +186,12 @@ export function VirtualizedRenderer<T>({
   const effectiveLayoutGroupId =
     layoutGroupId === undefined ? collectionId : (layoutGroupId ?? undefined);
 
+  // No `AnimatePresence` here: its direct children are plain `<div>`s (row
+  // wrappers), not motion components, so `AnimatePresence` would have nothing
+  // to track for enter/exit animations — it would just add context overhead
+  // without behavioural benefit. `LayoutGroup` is kept so that nested
+  // user-provided motion components (from `renderItem`) still coordinate
+  // layout animations with each other.
   return (
     <>
       {measurementContainer}
@@ -194,37 +201,44 @@ export function VirtualizedRenderer<T>({
           style={{ height: totalHeight }}
           ref={scope}
         >
-          <AnimatePresence mode="popLayout" initial={false}>
-            {virtualItems.map(({ row, offsetTop }) => (
-              <div
-                key={row.rowIndex}
-                style={{
-                  ...rowStyle,
-                  transform: `translateY(${offsetTop}px)`,
-                }}
-              >
-                {row.itemKeys.map((key) => {
-                  const node = collection.getItem(key);
-                  if (!node) return null;
+          {virtualItems.map(({ row, offsetTop }) => (
+            <div
+              key={row.rowIndex}
+              style={{
+                ...rowStyle,
+                transform: `translateY(${offsetTop}px)`,
+              }}
+            >
+              {row.itemKeys.map((key) => {
+                const node = collection.getItem(key);
+                if (!node) return null;
 
-                  return (
-                    <div key={key} style={itemStyle}>
-                      <div data-stagger-item data-stagger-key={animationKey}>
-                        <CollectionItem
-                          node={node}
-                          renderItem={renderItem}
-                          dragAndDropHooks={dragAndDropHooks}
-                          layout={layout}
-                        />
-                      </div>
+                return (
+                  <div key={key} style={itemStyle}>
+                    <div data-stagger-item data-stagger-key={animationKey}>
+                      <CollectionItem
+                        node={node}
+                        renderItem={renderItem}
+                        dragAndDropHooks={dragAndDropHooks}
+                        layout={layout}
+                      />
                     </div>
-                  );
-                })}
-              </div>
-            ))}
-          </AnimatePresence>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
         </div>
       </LayoutGroup>
     </>
   );
 }
+
+/**
+ * Memoized so that unrelated parent re-renders (e.g. a context provider
+ * further up the tree changing identity) do not trigger reconciliation of
+ * all visible virtual items.
+ */
+export const VirtualizedRenderer = memo(
+  VirtualizedRendererComponent,
+) as typeof VirtualizedRendererComponent;

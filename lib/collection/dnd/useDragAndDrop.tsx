@@ -129,12 +129,17 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
         // Check if item is disabled - disabled items should not be draggable
         const isDisabled = selectionManager?.isDisabled(key) ?? false;
 
-        // If the item being dragged is selected and we have multiple selection,
-        // include all selected keys in the drag operation
+        // If the item being dragged is selected AND selection contains more
+        // than one key, include all selected keys in the drag operation.
+        // We only materialise the Set of selected keys when the bulk-drag
+        // path is actually taken — allocating a Set per item per render was
+        // a measurable cost for large collections.
         const isSelected = selectionManager?.isSelected(key) ?? false;
-        const selectedKeys = selectionManager?.selectedKeys ?? new Set<Key>();
-        const dragKeys =
-          isSelected && selectedKeys.size > 1 ? selectedKeys : new Set([key]);
+        const selectionSize = selectionManager?.selectionSize ?? 0;
+        const useBulkDrag = isSelected && selectionSize > 1;
+        const dragKeys: Set<Key> = useBulkDrag
+          ? new Set(selectionManager!.rawSelectedKeys)
+          : new Set([key]);
 
         const items = getItems(dragKeys);
         const firstItem = items[0];
@@ -147,7 +152,9 @@ export function useDragAndDrop<T>(options: DragAndDropOptions<T>): {
 
         const dragType = firstItem?.type ?? 'collection-item';
 
-        const preview = renderPreview ? renderPreview(key, metadata) : undefined;
+        const preview = renderPreview
+          ? renderPreview(key, metadata)
+          : undefined;
 
         const { dragProps, isDragging } = useDragSource({
           type: dragType,

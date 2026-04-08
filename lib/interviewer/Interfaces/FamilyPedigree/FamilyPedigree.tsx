@@ -18,10 +18,7 @@ import {
   FamilyPedigreeProvider,
   useFamilyPedigreeStore,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/FamilyPedigreeProvider';
-import {
-  type NodeMetadata,
-  type VariableConfig,
-} from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
+import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import {
   getEdgeTypeKey,
   getIsActiveVariable,
@@ -100,14 +97,6 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
     () => new Map<string, NcEdge>(allEdges.map((e) => [e._uid, e])),
     [allEdges],
   );
-  const reduxNodeMetadata = useMemo(
-    () =>
-      new Map<string, NodeMetadata>(
-        allNodes.map((n) => [n._uid, { readOnly: true }]),
-      ),
-    [allNodes],
-  );
-
   const handleToggleAttribute = (nodeId: string, variable: string) => {
     const node = allNodes.find((n) => n._uid === nodeId);
     const currentValue = node?.attributes[variable] === true;
@@ -362,7 +351,6 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
                 <PedigreeView
                   overrideNodes={reduxNodesMap}
                   overrideEdges={reduxEdgesMap}
-                  overrideNodeMetadata={reduxNodeMetadata}
                   activeNominationVariable={
                     allPrompts[currentStepIndex]?.variable ?? null
                   }

@@ -15,7 +15,6 @@ export type NodeContextMenuAction =
   | 'delete';
 
 type NodeContextMenuProps = {
-  isBiological: boolean;
   isEgo: boolean;
   canAddParent: boolean;
   canAddSibling: boolean;
@@ -34,7 +33,6 @@ const destructiveMenuItemClass = cx(
 );
 
 export default function NodeContextMenu({
-  isBiological,
   isEgo,
   canAddParent,
   canAddSibling,

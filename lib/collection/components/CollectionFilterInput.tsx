@@ -2,10 +2,11 @@
 
 import { Loader2, Search, X } from 'lucide-react';
 import { type ReactNode, useCallback } from 'react';
+import { useShallow } from 'zustand/shallow';
 import { IconButton } from '~/components/ui/Button';
 import InputField from '~/lib/form/components/fields/InputField';
 import { cx } from '~/utils/cva';
-import { useOptionalFilterManager } from '../contexts';
+import { useCollectionStore, useOptionalFilterManager } from '../contexts';
 
 type CollectionFilterInputProps = {
   /** Placeholder text for the input. Default: "Search..." */
@@ -58,6 +59,31 @@ export function CollectionFilterInput({
 }: CollectionFilterInputProps) {
   const filterManager = useOptionalFilterManager();
 
+  // Subscribe directly to the slice of filter state this component renders.
+  // The FilterManager is stable (by design), so we cannot rely on it to
+  // trigger re-renders when the query or status changes.
+  const { query, isFiltering, isIndexing, matchCount, hasActiveFilter } =
+    useCollectionStore<
+      unknown,
+      {
+        query: string;
+        isFiltering: boolean;
+        isIndexing: boolean;
+        matchCount: number | null;
+        hasActiveFilter: boolean;
+      }
+    >(
+      useShallow((state) => ({
+        query: state.filterQuery,
+        isFiltering: state.filterIsFiltering,
+        isIndexing: state.filterIsIndexing,
+        matchCount: state.filterMatchCount,
+        hasActiveFilter:
+          state.filterDebouncedQuery.length > 0 &&
+          state.filterMatchingKeys !== null,
+      })),
+    );
+
   const handleChange = useCallback(
     (value: string | undefined) => {
       if (!filterManager) return;
@@ -78,9 +104,9 @@ export function CollectionFilterInput({
     return null;
   }
 
-  const isLoading = filterManager.isFiltering || filterManager.isIndexing;
-  const hasQuery = filterManager.query.length > 0;
-  const statusText = filterManager.isIndexing ? indexingText : loadingText;
+  const isLoading = isFiltering || isIndexing;
+  const hasQuery = query.length > 0;
+  const statusText = isIndexing ? indexingText : loadingText;
 
   const defaultLoadingIndicator = (
     <Loader2 className="size-4 animate-spin" aria-hidden="true" />
@@ -98,10 +124,10 @@ export function CollectionFilterInput({
 
   const suffixContent = (
     <div className="flex items-center gap-2">
-      {showResultCount && filterManager.hasActiveFilter && (
+      {showResultCount && hasActiveFilter && (
         <span className="text-sm text-current/70">
-          {filterManager.matchCount} result
-          {filterManager.matchCount !== 1 ? 's' : ''}
+          {matchCount} result
+          {matchCount !== 1 ? 's' : ''}
         </span>
       )}
       {showClearButton && hasQuery && (
@@ -120,7 +146,7 @@ export function CollectionFilterInput({
       type="search"
       name="collection-filter"
       placeholder={placeholder}
-      value={filterManager.query}
+      value={query}
       onChange={handleChange}
       prefixComponent={prefixContent}
       suffixComponent={suffixContent}

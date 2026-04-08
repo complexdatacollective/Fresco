@@ -58,7 +58,8 @@ export function useFilterState<T extends Record<string, unknown>>(
     fuseOptions: filterFuseOptions,
   });
 
-  // Subscribe to filter state with shallow comparison
+  // Subscribe to filter state with shallow comparison. This drives the
+  // FilterManager's reactive reads for external consumers.
   const filterState = useCollectionStore<unknown, FilterState>(
     useShallow((state) => ({
       filterQuery: state.filterQuery,

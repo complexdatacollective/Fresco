@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useId, useMemo, useRef } from 'react';
 import { useMergeRefs } from 'react-best-merge-refs';
 import { ScrollArea } from '~/components/ui/ScrollArea';
 import { cx } from '~/utils/cva';
@@ -79,7 +79,12 @@ function CollectionContent<T extends Record<string, unknown>>({
   children,
 }: CollectionContentProps<T>) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const collectionId = id ?? crypto.randomUUID();
+  // Stable, component-local fallback id. Previously this called
+  // `crypto.randomUUID()` inline on every render, which created a new id each
+  // time and invalidated downstream memoisation keyed on `collectionId`
+  // (layout ref registration, context value, aria ids, renderer memo props).
+  const fallbackId = useId();
+  const collectionId = useMemo(() => id ?? fallbackId, [id, fallbackId]);
 
   // Use shared setup hook for selection, keyboard, DnD
   const {
