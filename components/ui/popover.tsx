@@ -86,22 +86,31 @@ function PopoverTrigger({
   ...props
 }: PopoverTriggerProps) {
   if (asChild && isValidElement<Record<string, unknown>>(children)) {
-    // Extracted to a named lowercase function so Base UI's render-prop
-    // validation doesn't flag it as a React component (uppercase name).
-    const renderTrigger = (
+    // A NAMED FUNCTION EXPRESSION with a lowercase name. Base UI's
+    // `warnIfRenderPropLooksLikeComponent` reads `renderFn.name` and
+    // warns if the first character is uppercase — to catch people
+    // accidentally writing `render={Component}`. An arrow function
+    // assigned to `const renderTrigger` inside the `PopoverTrigger`
+    // function ends up with a compound `.name` like
+    // `PopoverTrigger[renderTrigger]` (depending on the JS engine /
+    // Turbopack's function-naming), which starts with `P` and trips
+    // the warning. A named function expression forces the `.name`
+    // unconditionally, regardless of enclosing scope.
+    const renderTriggerFn = function renderTrigger(
       triggerProps: React.HTMLAttributes<Element> & {
         ref?: React.Ref<Element>;
       },
-    ) =>
-      cloneElement(children, {
+    ) {
+      return cloneElement(children, {
         ...triggerProps,
         ...children.props,
       } as Parameters<typeof cloneElement>[1]);
+    };
 
     return (
       <BasePopover.Trigger
         nativeButton={nativeButton ?? isButtonElement(children)}
-        render={renderTrigger}
+        render={renderTriggerFn}
         {...props}
       />
     );
