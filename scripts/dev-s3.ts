@@ -29,7 +29,7 @@ const safeBranch = branch
   .replace(/[^a-z0-9-]/g, '');
 
 const containerName = `fresco-dev-s3-${safeBranch}`;
-const volumeName = `fresco-dev-s3-${safeBranch}`;
+const volumeName = `fresco-dev-local-s3-${safeBranch}`;
 
 function docker(args: string[]): {
   status: number;
