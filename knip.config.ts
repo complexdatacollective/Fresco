@@ -48,7 +48,6 @@ const config: KnipConfig = {
     'lib/interviewer/containers/Interfaces/FamilyPedigree/useDynamicFields.tsx':
       ['types'],
     'lib/protocol/validateAndMigrateProtocol.ts': ['types'],
-    'lib/uploadthing/presigned.ts': ['types'],
   },
   // Our playwright config uses non-standard locations, so knip cannot auto-detect it
   playwright: {
