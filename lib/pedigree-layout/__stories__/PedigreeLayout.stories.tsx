@@ -2000,7 +2000,7 @@ export const Playground: StoryFn<StoryArgs> = ({ network, nodeStyle }) => {
     NODE_MEASUREMENT_COMPONENTS[nodeStyle] ??
     NODE_MEASUREMENT_COMPONENTS['Labeled Node']!;
 
-  const { nodeWidth, nodeHeight } = useNodeMeasurement({
+  const { nodeWidth, nodeHeight, measurementContainer } = useNodeMeasurement({
     component: measureComponent,
   });
 
@@ -2009,6 +2009,7 @@ export const Playground: StoryFn<StoryArgs> = ({ network, nodeStyle }) => {
 
   return (
     <div className="flex size-full flex-col items-start gap-8 overflow-auto p-8">
+      {measurementContainer}
       <div className="mx-auto">
         <PedigreeLayout
           nodes={stableNodes}

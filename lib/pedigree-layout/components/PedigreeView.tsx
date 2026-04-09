@@ -95,7 +95,7 @@ export default function PedigreeView({
 
   const { openDialog } = useDialog();
 
-  const { nodeWidth, nodeHeight } = useNodeMeasurement({
+  const { nodeWidth, nodeHeight, measurementContainer } = useNodeMeasurement({
     component: <Node size="sm" />,
   });
 
@@ -363,6 +363,7 @@ export default function PedigreeView({
 
   return (
     <div className="absolute inset-0 overflow-x-auto pt-6">
+      {measurementContainer}
       <div className="relative flex min-h-full min-w-fit justify-center">
         <PedigreeLayout
           nodes={nodes}
@@ -392,14 +393,6 @@ export default function PedigreeView({
               />
             ) : (
               <NodeContextMenu
-                isBiological={
-                  isEgo ||
-                  [...edges.values()].some(
-                    (e) =>
-                      e.attributes[relationshipTypeVariable] !== 'partner' &&
-                      (e.from === node.id || e.to === node.id),
-                  )
-                }
                 canAddParent={
                   isEgo ||
                   ![...edges.values()].some(

@@ -58,19 +58,45 @@ export default definePreview({
   },
 
   decorators: [
-    (Story) => (
-      // nextjs-vite doesn't seem to pick up the strict mode setting from next config
-      <StrictMode>
-        {/**
-         * required by base-ui: https://base-ui.com/react/overview/quick-start#portals
-         */}
-        <div className="root h-full">
-          <Providers nuqsAdapter={NuqsTestingAdapter}>
-            <Story />
-          </Providers>
-        </div>
-      </StrictMode>
-    ),
+    (Story) => {
+      // Disable Base UI animations whenever the browser is being driven by
+      // automation (Playwright in vitest browser mode, or Storybook's
+      // play-function runner). This makes Base UI dialog open/close flows
+      // deterministic: they no longer wait on `getAnimations()` so sequences
+      // like "click Cancel → confirm dialog opens → click Continue editing"
+      // don't race the form store against CSS animation completion.
+      //
+      // Also togglable via `?disableAnimations=1` on the URL for interactive
+      // debugging of the animation-disabled code path.
+      //
+      // Manual browsing has `navigator.webdriver === false`, so interactive
+      // development still gets the full animations by default.
+      const disableAnimationsFromAutomation =
+        typeof navigator !== 'undefined' && navigator.webdriver === true;
+      const disableAnimationsFromUrl =
+        typeof window !== 'undefined' &&
+        new URLSearchParams(window.location.search).get('disableAnimations') ===
+          '1';
+      const disableAnimations =
+        disableAnimationsFromAutomation || disableAnimationsFromUrl;
+
+      return (
+        // nextjs-vite doesn't seem to pick up the strict mode setting from next config
+        <StrictMode>
+          {/**
+           * required by base-ui: https://base-ui.com/react/overview/quick-start#portals
+           */}
+          <div className="root h-full">
+            <Providers
+              nuqsAdapter={NuqsTestingAdapter}
+              disableAnimations={disableAnimations}
+            >
+              <Story />
+            </Providers>
+          </div>
+        </StrictMode>
+      );
+    },
     withTheme,
   ],
 

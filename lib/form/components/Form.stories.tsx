@@ -135,8 +135,7 @@ const checkUsernameAvailability = async (
   const isAvailable = Math.random() > 0.5;
 
   // Log for debugging in storybook
-  // eslint-disable-next-line no-console
-  console.log(
+  action('console.log')(
     `[Async Validation] Username "${username}" is ${isAvailable ? 'available ✓' : 'taken ✗'}`,
   );
 

@@ -2,7 +2,7 @@ import type { Prompt as TPrompt } from '@codaco/protocol-validation';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { motion } from 'motion/react';
 import { useState } from 'react';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { Button } from '~/components/ui/Button';
 import { cx } from '~/utils/cva';
 import Prompts from './Prompts';
@@ -267,30 +267,32 @@ export const InteractiveNavigation: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Wait for initial render
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // Verify initial state. Even with `skipAnimations` enabled in test mode
+    // (see `.storybook/preview.tsx`), motion applies the `initial` variant
+    // during the first paint and snaps to the `animate` variant on the next
+    // effect tick — so `toBeVisible` needs `waitFor` to let opacity flush.
+    const indexDisplay = await canvas.findByTestId('current-index');
+    await waitFor(async () => {
+      await expect(indexDisplay).toHaveTextContent('1 / 4');
+      await expect(
+        canvas.getByText('Who are the people in your network?'),
+      ).toBeVisible();
+    });
 
-    // Verify initial state
-    const indexDisplay = canvas.getByTestId('current-index');
-    await expect(indexDisplay).toHaveTextContent('1 / 4');
-
-    // Verify first prompt is shown
-    await expect(
-      canvas.getByText('Who are the people in your network?'),
-    ).toBeVisible();
-
-    // Click next button
     const nextButton = canvas.getByTestId('next-button');
+    const prevButton = canvas.getByTestId('prev-button');
+
+    // Click next button and wait for the new prompt to settle. Because
+    // `<AnimatePresence mode="wait">` chains exit + enter animations, hardcoded
+    // timeouts race on slower/parallel runs; `waitFor` polls until the
+    // assertion actually holds.
     await userEvent.click(nextButton);
-
-    // Wait for animation
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    // Verify second prompt is shown
-    await expect(
-      canvas.getByText('Who do you talk to most frequently?'),
-    ).toBeVisible();
-    await expect(indexDisplay).toHaveTextContent('2 / 4');
+    await waitFor(async () => {
+      await expect(
+        canvas.getByText('Who do you talk to most frequently?'),
+      ).toBeVisible();
+      await expect(indexDisplay).toHaveTextContent('2 / 4');
+    });
 
     // Verify pip changed - find the pips container and check active state
     const pipsContainer = canvasElement.querySelector('[aria-hidden="true"]');
@@ -303,41 +305,44 @@ export const InteractiveNavigation: Story = {
 
     // Click next again to get to prompt 3
     await userEvent.click(nextButton);
-    await new Promise((resolve) => setTimeout(resolve, 500));
-    await expect(indexDisplay).toHaveTextContent('3 / 4');
+    await waitFor(async () => {
+      await expect(indexDisplay).toHaveTextContent('3 / 4');
+    });
 
     // Click previous to go back
-    const prevButton = canvas.getByTestId('prev-button');
     await userEvent.click(prevButton);
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    // Verify we're back at prompt 2
-    await expect(indexDisplay).toHaveTextContent('2 / 4');
-    await expect(
-      canvas.getByText('Who do you talk to most frequently?'),
-    ).toBeVisible();
+    await waitFor(async () => {
+      await expect(indexDisplay).toHaveTextContent('2 / 4');
+      await expect(
+        canvas.getByText('Who do you talk to most frequently?'),
+      ).toBeVisible();
+    });
 
     // Test boundary - go to last prompt
     await userEvent.click(nextButton);
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await waitFor(async () => {
+      await expect(indexDisplay).toHaveTextContent('3 / 4');
+    });
     await userEvent.click(nextButton);
-    await new Promise((resolve) => setTimeout(resolve, 300));
-
-    // Next button should be disabled at the end
-    await expect(nextButton).toBeDisabled();
-    await expect(indexDisplay).toHaveTextContent('4 / 4');
+    await waitFor(async () => {
+      await expect(indexDisplay).toHaveTextContent('4 / 4');
+      await expect(nextButton).toBeDisabled();
+    });
 
     // Go back to first
     await userEvent.click(prevButton);
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await waitFor(async () => {
+      await expect(indexDisplay).toHaveTextContent('3 / 4');
+    });
     await userEvent.click(prevButton);
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await waitFor(async () => {
+      await expect(indexDisplay).toHaveTextContent('2 / 4');
+    });
     await userEvent.click(prevButton);
-    await new Promise((resolve) => setTimeout(resolve, 300));
-
-    // Previous button should be disabled at the start
-    await expect(prevButton).toBeDisabled();
-    await expect(indexDisplay).toHaveTextContent('1 / 4');
+    await waitFor(async () => {
+      await expect(indexDisplay).toHaveTextContent('1 / 4');
+      await expect(prevButton).toBeDisabled();
+    });
   },
 };
 

@@ -1,6 +1,6 @@
-/* eslint-disable no-console */
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { CheckCircle, Trash2 } from 'lucide-react';
+import { action } from 'storybook/actions';
 import Paragraph from '~/components/typography/Paragraph';
 import DialogProvider from './DialogProvider';
 import { DialogTrigger } from './DialogTrigger';
@@ -33,7 +33,7 @@ export const AcknowledgeDialog: Story = {
       actions: { primary: { label: 'OK', value: true } },
     },
     onResult: (result) => {
-      console.log('Dialog result:', result);
+      action('console.log')('Dialog result:', result);
     },
     children: 'Show Acknowledge Dialog',
   },
@@ -52,7 +52,7 @@ export const ChoiceDialog: Story = {
       },
     },
     onResult: (result) => {
-      console.log('Dialog result:', result);
+      action('console.log')('Dialog result:', result);
     },
     children: 'Show Choice Dialog',
   },
@@ -72,7 +72,7 @@ export const DestructiveDialog: Story = {
       },
     },
     onResult: (result) => {
-      console.log('Delete confirmed:', result);
+      action('console.log')('Delete confirmed:', result);
     },
     color: 'destructive',
     icon: <Trash2 />,
@@ -90,7 +90,7 @@ export const SuccessDialog: Story = {
       actions: { primary: { label: 'Great!', value: true } },
     },
     onResult: (result) => {
-      console.log('Success acknowledged:', result);
+      action('console.log')('Success acknowledged:', result);
     },
     color: 'primary',
     icon: <CheckCircle />,
@@ -111,7 +111,7 @@ export const InfoDialog: Story = {
       },
     },
     onResult: (result) => {
-      console.log('Info dialog result:', result);
+      action('console.log')('Info dialog result:', result);
     },
     children: 'Show Info',
   },
@@ -135,7 +135,7 @@ export const CustomDialog: Story = {
       ),
     },
     onResult: (result) => {
-      console.log('Custom dialog result:', result);
+      action('console.log')('Custom dialog result:', result);
     },
     children: 'Show Custom Dialog',
   },

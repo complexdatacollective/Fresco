@@ -1,6 +1,13 @@
 'use client';
 
-import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { type Layout } from '../layout/Layout';
 import { type Size } from '../layout/types';
 import { type Collection, type ItemRenderer, type Key } from '../types';
@@ -15,16 +22,29 @@ type UseMeasureItemsOptions<T> = {
 };
 
 type UseMeasureItemsResult = {
-  /** Map of item key to measured size */
+  /** Map of item key to measured size (sampled + lazy refinements) */
   measurements: Map<Key, Size>;
   /** Whether all items have been measured */
   isComplete: boolean;
   /** React node to render for measurement (hidden container) */
   measurementContainer: React.ReactNode;
+  /**
+   * Report the actual measured size of an item. Called by the renderer
+   * (via ResizeObserver) as items mount or resize in the visible viewport.
+   * Multiple reports in the same frame are coalesced into a single re-render.
+   */
+  reportItemSize: (key: Key, size: Size) => void;
 };
 
 // Threshold for width change that triggers re-measurement (handles scrollbar fluctuations)
 const WIDTH_CHANGE_THRESHOLD = 10;
+
+/**
+ * Sub-pixel tolerance for lazy measurement updates. ResizeObserver often
+ * fires with tiny content-rect deltas that would cause ping-pong re-renders
+ * without actually changing the visible layout.
+ */
+const LAZY_MEASUREMENT_TOLERANCE = 0.5;
 
 /**
  * Maximum number of items to render into the hidden measurement container in
@@ -83,6 +103,70 @@ export function useMeasureItems<T>({
 
   // Version counter bumped when root font-size changes, forcing re-measurement
   const [remVersion, setRemVersion] = useState(0);
+
+  // ---------------------------------------------------------------------
+  // Lazy measurements — refinements reported by items actually rendered
+  // into the virtualized viewport. These take precedence over the sampled
+  // estimates in the merged `measurements` map the hook returns.
+  //
+  // We keep the running state in a ref (not React state) so individual
+  // ResizeObserver callbacks can land without triggering re-renders. A
+  // `lazyVersion` counter is bumped on the next animation frame, coalescing
+  // bursts of reports (e.g. many items mounting together after a scroll)
+  // into a single merge/re-render.
+  // ---------------------------------------------------------------------
+  const lazyMeasurementsRef = useRef<Map<Key, Size>>(new Map());
+  const [lazyVersion, setLazyVersion] = useState(0);
+  const pendingFlushRef = useRef<number | null>(null);
+
+  const scheduleLazyFlush = useCallback(() => {
+    if (pendingFlushRef.current !== null) return;
+    pendingFlushRef.current = requestAnimationFrame(() => {
+      pendingFlushRef.current = null;
+      setLazyVersion((v) => v + 1);
+    });
+  }, []);
+
+  // Ref so `reportItemSize` can see the freshest sampled measurements
+  // without being rebuilt on every render (which would force the observer
+  // in `VirtualizedRenderer` to re-subscribe and re-fire reports).
+  const sampleMeasurementsRef = useRef(measurements);
+  sampleMeasurementsRef.current = measurements;
+
+  const reportItemSize = useCallback(
+    (key: Key, size: Size) => {
+      // Only HEIGHT matters for layout positioning: widths are fully
+      // determined by the layout's container-width → column-width
+      // calculation (CSS grid / flex), so observed widths will always
+      // equal whatever the layout already has. Comparing them would
+      // trigger a feedback loop because the sample measurement container
+      // and the real virtualized container produce sub-pixel width
+      // differences (fractional CSS grid sizing vs. the hidden container's
+      // exact `width: constrainedWidth`).
+      const lazy = lazyMeasurementsRef.current.get(key);
+      const reference = lazy ?? sampleMeasurementsRef.current.get(key);
+      if (
+        reference &&
+        Math.abs(reference.height - size.height) < LAZY_MEASUREMENT_TOLERANCE
+      ) {
+        return;
+      }
+      lazyMeasurementsRef.current.set(key, size);
+      scheduleLazyFlush();
+    },
+    [scheduleLazyFlush],
+  );
+
+  // Cancel any pending flush on unmount to avoid a stray setState after unmount.
+  useEffect(
+    () => () => {
+      if (pendingFlushRef.current !== null) {
+        cancelAnimationFrame(pendingFlushRef.current);
+        pendingFlushRef.current = null;
+      }
+    },
+    [],
+  );
 
   // Get measurement info from layout, passing containerWidth so constrainedWidth
   // can be computed on-the-fly without requiring layout.update() to have been called.
@@ -264,7 +348,23 @@ export function useMeasureItems<T>({
     setIsComplete(false);
     setMeasurements(new Map());
     lastMeasuredSentinelSizeRef.current = null;
+    // The layout (or collection contents) changed — any previously reported
+    // lazy measurements are stale, so drop them and let items in the
+    // viewport re-report against the new layout.
+    lazyMeasurementsRef.current = new Map();
   }, [collection, layout]);
+
+  // When a fresh sample pass lands (e.g. after a width change large enough
+  // to invalidate wrapping) the previously reported lazy measurements are
+  // also stale — items need to re-report at the new width.
+  const prevMeasurementsRef = useRef(measurements);
+  useLayoutEffect(() => {
+    if (prevMeasurementsRef.current === measurements) return;
+    prevMeasurementsRef.current = measurements;
+    if (lazyMeasurementsRef.current.size > 0) {
+      lazyMeasurementsRef.current = new Map();
+    }
+  }, [measurements]);
 
   // Generate the hidden measurement container
   const measurementContainer = useMemo(() => {
@@ -363,8 +463,27 @@ export function useMeasureItems<T>({
       />
     );
 
+  // Merge the sample measurements with the lazy refinements reported by
+  // items currently in the viewport. Lazy values take precedence because
+  // they are the ground truth for rendered items (the sample values are
+  // either measured on a hidden clone or extrapolated from the max of the
+  // sample, so they are only estimates for anything past the sample).
+  const mergedMeasurements = useMemo(() => {
+    if (lazyMeasurementsRef.current.size === 0) {
+      return measurements;
+    }
+    const merged = new Map(measurements);
+    for (const [key, size] of lazyMeasurementsRef.current) {
+      merged.set(key, size);
+    }
+    return merged;
+    // lazyVersion drives re-merge when the batched flush fires; we
+    // intentionally read `lazyMeasurementsRef.current` imperatively.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [measurements, lazyVersion]);
+
   return {
-    measurements,
+    measurements: mergedMeasurements,
     isComplete,
     measurementContainer: (
       <>
@@ -372,5 +491,6 @@ export function useMeasureItems<T>({
         {measurementContainer}
       </>
     ),
+    reportItemSize,
   };
 }

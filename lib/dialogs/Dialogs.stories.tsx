@@ -1,6 +1,6 @@
-/* eslint-disable no-console */
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
+import { action } from 'storybook/actions';
 import { fn } from 'storybook/test';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
@@ -173,7 +173,7 @@ export const DialogTypes: Story = {
         description: 'Your document has been saved successfully.',
         actions: { primary: { label: 'OK', value: true } },
       });
-      console.log('Acknowledge result:', result);
+      action('console.log')(result);
     };
 
     const showChoice = async () => {
@@ -189,7 +189,7 @@ export const DialogTypes: Story = {
           cancel: { label: 'Cancel', value: null },
         },
       });
-      console.log('Choice result:', result);
+      action('console.log')(result);
     };
 
     const showCustom = async () => {
@@ -217,7 +217,7 @@ export const DialogTypes: Story = {
           </Paragraph>
         ),
       });
-      console.log('Custom result:', result);
+      action('console.log')(result);
     };
 
     return (
@@ -267,7 +267,7 @@ export const Intents: Story = {
           cancel: { label: 'Cancel', value: false },
         },
       });
-      console.log(`${intent} dialog result:`, result);
+      action('console.log')(`${intent} dialog result:`, result);
     };
 
     return (
@@ -308,7 +308,6 @@ export const DeclarativeAPI: StoryObj<Meta<DeclarativeAPIArgs>> = {
             actions: { primary: { label: 'OK', value: true } },
           }}
           onResult={(result) => {
-            console.log('Trigger result:', result);
             args.onResult(result);
           }}
         >
@@ -328,7 +327,6 @@ export const DeclarativeAPI: StoryObj<Meta<DeclarativeAPIArgs>> = {
             },
           }}
           onResult={(result) => {
-            console.log('Delete result:', result);
             args.onResult(result);
           }}
         >
@@ -391,7 +389,7 @@ export const NestedDialogs: Story = {
         ),
       });
 
-      console.log('Final result:', result);
+      action('console.log')('Outer dialog result:', result);
     };
 
     return (
@@ -426,7 +424,6 @@ export const ConfirmUtility: StoryObj<Meta<ConfirmUtilityArgs>> = {
         cancelLabel: 'Keep Project',
         intent: 'destructive',
         onConfirm: () => {
-          console.log('Project deleted');
           args.onConfirm();
         },
       });
@@ -440,7 +437,6 @@ export const ConfirmUtility: StoryObj<Meta<ConfirmUtilityArgs>> = {
         cancelLabel: 'Cancel',
         intent: 'default',
         onConfirm: () => {
-          console.log('Settings reset');
           args.onConfirm();
         },
       });
@@ -489,7 +485,7 @@ export const AsyncConfirm: Story = {
           });
         },
       });
-      console.log('Async confirm result:', result);
+      action('console.log')('Async confirm result:', result);
     };
 
     return (
@@ -533,7 +529,7 @@ export const AsyncConfirmWithAbort: Story = {
         false: 'Cancelled before start',
         null: 'Aborted during action',
       };
-      console.log(
+      action('console.log')(
         'Result:',
         resultLabels[String(result) as keyof typeof resultLabels],
       );
@@ -580,7 +576,7 @@ export const AsyncConfirmWithError: Story = {
           });
         },
       });
-      console.log('Error dialog result:', result);
+      action('console.log')('Error dialog result:', result);
     };
 
     return (
@@ -705,7 +701,7 @@ export const ScrollableContent: Story = {
           </div>
         ),
       });
-      console.log('Scrollable dialog result:', result);
+      action('console.log')('Scrollable dialog result:', result);
     };
 
     return (

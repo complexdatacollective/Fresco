@@ -1,11 +1,7 @@
 'use client';
 
 import { createContext, useRef, type ReactNode } from 'react';
-import {
-  createFormStore,
-  type FormStoreApi,
-  type FormStoreOptions,
-} from './formStore';
+import { createFormStore, type FormStoreApi } from './formStore';
 
 export const FormStoreContext = createContext<FormStoreApi | undefined>(
   undefined,
@@ -13,12 +9,12 @@ export const FormStoreContext = createContext<FormStoreApi | undefined>(
 
 type FormStoreProviderProps = {
   children: ReactNode;
-} & FormStoreOptions;
+};
 
-const FormStoreProvider = ({ children, debug }: FormStoreProviderProps) => {
+const FormStoreProvider = ({ children }: FormStoreProviderProps) => {
   const storeRef = useRef<FormStoreApi>(undefined);
 
-  storeRef.current ??= createFormStore({ debug });
+  storeRef.current ??= createFormStore();
 
   return (
     <FormStoreContext.Provider value={storeRef.current}>

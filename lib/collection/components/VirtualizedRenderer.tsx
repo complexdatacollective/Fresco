@@ -4,9 +4,11 @@ import { LayoutGroup } from 'motion/react';
 import {
   type RefObject,
   memo,
+  useCallback,
   useEffect,
   useLayoutEffect,
   useMemo,
+  useRef,
   useState,
 } from 'react';
 import { useSelectionManager } from '../contexts';
@@ -18,6 +20,7 @@ import {
   type Collection,
   type CollectionProps,
   type ItemRenderer,
+  type Key,
 } from '../types';
 import { CollectionItem } from './CollectionItem';
 
@@ -117,14 +120,65 @@ function VirtualizedRendererComponent<T>({
     };
   }, [scrollElement]);
 
-  // Measure items in hidden container
-  const { measurements, isComplete, measurementContainer } = useMeasureItems({
-    collection,
-    layout,
-    renderItem,
-    containerWidth,
-    skip: containerWidth === 0,
-  });
+  // Measure items in hidden container (initial sample) + expose a
+  // `reportItemSize` callback that individual visible items use to upgrade
+  // the initial estimates with their real size once mounted.
+  const { measurements, isComplete, measurementContainer, reportItemSize } =
+    useMeasureItems({
+      collection,
+      layout,
+      renderItem,
+      containerWidth,
+      skip: containerWidth === 0,
+    });
+
+  // --- Lazy measurement of items in the viewport --------------------------
+  //
+  // Items rendered by the virtualized loop below are measured when their
+  // outer wrapper `<div>` mounts (ref callback fires). We read the real
+  // content rect via `getBoundingClientRect` and hand it to
+  // `reportItemSize`, which batch-merges the new value into the
+  // measurement map on the next animation frame. This refines the
+  // sample-based estimates over time without ever touching off-screen
+  // items, and avoids ResizeObserver's async delivery (which is unreliable
+  // when the main thread is busy, and completely silent inside an
+  // automated iframe).
+  //
+  // Cadence:
+  // - On mount: one measurement per item (the `reportItemSize` tolerance
+  //   check drops the report if it matches what the layout already thinks).
+  // - On re-render: React re-attaches refs only when the outer element
+  //   actually changes, so stable items don't re-measure.
+  //
+  // Trade-off vs. ResizeObserver: we won't automatically pick up in-place
+  // content-size changes that happen *after* mount (e.g. an item whose
+  // inner content grows due to an async data load). That's an acceptable
+  // loss for the common case of roughly-static rendered content, and
+  // matches how most virtualized libraries work.
+  const reportItemSizeRef = useRef(reportItemSize);
+  reportItemSizeRef.current = reportItemSize;
+
+  // Stable ref-callback factory. Each key gets its own callback the first
+  // time it's asked for, cached so identity stays stable across renders
+  // and React doesn't churn mount/unmount of the per-item wrapper.
+  const itemRefCallbacksRef = useRef<
+    Map<Key, (el: HTMLDivElement | null) => void>
+  >(new Map());
+  const getItemRef = useCallback((key: Key) => {
+    const cached = itemRefCallbacksRef.current.get(key);
+    if (cached) return cached;
+    const cb = (el: HTMLDivElement | null) => {
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      if (rect.width === 0 && rect.height === 0) return;
+      reportItemSizeRef.current(key, {
+        width: rect.width,
+        height: rect.height,
+      });
+    };
+    itemRefCallbacksRef.current.set(key, cb);
+    return cb;
+  }, []);
 
   // Get rows from layout after measurements complete
   // Must update layout with containerWidth BEFORE calling updateWithMeasurements
@@ -214,7 +268,7 @@ function VirtualizedRendererComponent<T>({
                 if (!node) return null;
 
                 return (
-                  <div key={key} style={itemStyle}>
+                  <div key={key} ref={getItemRef(key)} style={itemStyle}>
                     <div data-stagger-item data-stagger-key={animationKey}>
                       <CollectionItem
                         node={node}

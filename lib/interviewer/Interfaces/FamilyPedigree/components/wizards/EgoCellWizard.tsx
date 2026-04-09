@@ -32,6 +32,7 @@ export default function EgoCellWizard({
     const result = await openDialog({
       type: 'wizard',
       title: 'Your Biological Parents',
+      className: 'tablet-portrait:min-w-[70ch]',
       progress: null,
       steps: [
         {

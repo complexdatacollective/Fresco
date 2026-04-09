@@ -16,101 +16,6 @@ import type {
 // Enable Map/Set support in Immer
 enableMapSet();
 
-const BATCH_FLUSH_MS = 30;
-
-type LogEntry = {
-  action: string;
-  args: unknown[];
-};
-
-let storeInstanceCount = 0;
-
-function createFormLogger(enabled: boolean) {
-  if (!enabled) {
-    return { log: undefined };
-  }
-
-  const id = ++storeInstanceCount;
-  const prefix = `[FormStore #${String(id)}]`;
-
-  const styles = {
-    label: 'color: #8b5cf6; font-weight: bold',
-    action: 'color: #06b6d4; font-weight: bold',
-  };
-
-  const batchableActions = new Set(['registerField', 'unregisterField']);
-  let batch: LogEntry[] = [];
-  let batchAction = '';
-  let flushTimer: ReturnType<typeof setTimeout> | null = null;
-
-  const flushBatch = () => {
-    flushTimer = null;
-    if (batch.length === 0) return;
-
-    const entries = batch;
-    const action = batchAction;
-    batch = [];
-    batchAction = '';
-
-    if (entries.length === 1) {
-      const entry = entries[0]!;
-      // eslint-disable-next-line no-console
-      console.log(
-        `%c${prefix} %c${entry.action}`,
-        styles.label,
-        styles.action,
-        ...entry.args,
-      );
-      return;
-    }
-
-    // eslint-disable-next-line no-console
-    console.groupCollapsed(
-      `%c${prefix} %c${action} %c(${String(entries.length)} fields)`,
-      styles.label,
-      styles.action,
-      'color: #6b7280',
-    );
-    for (const entry of entries) {
-      // eslint-disable-next-line no-console
-      console.log(
-        `%c${String(entry.args[0])}`,
-        'color: #f59e0b',
-        ...entry.args.slice(1),
-      );
-    }
-    // eslint-disable-next-line no-console
-    console.groupEnd();
-  };
-
-  const log = (action: string, ...args: unknown[]) => {
-    if (batchableActions.has(action)) {
-      if (batchAction && batchAction !== action) {
-        flushBatch();
-      }
-      batchAction = action;
-      batch.push({ action, args });
-
-      if (flushTimer) clearTimeout(flushTimer);
-      flushTimer = setTimeout(flushBatch, BATCH_FLUSH_MS);
-      return;
-    }
-
-    // Non-batchable actions flush any pending batch then log immediately
-    if (batch.length > 0) flushBatch();
-
-    // eslint-disable-next-line no-console
-    console.log(
-      `%c${prefix} %c${action}`,
-      styles.label,
-      styles.action,
-      ...args,
-    );
-  };
-
-  return { log };
-}
-
 /**
  * Helper to calculate form validity based on both field states and form-level errors.
  * A form is valid only if all fields are valid AND there are no form-level errors.
@@ -171,13 +76,7 @@ export type FormStore = {
 };
 export type FormStoreApi = ReturnType<typeof createFormStore>;
 
-export type FormStoreOptions = {
-  debug?: boolean;
-};
-
-export const createFormStore = (options?: FormStoreOptions) => {
-  const logger = createFormLogger(options?.debug ?? false);
-
+export const createFormStore = () => {
   return createStore<FormStore>()(
     immer((set, get, _store) => ({
       fields: new Map(),
@@ -214,11 +113,6 @@ export const createFormStore = (options?: FormStoreOptions) => {
       },
 
       registerField: (config) => {
-        logger.log?.('registerField', config.name, {
-          initialValue: config.initialValue,
-          hasValidation: !!config.validation,
-        });
-
         set((state) => {
           const dormant = state.dormantValues.get(config.name);
           const hasDormantValue = dormant !== undefined;
@@ -251,8 +145,6 @@ export const createFormStore = (options?: FormStoreOptions) => {
       },
 
       unregisterField: (fieldName) => {
-        logger.log?.('unregisterField', fieldName);
-
         // Check if field exists before updating to avoid unnecessary renders
         const currentState = get();
         if (currentState.fields.has(fieldName)) {
@@ -309,8 +201,6 @@ export const createFormStore = (options?: FormStoreOptions) => {
       },
 
       setFieldValue: (fieldName, value) => {
-        logger.log?.('setFieldValue', fieldName, value);
-
         set((state) => {
           if (!state.fields.get(fieldName)) {
             // eslint-disable-next-line no-console
@@ -584,11 +474,6 @@ export const createFormStore = (options?: FormStoreOptions) => {
       },
 
       submitForm: async () => {
-        logger.log?.('submitForm', {
-          values: get().getFormValues(),
-          isValid: get().isValid,
-        });
-
         const state = get();
 
         if (!state.submitHandler) {

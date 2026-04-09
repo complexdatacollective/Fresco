@@ -39,11 +39,12 @@ function triggerAllObservers(width: number, height: number) {
 }
 
 function TestConsumer({ component }: { component: React.ReactElement }) {
-  const { nodeWidth, nodeHeight } = useNodeMeasurement({
+  const { nodeWidth, nodeHeight, measurementContainer } = useNodeMeasurement({
     component,
   });
   return (
     <div>
+      {measurementContainer}
       <div data-testid="width">{nodeWidth}</div>
       <div data-testid="height">{nodeHeight}</div>
     </div>

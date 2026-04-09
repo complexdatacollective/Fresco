@@ -126,11 +126,23 @@ const { motionMockModule } = vi.hoisted(() => {
   // AnimatePresence and LayoutGroup are passthrough components
   const AnimatePresence = ({ children }: { children: unknown }) => children;
   const LayoutGroup = ({ children }: { children: unknown }) => children;
+  const MotionConfig = ({ children }: { children: unknown }) => children;
+
+  // Context shape must match motion's `MotionConfigContext` — consumers of
+  // `useContext(MotionConfigContext)` rely on `skipAnimations` being readable.
+  const MotionConfigContext = ReactModule.createContext({
+    transformPagePoint: (p: unknown) => p,
+    isStatic: false,
+    reducedMotion: 'never' as const,
+    skipAnimations: false,
+  });
 
   const motionMockModule = {
     motion: motionComponents,
     AnimatePresence,
     LayoutGroup,
+    MotionConfig,
+    MotionConfigContext,
     useAnimation,
     useAnimationControls: useAnimation,
     useAnimate,
@@ -148,6 +160,7 @@ const { motionMockModule } = vi.hoisted(() => {
     }),
     useDragControls: () => ({ start: () => undefined }),
     useReducedMotion: () => false,
+    useReducedMotionConfig: () => false,
     usePresence: () => [true, null] as const,
   };
 

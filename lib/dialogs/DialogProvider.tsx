@@ -22,6 +22,7 @@ type BaseDialog = {
   description?: string;
   intent?: 'default' | 'destructive' | 'success' | 'info';
   children?: React.ReactNode;
+  className?: string;
 };
 
 export type AcknowledgeDialog = BaseDialog & {
@@ -198,6 +199,7 @@ function WizardDialogContent({
       accent={dialog.intent}
       open={dialog.open}
       footer={wizardProps.footer}
+      className={dialog.className}
     >
       {wizardProps.children}
     </Dialog>
@@ -239,7 +241,7 @@ function WizardDialogRenderer({
   );
 
   return (
-    <FormStoreProvider debug>
+    <FormStoreProvider>
       <WizardDialogContent
         dialog={dialog}
         dialogId={dialog.id}
@@ -506,6 +508,7 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
                 </SubmitButton>
               </>
             }
+            className={dialog.className}
           >
             <FormWithoutProvider
               id={formId}
@@ -533,6 +536,7 @@ const DialogProvider: React.FC<{ children: React.ReactNode }> = ({
         accent={dialog.intent}
         open={dialog.open}
         footer={footer}
+        className={dialog.className}
       >
         {dialog.children}
       </Dialog>

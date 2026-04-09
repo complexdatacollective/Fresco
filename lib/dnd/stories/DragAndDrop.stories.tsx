@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
+import { action } from 'storybook/actions';
 import Node from '~/components/Node';
 import Heading from '~/components/typography/Heading';
 import { Collection } from '~/lib/collection/components/Collection';
@@ -49,8 +50,7 @@ function List({
     getItems: () => [{ type: 'fruit', keys: new Set() }],
     acceptTypes,
     onDrop: (metadata) => {
-      // eslint-disable-next-line no-console
-      console.log('Dropped on', title, metadata);
+      action('console.log')('Dropped on', title, metadata);
       onItemReceived(metadata);
     },
   });

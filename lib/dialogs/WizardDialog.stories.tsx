@@ -662,9 +662,14 @@ export const WithOnFinish: StoryObj<Meta<WizardStoryArgs>> = {
     );
     await screen.findByRole('dialog');
 
-    // Step 1: Enter name — wait for dialog animation to finish
+    // Step 1: Enter name — wait for dialog animation to finish. Wait
+    // for the form store to actually commit the keystrokes before
+    // advancing so a slow parallel run doesn't race the form state.
     const nameInput = await screen.findByRole('textbox', {}, { timeout: 5000 });
     await userEvent.type(nameInput, 'Bob');
+    await waitFor(async () => {
+      await expect(nameInput).toHaveValue('Bob');
+    });
 
     await userEvent.click(screen.getByRole('button', { name: 'Continue' }));
 
@@ -993,9 +998,16 @@ export const ConfirmCancel: StoryObj<Meta<WizardStoryArgs>> = {
     );
     const dialog = await screen.findByRole('dialog');
 
-    // Enter some data so the user has something to lose
+    // Enter some data so the user has something to lose. Wait for the
+    // form store to actually commit the keystrokes before clicking Cancel
+    // — under parallel load `userEvent.type` can race the form store's
+    // async setState and the textbox value may not be 'Alice' yet at the
+    // moment the click handler reads it.
     const nameInput = await screen.findByRole('textbox', {}, { timeout: 5000 });
     await userEvent.type(nameInput, 'Alice');
+    await waitFor(async () => {
+      await expect(nameInput).toHaveValue('Alice');
+    });
 
     // Click Cancel — should show confirmation dialog
     await userEvent.click(

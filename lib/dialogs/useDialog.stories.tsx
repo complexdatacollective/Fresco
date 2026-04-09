@@ -1,5 +1,5 @@
-/* eslint-disable no-console */
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { action } from 'storybook/actions';
 import { fn } from 'storybook/test';
 import Button from '~/components/ui/Button';
 import useDialog from './useDialog';
@@ -71,7 +71,7 @@ export const Default: Story = {
         actions: { primary: { label: 'OK', value: true } },
       });
 
-      console.log('acknowledge result:', result);
+      action('console.log')('acknowledge result:', result);
     };
 
     const choiceDialog = async () => {
@@ -87,7 +87,7 @@ export const Default: Story = {
         },
       });
 
-      console.log('choice result:', result);
+      action('console.log')('choice result:', result);
     };
 
     return (
@@ -119,18 +119,18 @@ export const NestedDialogs: Story = {
         footer: (
           <NestedConfirmationFooter
             onConfirm={() => {
-              console.log('Item deleted!');
+              action('console.log')('Item deleted!');
               void closeDialog(dialogId, 'deleted');
             }}
             onCancel={() => {
-              console.log('Deletion cancelled');
+              action('console.log')('Deletion cancelled');
               void closeDialog(dialogId, 'cancelled');
             }}
           />
         ),
       });
 
-      console.log('Outer dialog result:', result);
+      action('console.log')('Outer dialog result:', result);
     };
 
     return (

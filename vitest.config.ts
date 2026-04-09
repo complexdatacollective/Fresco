@@ -15,6 +15,19 @@ export default defineConfig({
   resolve: {
     tsconfigPaths: true,
   },
+  // Pre-bundle dependencies that Vite's import scanner can't discover
+  // statically, so they're ready before any test runs. Without this, Vite
+  // finds them mid-test, re-bundles, and *reloads the page* — which tears
+  // down Playwright's connection and surfaces as flaky failures or browser
+  // disconnects.
+  //
+  // - `fuse.js` is imported only from `lib/collection/filtering/search.worker.ts`;
+  //   Vite's scanner doesn't crawl into web workers.
+  // - `d3-force` is imported lazily by `lib/pedigree-layout`, which only
+  //   mounts after a specific story runs.
+  optimizeDeps: {
+    include: ['d3-force', 'fuse.js'],
+  },
   test: {
     globals: true,
     exclude: ['**/node_modules/**', '**/tests/e2e/**'], // Exclude Playwright E2E tests

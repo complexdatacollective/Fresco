@@ -27,7 +27,7 @@ export default function Providers({
 
   return (
     <NuqsAdapter>
-      <MotionConfig reducedMotion="user" skipAnimations={!!disableAnimations}>
+      <MotionConfig reducedMotion="user" skipAnimations={disableAnimations}>
         <DirectionProvider direction="ltr">
           <Toast.Provider limit={7}>
             <TooltipProvider>
