@@ -1,68 +1,21 @@
 import { Effect, Layer } from 'effect';
 import { AssetStorageError } from '~/lib/storage/errors';
 import { AssetStorage } from '~/lib/storage/services/AssetStorage';
-import {
-  generatePresignedUploadUrl,
-  parseUploadThingToken,
-  registerUploadWithUploadThing,
-} from '~/lib/uploadthing/presigned';
 import { getUTApi } from '~/lib/uploadthing/server-helpers';
-import { getBaseUrl } from '~/utils/getBaseUrl';
 
 export const UploadThingAssetStorage = Layer.succeed(AssetStorage, {
-  generatePresignedUploadUrls: (files) =>
-    Effect.gen(function* () {
-      const tokenData = yield* Effect.tryPromise({
-        try: () => parseUploadThingToken(),
-        catch: (error) =>
-          new AssetStorageError({
-            cause: error,
-            userMessage: 'Failed to read storage credentials.',
-          }),
-      });
-
-      if (!tokenData) {
-        return yield* Effect.fail(
-          new AssetStorageError({
-            cause: new Error('UploadThing token not configured'),
-            userMessage: 'Storage credentials are not configured.',
-          }),
-        );
-      }
-
-      const results = files.map((file) => {
-        const presigned = generatePresignedUploadUrl({
-          fileName: file.name,
-          fileSize: file.size,
-          tokenData,
-        });
-
-        return {
-          uploadUrl: presigned.uploadUrl,
-          fileKey: presigned.fileKey,
-          publicUrl: presigned.fileUrl,
-        };
-      });
-
-      const fileKeys = results.map((r) => r.fileKey);
-      const callbackUrl = `${getBaseUrl()}/api/uploadthing`;
-
-      yield* Effect.tryPromise({
-        try: () =>
-          registerUploadWithUploadThing({
-            fileKeys,
-            tokenData,
-            callbackUrl,
-          }),
-        catch: (error) =>
-          new AssetStorageError({
-            cause: error,
-            userMessage: 'Failed to register uploads with storage provider.',
-          }),
-      });
-
-      return results;
-    }),
+  // UploadThing's ingest protocol is not a plain presigned-PUT; clients must
+  // use the UploadThing SDK's uploader directly (which hits /api/uploadthing).
+  // Callers should check the storage provider and route around this method.
+  generatePresignedUploadUrls: () =>
+    Effect.fail(
+      new AssetStorageError({
+        cause: new Error(
+          'generatePresignedUploadUrls is not supported for UploadThing — use the UploadThing SDK client uploader instead.',
+        ),
+        userMessage: 'Upload flow misconfigured for UploadThing.',
+      }),
+    ),
 
   deleteAssets: (keys) =>
     Effect.gen(function* () {

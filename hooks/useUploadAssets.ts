@@ -2,6 +2,7 @@
 
 import { useCallback } from 'react';
 import type { PresignedUploadUrl } from '~/lib/storage/services/AssetStorage';
+import { uploadFiles } from '~/lib/uploadthing/client-helpers';
 
 type UploadedFile = {
   key: string;
@@ -10,9 +11,13 @@ type UploadedFile = {
   size: number;
 };
 
-async function fetchPresignedUrls(
+type PresignResponse =
+  | { provider: 's3'; urls: PresignedUploadUrl[] }
+  | { provider: 'uploadthing' };
+
+async function fetchPresignResponse(
   files: { name: string; size: number }[],
-): Promise<PresignedUploadUrl[]> {
+): Promise<PresignResponse> {
   const response = await fetch('/api/storage/presign', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -21,11 +26,10 @@ async function fetchPresignedUrls(
 
   if (!response.ok) {
     const error = (await response.json()) as { error?: string };
-    throw new Error(error.error ?? 'Failed to get upload URLs');
+    throw new Error(error.error ?? 'Failed to prepare upload');
   }
 
-  const data = (await response.json()) as { urls: PresignedUploadUrl[] };
-  return data.urls;
+  return (await response.json()) as PresignResponse;
 }
 
 async function uploadFileToUrl(
@@ -59,6 +63,60 @@ async function uploadFileToUrl(
   });
 }
 
+async function uploadViaS3(
+  files: File[],
+  urls: PresignedUploadUrl[],
+  onProgress?: (progress: number) => void,
+): Promise<UploadedFile[]> {
+  const totalBytes = files.reduce((sum, f) => sum + f.size, 0);
+  const loaded = new Array<number>(files.length).fill(0);
+
+  const uploadPromises = files.map(async (file, index) => {
+    const presigned = urls[index];
+    if (!presigned) {
+      throw new Error(`No presigned URL for file: ${file.name}`);
+    }
+
+    await uploadFileToUrl(file, presigned.uploadUrl, (fileLoaded) => {
+      loaded[index] = fileLoaded;
+      if (onProgress) {
+        const totalLoaded = loaded.reduce((sum, l) => sum + l, 0);
+        const progress =
+          totalBytes > 0 ? Math.round((totalLoaded / totalBytes) * 100) : 0;
+        onProgress(progress);
+      }
+    });
+
+    return {
+      key: presigned.fileKey,
+      url: presigned.publicUrl,
+      name: file.name,
+      size: file.size,
+    };
+  });
+
+  return Promise.all(uploadPromises);
+}
+
+async function uploadViaUploadThing(
+  files: File[],
+  onProgress?: (progress: number) => void,
+): Promise<UploadedFile[]> {
+  const results = await uploadFiles('assetRouter', {
+    files,
+    onUploadProgress: ({ progress }) => {
+      if (onProgress) onProgress(progress);
+    },
+  });
+
+  return results.map((result) => ({
+    key: result.key,
+    url: result.ufsUrl,
+    name: result.name,
+    size: result.size,
+  }));
+}
+
 export function useUploadAssets() {
   const uploadAssets = useCallback(
     async (
@@ -66,36 +124,13 @@ export function useUploadAssets() {
       onProgress?: (progress: number) => void,
     ): Promise<UploadedFile[]> => {
       const fileMeta = files.map((f) => ({ name: f.name, size: f.size }));
-      const presignedUrls = await fetchPresignedUrls(fileMeta);
+      const presign = await fetchPresignResponse(fileMeta);
 
-      const totalBytes = files.reduce((sum, f) => sum + f.size, 0);
-      const loaded = new Array<number>(files.length).fill(0);
+      if (presign.provider === 'uploadthing') {
+        return uploadViaUploadThing(files, onProgress);
+      }
 
-      const uploadPromises = files.map(async (file, index) => {
-        const presigned = presignedUrls[index];
-        if (!presigned) {
-          throw new Error(`No presigned URL for file: ${file.name}`);
-        }
-
-        await uploadFileToUrl(file, presigned.uploadUrl, (fileLoaded) => {
-          loaded[index] = fileLoaded;
-          if (onProgress) {
-            const totalLoaded = loaded.reduce((sum, l) => sum + l, 0);
-            const progress =
-              totalBytes > 0 ? Math.round((totalLoaded / totalBytes) * 100) : 0;
-            onProgress(progress);
-          }
-        });
-
-        return {
-          key: presigned.fileKey,
-          url: presigned.publicUrl,
-          name: file.name,
-          size: file.size,
-        };
-      });
-
-      return Promise.all(uploadPromises);
+      return uploadViaS3(files, presign.urls, onProgress);
     },
     [],
   );

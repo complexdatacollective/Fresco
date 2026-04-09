@@ -1,8 +1,9 @@
 import { Effect } from 'effect';
 import { z } from 'zod';
+import { requireApiAuth } from '~/lib/auth/guards';
 import { getStorageLayer } from '~/lib/storage/layers/StorageLayer';
 import { AssetStorage } from '~/lib/storage/services/AssetStorage';
-import { requireApiAuth } from '~/utils/auth';
+import { getStorageProvider } from '~/queries/storageProvider';
 
 const requestSchema = z.object({
   files: z.array(
@@ -32,6 +33,15 @@ export async function POST(request: Request) {
     return Response.json({ error: 'Invalid request body' }, { status: 400 });
   }
 
+  const provider = await getStorageProvider();
+
+  // UploadThing's ingest protocol is not a plain presigned-PUT; the client
+  // must use the UploadThing SDK's uploader directly, which hits
+  // /api/uploadthing. We only generate presigned URLs for S3.
+  if (provider === 'uploadthing') {
+    return Response.json({ provider: 'uploadthing' });
+  }
+
   try {
     const storageLayer = await getStorageLayer();
 
@@ -40,7 +50,7 @@ export async function POST(request: Request) {
       return yield* assetStorage.generatePresignedUploadUrls(parsed.data.files);
     }).pipe(Effect.provide(storageLayer), Effect.runPromise);
 
-    return Response.json({ urls });
+    return Response.json({ provider: 's3', urls });
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Failed to generate presigned URLs:', error);

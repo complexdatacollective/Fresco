@@ -1,5 +1,5 @@
 import { createUploadthing } from 'uploadthing/next';
-import { getServerSession } from '~/utils/auth';
+import { getServerSession } from '~/lib/auth/guards';
 
 const f = createUploadthing();
 
@@ -16,3 +16,5 @@ export const ourFileRouter = {
     })
     .onUploadComplete(() => undefined),
 };
+
+export type OurFileRouter = typeof ourFileRouter;
