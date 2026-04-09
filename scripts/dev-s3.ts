@@ -4,6 +4,7 @@ import process from 'node:process';
 import {
   CreateBucketCommand,
   ListBucketsCommand,
+  PutBucketPolicyCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
 
@@ -165,6 +166,27 @@ function followLogs(): void {
   });
 }
 
+async function applyPublicReadPolicy(client: S3Client): Promise<void> {
+  const policy = {
+    Version: '2012-10-17',
+    Statement: [
+      {
+        Effect: 'Allow',
+        Principal: '*',
+        Action: 's3:GetObject',
+        Resource: `arn:aws:s3:::${BUCKET}/*`,
+      },
+    ],
+  };
+  await client.send(
+    new PutBucketPolicyCommand({
+      Bucket: BUCKET,
+      Policy: JSON.stringify(policy),
+    }),
+  );
+  console.log(`Applied public-read policy to '${BUCKET}'`);
+}
+
 async function main(): Promise<void> {
   if (containerExists()) {
     if (containerIsRunning()) {
@@ -184,6 +206,7 @@ async function main(): Promise<void> {
   console.log('Waiting for local-s3 to become ready...');
   await waitForReady(s3);
   await ensureBucket(s3);
+  await applyPublicReadPolicy(s3);
 
   printBanner();
   followLogs();
