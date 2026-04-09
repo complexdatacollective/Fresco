@@ -38,12 +38,24 @@ const externalLinkRenderer = ({
 
 const defaultMarkdownRenderers = {
   a: externalLinkRenderer,
-  h1: Heading,
-  h2: Heading,
-  h3: Heading,
-  h4: Heading,
-  h5: Heading,
-  h6: Heading,
+  h1: ({ children }: { children?: React.ReactNode }) => (
+    <Heading level="h1">{children}</Heading>
+  ),
+  h2: ({ children }: { children?: React.ReactNode }) => (
+    <Heading level="h2">{children}</Heading>
+  ),
+  h3: ({ children }: { children?: React.ReactNode }) => (
+    <Heading level="h3">{children}</Heading>
+  ),
+  h4: ({ children }: { children?: React.ReactNode }) => (
+    <Heading level="h4">{children}</Heading>
+  ),
+  h5: ({ children }: { children?: React.ReactNode }) => (
+    <Heading level="h4">{children}</Heading>
+  ),
+  h6: ({ children }: { children?: React.ReactNode }) => (
+    <Heading level="h4">{children}</Heading>
+  ),
   p: Paragraph,
   ul: UnorderedList,
   ol: OrderedList,
