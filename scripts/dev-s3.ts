@@ -1,6 +1,11 @@
 /* eslint-disable no-console */
 import { spawn, spawnSync } from 'node:child_process';
 import process from 'node:process';
+import {
+  CreateBucketCommand,
+  ListBucketsCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
 
 const IMAGE = 'luofuxiang/local-s3';
 const HOST_PORT = 9000;
@@ -83,6 +88,51 @@ function startContainer(): void {
   }
 }
 
+function createS3Client(): S3Client {
+  return new S3Client({
+    endpoint: `http://localhost:${HOST_PORT}`,
+    region: REGION,
+    credentials: {
+      accessKeyId: ACCESS_KEY_ID,
+      secretAccessKey: SECRET_ACCESS_KEY,
+    },
+    forcePathStyle: true,
+  });
+}
+
+async function waitForReady(client: S3Client): Promise<void> {
+  let lastError: unknown;
+  for (let attempt = 1; attempt <= READY_MAX_ATTEMPTS; attempt++) {
+    try {
+      await client.send(new ListBucketsCommand({}));
+      return;
+    } catch (error) {
+      lastError = error;
+      await new Promise((resolve) => setTimeout(resolve, READY_INTERVAL_MS));
+    }
+  }
+  throw new Error(
+    `local-s3 did not become ready after ${READY_MAX_ATTEMPTS} attempts: ${String(lastError)}`,
+  );
+}
+
+async function ensureBucket(client: S3Client): Promise<void> {
+  try {
+    await client.send(new CreateBucketCommand({ Bucket: BUCKET }));
+    console.log(`Created bucket '${BUCKET}'`);
+  } catch (error) {
+    if (
+      error instanceof Error &&
+      (error.name === 'BucketAlreadyOwnedByYou' ||
+        error.name === 'BucketAlreadyExists')
+    ) {
+      console.log(`Bucket '${BUCKET}' already exists`);
+      return;
+    }
+    throw error;
+  }
+}
+
 function printBanner(): void {
   console.log(`local-s3 ready — bucket '${BUCKET}' available`);
   console.log(`  Endpoint:          http://localhost:${HOST_PORT}`);
@@ -115,7 +165,7 @@ function followLogs(): void {
   });
 }
 
-function main(): void {
+async function main(): Promise<void> {
   if (containerExists()) {
     if (containerIsRunning()) {
       console.log(
@@ -129,13 +179,17 @@ function main(): void {
 
   ensureVolume();
   startContainer();
-  // Bucket setup will be added in Task 2.
+
+  const s3 = createS3Client();
+  console.log('Waiting for local-s3 to become ready...');
+  await waitForReady(s3);
+  await ensureBucket(s3);
+
   printBanner();
   followLogs();
 }
 
-main();
-
-// Referenced here until Task 2 wires them into the readiness probe.
-void READY_MAX_ATTEMPTS;
-void READY_INTERVAL_MS;
+main().catch((error: unknown) => {
+  console.error(error);
+  process.exit(1);
+});
