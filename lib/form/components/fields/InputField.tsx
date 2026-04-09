@@ -30,6 +30,17 @@ const inputWrapperVariants = compose(
   cva({
     base: cx(
       'w-auto',
+      // `controlVariants` sets `min-w-fit` (sensible for buttons whose
+      // label should never be clipped), but combined with
+      // `field-sizing-content` on the inner `<input>` that produces a
+      // wrapper whose min-width is the input's entire content width —
+      // so pasting e.g. an UploadThing API token (~200 chars, no
+      // whitespace) causes the whole settings field to overflow its
+      // container. `min-w-0` lets flex shrink the wrapper below its
+      // intrinsic content size; combined with `min-w-0` on the inner
+      // `<input>` (see `inputVariants` below), text is clipped inside
+      // a container-sized field instead of blowing out the layout.
+      'min-w-0',
       // Child buttons should have reduced height, but their icons should stay the same size
       '[&_button]:h-10',
     ),
@@ -44,7 +55,13 @@ const inputVariants = compose(
       'cursor-[inherit]',
       '[font-size:inherit]', // Ensure input inherits text size from wrapper
       'p-0',
-      'field-sizing-content min-w-6 shrink-0 grow basis-0',
+      // `field-sizing-content` sets the intrinsic width to the content,
+      // so very long single-token values (e.g. an UploadThing API token)
+      // would blow out the flex parent unless we let flex shrink the
+      // input. `min-w-0` + default `shrink: 1` lets it collapse to fit
+      // the container; `grow basis-0` makes it expand to fill any
+      // remaining space when the content is short.
+      'field-sizing-content min-w-0 grow basis-0',
       'border-none bg-transparent outline-none focus:ring-0',
       'transition-none',
       // Hide browser's native clear button on search inputs (we provide our own)
