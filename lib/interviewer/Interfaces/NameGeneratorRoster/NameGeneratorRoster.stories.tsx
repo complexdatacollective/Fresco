@@ -237,33 +237,50 @@ export const SortInteraction: Story = {
   render: (args) => <NameGeneratorRosterStoryWrapper {...args} />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const sourceListbox = await waitForSourceListbox(canvasElement);
+    await waitForSourceListbox(canvasElement);
 
     const sortByNameButton = canvas.getByRole('button', {
       name: /^Sort by Name/,
     });
     await userEvent.click(sortByNameButton);
 
-    await waitFor(async () => {
-      const labels = readSourceLabels(sourceListbox).slice(0, 5);
+    await waitFor(
+      async () => {
+        // Re-query the listbox each iteration — the element reference may
+        // change as the virtualized list re-renders during sort.
+        const sourceListbox = canvas.getByRole('listbox', {
+          name: 'Available Roster Nodes',
+        });
+        const labels = readSourceLabels(sourceListbox).slice(0, 5);
 
-      // Sort must be ascending alphabetical
-      const sortedCopy = [...labels].sort((a, b) => a.localeCompare(b));
-      await expect(labels).toEqual(sortedCopy);
+        await expect(labels.length).toBeGreaterThan(0);
 
-      // The first label must start with 'A' (otherwise the sort silently
-      // failed and items are still in their original load order).
-      await expect(labels[0]?.[0]?.toLowerCase()).toBe('a');
-    });
+        // Sort must be ascending alphabetical
+        const sortedCopy = [...labels].sort((a, b) => a.localeCompare(b));
+        await expect(labels).toEqual(sortedCopy);
+
+        // The first label must start with 'A' (otherwise the sort silently
+        // failed and items are still in their original load order).
+        await expect(labels[0]?.[0]?.toLowerCase()).toBe('a');
+      },
+      { timeout: 5000 },
+    );
 
     // Toggle to descending and verify the order reverses
     await userEvent.click(sortByNameButton);
 
-    await waitFor(async () => {
-      const labels = readSourceLabels(sourceListbox).slice(0, 5);
-      const sortedDescCopy = [...labels].sort((a, b) => b.localeCompare(a));
-      await expect(labels).toEqual(sortedDescCopy);
-    });
+    await waitFor(
+      async () => {
+        const sourceListbox = canvas.getByRole('listbox', {
+          name: 'Available Roster Nodes',
+        });
+        const labels = readSourceLabels(sourceListbox).slice(0, 5);
+        await expect(labels.length).toBeGreaterThan(0);
+        const sortedDescCopy = [...labels].sort((a, b) => b.localeCompare(a));
+        await expect(labels).toEqual(sortedDescCopy);
+      },
+      { timeout: 5000 },
+    );
   },
 };
 
@@ -280,12 +297,12 @@ export const FilterInteraction: Story = {
   render: (args) => <NameGeneratorRosterStoryWrapper {...args} />,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const sourceListbox = await waitForSourceListbox(canvasElement);
+    const initialListbox = await waitForSourceListbox(canvasElement);
     // Virtualized list only renders what fits the viewport plus overscan,
     // so we only assert on "enough to run the test" rather than a specific
     // count tied to viewport height.
     await expect(
-      sourceListbox.querySelectorAll('[role="option"]').length,
+      initialListbox.querySelectorAll('[role="option"]').length,
     ).toBeGreaterThanOrEqual(5);
 
     const filterInput = canvas.getByRole('searchbox', { name: 'Filter' });
@@ -305,7 +322,11 @@ export const FilterInteraction: Story = {
         await expect(count).toBeGreaterThan(0);
         await expect(count).toBeLessThan(100);
 
-        const firstLabel = readSourceLabels(sourceListbox)[0];
+        // Re-query the listbox — virtualized list re-renders during filter.
+        const currentListbox = canvas.getByRole('listbox', {
+          name: 'Available Roster Nodes',
+        });
+        const firstLabel = readSourceLabels(currentListbox)[0];
         await expect(firstLabel).toBe('Moses Crist');
       },
       { timeout: 5000 },
