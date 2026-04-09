@@ -11,6 +11,7 @@ import { Effect } from 'effect';
 import { getStorageLayer } from '~/lib/storage/layers/StorageLayer';
 import { AssetStorage } from '~/lib/storage/services/AssetStorage';
 import { getExistingAssets } from '~/queries/protocols';
+import { getStorageProvider } from '~/queries/storageProvider';
 import { ensureError } from '~/utils/ensureError';
 import { extractApikeyAssetsFromManifest } from '~/utils/protocolImport';
 import { checkPreviewAuth, jsonResponse } from './helpers';
@@ -102,22 +103,24 @@ export async function v1(request: NextRequest) {
           (a) => !existingAssetIdSet.has(a.assetId),
         );
 
-        // Generate presigned URLs for new assets that need uploading
-        type PresignedAssetData = {
+        // Resolve storage provider once; the upload path differs significantly
+        // between S3 (true presigned PUT) and UploadThing (server-side proxy
+        // via UTApi, because UploadThing's ingest protocol is not a plain
+        // presigned PUT).
+        const provider =
+          newAssets.length > 0 ? await getStorageProvider() : null;
+
+        // For S3 only: pre-compute presigned URLs and asset records. For
+        // UploadThing the records are created by the upload proxy route
+        // once the real UT-assigned key is known.
+        type S3PresignedEntry = {
           uploadUrl: string;
-          assetRecord: {
-            assetId: string;
-            key: string;
-            name: string;
-            type: string;
-            url: string;
-            size: number;
-          };
+          fileKey: string;
+          publicUrl: string;
         };
+        let s3Presigned: S3PresignedEntry[] = [];
 
-        let presignedData: PresignedAssetData[] = [];
-
-        if (newAssets.length > 0) {
+        if (provider === 's3') {
           const storageLayer = await getStorageLayer();
           const presignedResults = await Effect.gen(function* () {
             const assetStorage = yield* AssetStorage;
@@ -126,29 +129,32 @@ export async function v1(request: NextRequest) {
             );
           }).pipe(Effect.provide(storageLayer), Effect.runPromise);
 
-          presignedData = newAssets.map((asset, i) => {
+          s3Presigned = newAssets.map((_asset, i) => {
             const presigned = presignedResults[i]!;
-            const manifestEntry = assetManifest[asset.assetId];
-            const assetType = manifestEntry?.type ?? 'file';
-
             return {
               uploadUrl: presigned.uploadUrl,
-              assetRecord: {
-                assetId: asset.assetId,
-                key: presigned.fileKey,
-                name: asset.name,
-                type: assetType,
-                url: presigned.publicUrl,
-                size: asset.size,
-              },
+              fileKey: presigned.fileKey,
+              publicUrl: presigned.publicUrl,
             };
           });
         }
 
-        const assetsToCreate = presignedData.map((d) => d.assetRecord);
+        const assetsToCreate = s3Presigned.map((presigned, i) => {
+          const asset = newAssets[i]!;
+          const manifestEntry = assetManifest[asset.assetId];
+          return {
+            assetId: asset.assetId,
+            key: presigned.fileKey,
+            name: asset.name,
+            type: manifestEntry?.type ?? 'file',
+            url: presigned.publicUrl,
+            size: asset.size,
+          };
+        });
 
-        // Create the preview protocol with assets immediately
-        // Mark as pending if there are assets to upload
+        // Create the preview protocol. Mark as pending if there are assets
+        // to upload. For UploadThing, asset records are created later by
+        // the upload proxy; only existing + apikey assets are attached now.
         const protocol = await prisma.previewProtocol.create({
           data: {
             hash: protocolHash,
@@ -161,7 +167,7 @@ export async function v1(request: NextRequest) {
             stages: protocolToValidate.stages,
             codebook: protocolToValidate.codebook,
             experiments: protocolToValidate.experiments ?? Prisma.JsonNull,
-            isPending: presignedData.length > 0,
+            isPending: newAssets.length > 0,
             assets: {
               create: [...assetsToCreate, ...newApikeyAssets],
               connect: existingAssetIds.map((assetId) => ({ assetId })),
@@ -172,7 +178,7 @@ export async function v1(request: NextRequest) {
         void addEvent('Preview Mode', `Preview protocol upload initiated`);
 
         // If no new assets to upload, return ready immediately
-        if (presignedData.length === 0) {
+        if (newAssets.length === 0) {
           const url = new URL(env.PUBLIC_URL ?? request.nextUrl.clone());
           url.pathname = `/preview/${protocol.id}`;
 
@@ -183,12 +189,34 @@ export async function v1(request: NextRequest) {
           return jsonResponse(response);
         }
 
-        // Return presigned URLs with their associated assetIds
-        // so the client can match files to URLs correctly
-        const presignedUrls = presignedData.map((d) => ({
-          assetId: d.assetRecord.assetId,
-          url: d.uploadUrl,
-        }));
+        // Build upload URLs for the response. S3 returns real presigned
+        // URLs; UploadThing returns proxy URLs that route back to our
+        // own server, which uploads via UTApi on behalf of the client.
+        let presignedUrls: { assetId: string; url: string }[] = [];
+
+        if (provider === 's3') {
+          presignedUrls = newAssets.map((asset, i) => ({
+            assetId: asset.assetId,
+            url: s3Presigned[i]!.uploadUrl,
+          }));
+        } else if (provider === 'uploadthing') {
+          const publicBase = env.PUBLIC_URL ?? request.nextUrl.origin;
+          const baseOrigin = new URL(publicBase).origin;
+          presignedUrls = newAssets.map((asset) => {
+            const manifestEntry = assetManifest[asset.assetId];
+            const assetType = manifestEntry?.type ?? 'file';
+            const params = new URLSearchParams({
+              assetId: asset.assetId,
+              name: asset.name,
+              assetType,
+              size: String(asset.size),
+            });
+            return {
+              assetId: asset.assetId,
+              url: `${baseOrigin}/api/preview/${protocol.id}/upload?${params.toString()}`,
+            };
+          });
+        }
 
         const response: InitializeResponse = {
           status: 'job-created',

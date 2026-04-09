@@ -15,6 +15,7 @@ const {
   mockGetExistingAssets,
   mockDeleteAssets,
   mockGeneratePresignedUploadUrls,
+  mockGetStorageProvider,
   mockAddEvent,
   mockCaptureException,
   mockExtractApikeyAssetsFromManifest,
@@ -39,6 +40,7 @@ const {
   mockDeleteAssets: vi.fn(),
   mockGeneratePresignedUploadUrls:
     vi.fn<(files: { name: string; size: number }[]) => PresignedUploadUrl[]>(),
+  mockGetStorageProvider: vi.fn<() => Promise<'s3' | 'uploadthing'>>(),
   mockAddEvent: vi.fn(),
   mockCaptureException: vi.fn(),
   mockExtractApikeyAssetsFromManifest: vi.fn(),
@@ -110,6 +112,10 @@ vi.mock('~/queries/protocols', () => ({
   getExistingAssets: mockGetExistingAssets,
 }));
 
+vi.mock('~/queries/storageProvider', () => ({
+  getStorageProvider: mockGetStorageProvider,
+}));
+
 vi.mock('~/utils/ensureError', () => ({
   ensureError: (e: unknown) => (e instanceof Error ? e : new Error(String(e))),
 }));
@@ -152,6 +158,7 @@ describe('Preview API v1 handler', () => {
     mockExtractApikeyAssetsFromManifest.mockReturnValue([]);
     mockGetExistingAssets.mockResolvedValue([]);
     mockAddEvent.mockResolvedValue({ success: true, error: null });
+    mockGetStorageProvider.mockResolvedValue('s3');
   });
 
   describe('authentication', () => {

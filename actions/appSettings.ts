@@ -131,37 +131,11 @@ export async function setUploadThingToken(rawData: unknown) {
 
 async function verifyUploadThingToken(token: string): Promise<string | null> {
   try {
-    const decoded = Buffer.from(token, 'base64').toString('utf-8');
-    const parsed = JSON.parse(decoded) as {
-      apiKey: string;
-      appId: string;
-      regions: string[];
-      ingestHost?: string;
-    };
-
-    const tokenData = {
-      apiKey: parsed.apiKey,
-      appId: parsed.appId,
-      regions: parsed.regions,
-      ingestHost: parsed.ingestHost ?? 'ingest.uploadthing.com',
-    };
-
-    const { generatePresignedUploadUrl, registerUploadWithUploadThing } =
-      await import('~/lib/uploadthing/presigned');
-
-    const presigned = generatePresignedUploadUrl({
-      fileName: 'fresco-token-verify.txt',
-      fileSize: 1,
-      ttl: 5000,
-      tokenData,
-    });
-
-    await registerUploadWithUploadThing({
-      fileKeys: [presigned.fileKey],
-      tokenData,
-      callbackUrl: 'https://localhost/api/uploadthing',
-    });
-
+    const { UTApi } = await import('uploadthing/server');
+    const utapi = new UTApi({ token });
+    // getUsageInfo makes an authenticated request to UploadThing; it succeeds
+    // only if the token is valid.
+    await utapi.getUsageInfo();
     return null;
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
