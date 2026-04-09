@@ -18,7 +18,7 @@ vi.mock('~/queries/appSettings', () => ({
   getAppSetting: mockGetAppSetting,
 }));
 
-vi.mock('~/utils/auth', () => ({
+vi.mock('~/lib/auth/guards', () => ({
   getServerSession: mockGetServerSession,
 }));
 

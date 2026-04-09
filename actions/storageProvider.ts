@@ -3,9 +3,9 @@
 import { HeadBucketCommand, S3Client } from '@aws-sdk/client-s3';
 import { z as zm } from 'zod/mini';
 import { setAppSetting } from '~/actions/appSettings';
-import { s3ConfigSchema } from '~/schemas/s3Settings';
+import { requireApiAuth } from '~/lib/auth/guards';
 import { hasProtocols, type StorageProvider } from '~/queries/storageProvider';
-import { requireApiAuth } from '~/utils/auth';
+import { s3ConfigSchema } from '~/schemas/s3Settings';
 
 export async function setStorageProvider(provider: StorageProvider) {
   await requireApiAuth();

@@ -1,12 +1,12 @@
 import { Loader2 } from 'lucide-react';
 import { Suspense } from 'react';
+import { getServerSession } from '~/lib/auth/guards';
 import { prisma } from '~/lib/db';
 import {
   getAppSetting,
   requireAppNotConfigured,
   requireAppNotExpired,
 } from '~/queries/appSettings';
-import { getServerSession } from '~/utils/auth';
 import Setup from './Setup';
 
 async function getSetupData() {

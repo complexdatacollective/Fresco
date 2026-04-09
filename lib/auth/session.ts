@@ -5,7 +5,7 @@ import { cookies } from 'next/headers';
 import { env } from '~/env';
 import { prisma } from '~/lib/db';
 
-const SESSION_COOKIE_NAME = 'auth_session';
+export const SESSION_COOKIE_NAME = 'auth_session';
 const SESSION_ACTIVE_PERIOD_MS = 1000 * 60 * 60 * 24; // 24 hours
 const SESSION_IDLE_PERIOD_MS = 1000 * 60 * 60 * 24 * 14; // 2 weeks
 

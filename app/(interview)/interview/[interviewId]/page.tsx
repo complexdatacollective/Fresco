@@ -6,6 +6,7 @@ import { Suspense } from 'react';
 import SuperJSON from 'superjson';
 import { type ActivityType } from '~/app/dashboard/_components/ActivityFeed/types';
 import Spinner from '~/components/Spinner';
+import { getServerSession } from '~/lib/auth/guards';
 import { safeRevalidateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { captureEvent, shutdownPostHog } from '~/lib/posthog-server';
@@ -14,7 +15,6 @@ import {
   getInterviewById,
   type GetInterviewByIdQuery,
 } from '~/queries/interviews';
-import { getServerSession } from '~/utils/auth';
 
 const InterviewShell = dynamic(
   () => import('~/lib/interviewer/InterviewShell'),

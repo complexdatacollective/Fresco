@@ -12,7 +12,7 @@ import {
   hashRecoveryCode,
   verifyTotpCode,
   verifyTwoFactorToken,
-} from '~/lib/totp';
+} from '~/lib/auth/totp';
 
 describe('generateTotpSecret', () => {
   it('returns a non-empty string', () => {

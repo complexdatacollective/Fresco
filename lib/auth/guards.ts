@@ -3,8 +3,7 @@ import { redirect } from 'next/navigation';
 import { cache } from 'react';
 import 'server-only';
 import { prisma } from '~/lib/db';
-
-const SESSION_COOKIE_NAME = 'auth_session';
+import { SESSION_COOKIE_NAME } from './session';
 
 export const getServerSession = cache(async () => {
   const cookieStore = await cookies();

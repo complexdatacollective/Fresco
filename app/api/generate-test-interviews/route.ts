@@ -1,9 +1,9 @@
 import { createId } from '@paralleldrive/cuid2';
 import { addEvent } from '~/actions/activityFeed';
+import { requireApiAuth } from '~/lib/auth/guards';
 import { prisma } from '~/lib/db';
 import { generateNetwork } from '~/lib/synthetic-interviews/generateNetwork';
 import { generateSyntheticInterviewsSchema } from '~/schemas/synthetic-interviews';
-import { requireApiAuth } from '~/utils/auth';
 
 export async function POST(request: Request) {
   try {

@@ -4,7 +4,7 @@ import { connection } from 'next/server';
 import { containerClasses } from '~/components/ContainerClasses';
 import { MotionSurface } from '~/components/layout/Surface';
 import Heading from '~/components/typography/Heading';
-import { getServerSession } from '~/utils/auth';
+import { getServerSession } from '~/lib/auth/guards';
 import { cx } from '~/utils/cva';
 import SandboxCredentials from '../_components/SandboxCredentials';
 import { SignInForm } from '../_components/SignInForm';

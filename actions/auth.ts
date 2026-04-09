@@ -4,20 +4,18 @@ import { revalidatePath } from 'next/cache';
 import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import z from 'zod';
+import { getServerSession } from '~/lib/auth/guards';
+import { createSessionCookie, SESSION_COOKIE_NAME } from '~/lib/auth/session';
+import { createTwoFactorToken, hashRecoveryCode } from '~/lib/auth/totp';
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { type FormSubmissionResult } from '~/lib/form/store/types';
 import { checkRateLimit, recordLoginAttempt } from '~/lib/rateLimit';
-import { createSessionCookie } from '~/lib/session';
-import { createTwoFactorToken, hashRecoveryCode } from '~/lib/totp';
 import { getInstallationId } from '~/queries/appSettings';
 import { createUserSchema, loginSchema } from '~/schemas/auth';
-import { getServerSession } from '~/utils/auth';
 import { getClientIp } from '~/utils/getClientIp';
 import { hashPassword, verifyPassword } from '~/utils/password';
 import { addEvent } from './activityFeed';
-
-const SESSION_COOKIE_NAME = 'auth_session';
 
 type RateLimited = {
   success: false;

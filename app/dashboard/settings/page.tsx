@@ -5,15 +5,15 @@ import SettingsNavigation, {
 } from '~/components/settings/SettingsNavigation';
 import PageHeader from '~/components/typography/PageHeader';
 import { env } from '~/env';
+import { requirePageAuth } from '~/lib/auth/guards';
 import { requireAppNotExpired } from '~/queries/appSettings';
-import { requirePageAuth } from '~/utils/auth';
+import ApiTokensSection from './_components/ApiTokensSection';
 import ConfigurationSection from './_components/ConfigurationSection';
-import StorageProviderSection from './_components/StorageProviderSection';
 import DeveloperToolsSection from './_components/DeveloperToolsSection';
 import InterviewSettingsSection from './_components/InterviewSettingsSection';
-import ApiTokensSection from './_components/ApiTokensSection';
 import PreviewModeSection from './_components/PreviewModeSection';
 import PrivacySection from './_components/PrivacySection';
+import StorageProviderSection from './_components/StorageProviderSection';
 import SyntheticInterviewDataServer from './_components/SyntheticInterviewDataServer';
 import UserManagementSection from './_components/UserManagementSection';
 

@@ -6,10 +6,10 @@ import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import Heading from '~/components/typography/Heading';
 import PageHeader from '~/components/typography/PageHeader';
 import Paragraph from '~/components/typography/Paragraph';
+import { requirePageAuth } from '~/lib/auth/guards';
 import { fetchActivities } from '~/queries/activityFeed';
 import { requireAppNotExpired } from '~/queries/appSettings';
 import { getSummaryStatistics } from '~/queries/summaryStatistics';
-import { requirePageAuth } from '~/utils/auth';
 import ActivityFeed from './_components/ActivityFeed/ActivityFeed';
 import { searchParamsCache } from './_components/ActivityFeed/SearchParams';
 import {

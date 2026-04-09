@@ -1,14 +1,14 @@
 'use server';
 
 import { randomBytes } from 'crypto';
+import { requireApiAuth } from '~/lib/auth/guards';
 import { safeUpdateTag } from '~/lib/cache';
+import { prisma } from '~/lib/db';
 import {
   createApiTokenSchema,
   deleteApiTokenSchema,
   updateApiTokenSchema,
 } from '~/schemas/apiTokens';
-import { requireApiAuth } from '~/utils/auth';
-import { prisma } from '~/lib/db';
 import { addEvent } from './activityFeed';
 
 // Generate a secure random token

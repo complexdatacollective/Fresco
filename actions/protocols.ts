@@ -1,15 +1,15 @@
 'use server';
 
-import { Prisma } from '~/lib/db/generated/client';
-import { safeUpdateTag } from '~/lib/cache';
+import { Effect } from 'effect';
 import { hash } from 'ohash';
 import { type z } from 'zod';
-import { Effect } from 'effect';
+import { requireApiAuth } from '~/lib/auth/guards';
+import { safeUpdateTag } from '~/lib/cache';
+import { prisma } from '~/lib/db';
+import { Prisma } from '~/lib/db/generated/client';
 import { getStorageLayer } from '~/lib/storage/layers/StorageLayer';
 import { AssetStorage } from '~/lib/storage/services/AssetStorage';
 import { type protocolInsertSchema } from '~/schemas/protocol';
-import { requireApiAuth } from '~/utils/auth';
-import { prisma } from '~/lib/db';
 import { addEvent } from './activityFeed';
 
 /**

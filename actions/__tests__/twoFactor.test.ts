@@ -99,11 +99,11 @@ vi.mock('~/lib/rateLimit', () => ({
   recordLoginAttempt: mockRecordLoginAttempt,
 }));
 
-vi.mock('~/lib/session', () => ({
+vi.mock('~/lib/auth/session', () => ({
   createSessionCookie: mockCreateSessionCookie,
 }));
 
-vi.mock('~/lib/totp', () => ({
+vi.mock('~/lib/auth/totp', () => ({
   verifyTwoFactorToken: mockVerifyTwoFactorToken,
   verifyTotpCode: mockVerifyTotpCode,
   hashRecoveryCode: mockHashRecoveryCode,
@@ -114,7 +114,7 @@ vi.mock('~/lib/totp', () => ({
   generateRecoveryCodes: vi.fn(),
 }));
 
-vi.mock('~/utils/auth', () => ({
+vi.mock('~/lib/auth/guards', () => ({
   requireApiAuth: vi.fn().mockResolvedValue(undefined),
   requirePageAuth: vi.fn().mockResolvedValue(undefined),
   getServerSession: vi.fn(),

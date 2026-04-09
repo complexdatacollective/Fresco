@@ -1,15 +1,15 @@
 'use server';
 
-import { safeUpdateTag } from '~/lib/cache';
-import { prisma } from '~/lib/db';
-import { type FormSubmissionResult } from '~/lib/form/store/types';
-import { checkRateLimit, recordLoginAttempt } from '~/lib/rateLimit';
-import { createSessionCookie } from '~/lib/session';
+import { createSessionCookie } from '~/lib/auth/session';
 import {
   hashRecoveryCode,
   verifyTotpCode,
   verifyTwoFactorToken,
-} from '~/lib/totp';
+} from '~/lib/auth/totp';
+import { safeUpdateTag } from '~/lib/cache';
+import { prisma } from '~/lib/db';
+import { type FormSubmissionResult } from '~/lib/form/store/types';
+import { checkRateLimit, recordLoginAttempt } from '~/lib/rateLimit';
 import { getInstallationId } from '~/queries/appSettings';
 import { verifyTwoFactorSchema } from '~/schemas/totp';
 import { getClientIp } from '~/utils/getClientIp';

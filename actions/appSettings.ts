@@ -5,18 +5,18 @@ import { redirect } from 'next/navigation';
 import { after } from 'next/server';
 import { type z } from 'zod';
 import { z as zm } from 'zod/mini';
+import { addEvent } from '~/actions/activityFeed';
 import { env } from '~/env.js';
-import { captureEvent, shutdownPostHog } from '~/lib/posthog-server';
+import { requireApiAuth } from '~/lib/auth/guards';
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
+import { captureEvent, shutdownPostHog } from '~/lib/posthog-server';
 import { getInstallationId } from '~/queries/appSettings';
 import {
   type AppSetting,
   appSettingPreprocessedSchema,
   createUploadThingTokenFormSchema,
 } from '~/schemas/appSettings';
-import { addEvent } from '~/actions/activityFeed';
-import { requireApiAuth } from '~/utils/auth';
 import { ensureError } from '~/utils/ensureError';
 import { getStringValue } from '~/utils/serializeHelpers';
 

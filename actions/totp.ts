@@ -1,7 +1,6 @@
 'use server';
 
-import { safeUpdateTag } from '~/lib/cache';
-import { prisma } from '~/lib/db';
+import { requireApiAuth } from '~/lib/auth/guards';
 import {
   generateQrCodeDataUrl,
   generateRecoveryCodes,
@@ -9,10 +8,11 @@ import {
   generateTotpUri,
   hashRecoveryCode,
   verifyTotpCode,
-} from '~/lib/totp';
+} from '~/lib/auth/totp';
+import { safeUpdateTag } from '~/lib/cache';
+import { prisma } from '~/lib/db';
 import { type FormSubmissionResult } from '~/lib/form/store/types';
 import { disableTotpSchema, verifyTotpSetupSchema } from '~/schemas/totp';
-import { requireApiAuth } from '~/utils/auth';
 import { getBaseUrl } from '~/utils/getBaseUrl';
 import { addEvent } from './activityFeed';
 

@@ -2,6 +2,7 @@
 
 import { createId } from '@paralleldrive/cuid2';
 import { after } from 'next/server';
+import { requireApiAuth } from '~/lib/auth/guards';
 import { safeRevalidateTag, safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { type Interview } from '~/lib/db/generated/client';
@@ -9,7 +10,6 @@ import { createInitialNetwork } from '~/lib/interviewer/ducks/modules/session';
 import { captureException, shutdownPostHog } from '~/lib/posthog-server';
 import { getAppSetting } from '~/queries/appSettings';
 import type { CreateInterview, DeleteInterviews } from '~/schemas/interviews';
-import { requireApiAuth } from '~/utils/auth';
 import { ensureError } from '~/utils/ensureError';
 import { addEvent } from './activityFeed';
 

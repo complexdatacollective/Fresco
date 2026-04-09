@@ -18,6 +18,7 @@
     "test:unit": "SKIP_ENV_VALIDATION=true vitest --run --project=units",
     "test:storybook": "vitest --project=storybook",
     "test:e2e": "./scripts/run-e2e-docker.sh",
+    "test:e2e:local": "./scripts/run-e2e-local.sh",
     "test:e2e:update-snapshots": "./scripts/run-e2e-docker.sh --update-snapshots",
     "load-test": "docker run -i grafana/k6 run - <load-test.js",
     "typecheck": "SKIP_ENV_VALIDATION=true tsc --noEmit --incremental",
@@ -39,12 +40,6 @@
     ],
     "patchedDependencies": {
       "react-best-merge-refs@1.0.2": "patches/react-best-merge-refs@1.0.2.patch"
-    },
-    "overrides": {
-      "vite-plugin-storybook-nextjs": "^3.2.4"
-    },
-    "peerDependencyRules": {
-      "allowedVersions": {}
     }
   },
   "dependencies": {

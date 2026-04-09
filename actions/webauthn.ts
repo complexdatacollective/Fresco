@@ -1,30 +1,30 @@
 'use server';
 
-import { randomBytes } from 'node:crypto';
 import {
   generateAuthenticationOptions as generateAuthOptions,
   generateRegistrationOptions as generateRegOptions,
   verifyAuthenticationResponse,
   verifyRegistrationResponse,
+  type AuthenticationResponseJSON,
   type AuthenticatorTransportFuture,
   type RegistrationResponseJSON,
-  type AuthenticationResponseJSON,
 } from '@simplewebauthn/server';
 import { cookies } from 'next/headers';
+import { randomBytes } from 'node:crypto';
 import { env } from '~/env';
-import { safeUpdateTag } from '~/lib/cache';
-import { prisma } from '~/lib/db';
-import { checkRateLimit, recordLoginAttempt } from '~/lib/rateLimit';
-import { createSessionCookie } from '~/lib/session';
+import { requireApiAuth } from '~/lib/auth/guards';
+import { createSessionCookie } from '~/lib/auth/session';
+import { getAuthenticatorName } from '~/lib/auth/utils/getAuthenticatorName';
 import {
   createChallengeCookie,
   getWebAuthnConfig,
   verifyChallengeCookie,
-} from '~/lib/webauthn';
-import { requireApiAuth } from '~/utils/auth';
+} from '~/lib/auth/webauthn';
+import { safeUpdateTag } from '~/lib/cache';
+import { prisma } from '~/lib/db';
+import { checkRateLimit, recordLoginAttempt } from '~/lib/rateLimit';
 import { getClientIp } from '~/utils/getClientIp';
 import { hashPassword, verifyPassword } from '~/utils/password';
-import { getAuthenticatorName } from '~/lib/webauthn/getAuthenticatorName';
 import { addEvent } from './activityFeed';
 
 const CHALLENGE_COOKIE_NAME = 'webauthn_challenge';

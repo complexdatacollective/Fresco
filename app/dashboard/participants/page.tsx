@@ -3,8 +3,8 @@ import ParticipantsTable from '~/app/dashboard/_components/ParticipantsTable/Par
 import { DataTableSkeleton } from '~/components/DataTable/DataTableSkeleton';
 import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import PageHeader from '~/components/typography/PageHeader';
+import { requirePageAuth } from '~/lib/auth/guards';
 import { requireAppNotExpired } from '~/queries/appSettings';
-import { requirePageAuth } from '~/utils/auth';
 import ImportExportSection from './_components/ExportParticipants/ImportExportSection';
 
 export default function ParticipantPage() {

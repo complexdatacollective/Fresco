@@ -1,4 +1,4 @@
-import aaguidNames from '~/lib/webauthn/aaguid-names.json';
+import aaguidNames from './aaguid-names.json';
 
 const registry = aaguidNames as Record<string, string>;
 

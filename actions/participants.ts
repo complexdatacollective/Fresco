@@ -2,13 +2,13 @@
 
 import { createId } from '@paralleldrive/cuid2';
 import { addEvent } from '~/actions/activityFeed';
+import { requireApiAuth } from '~/lib/auth/guards';
 import { safeUpdateTag } from '~/lib/cache';
+import { prisma } from '~/lib/db';
 import {
   participantListInputSchema,
   updateSchema,
 } from '~/schemas/participant';
-import { requireApiAuth } from '~/utils/auth';
-import { prisma } from '~/lib/db';
 
 export async function deleteParticipants(participantIds: string[]) {
   await requireApiAuth();

@@ -1,16 +1,16 @@
 import { Effect, Queue, Stream } from 'effect';
 import { addEvent } from '~/actions/activityFeed';
+import { requireApiAuth } from '~/lib/auth/guards';
 import { safeRevalidateTag } from '~/lib/cache';
 import { type ExportEvent, formatSSE } from '~/lib/export/exportEvents';
-import { getStorageLayer } from '~/lib/storage/layers/StorageLayer';
 import { exportPipeline } from '~/lib/export/pipeline';
 import {
   captureEvent,
   captureException,
   shutdownPostHog,
 } from '~/lib/posthog-server';
+import { getStorageLayer } from '~/lib/storage/layers/StorageLayer';
 import { exportInterviewsSchema } from '~/schemas/export';
-import { requireApiAuth } from '~/utils/auth';
 
 export async function POST(request: Request) {
   let username: string;

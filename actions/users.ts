@@ -1,10 +1,10 @@
 'use server';
 
+import { requireApiAuth } from '~/lib/auth/guards';
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { createUserSchema } from '~/schemas/auth';
 import { changePasswordSchema, deleteUsersSchema } from '~/schemas/users';
-import { requireApiAuth } from '~/utils/auth';
 import { hashPassword, verifyPassword } from '~/utils/password';
 import { addEvent } from './activityFeed';
 

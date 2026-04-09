@@ -1,9 +1,9 @@
 'use server';
 
 import { Effect } from 'effect';
+import { requireApiAuth } from '~/lib/auth/guards';
 import { getStorageLayer } from '~/lib/storage/layers/StorageLayer';
 import { FileStorage } from '~/lib/storage/services/FileStorage';
-import { requireApiAuth } from '~/utils/auth';
 
 export const deleteZipFromStorage = async (key: string) => {
   await requireApiAuth();

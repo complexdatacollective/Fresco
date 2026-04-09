@@ -7,13 +7,13 @@ import {
   deleteSyntheticData,
   revalidateSyntheticData,
 } from '~/actions/synthetic-interviews';
-import { useToast } from '~/components/ui/Toast';
 import SettingsCard from '~/components/settings/SettingsCard';
 import SettingsField from '~/components/settings/SettingsField';
 import { Button } from '~/components/ui/Button';
+import ProgressBar from '~/components/ui/ProgressBar';
+import { useToast } from '~/components/ui/Toast';
 import InputField from '~/lib/form/components/fields/InputField';
 import SelectField from '~/lib/form/components/fields/Select/Native';
-import ProgressBar from '~/components/ui/ProgressBar';
 import ToggleField from '~/lib/form/components/fields/ToggleField';
 import {
   type GetProtocolsQuery,
@@ -170,6 +170,7 @@ export default function SyntheticInterviewDataSection({
             value={String(count)}
             onChange={(value) => setCount(Number(value))}
             disabled={isGenerating}
+            className="shrink-0"
           />
           <Button
             disabled={!selectedProtocolId || isGenerating}

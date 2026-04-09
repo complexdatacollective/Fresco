@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from 'next/server';
 import { requireApiTokenAuth } from '~/app/api/_helpers/auth';
+import { getServerSession } from '~/lib/auth/guards';
 import { getAppSetting, getPreviewMode } from '~/queries/appSettings';
-import { getServerSession } from '~/utils/auth';
 import type { AuthError, PreviewResponse } from './types';
 
 export const corsHeaders = {

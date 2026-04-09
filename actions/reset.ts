@@ -1,15 +1,15 @@
 'use server';
 
+import { Effect } from 'effect';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { env } from 'process';
-import { Effect } from 'effect';
+import { requireApiAuth } from '~/lib/auth/guards';
 import { CacheTags, safeUpdateTag } from '~/lib/cache';
+import { prisma } from '~/lib/db';
 import { resetDatabase } from '~/lib/db/resetDatabase';
 import { getStorageLayer } from '~/lib/storage/layers/StorageLayer';
 import { AssetStorage } from '~/lib/storage/services/AssetStorage';
-import { prisma } from '~/lib/db';
-import { requireApiAuth } from '~/utils/auth';
 
 export const resetAppSettings = async (): Promise<void> => {
   if (env.NODE_ENV !== 'development') {
