@@ -58,7 +58,7 @@ const deriveAttributeTypeFromData = (
     // fallback to text if a conflict emerges, or first instance of non-null data
     if (
       (previousType !== '' && currentType !== previousType) ||
-      (currentType === '' && !!currentValue)
+      currentType === ''
     ) {
       return VariableTypes.text;
     }
