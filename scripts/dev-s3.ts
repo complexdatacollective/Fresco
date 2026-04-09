@@ -58,9 +58,10 @@ function ensureVolume(): void {
 
 function removeContainer(): void {
   const result = docker(['rm', '-f', containerName]);
-  if (result.status !== 0) {
-    throw new Error(`docker rm -f failed: ${result.stderr}`);
-  }
+  if (result.status === 0) return;
+  // Tolerate "already gone" races with parallel invocations.
+  if (result.stderr.toLowerCase().includes('no such container')) return;
+  throw new Error(`docker rm -f failed: ${result.stderr}`);
 }
 
 function startContainer(): void {
@@ -96,15 +97,20 @@ function followLogs(): void {
     stdio: 'inherit',
   });
 
+  let shuttingDown = false;
   const shutdown = (): void => {
+    if (shuttingDown) return;
+    shuttingDown = true;
     if (!child.killed) child.kill('SIGTERM');
     process.exit(0);
   };
 
   process.on('SIGINT', shutdown);
   process.on('SIGTERM', shutdown);
+  process.on('SIGHUP', shutdown);
 
   child.on('exit', (code) => {
+    if (shuttingDown) return;
     process.exit(code ?? 0);
   });
 }
