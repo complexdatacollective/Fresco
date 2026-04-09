@@ -197,7 +197,14 @@ export const stateVariants = cva({
   },
 });
 
-// As above, but adding focus and hover styles for interactive elements
+// As above, but adding focus and hover styles for interactive elements.
+// The ring is applied in two ways so every control variant gets the same look:
+//   1. `has-[…]:focus-styles` — wrapper <div> lights up when a nested
+//      input/textarea/select receives focus (Input, TextArea, native Select).
+//   2. `focus-visible:focus-styles` — covers the case where the element the
+//      variants are applied to *is itself* focusable, e.g. Base UI's
+//      `Select.Trigger` renders a <button> with these classes applied directly.
+//      No-op for wrapper <div>s around inputs since they aren't tabbable.
 export const interactiveStateVariants = cva({
   base: cx('transition-colors duration-200'),
   variants: {
@@ -206,7 +213,7 @@ export const interactiveStateVariants = cva({
       readOnly: cx('focus-within:border-input-contrast/70'),
       invalid: '',
       normal:
-        'has-[input:focus-visible,textarea:focus-visible]:focus-styles outline-(--focus-color,currentColor)',
+        'has-[input:focus-visible,textarea:focus-visible,select:focus-visible]:focus-styles focus-visible:focus-styles outline-(--focus-color,currentColor)',
     },
   },
   defaultVariants: {
