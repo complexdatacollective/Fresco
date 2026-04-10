@@ -5,7 +5,8 @@ import superjson from 'superjson';
 import AddParticipantButton from '~/app/dashboard/participants/_components/AddParticipantButton';
 import { GenerateParticipantURLs } from '~/app/dashboard/participants/_components/ExportParticipants/GenerateParticipantURLsButton';
 import ImportCSVModal from '~/app/dashboard/participants/_components/ImportCSVModal';
-import SettingsCard from '~/components/settings/SettingsCard';
+import Surface from '~/components/layout/Surface';
+import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import type {
   GetParticipantsQuery,
@@ -31,35 +32,34 @@ export default function ImportExportSection({
 
   return (
     <div className="tablet-landscape:grid-cols-2 mx-auto grid w-full max-w-6xl grid-cols-1 gap-4">
-      <SettingsCard
-        title="Import & Add Participants"
-        controlArea={
-          <div className="tablet-landscape:w-72 flex w-full flex-col items-center justify-end gap-4">
-            <ImportCSVModal />
-            <AddParticipantButton existingParticipants={participants} />
-          </div>
-        }
-        className="overflow-visible"
-      >
+      <Surface className="flex flex-col gap-4 rounded" noContainer>
+        <Heading level="h4" variant="all-caps" margin="none">
+          Import & Add Participants
+        </Heading>
         <Paragraph>
           Import participants from a CSV file or add a single participant.
         </Paragraph>
-      </SettingsCard>
-      <SettingsCard
-        title="Export Participants"
-        controlArea={
-          <div className="tablet-landscape:w-72 flex w-full flex-col items-center justify-end gap-4">
-            <ExportParticipants participants={participants} />
-            <GenerateParticipantURLs
-              participants={participants}
-              protocols={protocols}
-            />
-          </div>
-        }
-        className="overflow-visible"
+        <div className="flex flex-col gap-2">
+          <ImportCSVModal />
+          <AddParticipantButton existingParticipants={participants} />
+        </div>
+      </Surface>
+      <Surface
+        className="flex flex-col gap-4 overflow-visible rounded"
+        noContainer
       >
+        <Heading level="h4" variant="all-caps" margin="none">
+          Export Participants
+        </Heading>
         <Paragraph>Export participant data and participation URLs.</Paragraph>
-      </SettingsCard>
+        <div className="flex flex-col gap-2">
+          <ExportParticipants participants={participants} />
+          <GenerateParticipantURLs
+            participants={participants}
+            protocols={protocols}
+          />
+        </div>
+      </Surface>
     </div>
   );
 }
