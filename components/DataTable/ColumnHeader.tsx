@@ -193,7 +193,7 @@ export function DataTableColumnHeader<TData, TValue>({
       {canFilter && filterConfig && (
         <Popover open={filterOpen} onOpenChange={setFilterOpen}>
           <PopoverContent align="start" anchor={buttonRef}>
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-2">
               <FilterRenderer
                 filterConfig={filterConfig}
                 value={stagedValue}

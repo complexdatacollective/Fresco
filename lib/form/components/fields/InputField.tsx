@@ -29,7 +29,7 @@ const inputWrapperVariants = compose(
   interactiveStateVariants,
   cva({
     base: cx(
-      'w-auto',
+      'max-w-full min-w-0',
       // `controlVariants` sets `min-w-fit` (sensible for buttons whose
       // label should never be clipped), but combined with
       // `field-sizing-content` on the inner `<input>` that produces a
@@ -40,7 +40,7 @@ const inputWrapperVariants = compose(
       // intrinsic content size; combined with `min-w-0` on the inner
       // `<input>` (see `inputVariants` below), text is clipped inside
       // a container-sized field instead of blowing out the layout.
-      'min-w-0',
+      'w-auto shrink-0',
       // Child buttons should have reduced height, but their icons should stay the same size
       '[&_button]:h-10',
     ),

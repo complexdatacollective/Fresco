@@ -7,12 +7,9 @@ import {
   type OperatorFilterConfig,
   type OperatorFilterValue,
 } from '~/components/DataTable/filters/types';
-import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import Button, { IconButton } from '~/components/ui/Button';
-import { Badge } from '~/components/ui/badge';
 import InputField from '~/lib/form/components/fields/InputField';
-import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import SelectField from '~/lib/form/components/fields/Select/Native';
 
 type OperatorFilterProps = {
@@ -23,11 +20,11 @@ type OperatorFilterProps = {
 };
 
 const operatorLabels: Record<OperatorCondition['operator'], string> = {
-  eq: 'equals',
-  gt: 'greater than',
-  lt: 'less than',
-  gte: 'greater than or equal',
-  lte: 'less than or equal',
+  eq: 'is equal to (=)',
+  gt: 'is greater than (>)',
+  lt: 'is less than (<)',
+  gte: 'is at least (≥)',
+  lte: 'is at most (≤)',
 };
 
 const operatorSymbols: Record<OperatorCondition['operator'], string> = {
@@ -99,91 +96,101 @@ export default function OperatorFilter({
   }));
 
   return (
-    <div className="flex max-w-md flex-col gap-4">
-      <section className="flex flex-col gap-3">
-        <Heading level="h4">New Condition</Heading>
-        {entityOptions.length > 0 && (
-          <RadioGroupField
-            name="entity-type"
-            size="sm"
-            options={entityOptions}
-            value={selectedEntity}
-            onChange={(val) => {
-              if (typeof val === 'string' || typeof val === 'number') {
-                setSelectedEntity(String(val));
-              } else {
-                setSelectedEntity('');
-              }
-            }}
-          />
-        )}
-        <div className="flex items-center gap-2">
-          <SelectField
-            name="filter-operator"
-            size="sm"
-            options={operatorOptions}
-            value={selectedOperator}
-            onChange={(val) => {
-              const op = String(val);
-              if (op in operatorLabels) {
-                setSelectedOperator(op as OperatorCondition['operator']);
-              }
-            }}
-          />
+    <div className="flex w-72 flex-col gap-3">
+      <Paragraph intent="smallText" emphasis="muted" margin="none">
+        Show interviews where:
+      </Paragraph>
 
+      {conditions.length > 0 && (
+        <div className="flex flex-col gap-1">
+          {conditions.map((condition, index) => (
+            <div
+              key={`${condition.entityKind}-${condition.entityType}-${condition.operator}-${condition.value.toString()}-${index.toString()}`}
+            >
+              {index > 0 && (
+                <Paragraph
+                  intent="smallText"
+                  emphasis="muted"
+                  margin="none"
+                  className="py-0.5 text-center text-xs"
+                >
+                  and
+                </Paragraph>
+              )}
+              <div className="bg-surface-1 flex items-center justify-between gap-3 rounded-sm px-3 py-1.5">
+                <span className="text-sm">
+                  {condition.entityLabel} {operatorSymbols[condition.operator]}{' '}
+                  {condition.value}
+                </span>
+                <IconButton
+                  size="sm"
+                  variant="text"
+                  aria-label="Remove condition"
+                  onClick={() => handleRemoveCondition(index)}
+                  icon={<X />}
+                  className="size-5! shrink-0"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="flex flex-col gap-2">
+        <SelectField
+          name="entity-type"
+          size="sm"
+          options={entityOptions}
+          value={selectedEntity}
+          placeholder="Select type..."
+          onChange={(val) => {
+            if (typeof val === 'string' || typeof val === 'number') {
+              setSelectedEntity(String(val));
+            } else {
+              setSelectedEntity('');
+            }
+          }}
+        />
+
+        <SelectField
+          name="filter-operator"
+          size="sm"
+          options={operatorOptions}
+          value={selectedOperator}
+          onChange={(val) => {
+            const op = String(val);
+            if (op in operatorLabels) {
+              setSelectedOperator(op as OperatorCondition['operator']);
+            }
+          }}
+        />
+
+        <div className="flex items-center gap-2">
           <InputField
             type="number"
             name="filter-value"
             size="sm"
             value={inputValue}
             onChange={(val) => setInputValue(val ?? '')}
-            placeholder="Value"
-            className="shrink-0"
+            placeholder="0"
           />
 
-          <Button size="sm" onClick={handleAddCondition}>
+          <Button size="sm" className="shrink-0" onClick={handleAddCondition}>
             Add
           </Button>
         </div>
-      </section>
+      </div>
 
-      <section className="flex flex-col gap-3">
-        <Heading level="h4">Conditions</Heading>
-        <div className="inset-surface flex min-h-16 items-start rounded-sm p-3">
-          {conditions.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {conditions.map((condition, index) => (
-                <Badge
-                  key={`${condition.entityKind}-${condition.entityType}-${condition.operator}-${condition.value.toString()}-${index.toString()}`}
-                  className="bg-sea-green flex gap-2"
-                >
-                  <span>
-                    {condition.entityLabel}{' '}
-                    {operatorSymbols[condition.operator]} {condition.value}
-                  </span>
-                  <IconButton
-                    size="sm"
-                    variant="text"
-                    aria-label="Remove condition"
-                    onClick={() => handleRemoveCondition(index)}
-                    icon={<X />}
-                    className="size-5!"
-                  />
-                </Badge>
-              ))}
-            </div>
-          ) : (
-            <Paragraph
-              intent="smallText"
-              emphasis="muted"
-              margin="none"
-              className="w-full self-center text-center"
-            >
-              No conditions added
-            </Paragraph>
-          )}
-        </div>
-      </section>
+      {conditions.length === 0 && (
+        <Paragraph
+          intent="smallText"
+          emphasis="muted"
+          margin="none"
+          className="text-center"
+        >
+          Add a condition to filter by network data
+        </Paragraph>
+      )}
     </div>
   );
 }
