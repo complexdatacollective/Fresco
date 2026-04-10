@@ -25,7 +25,11 @@ test.describe('Preview Mode API', () => {
   // READ-ONLY TESTS: Preview mode disabled (default state)
   // ============================================================
   test.describe('Preview mode disabled', () => {
-    test('returns 403 when preview mode is disabled', async ({ request }) => {
+    test('returns 403 when preview mode is disabled', async ({
+      request,
+      database,
+    }) => {
+      await database.restoreSnapshot();
       const response = await request.post('/api/v1/preview', {
         data: {
           type: 'initialize-preview',
@@ -184,7 +188,7 @@ test.describe('Preview Mode API', () => {
       expect(body.status).toBe('rejected');
     });
 
-    test('protocol with assets returns 500 when UploadThing not configured', async ({
+    test('protocol with assets returns job-created with upload URLs', async ({
       request,
       database,
       app,
@@ -193,21 +197,25 @@ test.describe('Preview Mode API', () => {
       await app.setSetting(AppSetting.previewMode, 'true');
       await app.setSetting(AppSetting.previewModeRequireAuth, 'false');
 
+      const assetMeta = createTestAssetMeta(1);
       const response = await request.post('/api/v1/preview', {
         data: {
           type: 'initialize-preview',
           protocol: createTestProtocol(),
-          assetMeta: createTestAssetMeta(1),
+          assetMeta,
         },
       });
 
-      expect(response.status()).toBe(500);
+      expect(response.status()).toBe(200);
       const body = (await response.json()) as {
         status: string;
-        message: string;
+        protocolId: string;
+        presignedUrls: { assetId: string; url: string }[];
       };
-      expect(body.status).toBe('error');
-      expect(body.message).toBe('Failed to process preview request');
+      expect(body.status).toBe('job-created');
+      expect(body.protocolId).toBeTruthy();
+      expect(body.presignedUrls).toHaveLength(1);
+      expect(body.presignedUrls[0]?.url).toContain('/api/preview/');
     });
 
     test('complete-preview returns 404 for non-existent protocol', async ({

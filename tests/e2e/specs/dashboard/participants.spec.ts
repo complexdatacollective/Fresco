@@ -68,17 +68,9 @@ test.describe('Participants Page', () => {
     await expect(page.getByRole('button', { name: /import/i })).toBeVisible();
   });
 
-  test('export participation urls popover opens', async ({ page }) => {
+  test('export participants button visible', async ({ page }) => {
     await waitForTable(page, { minRows: 1 });
-    const trigger = page.getByTestId('export-participation-urls-button');
-    await expect(trigger).toBeVisible();
-    await trigger.click();
-
-    const popover = page.getByRole('dialog');
-    await expect(popover).toBeVisible();
-    await expect(
-      popover.getByRole('button', { name: /generate/i }),
-    ).toBeVisible();
+    await expect(page.getByTestId('export-participants-button')).toBeVisible();
   });
 
   test('visual snapshot', async ({ page, capturePage }) => {

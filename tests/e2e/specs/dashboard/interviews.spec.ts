@@ -72,7 +72,7 @@ test.describe('Interviews Page', () => {
     const popover = page.getByRole('dialog');
     await expect(popover).toBeVisible();
     await expect(
-      popover.getByRole('button', { name: /export incomplete/i }),
+      popover.getByRole('button', { name: /^export$/i }),
     ).toBeVisible();
   });
 
