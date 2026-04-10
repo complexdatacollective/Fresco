@@ -4,10 +4,7 @@ import { type ColumnDef, type Row } from '@tanstack/react-table';
 import { Trash } from 'lucide-react';
 import { use, useCallback, useMemo, useRef, useState } from 'react';
 import SuperJSON from 'superjson';
-import {
-  deleteAllParticipants,
-  deleteParticipants,
-} from '~/actions/participants';
+import { deleteParticipants } from '~/actions/participants';
 import { ActionsDropdown } from '~/app/dashboard/_components/ParticipantsTable/ActionsDropdown';
 import { getParticipantColumns } from '~/app/dashboard/_components/ParticipantsTable/Columns';
 import { DeleteParticipantsDialog } from '~/app/dashboard/participants/_components/DeleteParticipantsDialog';
@@ -18,7 +15,6 @@ import { DataTableToolbar } from '~/components/DataTable/DataTableToolbar';
 import { Button } from '~/components/ui/Button';
 import { useClientDataTable } from '~/hooks/useClientDataTable';
 import type { Participant } from '~/lib/db/generated/client';
-import { DialogTrigger } from '~/lib/dialogs/DialogTrigger';
 import type {
   GetParticipantsQuery,
   GetParticipantsReturnType,
@@ -72,14 +68,7 @@ export const ParticipantsTableClient = ({
       return;
     }
 
-    if (participantsToDelete.length === participants.length) {
-      await deleteAllParticipants();
-      resetDelete();
-      return;
-    }
-
     await deleteParticipants(participantsToDelete.map((p) => p.id));
-
     resetDelete();
   };
 
@@ -95,11 +84,6 @@ export const ParticipantsTableClient = ({
     },
     [],
   );
-
-  const handleDeleteAll = useCallback(() => {
-    setParticipantsToDelete(participants);
-    setShowDeleteModal(true);
-  }, [participants]);
 
   const handleEditParticipant = useCallback(
     (participant: ParticipantWithInterviews) => {
@@ -175,29 +159,6 @@ export const ParticipantsTableClient = ({
               participants={participants}
               protocols={protocols}
             />
-            <DialogTrigger
-              color="destructive"
-              icon={<Trash />}
-              dialog={{
-                type: 'choice',
-                intent: 'destructive',
-                title: 'Delete All Participants?',
-                description:
-                  'Are you sure you want to delete all participants? This action cannot be undone.',
-                actions: {
-                  primary: { label: 'Delete All', value: true },
-                  cancel: { label: 'Cancel', value: false },
-                },
-              }}
-              onResult={(result) => {
-                if (result) {
-                  handleDeleteAll();
-                }
-              }}
-              className="tablet-landscape:w-auto w-full"
-            >
-              Delete All
-            </DialogTrigger>
           </DataTableToolbar>
         }
         floatingBar={
