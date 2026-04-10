@@ -57,12 +57,6 @@ export const updateExportTime = async (interviewIds: Interview['id'][]) => {
     });
 
     safeUpdateTag('getInterviews');
-    safeUpdateTag('activityFeed');
-
-    void addEvent(
-      'Data Exported',
-      `Exported data for ${updatedInterviews.count} interview(s)`,
-    );
 
     return { error: null, interview: updatedInterviews };
   } catch (error) {
