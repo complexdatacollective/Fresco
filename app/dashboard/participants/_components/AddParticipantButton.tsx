@@ -15,20 +15,16 @@ function AddParticipantButton({
   const [isOpen, setOpen] = useState(false);
 
   return (
-    <div className="tablet-landscape:w-auto w-full">
+    <>
       <ParticipantModal
         open={isOpen}
         setOpen={setOpen}
         existingParticipants={existingParticipants}
       />
-      <Button
-        onClick={() => setOpen(true)}
-        icon={<Plus />}
-        className="tablet-landscape:w-auto w-full"
-      >
+      <Button onClick={() => setOpen(true)} icon={<Plus />} className="w-full">
         Add Single Participant
       </Button>
-    </div>
+    </>
   );
 }
 

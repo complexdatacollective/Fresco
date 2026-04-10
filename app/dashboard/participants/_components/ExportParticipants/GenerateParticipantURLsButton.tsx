@@ -100,6 +100,7 @@ export const GenerateParticipantURLs = ({
             name="protocol"
             required
             component={SelectField}
+            placeholder="Select a protocol..."
             options={protocols.map((protocol) => ({
               value: protocol.id,
               label: protocol.name,
