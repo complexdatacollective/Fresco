@@ -23,8 +23,6 @@ import type {
   GetProtocolsQuery,
   GetProtocolsReturnType,
 } from '~/queries/protocols';
-import AddParticipantButton from '../../participants/_components/AddParticipantButton';
-import { GenerateParticipantURLs } from '../../participants/_components/ExportParticipants/GenerateParticipantURLsButton';
 
 export type ParticipantWithInterviews = GetParticipantsQuery[number];
 
@@ -153,13 +151,7 @@ export const ParticipantsTableClient = ({
           <DataTableToolbar
             table={table}
             searchableColumns={[{ id: 'identifier', title: 'by identifier' }]}
-          >
-            <AddParticipantButton existingParticipants={participants} />
-            <GenerateParticipantURLs
-              participants={participants}
-              protocols={protocols}
-            />
-          </DataTableToolbar>
+          />
         }
         floatingBar={
           <DataTableFloatingBar table={table}>
