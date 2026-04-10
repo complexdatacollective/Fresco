@@ -21,8 +21,8 @@ function AddParticipantButton({
         setOpen={setOpen}
         existingParticipants={existingParticipants}
       />
-      <Button onClick={() => setOpen(true)} icon={<Plus />} className="w-full">
-        Add Single Participant
+      <Button onClick={() => setOpen(true)} icon={<Plus />}>
+        Add Participant
       </Button>
     </>
   );

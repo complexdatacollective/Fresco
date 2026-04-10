@@ -4,7 +4,7 @@ import {
   startAuthentication,
   startRegistration,
 } from '@simplewebauthn/browser';
-import { type ColumnDef } from '@tanstack/react-table';
+import { type StrictColumnDef } from '~/components/DataTable/types';
 import { Plus, Trash, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { use, useCallback, useState } from 'react';
@@ -96,7 +96,7 @@ function makeUserColumns(
   userCount: number,
   onDeleteUser: (user: UserRow) => void,
   onResetAuth: (user: UserRow) => void,
-): ColumnDef<UserRow>[] {
+): StrictColumnDef<UserRow>[] {
   return [
     {
       id: 'select',
@@ -126,6 +126,7 @@ function makeUserColumns(
     {
       id: 'username',
       accessorKey: 'username',
+      sortingFn: 'text',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Username" />
       ),
@@ -146,6 +147,7 @@ function makeUserColumns(
     },
     {
       id: 'authMethod',
+      enableSorting: false,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Auth Method" />
       ),
@@ -160,6 +162,7 @@ function makeUserColumns(
     },
     {
       id: 'actions',
+      enableSorting: false,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Actions" />
       ),

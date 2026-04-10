@@ -82,9 +82,9 @@ export function NavigationBar() {
         as="nav"
         spacing="none"
         className={cx(
-          'text-primary-contrast tablet-portrait:gap-4 sticky top-4 flex max-w-5xl grow items-center justify-between gap-2 rounded-full bg-[oklch(20%_0.3_var(--base-hue)/0.8)] px-6 py-2 backdrop-blur-sm',
+          'text-primary-contrast tablet-portrait:gap-4 bg-primary sticky top-4 flex max-w-5xl grow items-center justify-between gap-2 overflow-visible rounded-full px-6 py-2 shadow-lg shadow-black/25 backdrop-blur-sm',
         )}
-        elevation="high"
+        elevation="none"
         variants={containerVariants}
         initial={shouldReduceMotion ? false : 'hidden'}
         animate="visible"

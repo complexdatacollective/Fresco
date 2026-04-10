@@ -11,7 +11,7 @@ import {
   PopoverTrigger,
 } from '~/components/ui/popover';
 import { Skeleton } from '~/components/ui/skeleton';
-import SelectField from '~/lib/form/components/fields/Select/Styled';
+import SelectField from '~/lib/form/components/fields/Select/Native';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 import type {
   GetProtocolsQuery,
@@ -64,7 +64,7 @@ export const GenerateInterviewURLs = ({
       >
         Export Incomplete Interview URLs
       </PopoverTrigger>
-      <PopoverContent>
+      <PopoverContent className="flex max-w-sm flex-col gap-4">
         <Paragraph>
           Generate a CSV that contains unique interview URLs for all incomplete
           interviews by protocol.
@@ -75,6 +75,7 @@ export const GenerateInterviewURLs = ({
         ) : (
           <SelectField
             name="Protocol"
+            size="sm"
             options={protocols?.map((p) => ({ value: p.id, label: p.name }))}
             onChange={(value) => {
               const protocol = protocols.find(
@@ -87,10 +88,12 @@ export const GenerateInterviewURLs = ({
             placeholder="Select a Protocol..."
           />
         )}
-        <ExportCSVInterviewURLs
-          protocol={selectedProtocol}
-          interviews={interviewsToExport}
-        />
+        <div className="flex justify-end">
+          <ExportCSVInterviewURLs
+            protocol={selectedProtocol}
+            interviews={interviewsToExport}
+          />
+        </div>
       </PopoverContent>
     </Popover>
   );

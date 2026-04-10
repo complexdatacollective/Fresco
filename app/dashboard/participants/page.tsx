@@ -5,9 +5,6 @@ import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
 import PageHeader from '~/components/typography/PageHeader';
 import { requirePageAuth } from '~/lib/auth/guards';
 import { requireAppNotExpired } from '~/queries/appSettings';
-import { getParticipants } from '~/queries/participants';
-import { getProtocols } from '~/queries/protocols';
-import ImportExportSection from './_components/ExportParticipants/ImportExportSection';
 
 export default function ParticipantPage() {
   return (
@@ -42,14 +39,8 @@ async function AuthenticatedParticipants() {
   await requireAppNotExpired();
   await requirePageAuth();
   return (
-    <>
-      <ImportExportSection
-        participantsPromise={getParticipants()}
-        protocolsPromise={getProtocols()}
-      />
-      <ResponsiveContainer maxWidth="6xl" baseSize="content" container={false}>
-        <ParticipantsTable />
-      </ResponsiveContainer>
-    </>
+    <ResponsiveContainer maxWidth="6xl" baseSize="content" container={false}>
+      <ParticipantsTable />
+    </ResponsiveContainer>
   );
 }

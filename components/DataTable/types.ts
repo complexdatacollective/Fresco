@@ -1,10 +1,20 @@
-import { z } from 'zod/mini';
+import { type ColumnDef } from '@tanstack/react-table';
 
 export type Option = {
   label: string;
   value: string;
   icon?: React.ComponentType<{ className?: string }>;
 };
+
+/**
+ * A stricter `ColumnDef` that requires `sortingFn` on every sortable column.
+ * Columns that set `enableSorting: false` are exempt.
+ */
+export type StrictColumnDef<TData, TValue = unknown> =
+  | (ColumnDef<TData, TValue> & { enableSorting: false })
+  | (ColumnDef<TData, TValue> & {
+      sortingFn: NonNullable<ColumnDef<TData, TValue>['sortingFn']>;
+    });
 
 export type DataTableSearchableColumn<TData> = {
   id: keyof TData | (string & {});
@@ -16,9 +26,3 @@ export type DataTableFilterableColumn<TData> = {
 } & DataTableSearchableColumn<TData>;
 
 export const pageSizes = [10, 20, 50, 100] as const;
-
-export const FilterParam = z.object({
-  id: z.string(),
-  value: z.union([z.string(), z.array(z.string())]),
-});
-export type FilterParam = z.infer<typeof FilterParam>;

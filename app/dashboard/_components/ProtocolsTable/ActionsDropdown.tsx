@@ -1,7 +1,7 @@
 'use client';
 
 import type { Row } from '@tanstack/react-table';
-import { MoreHorizontal } from 'lucide-react';
+import { DeleteIcon, MoreHorizontal } from 'lucide-react';
 import { useState } from 'react';
 import { DeleteProtocolsDialog } from '~/app/dashboard/protocols/_components/DeleteProtocolsDialog';
 import { IconButton } from '~/components/ui/Button';
@@ -51,7 +51,10 @@ export const ActionsDropdown = ({
         <DropdownMenuContent align="end">
           <DropdownMenuGroup>
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => handleDelete(row.original)}>
+            <DropdownMenuItem
+              onClick={() => handleDelete(row.original)}
+              icon={<DeleteIcon />}
+            >
               Delete
             </DropdownMenuItem>
           </DropdownMenuGroup>

@@ -6,30 +6,9 @@ import {
   type InjectedFieldProps,
 } from '~/lib/form/components/Field/types';
 import { getInputState } from '~/lib/form/utils/getInputState';
-import { cva, cx, type VariantProps } from '~/utils/cva';
+import { dropdownItemVariants } from '~/styles/shared/controlVariants';
+import { cx, type VariantProps } from '~/utils/cva';
 import { type SelectOption, selectWrapperVariants } from './shared';
-
-// Size-based variants for dropdown items
-const dropdownItemVariants = cva({
-  base: cx(
-    'flex cursor-pointer items-center gap-2 px-3',
-    'transition-colors outline-none',
-    'hover:bg-accent/10',
-    'data-selected:bg-selected',
-  ),
-  variants: {
-    size: {
-      xs: 'py-1 text-xs',
-      sm: 'py-1.5 text-sm',
-      md: 'py-2 text-base',
-      lg: 'py-2.5 text-lg',
-      xl: 'py-3 text-xl',
-    },
-  },
-  defaultVariants: {
-    size: 'md',
-  },
-});
 
 type SelectProps = FieldValueProps<string | number> &
   InjectedFieldProps & {
@@ -123,7 +102,7 @@ function SelectField(props: SelectProps) {
                 <Select.Item
                   key={option.value}
                   value={option.value}
-                  className={dropdownItemVariants({ size })}
+                  className={dropdownItemVariants()}
                 >
                   <Select.ItemText className="flex-1">
                     {option.label}

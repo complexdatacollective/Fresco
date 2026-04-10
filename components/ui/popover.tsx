@@ -13,6 +13,30 @@ import {
 import { cx } from '~/utils/cva';
 import { MotionSurface } from '../layout/Surface';
 
+export function BaseUISharedPopoverContainer({
+  className,
+  ...props
+}: ComponentPropsWithoutRef<typeof MotionSurface>) {
+  return (
+    <MotionSurface
+      level="popover"
+      elevation="none"
+      dynamicSpacing={false}
+      spacing="xs"
+      noContainer
+      className={cx(
+        'max-w-(--available-width) overflow-visible shadow-xl',
+        className,
+      )}
+      initial={{ opacity: 0, scale: 0.96 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.96 }}
+      transition={{ type: 'spring', duration: 0.5 }}
+      {...props}
+    />
+  );
+}
+
 type PopoverContextValue = {
   mounted: boolean;
   setMounted: (mounted: boolean) => void;
@@ -158,20 +182,9 @@ function PopoverContent({
           >
             <BasePopover.Popup
               render={
-                <MotionSurface
-                  level="popover"
-                  elevation="none"
-                  dynamicSpacing={false}
-                  spacing="sm"
-                  noContainer
-                  className={cx(
-                    'max-w-(--available-width) overflow-visible shadow-xl',
-                    className,
-                  )}
-                  initial={{ opacity: 0, scale: 0.96 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.96 }}
-                  transition={{ type: 'spring', duration: 0.5 }}
+                <BaseUISharedPopoverContainer
+                  className={className}
+                  spacing="md"
                 />
               }
               {...props}

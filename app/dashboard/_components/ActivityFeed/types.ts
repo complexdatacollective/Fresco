@@ -1,4 +1,3 @@
-import type { FilterParam } from '~/components/DataTable/types';
 import { type Prisma } from '~/lib/db/generated/client';
 
 export const activityTypes = [
@@ -59,5 +58,6 @@ export type SearchParams = {
   perPage: number;
   sort: (typeof sortOrder)[number];
   sortField: (typeof sortableFields)[number];
-  filterParams: FilterParam[] | null;
+  q: string | null;
+  type: ActivityType[] | null;
 };

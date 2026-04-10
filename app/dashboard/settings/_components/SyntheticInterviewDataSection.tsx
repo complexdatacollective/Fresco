@@ -161,6 +161,7 @@ export default function SyntheticInterviewDataSection({
             }}
             value={selectedProtocolId}
             placeholder="Select a Protocol..."
+            className="min-w-auto"
           />
           <InputField
             name="count"

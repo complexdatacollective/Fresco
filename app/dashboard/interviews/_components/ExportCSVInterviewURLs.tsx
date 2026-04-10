@@ -63,12 +63,13 @@ function ExportCSVInterviewURLs({
 
   return (
     <Button
+      size="sm"
       disabled={!protocol || isExporting}
       onClick={handleExport}
-      className="w-full"
+      icon={<Download />}
+      color="primary"
     >
-      <Download className="mr-2 size-4" />
-      {isExporting ? 'Exporting...' : 'Export Incomplete Interview URLs'}
+      {isExporting ? 'Exporting...' : 'Export'}
     </Button>
   );
 }

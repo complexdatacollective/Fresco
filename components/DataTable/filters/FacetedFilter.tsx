@@ -1,9 +1,15 @@
 'use client';
 
+import { Combobox } from '@base-ui/react/combobox';
+import { Check, SearchIcon } from 'lucide-react';
 import { useMemo } from 'react';
 import { type FacetedFilterConfig } from '~/components/DataTable/filters/types';
-import ComboboxField from '~/lib/form/components/fields/Combobox/Combobox';
+import Button from '~/components/ui/Button';
+import { ScrollArea } from '~/components/ui/ScrollArea';
 import { type ComboboxOption } from '~/lib/form/components/fields/Combobox/shared';
+import InputField from '~/lib/form/components/fields/InputField';
+import { dropdownItemVariants } from '~/styles/shared/controlVariants';
+import { cx } from '~/utils/cva';
 
 type FacetedFilterProps = {
   value: string[] | undefined;
@@ -32,26 +38,98 @@ export default function FacetedFilter({
     [resolvedOptions],
   );
 
-  const handleChange = (newValues: (string | number)[] | undefined) => {
-    if (!newValues || newValues.length === 0) {
+  const selectedValues = useMemo(() => value ?? [], [value]);
+
+  const selectedOptions = useMemo(
+    () =>
+      comboboxOptions.filter((opt) =>
+        selectedValues.includes(String(opt.value)),
+      ),
+    [comboboxOptions, selectedValues],
+  );
+
+  const handleValueChange = (
+    newValue: unknown[] | null,
+    _event: Combobox.Root.ChangeEventDetails,
+  ) => {
+    if (newValue === null || newValue.length === 0) {
       onChange(undefined);
     } else {
-      onChange(newValues.map(String));
+      const typedValue = newValue as ComboboxOption[];
+      onChange(typedValue.map((opt) => String(opt.value)));
     }
   };
 
+  const handleSelectAll = () => {
+    onChange(comboboxOptions.map((opt) => String(opt.value)));
+  };
+
+  const handleDeselectAll = () => {
+    onChange(undefined);
+  };
+
   return (
-    <ComboboxField
-      size="sm"
-      name="faceted-filter"
-      options={comboboxOptions}
-      placeholder="Select..."
-      searchPlaceholder="Search..."
-      emptyMessage="No options found."
-      value={value ?? []}
-      onChange={handleChange}
-      showSelectAll
-      showDeselectAll
-    />
+    <Combobox.Root
+      multiple
+      items={comboboxOptions}
+      value={selectedOptions}
+      onValueChange={handleValueChange}
+      open
+    >
+      <div className="flex flex-col gap-3">
+        <Combobox.Input
+          placeholder="Search..."
+          render={({ onChange, ...rest }) => {
+            const inputFieldProps =
+              rest as unknown as React.ComponentPropsWithRef<typeof InputField>;
+            return (
+              <InputField
+                {...inputFieldProps}
+                size="sm"
+                prefixComponent={<SearchIcon />}
+                className="w-full"
+                nativeOnChange={onChange}
+              />
+            );
+          }}
+        />
+        <Combobox.Empty className="text-center text-sm text-current/50 italic empty:hidden">
+          No options found.
+        </Combobox.Empty>
+        <Combobox.List
+          className="inset-surface max-h-64 overflow-hidden rounded-sm has-data-empty:hidden"
+          render={<ScrollArea viewportClassName="px-2" fade={false} />}
+        >
+          {(option: ComboboxOption) => (
+            <Combobox.Item
+              key={option.value}
+              value={option}
+              disabled={option.disabled}
+              className={dropdownItemVariants()}
+            >
+              <Combobox.ItemIndicator className="flex size-4 items-center justify-center">
+                <Check className="h-[1em] w-[1em]" />
+              </Combobox.ItemIndicator>
+              <span
+                className={cx(
+                  'flex-1',
+                  !selectedValues.includes(String(option.value)) && 'ml-4',
+                )}
+              >
+                {option.label}
+              </span>
+            </Combobox.Item>
+          )}
+        </Combobox.List>
+        <div className="flex gap-2">
+          <Button size="sm" onClick={handleSelectAll}>
+            Select All
+          </Button>
+          <Button size="sm" onClick={handleDeselectAll}>
+            Deselect All
+          </Button>
+        </div>
+      </div>
+    </Combobox.Root>
   );
 }

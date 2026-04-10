@@ -105,7 +105,7 @@ export const controlVariants = cva({
 export const textSizeVariants = cva({
   variants: {
     size: {
-      sm: 'text-sm',
+      sm: '', // Text size causes padding etc to also scale. Given these are also adjusted for small size, we can leave text size unchanged to avoid excessive shrinking.
       md: 'text-base',
       lg: 'text-lg',
       xl: 'text-xl',
@@ -288,6 +288,28 @@ export const controlLabelVariants = cva({
   defaultVariants: {
     size: 'md',
   },
+});
+
+// Dropdown item styling shared by the styled Select, Combobox, and
+// DropdownMenu components. Hover/highlighted (and `data-open` for submenu
+// triggers) backgrounds are derived from the popover surface mixed with the
+// neutral color, so the tint stays consistent with whatever the popover is
+// rendered on and adapts to theme changes. Selected uses a stronger mix plus
+// `font-semibold` to stay distinct from the highlight cursor.
+export const dropdownItemVariants = cva({
+  base: cx(
+    'flex h-10 cursor-pointer items-center gap-2 rounded px-4',
+    'transition-colors outline-none select-none',
+    // Hover / highlighted / open: subtle translucent background
+    'not-data-selected:not-data-checked:hover:bg-surface-1 not-data-selected:not-data-checked:hover:text-surface-1-contrast',
+    'not-data-selected:not-data-checked:data-highlighted:bg-surface-1 not-data-selected:not-data-checked:data-highlighted:text-surface-1-contrast',
+    'data-open:bg-surface-1 data-open:text-surface-1-contrast',
+    // Selected / checked: solid background, won't be overridden by hover
+    'data-selected:bg-surface-2 data-selected:text-surface-2-contrast data-selected:[&_.lucide]:text-sea-green',
+    'data-checked:bg-surface-2 data-checked:text-surface-2-contrast data-checked:[&_.lucide]:text-sea-green',
+    'data-disabled:cursor-not-allowed data-disabled:opacity-50',
+    'data-disabled:hover:bg-transparent',
+  ),
 });
 
 // Variants for native select element styling

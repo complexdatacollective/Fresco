@@ -1,6 +1,7 @@
 'use client';
 
-import { type ColumnDef, type FilterFn } from '@tanstack/react-table';
+import { type FilterFn } from '@tanstack/react-table';
+import { type StrictColumnDef } from '~/components/DataTable/types';
 import Image from 'next/image';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import {
@@ -21,7 +22,7 @@ import NetworkSummary from './NetworkSummary';
 
 type InterviewRow = GetInterviewsQuery[number];
 
-export const InterviewColumns = (): ColumnDef<InterviewRow>[] => [
+export const InterviewColumns = (): StrictColumnDef<InterviewRow>[] => [
   {
     id: 'select',
     meta: {
@@ -41,6 +42,7 @@ export const InterviewColumns = (): ColumnDef<InterviewRow>[] => [
   {
     id: 'identifier',
     accessorKey: 'participant.identifier',
+    sortingFn: 'text',
     header: ({ column }) => {
       return (
         <DataTableColumnHeader
@@ -76,6 +78,7 @@ export const InterviewColumns = (): ColumnDef<InterviewRow>[] => [
   {
     id: 'protocolName',
     accessorKey: 'protocol.name',
+    sortingFn: 'text',
     meta: {
       filterType: 'faceted' as const,
       filterConfig: {
@@ -127,6 +130,7 @@ export const InterviewColumns = (): ColumnDef<InterviewRow>[] => [
   {
     id: 'startTime',
     accessorKey: 'startTime',
+    sortingFn: 'datetime',
     meta: {
       filterType: 'date' as const,
       filterConfig: { type: 'date' as const },
@@ -144,6 +148,7 @@ export const InterviewColumns = (): ColumnDef<InterviewRow>[] => [
   {
     id: 'lastUpdated',
     accessorKey: 'lastUpdated',
+    sortingFn: 'datetime',
     meta: {
       filterType: 'date' as const,
       filterConfig: { type: 'date' as const },
@@ -160,6 +165,7 @@ export const InterviewColumns = (): ColumnDef<InterviewRow>[] => [
   },
   {
     id: 'progress',
+    sortingFn: 'basic',
     accessorFn: (row) => {
       const stageCount = row.protocol.stageCount;
       return stageCount > 0 ? (row.currentStep / stageCount) * 100 : 0;
@@ -252,6 +258,7 @@ export const InterviewColumns = (): ColumnDef<InterviewRow>[] => [
   {
     id: 'exportTime',
     accessorKey: 'exportTime',
+    sortingFn: 'datetime',
     meta: {
       filterType: 'boolean' as const,
       filterConfig: {

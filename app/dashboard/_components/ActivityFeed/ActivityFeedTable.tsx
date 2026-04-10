@@ -1,51 +1,54 @@
 'use client';
 
-import type { ColumnDef } from '@tanstack/react-table';
-import { use, useMemo } from 'react';
-import { DataTable } from '~/components/DataTable/DataTable';
-import { DataTableToolbar } from '~/components/DataTable/DataTableToolbar';
-import { useServerDataTable } from '~/hooks/useServerDataTable';
-import type { Events } from '~/lib/db/generated/client';
-import type { ActivitiesFeed } from '~/queries/activityFeed';
+import { Suspense } from 'react';
+import { DataTableSkeleton } from '~/components/DataTable/DataTableSkeleton';
 import {
-  fetchActivityFeedTableColumnDefs,
-  filterableColumns,
-  searchableColumns,
-} from './ColumnDefinition';
-import { useTableStateFromSearchParams } from './useTableStateFromSearchParams';
+  NuqsTableProvider,
+  useNuqsTable,
+} from '~/components/DataTable/nuqs/NuqsTableProvider';
+import type { ActivitiesFeed } from '~/queries/activityFeed';
+import { cx } from '~/utils/cva';
+import ActivityFeedRows from './ActivityFeedRows';
+import ActivityFeedToolbar from './ActivityFeedToolbar';
+import { ACTIVITY_FEED_PREFIX } from './SearchParams';
 
 export default function ActivityFeedTable({
   activitiesPromise,
 }: {
   activitiesPromise: ActivitiesFeed;
 }) {
-  const tableData = use(activitiesPromise);
-
-  const columns = useMemo<ColumnDef<Events, unknown>[]>(
-    () => fetchActivityFeedTableColumnDefs(),
-    [],
+  return (
+    <NuqsTableProvider prefix={ACTIVITY_FEED_PREFIX}>
+      <ActivityFeedTableInner activitiesPromise={activitiesPromise} />
+    </NuqsTableProvider>
   );
+}
 
-  const { searchParams, setSearchParams } = useTableStateFromSearchParams();
-
-  const { table } = useServerDataTable({
-    data: tableData.events,
-    columns,
-    pageCount: tableData.pageCount,
-    searchParams,
-    setSearchParams,
-  });
+function ActivityFeedTableInner({
+  activitiesPromise,
+}: {
+  activitiesPromise: ActivitiesFeed;
+}) {
+  const { isPending } = useNuqsTable();
 
   return (
-    <DataTable
-      table={table}
-      toolbar={
-        <DataTableToolbar
-          table={table}
-          searchableColumns={searchableColumns}
-          filterableColumns={filterableColumns}
-        />
-      }
-    />
+    <div className="flex flex-col gap-6">
+      <ActivityFeedToolbar />
+      <Suspense
+        fallback={
+          <DataTableSkeleton columnCount={3} filterableColumnCount={0} />
+        }
+      >
+        <div
+          className={cx(
+            'transition-opacity duration-150',
+            isPending && 'pointer-events-none opacity-60',
+          )}
+          aria-busy={isPending}
+        >
+          <ActivityFeedRows activitiesPromise={activitiesPromise} />
+        </div>
+      </Suspense>
+    </div>
   );
 }

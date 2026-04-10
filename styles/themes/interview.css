@@ -10,6 +10,8 @@
     --body-font: 'Nunito', sans-serif;
     --spacing-base: 0.25em; /* TW default uses rem */
 
+    --shadow-color: oklch(5% 0.01 260);
+
     --background: oklch(var(--navy-taupe));
     --text: oklch(var(--white));
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { type ColumnDef } from '@tanstack/react-table';
+import { type StrictColumnDef } from '~/components/DataTable/types';
 import Image from 'next/image';
 import Checkbox from '~/lib/form/components/fields/Checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
@@ -10,8 +10,8 @@ import type { ProtocolWithInterviews } from './ProtocolsTableClient';
 
 export const getProtocolColumns = (
   allowAnonRecruitment = false,
-): ColumnDef<ProtocolWithInterviews, unknown>[] => {
-  const columns: ColumnDef<ProtocolWithInterviews, unknown>[] = [
+): StrictColumnDef<ProtocolWithInterviews>[] => {
+  const columns: StrictColumnDef<ProtocolWithInterviews>[] = [
     {
       id: 'select',
       header: ({ table }) => (
@@ -33,6 +33,7 @@ export const getProtocolColumns = (
     },
     {
       accessorKey: 'name',
+      sortingFn: 'text',
       header: ({ column }) => {
         return <DataTableColumnHeader column={column} title="Name" />;
       },
@@ -53,6 +54,7 @@ export const getProtocolColumns = (
     },
     {
       accessorKey: 'importedAt',
+      sortingFn: 'datetime',
       header: ({ column }) => {
         return <DataTableColumnHeader column={column} title="Imported" />;
       },
@@ -60,6 +62,7 @@ export const getProtocolColumns = (
     },
     {
       accessorKey: 'lastModified',
+      sortingFn: 'datetime',
       header: ({ column }) => {
         return <DataTableColumnHeader column={column} title="Modified" />;
       },
@@ -70,6 +73,7 @@ export const getProtocolColumns = (
   if (allowAnonRecruitment) {
     columns.push({
       id: 'participant-url',
+      enableSorting: false,
       header: ({ column }) => {
         return (
           <DataTableColumnHeader

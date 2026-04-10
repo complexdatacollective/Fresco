@@ -1,12 +1,16 @@
 'use client';
 
 import { Menu } from '@base-ui/react/menu';
-import { Check, ChevronRight, Circle } from 'lucide-react';
+import { Check, CheckIcon, ChevronRight } from 'lucide-react';
 import { AnimatePresence } from 'motion/react';
 import * as React from 'react';
 
+import {
+  dropdownItemVariants,
+  proportionalLucideIconVariants,
+} from '~/styles/shared/controlVariants';
 import { cx } from '~/utils/cva';
-import { MotionSurface } from '../layout/Surface';
+import { BaseUISharedPopoverContainer } from './popover';
 
 type DropdownMenuContextValue = {
   mounted: boolean;
@@ -64,12 +68,7 @@ const DropdownMenuSubTrigger = React.forwardRef<
 >(({ className, inset, children, ...props }, ref) => (
   <Menu.SubmenuTrigger
     ref={ref}
-    className={cx(
-      'flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm outline-hidden transition-colors select-none',
-      'data-highlighted:bg-accent data-open:bg-accent',
-      inset && 'pl-8',
-      className,
-    )}
+    className={cx(dropdownItemVariants(), inset && 'pl-8', className)}
     {...props}
   >
     {children}
@@ -84,43 +83,25 @@ const DropdownMenuSubContent = React.forwardRef<
     sideOffset?: number;
     keepMounted?: boolean;
   }
->(
-  (
-    { className: _className, sideOffset = 8, keepMounted = true, ...props },
-    ref,
-  ) => {
-    const { mounted } = useDropdownMenuContext();
+>(({ className, sideOffset = 8, keepMounted = true, ...props }, ref) => {
+  const { mounted } = useDropdownMenuContext();
 
-    return (
-      <Menu.Portal keepMounted={keepMounted}>
-        <AnimatePresence>
-          {mounted && (
-            <Menu.Positioner sideOffset={sideOffset}>
-              <Menu.Popup
-                ref={ref}
-                render={
-                  <MotionSurface
-                    level="popover"
-                    elevation="none"
-                    spacing="xs"
-                    noContainer
-                    dynamicSpacing={false}
-                    className={cx('shadow-xl')}
-                    initial={{ opacity: 0, scale: 0.96 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.96 }}
-                    transition={{ type: 'spring', duration: 0.5 }}
-                  />
-                }
-                {...props}
-              />
-            </Menu.Positioner>
-          )}
-        </AnimatePresence>
-      </Menu.Portal>
-    );
-  },
-);
+  return (
+    <Menu.Portal keepMounted={keepMounted}>
+      <AnimatePresence>
+        {mounted && (
+          <Menu.Positioner sideOffset={sideOffset}>
+            <Menu.Popup
+              ref={ref}
+              render={<BaseUISharedPopoverContainer className={className} />}
+              {...props}
+            />
+          </Menu.Positioner>
+        )}
+      </AnimatePresence>
+    </Menu.Portal>
+  );
+});
 DropdownMenuSubContent.displayName = 'DropdownMenuSubContent';
 
 const DropdownMenuContent = React.forwardRef<
@@ -152,20 +133,7 @@ const DropdownMenuContent = React.forwardRef<
             <Menu.Positioner sideOffset={sideOffset} side={side} align={align}>
               <Menu.Popup
                 ref={ref}
-                render={
-                  <MotionSurface
-                    noContainer
-                    dynamicSpacing={false}
-                    level="popover"
-                    elevation="none"
-                    spacing="none"
-                    className={cx('flex flex-col shadow-xl', className)}
-                    initial={{ opacity: 0, scale: 0.96 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.96 }}
-                    transition={{ type: 'spring', duration: 0.5 }}
-                  />
-                }
+                render={<BaseUISharedPopoverContainer className={className} />}
                 {...props}
               />
             </Menu.Positioner>
@@ -180,18 +148,15 @@ DropdownMenuContent.displayName = 'DropdownMenuContent';
 const DropdownMenuItem = React.forwardRef<
   React.ElementRef<typeof Menu.Item>,
   React.ComponentPropsWithoutRef<typeof Menu.Item> & {
-    inset?: boolean;
     icon?: React.ReactNode;
   }
->(({ className, inset, icon, children, ...props }, ref) => (
+>(({ className, icon, children, ...props }, ref) => (
   <Menu.Item
     ref={ref}
     className={cx(
-      'relative flex cursor-default items-center gap-2 px-3 py-2 text-sm outline-hidden transition-colors select-none',
-      'data-highlighted:bg-accent data-highlighted:text-accent-contrast',
-      'data-disabled:pointer-events-none data-disabled:opacity-50',
-      'min-w-48',
-      inset && 'pl-8',
+      dropdownItemVariants(),
+      proportionalLucideIconVariants(),
+      'flex items-center gap-2 px-4',
       className,
     )}
     {...props}
@@ -208,17 +173,12 @@ const DropdownMenuCheckboxItem = React.forwardRef<
 >(({ className, children, ...props }, ref) => (
   <Menu.CheckboxItem
     ref={ref}
-    className={cx(
-      'relative flex cursor-default items-center rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden transition-colors select-none',
-      'data-highlighted:bg-accent data-highlighted:text-accent-contrast',
-      'data-disabled:pointer-events-none data-disabled:opacity-50',
-      className,
-    )}
+    className={cx(dropdownItemVariants(), 'relative pr-2 pl-8', className)}
     {...props}
   >
     <span className="absolute left-2 flex size-3.5 items-center justify-center">
       <Menu.CheckboxItemIndicator>
-        <Check className="size-4" />
+        <Check />
       </Menu.CheckboxItemIndicator>
     </span>
     {children}
@@ -228,23 +188,25 @@ DropdownMenuCheckboxItem.displayName = 'DropdownMenuCheckboxItem';
 
 const DropdownMenuRadioItem = React.forwardRef<
   React.ElementRef<typeof Menu.RadioItem>,
-  React.ComponentPropsWithoutRef<typeof Menu.RadioItem>
->(({ className, children, ...props }, ref) => (
+  React.ComponentPropsWithoutRef<typeof Menu.RadioItem> & {
+    inset?: boolean;
+    icon?: React.ReactNode;
+  }
+>(({ className, children, icon = <CheckIcon />, ...props }, ref) => (
   <Menu.RadioItem
     ref={ref}
-    className={cx(
-      'relative flex cursor-default items-center rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden transition-colors select-none',
-      'data-highlighted:bg-accent data-highlighted:text-accent-contrast',
-      'data-disabled:pointer-events-none data-disabled:opacity-50',
-      className,
-    )}
+    className={cx(dropdownItemVariants(), 'flex items-center px-4', className)}
     {...props}
   >
-    <span className="absolute left-2 flex size-3.5 items-center justify-center">
-      <Menu.RadioItemIndicator>
-        <Circle className="size-2 fill-current" />
-      </Menu.RadioItemIndicator>
-    </span>
+    <Menu.RadioItemIndicator
+      keepMounted
+      className={cx(
+        proportionalLucideIconVariants(),
+        'flex items-center justify-center',
+      )}
+    >
+      {icon}
+    </Menu.RadioItemIndicator>
     {children}
   </Menu.RadioItem>
 ));

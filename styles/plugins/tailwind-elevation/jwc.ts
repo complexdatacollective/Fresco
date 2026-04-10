@@ -1,9 +1,4 @@
-import {
-  clamp,
-  getValuesForBezierCurve,
-  normalize,
-  roundTo,
-} from './utils';
+import { clamp, getValuesForBezierCurve, normalize, roundTo } from './utils';
 
 export type Elevation = 'low' | 'medium' | 'high';
 
@@ -147,7 +142,6 @@ function calculateShadowOpacity({
 
   const opacity = baseOpacity * layerOpacityMultiplier;
 
-  // So, here's the problem.
   // The `resolution` param lets us change how many layers are
   // generated. Every additional layer should reduce the opacity
   // of all layers, so that "resolution" doesn't change the
@@ -279,4 +273,3 @@ export function generateShadowLayers(
 
   return layers;
 }
-

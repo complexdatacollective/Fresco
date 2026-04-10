@@ -1,5 +1,5 @@
 import type { Row } from '@tanstack/react-table';
-import { MoreHorizontal } from 'lucide-react';
+import { DeleteIcon, MoreHorizontal, PencilIcon } from 'lucide-react';
 import { IconButton } from '~/components/ui/Button';
 import {
   DropdownMenu,
@@ -35,10 +35,16 @@ export function ActionsDropdown({
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => onEdit(row.original)}>
+          <DropdownMenuItem
+            onClick={() => onEdit(row.original)}
+            icon={<PencilIcon />}
+          >
             Edit
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => onDelete(row.original)}>
+          <DropdownMenuItem
+            onClick={() => onDelete(row.original)}
+            icon={<DeleteIcon />}
+          >
             Delete
           </DropdownMenuItem>
         </DropdownMenuGroup>

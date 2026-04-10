@@ -64,6 +64,7 @@ export const GenerateParticipationURLButton = memo(
           </Paragraph>
           <SelectField
             name="protocol"
+            size="sm"
             options={protocols.map((p) => ({ value: p.id, label: p.name }))}
             onChange={(value) => {
               const protocol = protocols.find(

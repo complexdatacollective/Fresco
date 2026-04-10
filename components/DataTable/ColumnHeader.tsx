@@ -1,7 +1,15 @@
 'use client';
 
 import { type Column, type Table } from '@tanstack/react-table';
-import { ArrowDown, ArrowUp, Filter, X } from 'lucide-react';
+import {
+  ArrowDown,
+  ArrowDown01,
+  ArrowDownAZ,
+  ArrowUp,
+  ArrowUp01,
+  ArrowUpAZ,
+  Filter,
+} from 'lucide-react';
 import React, { type ReactNode, useRef, useState } from 'react';
 import BooleanFilter from '~/components/DataTable/filters/BooleanFilter';
 import DateFilter from '~/components/DataTable/filters/DateFilter';
@@ -17,11 +25,15 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
 import { Popover, PopoverContent } from '~/components/ui/popover';
 import { cx } from '~/utils/cva';
+
+const stringSortFns = new Set(['text', 'textCaseSensitive']);
 
 type DataTableColumnHeaderProps<TData, TValue> = {
   column: Column<TData, TValue>;
@@ -40,6 +52,11 @@ export function DataTableColumnHeader<TData, TValue>({
   const meta = column.columnDef.meta;
   const filterConfig = meta?.filterConfig;
   const hasFilter = !!meta?.filterType && !!filterConfig;
+
+  const sortingFn = column.columnDef.sortingFn;
+  const isStringSortFn =
+    typeof sortingFn === 'string' && stringSortFns.has(sortingFn);
+
   const isFiltered = column.getIsFiltered();
   const canSort = column.getCanSort();
   const isSorted = column.getIsSorted();
@@ -101,6 +118,13 @@ export function DataTableColumnHeader<TData, TValue>({
       ? table.getCoreRowModel().rows.map((r) => r.original)
       : [];
 
+  const canFilter =
+    hasFilter &&
+    !(
+      filterConfig?.type === 'operator' &&
+      filterConfig.entitySelector?.getOptions(data).length === 0
+    );
+
   return (
     <>
       <DropdownMenu onOpenChange={(open) => setMenuOpen(open)}>
@@ -111,7 +135,7 @@ export function DataTableColumnHeader<TData, TValue>({
               size="sm"
               className="-mx-4 min-w-max px-4! text-base"
               variant={isActive ? 'default' : 'text'}
-              color={isActive ? 'primary' : 'default'}
+              color={isActive ? 'primary' : 'dynamic'}
               iconPosition="right"
               icon={
                 icons.length > 0 ? (
@@ -126,45 +150,47 @@ export function DataTableColumnHeader<TData, TValue>({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="start">
           {canSort && (
-            <>
-              <DropdownMenuItem
-                onClick={() => column.toggleSorting(false)}
-                icon={<ArrowUp />}
-                className={
-                  isSorted === 'asc' ? 'bg-accent text-accent-contrast' : ''
-                }
+            <DropdownMenuRadioGroup
+              value={isSorted || undefined}
+              onValueChange={(value) => column.toggleSorting(value !== 'asc')}
+              className="flex flex-col gap-1"
+            >
+              <DropdownMenuRadioItem
+                value="asc"
+                closeOnClick
+                icon={isStringSortFn ? <ArrowUpAZ /> : <ArrowUp01 />}
               >
                 Sort ascending
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => column.toggleSorting(true)}
-                icon={<ArrowDown />}
-                className={
-                  isSorted === 'desc' ? 'bg-accent text-accent-contrast' : ''
-                }
+              </DropdownMenuRadioItem>
+              <DropdownMenuRadioItem
+                value="desc"
+                closeOnClick
+                icon={isStringSortFn ? <ArrowDownAZ /> : <ArrowDown01 />}
               >
                 Sort descending
-              </DropdownMenuItem>
+              </DropdownMenuRadioItem>
+
               {isSorted !== false && (
-                <DropdownMenuItem
-                  onClick={() => column.clearSorting()}
-                  icon={<X />}
-                >
+                <DropdownMenuItem onClick={() => column.clearSorting()}>
                   Clear sort
                 </DropdownMenuItem>
               )}
-            </>
+            </DropdownMenuRadioGroup>
           )}
-          {canSort && hasFilter && <DropdownMenuSeparator />}
-          {hasFilter && (
-            <DropdownMenuItem onClick={handleOpenFilter} icon={<Filter />}>
+          {canSort && canFilter && <DropdownMenuSeparator />}
+          {canFilter && (
+            <DropdownMenuItem
+              onClick={handleOpenFilter}
+              icon={<Filter />}
+              closeOnClick
+            >
               {isFiltered ? 'Edit filter' : 'Filter'}
             </DropdownMenuItem>
           )}
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {hasFilter && filterConfig && (
+      {canFilter && filterConfig && (
         <Popover open={filterOpen} onOpenChange={setFilterOpen}>
           <PopoverContent align="start" anchor={buttonRef}>
             <div className="flex flex-col gap-3">
@@ -183,7 +209,7 @@ export function DataTableColumnHeader<TData, TValue>({
                 >
                   Clear
                 </Button>
-                <Button size="sm" onClick={handleApplyFilter}>
+                <Button size="sm" color="primary" onClick={handleApplyFilter}>
                   Apply
                 </Button>
               </div>

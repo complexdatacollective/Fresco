@@ -1,7 +1,12 @@
 'use client';
 
 import type { Row } from '@tanstack/react-table';
-import { MoreHorizontal } from 'lucide-react';
+import {
+  DeleteIcon,
+  DoorOpenIcon,
+  FileIcon,
+  MoreHorizontal,
+} from 'lucide-react';
 import Link from 'next/link';
 import { hash as objectHash } from 'ohash';
 import { useState } from 'react';
@@ -68,15 +73,23 @@ export const ActionsDropdown = ({ row }: { row: Row<InterviewRow> }) => {
         <DropdownMenuContent align="end">
           <DropdownMenuGroup>
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => handleDelete(row.original)}>
+            <DropdownMenuItem
+              onClick={() => handleDelete(row.original)}
+              icon={<DeleteIcon />}
+            >
               Delete
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => handleExport(row.original)}>
+            <DropdownMenuItem
+              onClick={() => handleExport(row.original)}
+              icon={<FileIcon />}
+            >
               Export
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <Link href={`/interview/${row.original.id}`}>
-            <DropdownMenuItem>Enter Interview</DropdownMenuItem>
+            <DropdownMenuItem icon={<DoorOpenIcon />}>
+              Enter Interview
+            </DropdownMenuItem>
           </Link>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -8,9 +8,9 @@ import {
   type OperatorFilterValue,
 } from '~/components/DataTable/filters/types';
 import Heading from '~/components/typography/Heading';
+import Paragraph from '~/components/typography/Paragraph';
 import Button, { IconButton } from '~/components/ui/Button';
 import { Badge } from '~/components/ui/badge';
-import Paragraph from '~/components/typography/Paragraph';
 import InputField from '~/lib/form/components/fields/InputField';
 import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
 import SelectField from '~/lib/form/components/fields/Select/Native';
@@ -138,6 +138,7 @@ export default function OperatorFilter({
             value={inputValue}
             onChange={(val) => setInputValue(val ?? '')}
             placeholder="Value"
+            className="shrink-0"
           />
 
           <Button size="sm" onClick={handleAddCondition}>
@@ -148,7 +149,7 @@ export default function OperatorFilter({
 
       <section className="flex flex-col gap-3">
         <Heading level="h4">Conditions</Heading>
-        <div className="inset-surface bg-primary/10 flex min-h-16 items-start rounded-sm p-3">
+        <div className="inset-surface flex min-h-16 items-start rounded-sm p-3">
           {conditions.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {conditions.map((condition, index) => (

@@ -18,7 +18,7 @@ const Table = React.forwardRef<
     )}
     noContainer
   >
-    <div className="w-full max-w-full overflow-x-auto overscroll-none">
+    <div className="w-full max-w-full overflow-x-auto overscroll-x-none">
       <table
         ref={ref}
         className={cx('w-full caption-bottom border-collapse', className)}
@@ -36,7 +36,7 @@ const TableHeader = React.forwardRef<
   <thead
     ref={ref}
     className={cx(
-      'publish-colors border-collapse bg-[color-mix(in_oklab,var(--surface)_90%,var(--primary))] [&_tr]:border-b',
+      'publish-colors bg-surface-2 border-collapse [&_tr]:border-b',
       className,
     )}
     {...props}

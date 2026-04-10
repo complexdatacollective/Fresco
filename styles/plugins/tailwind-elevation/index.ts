@@ -71,9 +71,9 @@ export default plugin.withOptions<PluginConfig>(
         lightX = 0,
         lightY = -0.5,
         oomph = 0.5,
-        crispy = 1,
+        crispy = 0.5,
         resolution = 0.5,
-        opacityScaleFactor = 0.65,
+        opacityScaleFactor = 0.5,
       } = options;
 
       const defaultShadowColor = 'oklch(10% 1 180)';
@@ -92,7 +92,7 @@ export default plugin.withOptions<PluginConfig>(
           .map(({ opacity, blurRadius, spreadRadius, offsetX, offsetY }) => {
             const boostedOpacity = opacity * opacityScaleFactor;
             // Clamp chroma
-            return `${offsetX} ${offsetY} ${blurRadius} ${spreadRadius} oklch(from var(--published-bg, ${defaultShadowColor}) clamp(0.025, calc(l - 0.5), 0.1) clamp(0.03, calc(l * 1.3), 0.15) h / ${boostedOpacity})`;
+            return `${offsetX} ${offsetY} ${blurRadius} ${spreadRadius} oklch(from var(--published-bg, ${defaultShadowColor}) clamp(0.025, calc(l - 0.5), 0.1) clamp(0.2, calc(c * 2), 0.5) h / ${boostedOpacity})`;
           })
           .join(', ');
       };
@@ -132,6 +132,9 @@ export default plugin.withOptions<PluginConfig>(
           ? value.replace(/^var\(--/, 'var(--color-')
           : value;
 
+      // `modifiers: 'any'` ensures alpha-modified classes like `bg-primary/90`
+      // still set --scoped-bg. Shadow derivation uses the solid color, so the
+      // alpha on the visible background is intentionally discarded here.
       api.matchUtilities(
         {
           bg: (value) => ({
@@ -142,6 +145,7 @@ export default plugin.withOptions<PluginConfig>(
           values: (api.theme?.('backgroundColor') ??
             api.theme?.('colors') ??
             {}) as Record<string, string>,
+          modifiers: 'any',
         },
       );
 
@@ -155,6 +159,7 @@ export default plugin.withOptions<PluginConfig>(
           values: (api.theme?.('textColor') ??
             api.theme?.('colors') ??
             {}) as Record<string, string>,
+          modifiers: 'any',
         },
       );
     },

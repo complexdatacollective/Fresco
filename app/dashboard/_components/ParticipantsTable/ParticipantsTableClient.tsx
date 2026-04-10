@@ -1,13 +1,18 @@
 'use client';
 
 import { type ColumnDef, type Row } from '@tanstack/react-table';
-import { Trash } from 'lucide-react';
+import { FileUp, Trash } from 'lucide-react';
 import { use, useCallback, useMemo, useRef, useState } from 'react';
 import SuperJSON from 'superjson';
 import { deleteParticipants } from '~/actions/participants';
 import { ActionsDropdown } from '~/app/dashboard/_components/ParticipantsTable/ActionsDropdown';
 import { getParticipantColumns } from '~/app/dashboard/_components/ParticipantsTable/Columns';
+import AddParticipantButton from '~/app/dashboard/participants/_components/AddParticipantButton';
 import { DeleteParticipantsDialog } from '~/app/dashboard/participants/_components/DeleteParticipantsDialog';
+import ExportParticipants, {
+  useExportParticipants,
+} from '~/app/dashboard/participants/_components/ExportParticipants/ExportParticipants';
+import ImportParticipants from '~/app/dashboard/participants/_components/ImportParticipants';
 import ParticipantModal from '~/app/dashboard/participants/_components/ParticipantModal';
 import { DataTable } from '~/components/DataTable/DataTable';
 import { DataTableFloatingBar } from '~/components/DataTable/DataTableFloatingBar';
@@ -115,6 +120,8 @@ export const ParticipantsTableClient = ({
     [protocols, handleEditParticipant, handleDeleteSingle],
   );
 
+  const exportParticipants = useExportParticipants(protocols);
+
   const { table } = useClientDataTable({
     data: participants,
     columns,
@@ -151,10 +158,29 @@ export const ParticipantsTableClient = ({
           <DataTableToolbar
             table={table}
             searchableColumns={[{ id: 'identifier', title: 'by identifier' }]}
-          />
+          >
+            <div className="tablet-landscape:ml-auto flex items-center gap-2">
+              <AddParticipantButton existingParticipants={participants} />
+              <ImportParticipants />
+              <ExportParticipants
+                participants={participants}
+                protocols={protocols}
+              />
+            </div>
+          </DataTableToolbar>
         }
         floatingBar={
           <DataTableFloatingBar table={table}>
+            <Button
+              onClick={() =>
+                exportParticipants(
+                  table.getSelectedRowModel().rows.map((r) => r.original),
+                )
+              }
+              icon={<FileUp className="size-4" />}
+            >
+              Export Selected
+            </Button>
             <Button
               onClick={() =>
                 handleDeleteItems(

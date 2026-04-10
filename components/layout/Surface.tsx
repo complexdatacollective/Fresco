@@ -1,7 +1,7 @@
 'use client';
 
-import { motion, type MotionProps } from 'motion/react';
-import { type ElementType, forwardRef, type JSX } from 'react';
+import { motion } from 'motion/react';
+import { type ElementType, forwardRef } from 'react';
 import { compose, cva, cx, type VariantProps } from '~/utils/cva';
 import ResponsiveContainer, {
   type ResponsiveContainerProps,
@@ -191,6 +191,4 @@ const Surface = SurfaceComponent as <T extends ElementType = 'div'>(
 
 export default Surface;
 
-export const MotionSurface = motion.create(Surface) as <E extends ElementType>(
-  props: SurfaceProps<E> & MotionProps,
-) => JSX.Element;
+export const MotionSurface = motion.create(Surface);

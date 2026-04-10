@@ -1,6 +1,7 @@
 'use client';
 
-import { type ColumnDef, type Row } from '@tanstack/react-table';
+import { type Row } from '@tanstack/react-table';
+import { type StrictColumnDef } from '~/components/DataTable/types';
 import { Clipboard } from 'lucide-react';
 import { use, useState } from 'react';
 import {
@@ -99,7 +100,7 @@ export default function ApiTokenManagement({
     setIsDeleting(false);
   };
 
-  const columns: ColumnDef<ApiToken>[] = [
+  const columns: StrictColumnDef<ApiToken>[] = [
     {
       accessorKey: 'description',
       header: ({ column }) => (
@@ -117,6 +118,7 @@ export default function ApiTokenManagement({
     },
     {
       accessorKey: 'createdAt',
+      sortingFn: 'datetime',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Created" />
       ),
@@ -129,6 +131,7 @@ export default function ApiTokenManagement({
     },
     {
       accessorKey: 'lastUsedAt',
+      sortingFn: 'datetime',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Last Used" />
       ),
@@ -147,6 +150,7 @@ export default function ApiTokenManagement({
     },
     {
       accessorKey: 'isActive',
+      sortingFn: 'basic',
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Status" />
       ),
@@ -162,6 +166,7 @@ export default function ApiTokenManagement({
     },
     {
       id: 'actions',
+      enableSorting: false,
       cell: ({ row }: { row: Row<ApiToken> }) => (
         <Button
           onClick={() => setTokenToDelete(row.original)}

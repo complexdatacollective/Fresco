@@ -7,29 +7,6 @@
 @plugin './plugins/tailwind-elevation/index.ts';
 @plugin './plugins/tailwind-inset-surface/index.ts';
 
-@keyframes shake {
-  10%,
-  90% {
-    transform: translate3d(-0.1rem, 0, 0);
-  }
-
-  20%,
-  80% {
-    transform: translate3d(0.2rem, 0, 0);
-  }
-
-  30%,
-  50%,
-  70% {
-    transform: translate3d(-0.4rem, 0, 0);
-  }
-
-  40%,
-  60% {
-    transform: translate3d(0.4rem, 0, 0);
-  }
-}
-
 @theme {
   /*****************************************************************************
   *                                  TYPOGRAPHY
@@ -340,6 +317,27 @@
   --radius-full: 9999px; /* 9999px */
 
   /*
+    Shadows
+  */
+  --shadow-sm:
+    0 1px 3px 0 color-mix(in oklab, var(--shadow-color) 12%, transparent),
+    0 1px 2px -1px color-mix(in oklab, var(--shadow-color) 20%, transparent);
+  --shadow:
+    0 4px 6px -1px color-mix(in oklab, var(--shadow-color) 12%, transparent),
+    0 2px 4px -2px color-mix(in oklab, var(--shadow-color) 20%, transparent);
+  --shadow-md:
+    0 6px 10px -2px color-mix(in oklab, var(--shadow-color) 14%, transparent),
+    0 3px 6px -3px color-mix(in oklab, var(--shadow-color) 22%, transparent);
+  --shadow-lg:
+    0 10px 15px -3px color-mix(in oklab, var(--shadow-color) 16%, transparent),
+    0 4px 6px -4px color-mix(in oklab, var(--shadow-color) 24%, transparent);
+  --shadow-xl:
+    0 20px 25px -5px color-mix(in oklab, var(--shadow-color) 16%, transparent),
+    0 8px 10px -6px color-mix(in oklab, var(--shadow-color) 24%, transparent);
+  --shadow-2xl: 0 25px 50px -12px
+    color-mix(in oklab, var(--shadow-color) 30%, transparent);
+
+  /*
     Animation
   */
 
@@ -354,6 +352,29 @@
   --animate-pulse-glow: animate-pulse-glow 2s infinite;
 
   --transform-origin-left-right: 0% 50%;
+
+  @keyframes shake {
+    10%,
+    90% {
+      transform: translate3d(-1px, 0, 0);
+    }
+
+    20%,
+    80% {
+      transform: translate3d(2px, 0, 0);
+    }
+
+    30%,
+    50%,
+    70% {
+      transform: translate3d(-4px, 0, 0);
+    }
+
+    40%,
+    60% {
+      transform: translate3d(4px, 0, 0);
+    }
+  }
 
   @keyframes animate-pulse-glow {
     0% {
@@ -414,26 +435,6 @@
       background-position: 100% 50%;
     }
   }
-  @keyframes shake {
-    10%,
-    90% {
-      transform: translate3d(-1px, 0, 0);
-    }
-    20%,
-    80% {
-      transform: translate3d(2px, 0, 0);
-    }
-    30%,
-    50%,
-    70% {
-      transform: translate3d(-4px, 0, 0);
-    }
-    40%,
-    60% {
-      transform: translate3d(4px, 0, 0);
-    }
-  }
-
   @keyframes linking {
     0% {
       transform: scale(0.8);

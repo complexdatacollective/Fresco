@@ -15,15 +15,18 @@
     --spacing-base: 0.25em;
 
     /* Used for relative color values */
-    --base-hue: 280;
+    --base-hue: 290;
+    --brand: oklch(10% 0.5 var(--base-hue));
 
-    --background: oklch(98% 0.08 calc(var(--base-hue) + 3));
-    --text: oklch(29% 0.18 calc(var(--base-hue) + 5));
+    --shadow-color: oklch(0.16 0.09 var(--base-hue));
 
-    --primary: oklch(18% 0.2 var(--base-hue));
+    --background: color-mix(in oklab, var(--brand) 3%, white);
+    --text: color-mix(in oklab, var(--brand) 75%, black);
+
+    --primary: oklch(10% 0.4 var(--base-hue));
     --primary-contrast: oklch(var(--white));
 
-    --neutral: color-mix(in oklab, var(--primary) 2%, var(--color-white));
+    --neutral: color-mix(in oklab, var(--primary) 8%, white);
     --neutral-contrast: oklch(10% 0.2 var(--base-hue));
 
     --accent: oklch(65% 0.3 var(--base-hue));
@@ -40,8 +43,9 @@
     --surface-2-contrast: var(--text);
     --surface-3: oklch(93% 0.03 var(--base-hue));
     --surface-3-contrast: var(--text);
-    --surface-popover: var(--primary);
-    --surface-popover-contrast: var(--primary-contrast);
+
+    --surface-popover: oklch(var(--white));
+    --surface-popover-contrast: var(--text);
 
     --destructive: oklch(var(--tomato));
     --destructive-contrast: oklch(var(--white));
@@ -68,7 +72,7 @@
 
     --link: oklch(from var(--accent) calc(l - 0.2) calc(c + 0.05) h);
 
-    --outline: oklch(90% 0.02 var(--base-hue)); /* Used for borders */
+    --outline: oklch(from var(--background) calc(l - 0.05) c h);
 
     --input: oklch(var(--white));
     --input-contrast: oklch(var(--cyber-grape));

@@ -2,66 +2,76 @@
 
 import { FileUp } from 'lucide-react';
 import { unparse } from 'papaparse';
-import { useState } from 'react';
+import { useCallback } from 'react';
+import type { ParticipantWithInterviews } from '~/app/dashboard/_components/ParticipantsTable/ParticipantsTableClient';
+import type { ProtocolWithInterviews } from '~/app/dashboard/_components/ProtocolsTable/ProtocolsTableClient';
 import { Button } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/Toast';
 import { useDownload } from '~/hooks/useDownload';
-import type { GetParticipantsQuery } from '~/queries/participants';
+
+export function useExportParticipants(protocols: ProtocolWithInterviews[]) {
+  const download = useDownload();
+  const { add } = useToast();
+
+  return useCallback(
+    (participants: ParticipantWithInterviews[]) => {
+      try {
+        const csvData = participants.map((participant) => {
+          const row: Record<string, string> = {
+            id: participant.id,
+            identifier: participant.identifier,
+            label: participant.label ?? '',
+          };
+
+          for (const protocol of protocols) {
+            const name = protocol.name.split('.')[0] ?? protocol.id;
+            row[`interview_url_${name}`] =
+              `${window.location.origin}/onboard/${protocol.id}/?participantId=${participant.id}`;
+          }
+
+          return row;
+        });
+
+        const csv = unparse(csvData, { header: true });
+        const blob = new Blob([csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        download(url, 'participants.csv');
+        URL.revokeObjectURL(url);
+
+        add({
+          title: 'Success',
+          description: 'Participants exported successfully',
+          type: 'success',
+        });
+      } catch (error) {
+        add({
+          title: 'Error',
+          description: 'An error occurred while exporting participants',
+          type: 'destructive',
+        });
+      }
+    },
+    [protocols, download, add],
+  );
+}
 
 function ExportParticipants({
   participants,
+  protocols,
 }: {
-  participants: GetParticipantsQuery;
+  participants: ParticipantWithInterviews[];
+  protocols: ProtocolWithInterviews[];
 }) {
-  const download = useDownload();
-  const [isExporting, setIsExporting] = useState(false);
-  const { add } = useToast();
-
-  const handleExport = () => {
-    try {
-      setIsExporting(true);
-      if (!participants) return;
-
-      // CSV file format
-      const csvData = participants.map((participant) => ({
-        identifier: participant.identifier,
-        label: participant.label,
-      }));
-
-      const csv = unparse(csvData, { header: true });
-
-      // Create a download link
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      // trigger the download
-      download(url, 'participants.csv');
-      // Clean up the URL object
-      URL.revokeObjectURL(url);
-      add({
-        title: 'Success',
-        description: 'Participant CSV exported successfully',
-        type: 'success',
-      });
-    } catch (error) {
-      add({
-        title: 'Error',
-        description: 'An error occurred while exporting participants',
-        type: 'destructive',
-      });
-      throw new Error('An error occurred while exporting participants');
-    }
-
-    setIsExporting(false);
-  };
+  const exportParticipants = useExportParticipants(protocols);
 
   return (
     <Button
-      disabled={participants?.length === 0}
-      onClick={handleExport}
-      className="w-full"
+      disabled={participants.length === 0}
+      onClick={() => exportParticipants(participants)}
       icon={<FileUp />}
+      data-testid="export-participants-button"
     >
-      {isExporting ? 'Exporting...' : 'Export Participant List'}
+      Export Participants
     </Button>
   );
 }
