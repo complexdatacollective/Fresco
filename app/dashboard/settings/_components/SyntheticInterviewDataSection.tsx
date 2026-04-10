@@ -98,6 +98,12 @@ export default function SyntheticInterviewDataSection({
               current: data.current,
               total: data.total ?? count,
             });
+          } else if (data.type === 'error' && data.message) {
+            toast({
+              title: 'Generation failed',
+              description: data.message,
+              type: 'destructive',
+            });
           } else if (data.type === 'complete' && data.created !== undefined) {
             const created = data.created;
             setSyntheticCounts((prev) => ({

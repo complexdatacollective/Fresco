@@ -700,14 +700,18 @@ export function generateNetwork(
         const stageRecord = stage as Record<string, unknown>;
         const nodeCount = valueGen.randomInt(4, 10);
 
-        const subject = getStageSubject(stage);
-        const nodeType = subject?.entity === 'node' ? subject.type : undefined;
+        const nodeConfig = stageRecord.nodeConfig as
+          | { type: string }
+          | undefined;
+        const nodeType = nodeConfig?.type;
         const nodeTypeDef = nodeType ? codebook.node?.[nodeType] : undefined;
 
-        const edgeTypeRef = stageRecord.edgeType as
-          | { entity: string; type: string }
+        const edgeConfig = stageRecord.edgeConfig as
+          | { type: string }
           | undefined;
-        const edgeType = edgeTypeRef?.type;
+        const edgeType = edgeConfig?.type;
+
+        if (!nodeType) break;
 
         const familyNodes: NcNode[] = [];
         for (let i = 0; i < nodeCount; i++) {
@@ -726,7 +730,7 @@ export function generateNetwork(
 
           familyNodes.push({
             [entityPrimaryKeyProperty]: uuid(),
-            type: nodeType ?? 'person',
+            type: nodeType,
             [entityAttributesProperty]: attrs,
             stageId,
           } as NcNode);
@@ -786,7 +790,10 @@ export function generateNetwork(
         break;
 
       default:
-        break;
+        throw new Error(
+          `Unsupported stage type "${stageType}". ` +
+            'Synthetic data generation does not yet support this stage type.',
+        );
     }
   }
 
