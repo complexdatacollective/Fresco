@@ -69,6 +69,8 @@ export function getParticipantColumns(
     },
     {
       id: 'interviews',
+      accessorFn: (row) => row._count.interviews,
+      sortingFn: 'basic',
       header: ({ column }) => {
         return <DataTableColumnHeader column={column} title="Interviews" />;
       },
