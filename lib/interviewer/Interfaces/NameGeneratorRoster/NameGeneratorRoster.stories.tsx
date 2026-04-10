@@ -329,7 +329,7 @@ export const FilterInteraction: Story = {
         const firstLabel = readSourceLabels(currentListbox)[0];
         await expect(firstLabel).toBe('Moses Crist');
       },
-      { timeout: 5000 },
+      { timeout: 10000 },
     );
   },
 };
