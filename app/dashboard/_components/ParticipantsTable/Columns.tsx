@@ -1,7 +1,8 @@
-import { type ColumnDef } from '@tanstack/react-table';
+import { type StrictColumnDef } from '~/components/DataTable/types';
 import Image from 'next/image';
 import Checkbox from '~/lib/form/components/fields/Checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
+import { SelectAllHeader } from '~/components/DataTable/SelectAllHeader';
 import { Badge } from '~/components/ui/badge';
 import type { ProtocolWithInterviews } from '../ProtocolsTable/ProtocolsTableClient';
 import { GenerateParticipationURLButton } from './GenerateParticipantURLButton';
@@ -9,17 +10,11 @@ import type { ParticipantWithInterviews } from './ParticipantsTableClient';
 
 export function getParticipantColumns(
   protocols: ProtocolWithInterviews[],
-): ColumnDef<ParticipantWithInterviews, unknown>[] {
+): StrictColumnDef<ParticipantWithInterviews>[] {
   return [
     {
       id: 'select',
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
+      header: ({ table }) => <SelectAllHeader table={table} />,
       cell: ({ row }) => (
         <Checkbox
           checked={row.getIsSelected()}
@@ -33,6 +28,7 @@ export function getParticipantColumns(
     {
       id: 'identifier',
       accessorKey: 'identifier',
+      sortingFn: 'text',
       header: ({ column }) => {
         return <DataTableColumnHeader column={column} title="Identifier" />;
       },
@@ -60,6 +56,7 @@ export function getParticipantColumns(
     },
     {
       accessorKey: 'label',
+      sortingFn: 'text',
       header: ({ column }) => {
         return <DataTableColumnHeader column={column} title="Label" />;
       },
@@ -88,6 +85,7 @@ export function getParticipantColumns(
     },
     {
       id: 'participant-url',
+      enableSorting: false,
       header: ({ column }) => {
         return (
           <DataTableColumnHeader
