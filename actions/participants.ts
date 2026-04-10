@@ -30,22 +30,6 @@ export async function deleteParticipants(participantIds: string[]) {
   safeUpdateTag('activityFeed');
 }
 
-export async function deleteAllParticipants() {
-  await requireApiAuth();
-
-  const result = await prisma.participant.deleteMany();
-
-  void addEvent(
-    'Participant(s) Removed',
-    `Deleted ${result.count} participant(s)`,
-  );
-
-  safeUpdateTag('getParticipants');
-  safeUpdateTag('getInterviews');
-  safeUpdateTag('summaryStatistics');
-  safeUpdateTag('activityFeed');
-}
-
 export async function importParticipants(rawInput: unknown) {
   await requireApiAuth();
 

@@ -79,7 +79,8 @@ DropdownMenuSubTrigger.displayName = 'DropdownMenuSubTrigger';
 
 const DropdownMenuSubContent = React.forwardRef<
   React.ElementRef<typeof Menu.Popup>,
-  React.ComponentPropsWithoutRef<typeof Menu.Popup> & {
+  Omit<React.ComponentPropsWithoutRef<typeof Menu.Popup>, 'className'> & {
+    className?: string;
     sideOffset?: number;
     keepMounted?: boolean;
   }
@@ -106,7 +107,8 @@ DropdownMenuSubContent.displayName = 'DropdownMenuSubContent';
 
 const DropdownMenuContent = React.forwardRef<
   React.ElementRef<typeof Menu.Popup>,
-  React.ComponentPropsWithoutRef<typeof Menu.Popup> & {
+  Omit<React.ComponentPropsWithoutRef<typeof Menu.Popup>, 'className'> & {
+    className?: string;
     sideOffset?: number;
     side?: 'top' | 'right' | 'bottom' | 'left';
     align?: 'start' | 'center' | 'end';

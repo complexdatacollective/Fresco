@@ -16,7 +16,9 @@ import { MotionSurface } from '../layout/Surface';
 export function BaseUISharedPopoverContainer({
   className,
   ...props
-}: ComponentPropsWithoutRef<typeof MotionSurface>) {
+}: Omit<ComponentPropsWithoutRef<typeof MotionSurface>, 'className'> & {
+  className?: string;
+}) {
   return (
     <MotionSurface
       level="popover"
@@ -147,7 +149,11 @@ function PopoverTrigger({
   );
 }
 
-type PopoverContentProps = ComponentProps<typeof BasePopover.Popup> & {
+type PopoverContentProps = Omit<
+  ComponentProps<typeof BasePopover.Popup>,
+  'className'
+> & {
+  className?: string;
   children: ReactNode;
   sideOffset?: number;
   showArrow?: boolean;

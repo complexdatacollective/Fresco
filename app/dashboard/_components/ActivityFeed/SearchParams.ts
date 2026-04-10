@@ -19,7 +19,7 @@ export const ACTIVITY_FEED_PREFIX = 'af';
  * actual URL keys are prefixed via `urlKeys` so the URL stays
  * `?af_q=foo&af_type=...&af_page=2` etc.
  */
-export const searchParamsParsers = {
+const searchParamsParsers = {
   page: parseAsInteger.withDefault(1),
   perPage: parseAsInteger.withDefault(10),
   sort: parseAsStringLiteral(sortOrder).withDefault('none'),

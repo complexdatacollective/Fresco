@@ -374,9 +374,9 @@ export const WithInsetItems: Story = {
       <DropdownMenuContent className="w-56">
         <DropdownMenuLabel inset>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem inset>Profile</DropdownMenuItem>
-        <DropdownMenuItem inset>Billing</DropdownMenuItem>
-        <DropdownMenuItem inset>Settings</DropdownMenuItem>
+        <DropdownMenuItem>Profile</DropdownMenuItem>
+        <DropdownMenuItem>Billing</DropdownMenuItem>
+        <DropdownMenuItem>Settings</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   ),
