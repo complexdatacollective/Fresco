@@ -36,14 +36,13 @@ import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import {
   type BeforeNextFunction,
   type Direction,
-  type StageProps,
 } from '~/lib/interviewer/types';
+import useInterviewNavigation from '../../hooks/useInterviewNavigation';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 import { type Subject } from '../../selectors/forms';
 
-type SlidesFormProps<T extends NcNode | NcEdge = NcNode | NcEdge> = StageProps<
-  'AlterForm' | 'AlterEdgeForm'
-> & {
+type SlidesFormProps<T extends NcNode | NcEdge = NcNode | NcEdge> = {
+  form: Form;
   items: T[];
   subject: Subject;
   updateItem: (
@@ -180,16 +179,16 @@ const SlideContent = forwardRef<SlideHandle, SlideContentProps>(
 );
 
 export default function SlidesForm({
-  stage,
-  getNavigationHelpers,
   items = [],
   subject,
   updateItem,
   onNavigateBack,
   renderHeader,
+  form,
 }: SlidesFormProps) {
-  const { moveForward } = getNavigationHelpers();
   const { confirm } = useDialog();
+
+  const { moveForward } = useInterviewNavigation();
 
   const slideRef = useRef<SlideHandle | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -278,8 +277,8 @@ export default function SlidesForm({
 
   useBeforeNext(beforeNext);
 
-  const handleEnterSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
-    moveForward();
+  const handleEnterSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    await moveForward();
     e.preventDefault();
   };
 
@@ -306,7 +305,7 @@ export default function SlidesForm({
           <SlideContent
             ref={slideCallbackRef}
             item={currentItem}
-            form={stage.form}
+            form={form}
             subject={subject}
             header={renderHeader(currentItem)}
             onUpdate={updateItem}

@@ -105,7 +105,7 @@ const meta: Meta<StoryArgs> = {
   },
   argTypes: {
     initialNodeCount: {
-      control: { type: 'range', min: 1, max: 10 },
+      control: { type: 'range', min: 0, max: 10 },
       description: 'Number of alter nodes in the network',
     },
     fieldCount: {
@@ -137,6 +137,13 @@ export const SingleNode: Story = {
   render: (args) => <AlterFormStoryWrapper {...args} />,
   args: {
     initialNodeCount: 1,
+  },
+};
+
+export const NoNodes: Story = {
+  render: (args) => <AlterFormStoryWrapper {...args} />,
+  args: {
+    initialNodeCount: 0,
   },
 };
 

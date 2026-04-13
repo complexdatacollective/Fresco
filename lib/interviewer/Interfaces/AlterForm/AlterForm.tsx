@@ -1,18 +1,18 @@
 'use client';
 
 import {
+  entityPrimaryKeyProperty,
   type EntityAttributesProperty,
   type NcEdge,
   type NcNode,
 } from '@codaco/shared-consts';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import Node from '~/lib/interviewer/components/ConnectedNode';
 import { updateNode } from '~/lib/interviewer/ducks/modules/session';
 import { getNetworkNodesForType } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { type StageProps } from '~/lib/interviewer/types';
-import { entityPrimaryKeyProperty } from '@codaco/shared-consts';
-import Node from '~/lib/interviewer/components/ConnectedNode';
 import IntroPanel from '../SlidesForm/IntroPanel';
 import SlidesForm from '../SlidesForm/SlidesForm';
 
@@ -45,6 +45,15 @@ const AlterForm = (props: StageProps<'AlterForm'>) => {
     );
   }, []);
 
+  const { moveForward } = props.getNavigationHelpers();
+
+  // If the intro panel is dismissed and there are no items, skip to the next stage.
+  useEffect(() => {
+    if (showIntro === false && items.length === 0) {
+      moveForward();
+    }
+  }, [showIntro, items.length, moveForward]);
+
   if (showIntro) {
     return (
       <div className="interface">
@@ -62,8 +71,7 @@ const AlterForm = (props: StageProps<'AlterForm'>) => {
       updateItem={handleUpdateItem}
       items={items}
       subject={stage.subject}
-      stage={stage}
-      getNavigationHelpers={props.getNavigationHelpers}
+      form={stage.form}
       onNavigateBack={() => setShowIntro(true)}
       renderHeader={renderHeader}
     />

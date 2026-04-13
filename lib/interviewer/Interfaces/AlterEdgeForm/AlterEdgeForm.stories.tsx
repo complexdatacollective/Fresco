@@ -118,7 +118,7 @@ const meta: Meta<StoryArgs> = {
   },
   argTypes: {
     edgeCount: {
-      control: { type: 'range', min: 1, max: 8 },
+      control: { type: 'range', min: 0, max: 8 },
       description: 'Number of edges in the network',
     },
     fieldCount: {
@@ -142,6 +142,13 @@ export const Default: Story = {
 export const ManyEdges: Story = {
   args: {
     edgeCount: 6,
+  },
+  render: (args) => <AlterEdgeFormStoryWrapper {...args} />,
+};
+
+export const NoEdges: Story = {
+  args: {
+    edgeCount: 0,
   },
   render: (args) => <AlterEdgeFormStoryWrapper {...args} />,
 };

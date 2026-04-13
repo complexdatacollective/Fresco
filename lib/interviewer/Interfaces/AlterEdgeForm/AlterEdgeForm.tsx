@@ -7,8 +7,9 @@ import {
   type NcNode,
 } from '@codaco/shared-consts';
 import { find } from 'es-toolkit/compat';
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
+import Node from '~/lib/interviewer/components/ConnectedNode';
 import { updateEdge } from '~/lib/interviewer/ducks/modules/session';
 import {
   getNetworkEdgesForType,
@@ -18,7 +19,6 @@ import {
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { type StageProps } from '~/lib/interviewer/types';
 import { cx } from '~/utils/cva';
-import Node from '~/lib/interviewer/components/ConnectedNode';
 import { edgeColorMap } from '../../utils/edgeColorMap';
 import IntroPanel from '../SlidesForm/IntroPanel';
 import SlidesForm from '../SlidesForm/SlidesForm';
@@ -80,6 +80,15 @@ const AlterEdgeForm = (props: StageProps<'AlterEdgeForm'>) => {
     return <EdgeHeader item={item} />;
   }, []);
 
+  const { moveForward } = props.getNavigationHelpers();
+
+  // If the intro panel is dismissed and there are no items, skip to the next stage.
+  useEffect(() => {
+    if (showIntro === false && items.length === 0) {
+      moveForward();
+    }
+  }, [showIntro, items.length, moveForward]);
+
   if (showIntro) {
     return (
       <div className="interface">
@@ -97,8 +106,7 @@ const AlterEdgeForm = (props: StageProps<'AlterEdgeForm'>) => {
       updateItem={handleUpdateItem}
       items={items}
       subject={stage.subject}
-      stage={stage}
-      getNavigationHelpers={props.getNavigationHelpers}
+      form={stage.form}
       onNavigateBack={() => setShowIntro(true)}
       renderHeader={renderHeader}
     />
