@@ -21,6 +21,8 @@ type ConnectedNodeProps = Omit<
 > & {
   nodeId: NcNode[typeof entityPrimaryKeyProperty];
   type: NcNode['type'];
+  /** Fallback node data for items not yet in the Redux store (e.g. external data panel nodes). */
+  fallbackNode?: NcNode;
 };
 
 const makeSelectNodeMeta = (
@@ -33,16 +35,17 @@ const makeSelectNodeMeta = (
 
     // Node or type definition may be missing when a stale selector re-evaluates
     // during React cleanup (Redux notifies synchronously, React unmounts async).
-    if (!nodeTypeDefinition || !node) return null;
+    if (!nodeTypeDefinition) return null;
 
     const color = nodeTypeDefinition.color ?? 'node-color-seq-1';
     const shapeDef = nodeTypeDefinition.shape;
-    return { shapeDef, color, node };
+    return { shapeDef, color, node: node ?? null };
   });
 
 export default function ConnectedNode({
   nodeId,
   type,
+  fallbackNode,
   ref,
   ...rest
 }: ConnectedNodeProps) {
@@ -53,12 +56,15 @@ export default function ConnectedNode({
 
   const nodeMeta = useSelector(selectNodeMeta);
 
-  const node = nodeMeta?.node;
+  // Use the Redux node if available, otherwise fall back to the passed-in
+  // node data. This handles external data panel nodes that haven't been
+  // added to the network yet.
+  const node = nodeMeta?.node ?? fallbackNode;
   const label = useNodeLabel(node);
 
   const shape = useMemo(
     () =>
-      node
+      node && nodeMeta?.shapeDef
         ? resolveNodeShape(
             nodeMeta.shapeDef,
             node[entityAttributesProperty],
@@ -67,11 +73,13 @@ export default function ConnectedNode({
     [nodeMeta, node],
   );
 
-  if (!nodeMeta) return null;
+  // nodeMeta provides codebook info (color/shape). If the codebook entry
+  // doesn't exist either, there's nothing to render.
+  if (!nodeMeta && !fallbackNode) return null;
 
   return (
     <UINode
-      color={nodeMeta.color}
+      color={nodeMeta?.color}
       shape={shape}
       label={label}
       ref={ref}

@@ -199,6 +199,7 @@ const NodeList = memo(
           {...itemProps}
           nodeId={node[entityPrimaryKeyProperty]}
           type={node.type}
+          fallbackNode={node}
           size={nodeSize}
           onClick={() => onItemClick?.(node)}
         />
