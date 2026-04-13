@@ -6,12 +6,6 @@ type CaptureOptions = {
   maxDiffPixelRatio?: number;
 };
 
-type GotoOptions = CaptureOptions & {
-  /** Locator that must be visible before the screenshot is taken.
-   *  Use for stages with async rendering (e.g. Sociogram canvas). */
-  waitFor?: Locator;
-};
-
 type CaptureInterviewFn = (
   name: string,
   options?: CaptureOptions,
@@ -84,10 +78,7 @@ export class InterviewFixture {
    *   that must be visible before the screenshot is taken (useful for stages
    *   with async rendering like Sociogram).
    */
-  async goto(
-    stageIndex: number,
-    options?: GotoOptions,
-  ): Promise<void> {
+  async goto(stageIndex: number): Promise<void> {
     if (!this.interviewId) {
       throw new Error(
         'interviewId must be set before calling goto(). Set it in beforeEach.',
@@ -97,13 +88,9 @@ export class InterviewFixture {
     await this.page.goto(`/interview/${this.interviewId}?step=${stageIndex}`);
     await this.waitForStageLoad();
 
-    if (options?.waitFor) {
-      await expect(options.waitFor).toBeVisible({ timeout: 15000 });
-    }
-
     // Capture screenshot on stage load
     const prefix = this.snapshotPrefix ? `${this.snapshotPrefix}-` : '';
-    await this.capture(`${prefix}stage-${stageIndex}`, options);
+    await this.capture(`${prefix}stage-${stageIndex}`);
   }
 
   /**
