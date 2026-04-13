@@ -33,6 +33,13 @@ export class InterviewFixture {
    */
   snapshotPrefix = '';
 
+  /**
+   * When true, afterEach hooks should skip calling next().
+   * Set this in tests that call next() or finishInterview() themselves
+   * (e.g. form stages with post-submit waits, or finish tests).
+   */
+  skipNext = false;
+
   constructor(page: Page) {
     this.page = page;
   }
