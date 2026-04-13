@@ -312,19 +312,6 @@ export const useMapbox = ({
 
     mapRef.current.on('load', handleMapStyleLoad);
 
-    // Track when GeoJSON source data has been fetched and parsed.
-    // addSource with a URL triggers an async fetch — the map can fire
-    // 'idle' before this completes, so we need a dedicated signal.
-    mapRef.current.on('sourcedata', (e) => {
-      if (
-        e.sourceId === 'geojson-data' &&
-        e.isSourceLoaded &&
-        mapRef.current?.isSourceLoaded('geojson-data')
-      ) {
-        setIsGeoJsonLoaded(true);
-      }
-    });
-
     // Track zoom level changes for testing
     mapRef.current.on('zoomend', () => {
       const zoom = mapRef.current?.getZoom();
@@ -335,8 +322,18 @@ export const useMapbox = ({
 
     // Track map idle state for e2e tests — idle means all tiles are
     // rendered and all animations/transitions have completed.
+    // Also check if the GeoJSON outline layer has rendered features,
+    // which confirms the async GeoJSON fetch completed and the layer
+    // is visible. queryRenderedFeatures is more reliable than
+    // isSourceLoaded() which may not work consistently across browsers.
     mapRef.current.on('idle', () => {
       setIsMapIdle(true);
+      const features = mapRef.current?.queryRenderedFeatures({
+        layers: ['outline'],
+      });
+      if (features && features.length > 0) {
+        setIsGeoJsonLoaded(true);
+      }
     });
     mapRef.current.on('movestart', () => {
       setIsMapIdle(false);
