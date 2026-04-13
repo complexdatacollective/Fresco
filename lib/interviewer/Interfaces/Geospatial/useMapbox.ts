@@ -117,6 +117,7 @@ export const useMapbox = ({
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
   const [isMapIdle, setIsMapIdle] = useState(false);
+  const [isGeoJsonLoaded, setIsGeoJsonLoaded] = useState(false);
   const [zoomLevel, setZoomLevel] = useState<number>(initialZoom);
 
   // get token value from asset manifest, using id
@@ -311,6 +312,19 @@ export const useMapbox = ({
 
     mapRef.current.on('load', handleMapStyleLoad);
 
+    // Track when GeoJSON source data has been fetched and parsed.
+    // addSource with a URL triggers an async fetch — the map can fire
+    // 'idle' before this completes, so we need a dedicated signal.
+    mapRef.current.on('sourcedata', (e) => {
+      if (
+        e.sourceId === 'geojson-data' &&
+        e.isSourceLoaded &&
+        mapRef.current?.isSourceLoaded('geojson-data')
+      ) {
+        setIsGeoJsonLoaded(true);
+      }
+    });
+
     // Track zoom level changes for testing
     mapRef.current.on('zoomend', () => {
       const zoom = mapRef.current?.getZoom();
@@ -457,6 +471,7 @@ export const useMapbox = ({
     accessToken,
     isMapLoaded,
     isMapIdle,
+    isGeoJsonLoaded,
     zoomLevel,
     handleResetMapZoom,
     handleZoomIn,

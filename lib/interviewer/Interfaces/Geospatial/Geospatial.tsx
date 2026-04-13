@@ -132,6 +132,7 @@ export default function GeospatialInterface({
     accessToken,
     isMapLoaded,
     isMapIdle,
+    isGeoJsonLoaded,
     zoomLevel,
     handleResetMapZoom,
     handleZoomIn,
@@ -239,6 +240,7 @@ export default function GeospatialInterface({
         data-testid="map-container"
         data-map-loaded={isMapLoaded}
         data-map-idle={isMapIdle}
+        data-geojson-loaded={isGeoJsonLoaded}
         data-zoom-level={zoomLevel}
       >
         {/* if outside-selectable-areas, add an overlay */}

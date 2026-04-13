@@ -406,7 +406,11 @@ class OrdinalBinFixture {
    */
   getBin(label: string): Locator {
     return this.page.locator('[data-testid^="ordinal-bin-"]').filter({
-      has: this.page.getByRole('heading', { name: label, level: 4, exact: true }),
+      has: this.page.getByRole('heading', {
+        name: label,
+        level: 4,
+        exact: true,
+      }),
     });
   }
 
@@ -568,14 +572,12 @@ class CategoricalBinFixture {
    * Note: binLabel is used by callers to ensure the correct bin is expanded first.
    */
   getNodeInBin(nodeLabel: string, binLabel: string): Locator {
-    const expandedBin = this.page
-      .locator('[class*="catbin-expanded"]')
-      .filter({
-        has: this.page.getByRole('button', {
-          name: new RegExp(`Category ${binLabel}`),
-          expanded: true,
-        }),
-      });
+    const expandedBin = this.page.locator('[class*="catbin-expanded"]').filter({
+      has: this.page.getByRole('button', {
+        name: new RegExp(`Category ${binLabel}`),
+        expanded: true,
+      }),
+    });
     return expandedBin.getByRole('option', { name: nodeLabel });
   }
 
@@ -614,9 +616,7 @@ class CategoricalBinFixture {
 
     await navigateDndToTarget(this.page, node, toBinLabel);
 
-    await expect(
-      this.getNodeInBin(nodeLabel, fromBinLabel),
-    ).not.toBeVisible();
+    await expect(this.getNodeInBin(nodeLabel, fromBinLabel)).not.toBeVisible();
     await expect
       .poll(() => this.getNodeCountInBin(toBinLabel))
       .toBeGreaterThan(countBefore);
@@ -713,6 +713,14 @@ class GeospatialFixture {
     await expect(this.mapContainer).toHaveAttribute('data-map-loaded', 'true', {
       timeout: 30000,
     });
+    // Wait for the GeoJSON source data to be fetched and parsed.
+    // The map can fire 'idle' before the async GeoJSON fetch completes,
+    // so this prevents snapshots from being taken without the layer visible.
+    await expect(this.mapContainer).toHaveAttribute(
+      'data-geojson-loaded',
+      'true',
+      { timeout: 30000 },
+    );
     await expect(this.mapContainer).toHaveAttribute('data-map-idle', 'true', {
       timeout: 30000,
     });
