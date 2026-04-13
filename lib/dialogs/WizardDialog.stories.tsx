@@ -1096,6 +1096,7 @@ export const ConfirmCancelAllowsFinish: StoryObj<Meta<WizardStoryArgs>> = {
 
     const nameInput = await screen.findByRole('textbox', {}, { timeout: 5000 });
     await userEvent.type(nameInput, 'Bob');
+    await waitFor(() => expect(nameInput).toHaveValue('Bob'));
 
     // Click Finish — should NOT show confirmation, should complete normally
     await userEvent.click(screen.getByRole('button', { name: 'Finish' }));

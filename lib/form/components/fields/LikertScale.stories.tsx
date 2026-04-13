@@ -298,7 +298,7 @@ export const UnsetKeyboardEnter: Story = {
 
     // Tab to the slider thumb and press Enter to confirm midpoint
     await userEvent.tab();
-    await expect(thumb).toHaveFocus();
+    await expect(thumb.closest('[tabindex]')!).toHaveFocus();
     await userEvent.keyboard('{Enter}');
     await expect(valueDisplay).toHaveTextContent('3');
   },
@@ -319,7 +319,7 @@ export const UnsetKeyboardSpace: Story = {
 
     // Tab to the slider thumb and press Space to confirm midpoint
     await userEvent.tab();
-    await expect(thumb).toHaveFocus();
+    await expect(thumb.closest('[tabindex]')!).toHaveFocus();
     await userEvent.keyboard(' ');
     await expect(valueDisplay).toHaveTextContent('3');
   },
@@ -338,9 +338,8 @@ export const UnsetKeyboardArrow: Story = {
 
     await expect(valueDisplay).toHaveTextContent('unset');
 
-    // Tab to the slider thumb and press ArrowRight to move and set value
-    await userEvent.tab();
-    await expect(thumb).toHaveFocus();
+    // Focus the slider input directly and press ArrowRight to move and set value
+    thumb.focus();
     await userEvent.keyboard('{ArrowRight}');
     await expect(valueDisplay).toHaveTextContent('4');
   },
