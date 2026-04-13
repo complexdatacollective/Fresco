@@ -4,7 +4,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
-  pull-requests: write
+  statuses: write
 
 on:
   workflow_dispatch:
@@ -209,36 +209,38 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
-      - name: Delete previous report comments
+      - name: Create per-browser status checks
         env:
           GH_TOKEN: ${{ github.token }}
-          PR_NUMBER: ${{ needs.resolve-pr.outputs.pr-number }}
           REPO: ${{ github.repository }}
+          SHA: ${{ needs.resolve-pr.outputs.head-sha }}
+          PR_NUMBER: ${{ needs.resolve-pr.outputs.pr-number }}
+          RUN_ID: ${{ github.run_id }}
         run: |
-          gh api "repos/${REPO}/issues/${PR_NUMBER}/comments" \
-            --paginate --jq '.[] | select(.body | contains("<!-- e2e-report-comment -->")) | .id' \
-          | while read -r comment_id; do
-            echo "Deleting old report comment $comment_id"
-            gh api -X DELETE "repos/${REPO}/issues/comments/$comment_id"
+          REPORT_URL="https://complexdatacollective.github.io/Fresco/pr-${PR_NUMBER}/"
+
+          # Query the workflow run to find which browser jobs failed
+          gh api "repos/${REPO}/actions/runs/${RUN_ID}/jobs" \
+            --jq '.jobs[] | select(.name | startswith("e2e")) | {name: .name, conclusion: .conclusion}' \
+          | jq -r '. | "\(.name)|\(.conclusion)"' \
+          | while IFS='|' read -r job_name conclusion; do
+            # Extract browser name from job name (e.g. "e2e (chromium)" -> "chromium")
+            browser=$(echo "$job_name" | sed 's/.*(\(.*\))/\1/')
+
+            if [ "$conclusion" = "failure" ]; then
+              state="failure"
+              description="Tests failed — view report"
+              target_url="${REPORT_URL}#?q=s%3Afailed"
+            else
+              state="success"
+              description="Tests passed"
+              target_url="${REPORT_URL}"
+            fi
+
+            echo "Setting status for ${browser}: ${state}"
+            gh api "repos/${REPO}/statuses/${SHA}" \
+              -f state="$state" \
+              -f target_url="$target_url" \
+              -f description="$description" \
+              -f context="E2E Tests (${browser})"
           done
-
-      - name: Comment on PR with report link
-        uses: peter-evans/create-or-update-comment@v5
-        with:
-          issue-number: ${{ needs.resolve-pr.outputs.pr-number }}
-          body: |
-            <!-- e2e-report-comment -->
-            ## Playwright E2E Test Report
-
-            Tests failed. View the full report here:
-
-            [https://complexdatacollective.github.io/Fresco/pr-${{ needs.resolve-pr.outputs.pr-number }}/](https://complexdatacollective.github.io/Fresco/pr-${{ needs.resolve-pr.outputs.pr-number }}/)
-
-            <details>
-            <summary>Report details</summary>
-
-            - **Workflow run:** [View logs](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})
-            - **Commit:** ${{ needs.resolve-pr.outputs.head-sha }}
-            - **Branch:** `${{ needs.resolve-pr.outputs.branch }}`
-
-            </details>
