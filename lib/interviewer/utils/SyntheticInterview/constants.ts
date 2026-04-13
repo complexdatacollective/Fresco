@@ -28,10 +28,10 @@ export const DEFAULT_ORDINAL_OPTIONS: VariableOption[] = [
 ];
 
 export const DEFAULT_CATEGORICAL_OPTIONS: VariableOption[] = [
-  { label: 'Family', value: 1 },
-  { label: 'Work', value: 2 },
-  { label: 'School', value: 3 },
-  { label: 'Neighborhood', value: 4 },
+  { label: 'Family', value: 'family' },
+  { label: 'Work', value: 'work' },
+  { label: 'School', value: 'school' },
+  { label: 'Neighborhood', value: 'neighborhood' },
 ];
 
 export const NODE_COLORS = [

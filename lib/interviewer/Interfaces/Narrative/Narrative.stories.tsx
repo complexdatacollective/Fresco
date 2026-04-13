@@ -27,10 +27,10 @@ function createNarrativeInterview(seed: number) {
     type: 'categorical',
     name: 'Community',
     options: [
-      { label: 'Family', value: 1 },
-      { label: 'Work', value: 2 },
-      { label: 'School', value: 3 },
-      { label: 'Neighborhood', value: 4 },
+      { label: 'Family', value: 'family' },
+      { label: 'Work', value: 'work' },
+      { label: 'School', value: 'school' },
+      { label: 'Neighborhood', value: 'neighborhood' },
     ],
   });
   const friendshipEt = si.addEdgeType({ name: 'Friendship' });
@@ -159,17 +159,17 @@ const buildWithConvexHulls = () => {
     layoutVariable: layoutVar1.id,
     groupVariable: communityVar.id,
   });
-  const groupValues: (number[] | null)[] = [
-    [1],
-    [1],
-    [1],
-    [2],
-    [2],
-    [2],
-    [3],
-    [3],
-    [3],
-    [1, 2],
+  const groupValues: (string | string[] | null)[] = [
+    'family',
+    'family',
+    'family',
+    'work',
+    'work',
+    'work',
+    'school',
+    'school',
+    'school',
+    ['family', 'work'],
   ];
   groupValues.forEach((v, i) => si.setNodeAttribute(i, communityVar.id, v));
   si.addInformationStage({
@@ -227,17 +227,17 @@ const buildFullFeatured = () => {
     true,
   ];
   hlValues.forEach((v, i) => si.setNodeAttribute(i, closeVar.id, v));
-  const groupValues: (number[] | null)[] = [
-    [1],
-    [1],
-    [1],
-    [2],
-    [2],
-    [2],
-    [3],
-    [3],
-    [3],
-    [1, 3],
+  const groupValues: (string | string[] | null)[] = [
+    'family',
+    'family',
+    'family',
+    'work',
+    'work',
+    'work',
+    'school',
+    'school',
+    'school',
+    ['family', 'school'],
   ];
   groupValues.forEach((v, i) => si.setNodeAttribute(i, communityVar.id, v));
   si.addEdges(
@@ -309,17 +309,17 @@ const buildMultiplePresets = () => {
     true,
   ];
   hlValues.forEach((v, i) => si.setNodeAttribute(i, closeVar.id, v));
-  const groupValues: (number[] | null)[] = [
-    [1],
-    [1],
-    [2],
-    [2],
-    [3],
-    [3],
-    [1, 3],
-    [2],
-    [1],
-    [3],
+  const groupValues: (string | string[] | null)[] = [
+    'family',
+    'family',
+    'work',
+    'work',
+    'school',
+    'school',
+    ['family', 'school'],
+    'work',
+    'family',
+    'school',
   ];
   groupValues.forEach((v, i) => si.setNodeAttribute(i, communityVar.id, v));
   const trustedValues = Array.from({ length: 10 }, (_, i) =>
@@ -419,17 +419,17 @@ const buildAllBehaviours = () => {
     true,
   ];
   hlValues.forEach((v, i) => si.setNodeAttribute(i, closeVar.id, v));
-  const groupValues: (number[] | null)[] = [
-    [1],
-    [1],
-    [1],
-    [2],
-    [2],
-    [2],
-    [3],
-    [3],
-    [3],
-    [1, 2],
+  const groupValues: (string | string[] | null)[] = [
+    'family',
+    'family',
+    'family',
+    'work',
+    'work',
+    'work',
+    'school',
+    'school',
+    'school',
+    ['family', 'work'],
   ];
   groupValues.forEach((v, i) => si.setNodeAttribute(i, communityVar.id, v));
   si.addEdges(
@@ -479,7 +479,8 @@ const buildManyNodes = () => {
     i % 3 === 0 ? true : i % 3 === 1 ? false : null,
   );
   hlValues.forEach((v, i) => si.setNodeAttribute(i, closeVar.id, v));
-  const groupValues = Array.from({ length: 15 }, (_, i) => [(i % 4) + 1]);
+  const catValues = ['family', 'work', 'school', 'neighborhood'] as const;
+  const groupValues = Array.from({ length: 15 }, (_, i) => catValues[i % 4]!);
   groupValues.forEach((v, i) => si.setNodeAttribute(i, communityVar.id, v));
   si.addEdges(
     [
@@ -523,7 +524,7 @@ const buildSingleNodeGroups = () => {
     layoutVariable: layoutVar1.id,
     groupVariable: communityVar.id,
   });
-  const groupValues: number[][] = [[1], [2], [3], [4]];
+  const groupValues: string[] = ['family', 'work', 'school', 'neighborhood'];
   groupValues.forEach((v, i) => si.setNodeAttribute(i, communityVar.id, v));
   si.addInformationStage({
     title: 'Complete',
@@ -540,7 +541,7 @@ const buildTwoNodeGroup = () => {
     layoutVariable: layoutVar1.id,
     groupVariable: communityVar.id,
   });
-  const groupValues: number[][] = [[1], [1], [2], [2]];
+  const groupValues: string[] = ['family', 'family', 'work', 'work'];
   groupValues.forEach((v, i) => si.setNodeAttribute(i, communityVar.id, v));
   si.addInformationStage({
     title: 'Complete',

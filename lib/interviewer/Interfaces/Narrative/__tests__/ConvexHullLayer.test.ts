@@ -7,7 +7,7 @@ import {
 import { describe, expect, it } from 'vitest';
 import { groupNodesByVariable } from '~/lib/interviewer/Interfaces/Narrative/ConvexHullLayer';
 
-type CategoricalOption = { value: number; label: string };
+type CategoricalOption = { value: string | number | boolean; label: string };
 
 function makeNode(
   id: string,
@@ -23,9 +23,9 @@ function makeNode(
 }
 
 const OPTIONS: CategoricalOption[] = [
-  { value: 1, label: 'Red' },
-  { value: 2, label: 'Blue' },
-  { value: 3, label: 'Green' },
+  { value: 'red', label: 'Red' },
+  { value: 'blue', label: 'Blue' },
+  { value: 'green', label: 'Green' },
 ];
 
 describe('groupNodesByVariable', () => {
@@ -34,89 +34,125 @@ describe('groupNodesByVariable', () => {
     expect(result.size).toBe(0);
   });
 
-  it('correctly groups nodes by their categorical attribute value', () => {
+  it('correctly groups nodes by a single string value', () => {
     const nodes = [
-      makeNode('node-1', { color: [1] }),
-      makeNode('node-2', { color: [1] }),
-      makeNode('node-3', { color: [2] }),
+      makeNode('node-1', { color: 'red' }),
+      makeNode('node-2', { color: 'red' }),
+      makeNode('node-3', { color: 'blue' }),
     ];
 
     const result = groupNodesByVariable(nodes, 'color', OPTIONS);
 
     expect(result.size).toBe(2);
 
-    const group1 = result.get(1);
-    expect(group1).toBeDefined();
-    expect(group1!.nodeIds).toContain('node-1');
-    expect(group1!.nodeIds).toContain('node-2');
-    expect(group1!.nodeIds).toHaveLength(2);
+    const groupRed = result.get('red');
+    expect(groupRed).toBeDefined();
+    expect(groupRed!.nodeIds).toContain('node-1');
+    expect(groupRed!.nodeIds).toContain('node-2');
+    expect(groupRed!.nodeIds).toHaveLength(2);
 
-    const group2 = result.get(2);
-    expect(group2).toBeDefined();
-    expect(group2!.nodeIds).toContain('node-3');
-    expect(group2!.nodeIds).toHaveLength(1);
+    const groupBlue = result.get('blue');
+    expect(groupBlue).toBeDefined();
+    expect(groupBlue!.nodeIds).toContain('node-3');
+    expect(groupBlue!.nodeIds).toHaveLength(1);
   });
 
-  it('places a node with multiple categorical values into multiple groups', () => {
-    const nodes = [makeNode('node-multi', { color: [1, 2] })];
+  it('places a node with an array of values into multiple groups', () => {
+    const nodes = [makeNode('node-multi', { color: ['red', 'blue'] })];
 
     const result = groupNodesByVariable(nodes, 'color', OPTIONS);
 
     expect(result.size).toBe(2);
-    expect(result.get(1)!.nodeIds).toContain('node-multi');
-    expect(result.get(2)!.nodeIds).toContain('node-multi');
+    expect(result.get('red')!.nodeIds).toContain('node-multi');
+    expect(result.get('blue')!.nodeIds).toContain('node-multi');
   });
 
   it('excludes nodes that do not have the group variable', () => {
     const nodes = [
-      makeNode('node-with', { color: [1] }),
-      makeNode('node-without', { size: [10] }),
+      makeNode('node-with', { color: 'red' }),
+      makeNode('node-without', { size: 10 }),
       makeNode('node-null', { color: null }),
     ];
 
     const result = groupNodesByVariable(nodes, 'color', OPTIONS);
 
     expect(result.size).toBe(1);
-    const group = result.get(1)!;
+    const group = result.get('red')!;
     expect(group.nodeIds).toContain('node-with');
     expect(group.nodeIds).not.toContain('node-without');
     expect(group.nodeIds).not.toContain('node-null');
   });
 
-  it('excludes nodes whose group variable is not an array (scalar values)', () => {
+  it('handles numeric scalar values', () => {
+    const numericOptions: CategoricalOption[] = [
+      { value: 1, label: 'One' },
+      { value: 2, label: 'Two' },
+    ];
     const nodes = [
-      makeNode('node-scalar', { color: 1 }),
-      makeNode('node-string', { color: 'red' }),
+      makeNode('node-1', { color: 1 }),
+      makeNode('node-2', { color: 2 }),
     ];
 
-    const result = groupNodesByVariable(nodes, 'color', OPTIONS);
+    const result = groupNodesByVariable(nodes, 'color', numericOptions);
 
-    expect(result.size).toBe(0);
+    expect(result.size).toBe(2);
+    expect(result.get(1)!.nodeIds).toContain('node-1');
+    expect(result.get(2)!.nodeIds).toContain('node-2');
   });
 
   it('maps colorIndex as 1-based position from categoricalOptions', () => {
     const nodes = [
-      makeNode('node-a', { color: [1] }),
-      makeNode('node-b', { color: [2] }),
-      makeNode('node-c', { color: [3] }),
+      makeNode('node-a', { color: 'red' }),
+      makeNode('node-b', { color: 'blue' }),
+      makeNode('node-c', { color: 'green' }),
     ];
 
     const result = groupNodesByVariable(nodes, 'color', OPTIONS);
 
-    // Option at index 0 (value=1) → colorIndex 1
-    expect(result.get(1)!.colorIndex).toBe(1);
-    // Option at index 1 (value=2) → colorIndex 2
-    expect(result.get(2)!.colorIndex).toBe(2);
-    // Option at index 2 (value=3) → colorIndex 3
-    expect(result.get(3)!.colorIndex).toBe(3);
+    expect(result.get('red')!.colorIndex).toBe(1);
+    expect(result.get('blue')!.colorIndex).toBe(2);
+    expect(result.get('green')!.colorIndex).toBe(3);
   });
 
   it('falls back to colorIndex 1 when the value is not found in categoricalOptions', () => {
-    const nodes = [makeNode('node-unknown', { color: [99] })];
+    const nodes = [makeNode('node-unknown', { color: 'purple' })];
 
     const result = groupNodesByVariable(nodes, 'color', OPTIONS);
 
-    expect(result.get(99)!.colorIndex).toBe(1);
+    expect(result.get('purple')!.colorIndex).toBe(1);
+  });
+
+  it('handles array of numeric values (from CheckboxGroup forms)', () => {
+    const numericOptions: CategoricalOption[] = [
+      { value: 1, label: 'One' },
+      { value: 2, label: 'Two' },
+      { value: 3, label: 'Three' },
+    ];
+    const nodes = [
+      makeNode('node-a', { color: [1] }),
+      makeNode('node-b', { color: [1, 2] }),
+      makeNode('node-c', { color: [3] }),
+    ];
+
+    const result = groupNodesByVariable(nodes, 'color', numericOptions);
+
+    expect(result.size).toBe(3);
+    expect(result.get(1)!.nodeIds).toEqual(['node-a', 'node-b']);
+    expect(result.get(2)!.nodeIds).toEqual(['node-b']);
+    expect(result.get(3)!.nodeIds).toEqual(['node-c']);
+  });
+
+  it('handles array of string values (from CheckboxGroup forms)', () => {
+    const nodes = [
+      makeNode('node-a', { color: ['red', 'blue'] }),
+      makeNode('node-b', { color: ['blue'] }),
+    ];
+
+    const result = groupNodesByVariable(nodes, 'color', OPTIONS);
+
+    expect(result.size).toBe(2);
+    expect(result.get('red')!.nodeIds).toEqual(['node-a']);
+    expect(result.get('blue')!.nodeIds).toEqual(['node-a', 'node-b']);
   });
 
   it('handles nodes where the group variable is an empty array', () => {

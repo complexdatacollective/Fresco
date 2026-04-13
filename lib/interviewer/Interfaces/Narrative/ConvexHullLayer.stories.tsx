@@ -8,16 +8,18 @@ import { useEffect, useRef } from 'react';
 import { createCanvasStore } from '~/lib/interviewer/canvas/useCanvasStore';
 import ConvexHullLayer from '~/lib/interviewer/Interfaces/Narrative/ConvexHullLayer';
 
+type CategoricalValue = string | number | boolean;
+
 const CATEGORICAL_OPTIONS = [
-  { value: 1, label: 'Group A' },
-  { value: 2, label: 'Group B' },
-  { value: 3, label: 'Group C' },
+  { value: 'group-a', label: 'Group A' },
+  { value: 'group-b', label: 'Group B' },
+  { value: 'group-c', label: 'Group C' },
 ];
 
 function makeNode(
   id: string,
   name: string,
-  groups: number[],
+  group: CategoricalValue | CategoricalValue[],
   x: number,
   y: number,
 ): NcNode {
@@ -25,7 +27,7 @@ function makeNode(
     [entityPrimaryKeyProperty]: id,
     [entityAttributesProperty]: {
       name,
-      group: groups,
+      group,
       layout: { x, y },
     },
     type: 'person',
@@ -35,23 +37,23 @@ function makeNode(
 }
 
 const NODES_MANY: NcNode[] = [
-  makeNode('1', 'Alice', [1], 0.2, 0.3),
-  makeNode('2', 'Bob', [1], 0.25, 0.35),
-  makeNode('3', 'Charlie', [1], 0.3, 0.25),
-  makeNode('4', 'Diana', [1], 0.22, 0.2),
-  makeNode('5', 'Eve', [2], 0.6, 0.5),
-  makeNode('6', 'Frank', [2], 0.65, 0.55),
-  makeNode('7', 'Grace', [2], 0.7, 0.45),
-  makeNode('8', 'Hank', [3], 0.5, 0.8),
-  makeNode('9', 'Ivy', [3], 0.55, 0.75),
-  makeNode('10', 'Jack', [3], 0.45, 0.85),
-  makeNode('11', 'Kate', [3], 0.5, 0.7),
+  makeNode('1', 'Alice', 'group-a', 0.2, 0.3),
+  makeNode('2', 'Bob', 'group-a', 0.25, 0.35),
+  makeNode('3', 'Charlie', 'group-a', 0.3, 0.25),
+  makeNode('4', 'Diana', 'group-a', 0.22, 0.2),
+  makeNode('5', 'Eve', 'group-b', 0.6, 0.5),
+  makeNode('6', 'Frank', 'group-b', 0.65, 0.55),
+  makeNode('7', 'Grace', 'group-b', 0.7, 0.45),
+  makeNode('8', 'Hank', 'group-c', 0.5, 0.8),
+  makeNode('9', 'Ivy', 'group-c', 0.55, 0.75),
+  makeNode('10', 'Jack', 'group-c', 0.45, 0.85),
+  makeNode('11', 'Kate', 'group-c', 0.5, 0.7),
 ];
 
 const NODES_FEW: NcNode[] = [
-  makeNode('1', 'Alice', [1], 0.3, 0.4),
-  makeNode('2', 'Bob', [2], 0.6, 0.3),
-  makeNode('3', 'Charlie', [2], 0.7, 0.5),
+  makeNode('1', 'Alice', 'group-a', 0.3, 0.4),
+  makeNode('2', 'Bob', 'group-b', 0.6, 0.3),
+  makeNode('3', 'Charlie', 'group-b', 0.7, 0.5),
 ];
 
 /**
@@ -78,9 +80,10 @@ function ConvexHullLayerWrapper({ nodes }: { nodes: NcNode[] }) {
       {nodes.map((node) => {
         const attrs = node[entityAttributesProperty];
         const pos = attrs.layout as { x: number; y: number };
-        const groups = attrs.group as number[];
+        const raw = attrs.group;
+        const firstValue = Array.isArray(raw) ? raw[0] : raw;
         const colorIndex =
-          CATEGORICAL_OPTIONS.findIndex((o) => o.value === groups[0]) + 1;
+          CATEGORICAL_OPTIONS.findIndex((o) => o.value === firstValue) + 1;
         return (
           <div
             key={node[entityPrimaryKeyProperty]}
@@ -120,7 +123,9 @@ export const SingleAndPairNodes: Story = {
 
 export const SingleNode: Story = {
   render: () => (
-    <ConvexHullLayerWrapper nodes={[makeNode('1', 'Alone', [1], 0.5, 0.5)]} />
+    <ConvexHullLayerWrapper
+      nodes={[makeNode('1', 'Alone', 'group-a', 0.5, 0.5)]}
+    />
   ),
 };
 
@@ -128,21 +133,22 @@ export const TwoNodes: Story = {
   render: () => (
     <ConvexHullLayerWrapper
       nodes={[
-        makeNode('1', 'Alice', [1], 0.3, 0.5),
-        makeNode('2', 'Bob', [1], 0.7, 0.5),
+        makeNode('1', 'Alice', 'group-a', 0.3, 0.5),
+        makeNode('2', 'Bob', 'group-a', 0.7, 0.5),
       ]}
     />
   ),
 };
 
+/** Nodes belonging to multiple groups via array values (CheckboxGroup path). */
 export const OverlappingGroups: Story = {
   render: () => (
     <ConvexHullLayerWrapper
       nodes={[
-        makeNode('1', 'Alice', [1, 2], 0.4, 0.4),
-        makeNode('2', 'Bob', [1], 0.3, 0.3),
-        makeNode('3', 'Charlie', [2], 0.5, 0.5),
-        makeNode('4', 'Diana', [1, 2], 0.45, 0.35),
+        makeNode('1', 'Alice', ['group-a', 'group-b'], 0.4, 0.4),
+        makeNode('2', 'Bob', 'group-a', 0.3, 0.3),
+        makeNode('3', 'Charlie', 'group-b', 0.5, 0.5),
+        makeNode('4', 'Diana', ['group-a', 'group-b'], 0.45, 0.35),
       ]}
     />
   ),

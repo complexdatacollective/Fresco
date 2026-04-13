@@ -7,7 +7,9 @@ import concaveman from 'concaveman';
 import { useEffect, useRef } from 'react';
 import { type CanvasStoreApi } from '~/lib/interviewer/canvas/useCanvasStore';
 
-type CategoricalOption = { value: number; label: string };
+type CategoricalValue = string | number | boolean;
+
+type CategoricalOption = { value: CategoricalValue; label: string };
 
 type ConvexHullLayerProps = {
   store: CanvasStoreApi;
@@ -23,20 +25,25 @@ type GroupData = {
 
 /**
  * Groups nodes by their categorical variable values.
- * A single node can belong to multiple groups (categorical values are arrays).
+ * A single node can belong to multiple groups if the value is an array,
+ * or a single group if the value is a plain string/number/boolean.
  */
 export function groupNodesByVariable(
   nodes: NcNode[],
   groupVariable: string,
   categoricalOptions: CategoricalOption[],
-): Map<number, GroupData> {
-  const groups = new Map<number, GroupData>();
+): Map<CategoricalValue, GroupData> {
+  const groups = new Map<CategoricalValue, GroupData>();
 
   for (const node of nodes) {
-    const values = node[entityAttributesProperty][groupVariable];
-    if (!Array.isArray(values)) continue;
+    const raw = node[entityAttributesProperty][groupVariable];
+    if (raw == null) continue;
 
-    for (const value of values as number[]) {
+    const values: CategoricalValue[] = Array.isArray(raw)
+      ? (raw as CategoricalValue[])
+      : [raw as CategoricalValue];
+
+    for (const value of values) {
       let group = groups.get(value);
       if (!group) {
         const optionIndex = categoricalOptions.findIndex(
@@ -64,7 +71,7 @@ export default function ConvexHullLayer({
   const svgRef = useRef<SVGSVGElement>(null);
   const elementsRef = useRef<SVGElement[]>([]);
   const rafRef = useRef<number | null>(null);
-  const groupsRef = useRef<Map<number, GroupData>>(new Map());
+  const groupsRef = useRef<Map<CategoricalValue, GroupData>>(new Map());
 
   // Update groups when nodes or groupVariable change
   useEffect(() => {
@@ -93,7 +100,7 @@ export default function ConvexHullLayer({
     groupsRef.current = groups;
 
     const svgNS = svg.namespaceURI;
-    const elementMap = new Map<number, SVGElement>();
+    const elementMap = new Map<CategoricalValue, SVGElement>();
 
     for (const [value, group] of groups) {
       // Create a polygon for each group (will be updated to circle/ellipse as needed)
