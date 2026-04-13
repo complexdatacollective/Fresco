@@ -5,11 +5,15 @@ import { getProtocols } from '~/queries/protocols';
 import ProtocolsTableClient from './ProtocolsTableClient';
 
 async function getData() {
-  return Promise.all([
-    getProtocols(),
-    getAppSetting('allowAnonymousRecruitment'),
-    getAppSetting('uploadThingToken'),
-  ]);
+  const [protocols, allowAnonymousRecruitment, storageProvider, uploadThingToken] =
+    await Promise.all([
+      getProtocols(),
+      getAppSetting('allowAnonymousRecruitment'),
+      getAppSetting('storageProvider'),
+      getAppSetting('uploadThingToken'),
+    ]);
+  const storageConfigured = storageProvider === 's3' || !!uploadThingToken;
+  return [protocols, allowAnonymousRecruitment, storageConfigured] as const;
 }
 
 export type GetData = ReturnType<typeof getData>;

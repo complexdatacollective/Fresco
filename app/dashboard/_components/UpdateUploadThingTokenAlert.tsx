@@ -3,8 +3,10 @@ import Link from '~/components/ui/Link';
 import { getAppSetting } from '~/queries/appSettings';
 
 export default async function UpdateUploadThingTokenAlert() {
-  const uploadThingToken = await getAppSetting('uploadThingToken');
+  const storageProvider = await getAppSetting('storageProvider');
+  if (storageProvider === 's3') return null;
 
+  const uploadThingToken = await getAppSetting('uploadThingToken');
   if (uploadThingToken) return null;
 
   return (

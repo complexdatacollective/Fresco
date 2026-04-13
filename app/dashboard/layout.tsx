@@ -30,6 +30,8 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
 async function UploadThingTokenGate() {
   await connection();
+  const storageProvider = await getAppSetting('storageProvider');
+  if (storageProvider === 's3') return null;
   const uploadThingToken = await getAppSetting('uploadThingToken');
   if (!uploadThingToken) return <UploadThingModal />;
   return null;

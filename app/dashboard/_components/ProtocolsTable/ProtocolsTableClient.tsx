@@ -21,7 +21,7 @@ export type ProtocolWithInterviews = GetProtocolsQuery[number];
 const ProtocolsTableClient = ({ dataPromise }: { dataPromise: GetData }) => {
   // TanStack Table: consumers must also opt out so React Compiler doesn't memoize JSX that depends on the table ref.
   'use no memo';
-  const [rawProtocols, allowAnonymousRecruitment, hasUploadThingToken] =
+  const [rawProtocols, allowAnonymousRecruitment, storageConfigured] =
     use(dataPromise);
   const protocols = useMemo(
     () => SuperJSON.parse<GetProtocolsQuery>(rawProtocols),
@@ -64,7 +64,7 @@ const ProtocolsTableClient = ({ dataPromise }: { dataPromise: GetData }) => {
             table={table}
             searchableColumns={[{ id: 'name', title: 'by name' }]}
           >
-            <ProtocolUploader buttonDisabled={!hasUploadThingToken} />
+            <ProtocolUploader buttonDisabled={!storageConfigured} />
           </DataTableToolbar>
         }
         floatingBar={
