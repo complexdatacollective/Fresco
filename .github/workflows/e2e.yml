@@ -209,16 +209,30 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
 
+      - name: Delete previous report comments
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ needs.resolve-pr.outputs.pr-number }}
+          REPO: ${{ github.repository }}
+        run: |
+          gh api "repos/${REPO}/issues/${PR_NUMBER}/comments" \
+            --paginate --jq '.[] | select(.body | contains("<!-- e2e-report-comment -->")) | .id' \
+          | while read -r comment_id; do
+            echo "Deleting old report comment $comment_id"
+            gh api -X DELETE "repos/${REPO}/issues/comments/$comment_id"
+          done
+
       - name: Comment on PR with report link
         uses: peter-evans/create-or-update-comment@v5
         with:
           issue-number: ${{ needs.resolve-pr.outputs.pr-number }}
           body: |
-            ## 🎭 Playwright E2E Test Report
+            <!-- e2e-report-comment -->
+            ## Playwright E2E Test Report
 
-            ❌ **Tests failed.** View the full report here:
+            Tests failed. View the full report here:
 
-            👉 **[https://complexdatacollective.github.io/Fresco/pr-${{ needs.resolve-pr.outputs.pr-number }}/](https://complexdatacollective.github.io/Fresco/pr-${{ needs.resolve-pr.outputs.pr-number }}/)**
+            [https://complexdatacollective.github.io/Fresco/pr-${{ needs.resolve-pr.outputs.pr-number }}/](https://complexdatacollective.github.io/Fresco/pr-${{ needs.resolve-pr.outputs.pr-number }}/)
 
             <details>
             <summary>Report details</summary>
