@@ -153,6 +153,11 @@ function buildNodes<T>(
 
   items.forEach((item, index) => {
     const key = keyExtractor(item);
+    // Skip duplicate keys — the first occurrence wins. External data sources
+    // (e.g. roster CSVs) can contain identical rows that hash to the same key.
+    // Duplicates in orderedKeys cause measurement to never complete because
+    // the Map-based measurement count can never equal the array length.
+    if (itemsMap.has(key)) return;
     const node: Node<T> = {
       key,
       type: 'item',
@@ -288,7 +293,7 @@ export const createCollectionStore = <T>(
         set({
           items: itemsMap,
           orderedKeys,
-          size: sortedItems.length,
+          size: orderedKeys.length,
           selectedKeys: newSelectedKeys,
           focusedKey: newFocusedKey,
           // Store for re-sorting
@@ -442,7 +447,7 @@ export const createCollectionStore = <T>(
         set({
           items: itemsMap,
           orderedKeys,
-          size: sortedItems.length,
+          size: orderedKeys.length,
         });
       },
     })),
