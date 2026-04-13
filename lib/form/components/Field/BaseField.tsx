@@ -77,8 +77,11 @@ export function BaseField({
             {label}
           </FieldLabel>
           {(hint ?? validationSummary) && (
-            <Hint id={`${id}-hint`}>
-              {hint}
+            <Hint
+              id={`${id}-hint`}
+              text={typeof hint === 'string' ? hint : undefined}
+            >
+              {typeof hint !== 'string' && hint}
               {validationSummary}
             </Hint>
           )}
