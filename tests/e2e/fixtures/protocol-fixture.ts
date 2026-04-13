@@ -10,7 +10,6 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { hash } from 'ohash';
 import { type Prisma } from '~/lib/db/generated/client';
-import { log } from '../helpers/logger.js';
 import { type TestPrismaClient } from '../helpers/prisma.js';
 
 /**
@@ -75,8 +74,6 @@ export class ProtocolFixture {
   }
 
   async install(protocolPath: string): Promise<InstalledProtocol> {
-    log('test', `Installing protocol from: ${protocolPath}`);
-
     const JSZip = (await import('jszip')).default;
 
     const fileBuffer = await fs.readFile(protocolPath);
@@ -97,10 +94,6 @@ export class ProtocolFixture {
     });
 
     if (existing) {
-      log(
-        'test',
-        `Reusing existing protocol "${existing.name}" (${existing.id})`,
-      );
       return {
         protocolId: existing.id,
         name: existing.name ?? 'Untitled',
@@ -154,11 +147,6 @@ export class ProtocolFixture {
 
     this.installedProtocols.push(protocolId);
 
-    log(
-      'test',
-      `Installed protocol "${rewrittenProtocol.name ?? 'Untitled'}" (${protocolId})`,
-    );
-
     return {
       protocolId,
       name: rewrittenProtocol.name ?? 'Untitled',
@@ -171,7 +159,6 @@ export class ProtocolFixture {
   private async extractAssets(zip: JSZip, assetDir: string): Promise<void> {
     const assetsFolder = zip.folder('assets');
     if (!assetsFolder) {
-      log('test', 'No assets folder in protocol');
       return;
     }
 
@@ -181,8 +168,6 @@ export class ProtocolFixture {
         assetFiles.push({ name: file.name, relativePath });
       }
     });
-
-    log('test', `Extracting ${assetFiles.length} assets...`);
 
     for (const { name, relativePath } of assetFiles) {
       const file = zip.file(name);
@@ -237,10 +222,6 @@ export class ProtocolFixture {
           select: { id: true },
         });
         if (existing) {
-          log(
-            'test',
-            `Protocol already exists (race condition), reusing ${existing.id}`,
-          );
           return { id: existing.id, alreadyExisted: true };
         }
       }
@@ -311,7 +292,6 @@ export class ProtocolFixture {
       },
     });
 
-    log('test', `Created interview ${interview.id} for protocol ${protocolId}`);
     return interview.id;
   }
 
@@ -320,7 +300,11 @@ export class ProtocolFixture {
    * Useful for debugging sync issues.
    */
   async getNetworkState(interviewId: string): Promise<{
-    nodes: { _uid: string; type: string; attributes: Record<string, unknown> }[];
+    nodes: {
+      _uid: string;
+      type: string;
+      attributes: Record<string, unknown>;
+    }[];
     edges: { _uid: string; type: string; from: string; to: string }[];
     ego: { _uid: string; attributes: Record<string, unknown> };
     currentStep: number;
@@ -335,7 +319,11 @@ export class ProtocolFixture {
     }
 
     const network = interview.network as {
-      nodes: { _uid: string; type: string; attributes: Record<string, unknown> }[];
+      nodes: {
+        _uid: string;
+        type: string;
+        attributes: Record<string, unknown>;
+      }[];
       edges: { _uid: string; type: string; from: string; to: string }[];
       ego: { _uid: string; attributes: Record<string, unknown> };
     };
@@ -361,7 +349,6 @@ export class ProtocolFixture {
     while (Date.now() - startTime < timeout) {
       const state = await this.getNetworkState(interviewId);
       if (state.nodes.length >= expectedCount) {
-        log('test', `Found ${state.nodes.length} nodes in database`);
         return;
       }
       await new Promise((resolve) => setTimeout(resolve, interval));
@@ -400,7 +387,6 @@ export class ProtocolFixture {
       const state = await this.getNetworkState(interviewId);
       const actualValue = state.ego.attributes[attributeId];
       if (JSON.stringify(actualValue) === expectedJson) {
-        log('test', `Ego attribute ${attributeId} = ${expectedJson}`);
         return;
       }
       await new Promise((resolve) => setTimeout(resolve, interval));
@@ -409,7 +395,7 @@ export class ProtocolFixture {
     const finalState = await this.getNetworkState(interviewId);
     throw new Error(
       `Timeout waiting for ego attribute ${attributeId} to be ${expectedJson}. ` +
-      `Actual value: ${JSON.stringify(finalState.ego.attributes[attributeId])} after ${timeout}ms`,
+        `Actual value: ${JSON.stringify(finalState.ego.attributes[attributeId])} after ${timeout}ms`,
     );
   }
 
@@ -433,11 +419,8 @@ export class ProtocolFixture {
     while (Date.now() - startTime < timeout) {
       const state = await this.getNetworkState(interviewId);
       if (
-        state.nodes.some((n) =>
-          Object.values(n.attributes).includes(nodeName),
-        )
+        state.nodes.some((n) => Object.values(n.attributes).includes(nodeName))
       ) {
-        log('test', `Found node "${nodeName}" in database`);
         return;
       }
       await new Promise((resolve) => setTimeout(resolve, interval));
@@ -475,10 +458,6 @@ export class ProtocolFixture {
         Object.values(n.attributes).includes(nodeName),
       );
       if (node?.attributes[attributeId] != null) {
-        log(
-          'test',
-          `Node "${nodeName}" attribute ${attributeId} = ${JSON.stringify(node.attributes[attributeId])}`,
-        );
         return;
       }
       await new Promise((resolve) => setTimeout(resolve, interval));
@@ -494,24 +473,6 @@ export class ProtocolFixture {
     );
   }
 
-  /**
-   * Log the current network state for debugging.
-   */
-  async logNetworkState(interviewId: string): Promise<void> {
-    const state = await this.getNetworkState(interviewId);
-    log('test', `Network state for interview ${interviewId}:`);
-    log('test', `  Current step: ${state.currentStep}`);
-    log('test', `  Ego attributes: ${JSON.stringify(state.ego.attributes)}`);
-    log('test', `  Nodes (${state.nodes.length}):`);
-    for (const node of state.nodes) {
-      log('test', `    - ${node._uid}: ${JSON.stringify(node.attributes)}`);
-    }
-    log('test', `  Edges (${state.edges.length}):`);
-    for (const edge of state.edges) {
-      log('test', `    - ${edge.from} -> ${edge.to} (${edge.type})`);
-    }
-  }
-
   async uninstall(protocolId: string): Promise<void> {
     // Use deleteMany to avoid throwing if the record was already removed
     // (e.g., by restoreSnapshot() truncating all tables).
@@ -521,20 +482,11 @@ export class ProtocolFixture {
 
     const protocolAssetDir = path.join(this.assetDir, protocolId);
     await fs.rm(protocolAssetDir, { recursive: true, force: true });
-
-    log('test', `Uninstalled protocol ${protocolId}`);
   }
 
   async cleanup(): Promise<void> {
     for (const protocolId of this.installedProtocols) {
-      try {
-        await this.uninstall(protocolId);
-      } catch (error) {
-        log(
-          'test',
-          `Failed to cleanup protocol ${protocolId}: ${String(error)}`,
-        );
-      }
+      await this.uninstall(protocolId);
     }
     this.installedProtocols = [];
   }

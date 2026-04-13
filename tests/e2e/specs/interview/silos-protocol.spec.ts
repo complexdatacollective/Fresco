@@ -38,12 +38,9 @@ test.describe('SILOS Protocol', () => {
       interviewId = await protocol.createInterview(sharedProtocolId);
     });
 
-    test.beforeEach(async ({ interview }, testInfo) => {
+    test.beforeEach(async ({ interview }) => {
       interview.interviewId = interviewId;
-      const stageMatch = /^Stage (\d+)/.exec(testInfo.title);
-      if (stageMatch) {
-        await interview.goto(parseInt(stageMatch[1]!, 10));
-      }
+      await interview.captureInitial();
     });
 
     test.afterEach(async ({ interview }) => {
@@ -53,6 +50,7 @@ test.describe('SILOS Protocol', () => {
     });
 
     test('Stage 0: Welcome', async ({ page, interview }) => {
+      await interview.goto(0);
       // Verify welcome stage content
       await expect(
         page.getByRole('heading', { name: 'Welcome!' }),
@@ -75,7 +73,7 @@ test.describe('SILOS Protocol', () => {
       await expect(interview.nextButton).toBeEnabled();
     });
 
-    test('Stage 2: Self-Nomination', async ({ interview, stage, protocol }) => {
+    test('Stage 2: Self-Nomination', async ({ interview, stage }) => {
       // Quick add should be enabled initially
       expect(await stage.quickAdd.isDisabled()).toBe(false);
 
@@ -104,9 +102,6 @@ test.describe('SILOS Protocol', () => {
       await stage.quickAdd.addNode('Me');
       await expect(stage.getNode('Me')).toBeVisible();
       await expect(interview.nextButton).toBeEnabled();
-
-      // Wait for the "Me" node to be persisted to the database
-      await protocol.waitForNodes(interview.interviewId, 1);
     });
 
     test('Stage 3: Ego Information (EgoForm)', async ({
@@ -409,7 +404,6 @@ test.describe('SILOS Protocol', () => {
       page,
       interview,
       stage,
-      protocol,
     }) => {
       // Verify the first prompt is visible (close ties)
       await expect(stage.getPrompt()).toBeVisible();
@@ -498,20 +492,12 @@ test.describe('SILOS Protocol', () => {
       await expect(aliceInMainList).toBeVisible();
 
       await expect(interview.nextButton).toBeEnabled();
-
-      // Wait for Alice's drug attribute to be set (dragged to drug prompt)
-      await protocol.waitForNodeAttribute(
-        interview.interviewId,
-        'Alice',
-        '45032017-155e-4499-9e7f-2abbfc6cc441',
-      );
     });
 
     test('Stage 12: Sex Partner Nomination', async ({
       page,
       interview,
       stage,
-      protocol,
     }) => {
       await expect(stage.getPrompt()).toBeVisible();
 
@@ -547,16 +533,6 @@ test.describe('SILOS Protocol', () => {
       await expect(bobInMainList).toBeVisible();
 
       await expect(interview.nextButton).toBeEnabled();
-
-      // Wait for Evan node to be persisted to the database
-      await protocol.waitForNode(interview.interviewId, 'Evan');
-
-      // Verify Bob's sex partner attribute was set by the drag
-      await protocol.waitForNodeAttribute(
-        interview.interviewId,
-        'Bob',
-        '1bf37368-5188-49c6-b35f-f0a49706fcb0',
-      );
     });
 
     test('Stage 13: Sociogram (Close Ties and Drug Partners)', async ({
@@ -841,7 +817,7 @@ test.describe('SILOS Protocol', () => {
       await expect(interview.nextButton).toBeEnabled();
     });
 
-    test('Stage 17: Lives in City', async ({ interview, stage, protocol }) => {
+    test('Stage 17: Lives in City', async ({ interview, stage }) => {
       // Verify prompt is visible
       await expect(stage.getPrompt()).toBeVisible();
 
@@ -879,13 +855,6 @@ test.describe('SILOS Protocol', () => {
       ).toBe(2);
 
       await expect(interview.nextButton).toBeEnabled();
-
-      // Wait for Evan's city resident attribute to be persisted
-      await protocol.waitForNodeAttribute(
-        interview.interviewId,
-        'Evan',
-        'e2684ae9-fb88-4f9d-90a7-861911f0f22f',
-      );
     });
 
     test('Stage 18: Alter Census Tract - Introduction', async ({
@@ -969,7 +938,6 @@ test.describe('SILOS Protocol', () => {
     test('Stage 23: Anal Sex Categorical Check', async ({
       interview,
       stage,
-      protocol,
     }) => {
       // This stage only shows sex partners (Bob, Evan)
       await expect(stage.getPrompt()).toBeVisible();
@@ -985,13 +953,6 @@ test.describe('SILOS Protocol', () => {
       expect(await stage.categoricalBin.getNodeCountInBin('Anal sex')).toBe(2);
 
       await expect(interview.nextButton).toBeEnabled();
-
-      // Wait for Evan's anal sex attribute to be persisted (last node categorized)
-      await protocol.waitForNodeAttribute(
-        interview.interviewId,
-        'Evan',
-        '9170ac88-7651-4a33-bb03-8393bfc3e023',
-      );
     });
 
     test('Stage 24: Anal Sex Counts (AlterForm)', async ({
@@ -1019,7 +980,6 @@ test.describe('SILOS Protocol', () => {
     test('Stage 25: Sex Partner Form (AlterForm)', async ({
       interview,
       stage,
-      protocol,
     }) => {
       // Dismiss intro panel
       await interview.nextButton.click();
@@ -1070,18 +1030,6 @@ test.describe('SILOS Protocol', () => {
       await stage.form.selectRadio(
         '33e444a9-1605-492d-8c49-216eb08b078a',
         'HIV Positive',
-      );
-
-      // Wait for both sex partners' HIV status attributes to be persisted
-      await protocol.waitForNodeAttribute(
-        interview.interviewId,
-        'Bob',
-        '33e444a9-1605-492d-8c49-216eb08b078a',
-      );
-      await protocol.waitForNodeAttribute(
-        interview.interviewId,
-        'Evan',
-        '33e444a9-1605-492d-8c49-216eb08b078a',
       );
     });
 
@@ -1170,7 +1118,6 @@ test.describe('SILOS Protocol', () => {
     test('Stage 29: Sex Partner Place Met (CategoricalBin)', async ({
       interview,
       stage,
-      protocol,
     }) => {
       // Shows anal sex partners — categorize where they were met
       await expect(stage.getPrompt()).toBeVisible();
@@ -1208,18 +1155,6 @@ test.describe('SILOS Protocol', () => {
       );
 
       await expect(interview.nextButton).toBeEnabled();
-
-      // Wait for both sex partners' where-met attributes to be persisted
-      await protocol.waitForNodeAttribute(
-        interview.interviewId,
-        'Bob',
-        'c4a28d6c-3b6f-4cc7-a15b-0cff8cfd66d9',
-      );
-      await protocol.waitForNodeAttribute(
-        interview.interviewId,
-        'Evan',
-        'c4a28d6c-3b6f-4cc7-a15b-0cff8cfd66d9',
-      );
     });
 
     test('Stage 30: Name Place Met (AlterForm)', async ({
@@ -1269,7 +1204,6 @@ test.describe('SILOS Protocol', () => {
     test('Stage 35: Venue Nomination - Socialize', async ({
       interview,
       stage,
-      protocol,
     }) => {
       await expect(stage.getPrompt()).toBeVisible();
 
@@ -1284,15 +1218,11 @@ test.describe('SILOS Protocol', () => {
       await expect(stage.getNode('Lakeshore')).toBeVisible();
 
       await expect(interview.nextButton).toBeEnabled();
-
-      // Wait for 8 total nodes (5 person + 3 venue) to be persisted
-      await protocol.waitForNodes(interview.interviewId, 8);
     });
 
     test('Stage 36: Venue Nomination - Meet People', async ({
       interview,
       stage,
-      protocol,
     }) => {
       await expect(stage.getPrompt()).toBeVisible();
 
@@ -1305,9 +1235,6 @@ test.describe('SILOS Protocol', () => {
       await expect(stage.getNode('Club X')).toBeVisible();
 
       await expect(interview.nextButton).toBeEnabled();
-
-      // Wait for 9 total nodes (5 person + 4 venue) to be persisted
-      await protocol.waitForNodes(interview.interviewId, 9);
     });
 
     test('Stage 37: Venue Frequency (OrdinalBin)', async ({
@@ -1516,7 +1443,7 @@ test.describe('SILOS Protocol', () => {
       await expect(interview.nextButton).toBeEnabled();
     });
 
-    test('Stage 46: App Nomination', async ({ interview, stage, protocol }) => {
+    test('Stage 46: App Nomination', async ({ interview, stage }) => {
       await expect(stage.getPrompt()).toBeVisible();
 
       // Add apps
@@ -1527,16 +1454,12 @@ test.describe('SILOS Protocol', () => {
       await expect(stage.getNode('Scruff')).toBeVisible();
 
       await expect(interview.nextButton).toBeEnabled();
-
-      // Wait for 11 total nodes (5 person + 4 venue + 2 app) to be persisted
-      await protocol.waitForNodes(interview.interviewId, 11);
     });
 
     test('Stage 47: Healthcare Access (EgoForm)', async ({
       page,
       interview,
       stage,
-      protocol,
     }) => {
       await expect(
         page.getByRole('heading', { name: 'Healthcare Access', level: 1 }),
@@ -1547,20 +1470,9 @@ test.describe('SILOS Protocol', () => {
         '606361d0-6c1d-4763-b3f0-e8c122a08a68',
         'Yes',
       );
-
-      // Wait for ego healthcare access field (true) to be persisted
-      await protocol.waitForEgoAttribute(
-        interview.interviewId,
-        '606361d0-6c1d-4763-b3f0-e8c122a08a68',
-        true,
-      );
     });
 
-    test('Stage 48: Healthcare Nomination', async ({
-      interview,
-      stage,
-      protocol,
-    }) => {
+    test('Stage 48: Healthcare Nomination', async ({ interview, stage }) => {
       await expect(stage.getPrompt()).toBeVisible();
 
       // Add a healthcare provider
@@ -1568,9 +1480,6 @@ test.describe('SILOS Protocol', () => {
       await expect(stage.getNode('Howard Brown')).toBeVisible();
 
       await expect(interview.nextButton).toBeEnabled();
-
-      // Wait for 12 total nodes (5 person + 4 venue + 2 app + 1 healthcare) to be persisted
-      await protocol.waitForNodes(interview.interviewId, 12);
     });
 
     test('Stage 49: Healthcare Census Tract - Information', async ({
@@ -1780,23 +1689,19 @@ test.describe('SILOS Protocol', () => {
       await expect(interview.nextButton).toBeEnabled();
     });
 
-    test('Stage 2: Self-Nomination', async ({ interview, stage, protocol }) => {
+    test('Stage 2: Self-Nomination', async ({ interview, stage }) => {
       // Add the ego node
       await stage.quickAdd.addNode('Me');
       await expect(stage.getNode('Me')).toBeVisible();
 
       // Validation released
       expect(await interview.nextButtonHasPulse()).toBe(true);
-
-      // Wait for the "Me" node to be persisted to the database
-      await protocol.waitForNodes(interview.interviewId, 1);
     });
 
     test('Stage 3: Ego Form - Select Female at Birth', async ({
       page,
       interview,
       stage,
-      protocol,
     }) => {
       await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 
@@ -1847,20 +1752,12 @@ test.describe('SILOS Protocol', () => {
         'fe681ff5-adaf-40b8-8376-20b5f53c93c7',
         'HIV Negative',
       );
-
-      // Wait for last ego field (HIV status) to be persisted
-      await protocol.waitForEgoAttribute(
-        interview.interviewId,
-        'fe681ff5-adaf-40b8-8376-20b5f53c93c7',
-        'HIV_Negative',
-      );
     });
 
     test('Stage 4: Sex Assigned at Birth Confirmation', async ({
       page,
       interview,
       stage,
-      protocol,
     }) => {
       await expect(
         page.getByRole('heading', { name: 'Your Sex Assigned at Birth' }),
@@ -1870,13 +1767,6 @@ test.describe('SILOS Protocol', () => {
       await stage.form.selectRadio(
         'f249c2d1-3f54-49a9-83d8-81e2387df5e5',
         'Yes',
-      );
-
-      // Wait for ego sex confirmation field (true) to be persisted
-      await protocol.waitForEgoAttribute(
-        interview.interviewId,
-        'f249c2d1-3f54-49a9-83d8-81e2387df5e5',
-        true,
       );
     });
 

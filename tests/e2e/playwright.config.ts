@@ -15,7 +15,7 @@ export default defineConfig({
   snapshotDir: './visual-snapshots',
   snapshotPathTemplate: '{snapshotDir}/{projectName}/{arg}{ext}',
 
-  retries: 1,
+  retries: 0,
   fullyParallel: true,
 
   reporter: [
@@ -24,20 +24,20 @@ export default defineConfig({
     ['json', { outputFile: `${outputDir}/results.json` }],
   ],
   expect: {
-    timeout: 15_000,
+    timeout: 5_000,
     toHaveScreenshot: {
       maxDiffPixelRatio: 0.01,
     },
   },
 
-  timeout: 60_000,
+  timeout: 30_000,
 
   use: {
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
-    actionTimeout: 15_000,
-    navigationTimeout: 30_000,
+    actionTimeout: 5_000,
+    navigationTimeout: 10_000,
     viewport: { width: 1920, height: 1080 },
     contextOptions: {
       reducedMotion: 'reduce',

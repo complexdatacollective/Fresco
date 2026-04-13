@@ -32,16 +32,15 @@
  * ```
  */
 
-import { test as baseTest, expect } from './test.js';
 import { type Locator } from '@playwright/test';
 import { getContext, getSuiteId } from '../helpers/context.js';
 import { InterviewFixture } from './interview-fixture.js';
 import { ProtocolFixture } from './protocol-fixture.js';
 import { StageFixture } from './stage-fixture.js';
+import { test as baseTest, expect } from './test.js';
 
 type CaptureInterviewOptions = {
   mask?: Locator[];
-  maxDiffPixelRatio?: number;
 };
 
 type InterviewTestFixtures = {
@@ -97,7 +96,6 @@ export const test = baseTest.extend<
       await expect.soft(page).toHaveScreenshot(`${name}.png`, {
         fullPage: false,
         mask: options.mask,
-        maxDiffPixelRatio: options.maxDiffPixelRatio ?? 0.02,
       });
     });
   },

@@ -3,7 +3,6 @@ import { expectURL } from '~/tests/e2e/helpers/expectations.js';
 
 type CaptureOptions = {
   mask?: Locator[];
-  maxDiffPixelRatio?: number;
 };
 
 type CaptureInterviewFn = (
@@ -93,6 +92,18 @@ export class InterviewFixture {
     }
 
     await this.page.goto(`/interview/${this.interviewId}?step=${stageIndex}`);
+    await this.waitForStageLoad();
+  }
+
+  async captureInitial(): Promise<void> {
+    if (!this.interviewId) {
+      throw new Error(
+        'interviewId must be set before calling goto(). Set it in beforeEach.',
+      );
+    }
+
+    const stageIndex = this.getCurrentStep() ?? 'unknown';
+
     await this.waitForStageLoad();
 
     // Capture screenshot on stage load
