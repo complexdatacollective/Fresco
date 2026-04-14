@@ -99,9 +99,6 @@ export default function ModalPopup({
     }
 
     if (isPresent) {
-      if (shouldReduceMotion) {
-        return;
-      }
       const enterAnimation = async () => {
         await animate(
           scope.current,
@@ -111,12 +108,14 @@ export default function ModalPopup({
             scale: [1.2, 1],
             filter: ['blur(10px)', 'blur(0px)'],
           },
-          {
-            when: 'beforeChildren',
-            type: 'spring',
-            stiffness: 500,
-            damping: 30,
-          },
+          shouldReduceMotion
+            ? { duration: 0 }
+            : {
+                when: 'beforeChildren',
+                type: 'spring',
+                stiffness: 500,
+                damping: 30,
+              },
         );
       };
       void enterAnimation();
