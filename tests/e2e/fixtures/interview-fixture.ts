@@ -112,6 +112,14 @@ export class InterviewFixture {
     await this.capture(`${prefix}stage-${stageIndex}`);
   }
 
+  async captureFinal(): Promise<void> {
+    const step = this.getCurrentStep();
+    if (step) {
+      const prefix = this.snapshotPrefix ? `${this.snapshotPrefix}-` : '';
+      await this.capture(`${prefix}stage-${step}-final`);
+    }
+  }
+
   // Geospatial stages render a Mapbox map that loads tiles and async
   // overlays (GeoJSON, transit) after mount. `data-map-idle` is set true
   // by the stage only once every layer it configured has rendered, so a
@@ -163,12 +171,7 @@ export class InterviewFixture {
    * This is the standard way to end every stage test — it ensures
    * the filled/interacted state is screenshotted before navigation.
    */
-  async next(captureOptions?: CaptureOptions): Promise<void> {
-    const step = this.getCurrentStep();
-    if (step) {
-      const prefix = this.snapshotPrefix ? `${this.snapshotPrefix}-` : '';
-      await this.capture(`${prefix}stage-${step}-final`, captureOptions);
-    }
+  async next(): Promise<void> {
     await this.nextButton.click();
   }
 

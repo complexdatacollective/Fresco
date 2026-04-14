@@ -50,6 +50,8 @@ test.describe('SILOS Protocol', () => {
     });
 
     test.afterEach(async ({ interview }) => {
+      await interview.captureFinal();
+
       if (!interview.skipNext) {
         await interview.next();
       }
@@ -944,6 +946,9 @@ test.describe('SILOS Protocol', () => {
       interview,
       stage,
     }) => {
+      // Assert that this is actually step 23 (skip logic worked)
+      await expect(interview.page).toHaveURL(/step=23/);
+
       // This stage only shows sex partners (Bob, Evan)
       await expect(stage.getPrompt()).toBeVisible();
 
@@ -1076,6 +1081,7 @@ test.describe('SILOS Protocol', () => {
       interview,
       stage,
     }) => {
+      await expect(interview.page).toHaveURL(/step=27/);
       // Only shows partners whose HIV status IS HIV Positive
       await expect(stage.getPrompt()).toBeVisible();
 
