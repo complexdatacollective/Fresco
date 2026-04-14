@@ -33,14 +33,19 @@ test.describe('SILOS Protocol', () => {
     test.describe.configure({ mode: 'serial' });
 
     let interviewId: string;
+    let navigatedToStart = false;
 
-    test.beforeAll(async ({ protocol, interview }) => {
+    test.beforeAll(async ({ protocol }) => {
       interviewId = await protocol.createInterview(sharedProtocolId);
-      await interview.goto(0);
+      navigatedToStart = false;
     });
 
     test.beforeEach(async ({ interview }) => {
       interview.interviewId = interviewId;
+      if (!navigatedToStart) {
+        await interview.goto(0);
+        navigatedToStart = true;
+      }
       await interview.captureInitial();
     });
 
@@ -1651,17 +1656,19 @@ test.describe('SILOS Protocol', () => {
     test.describe.configure({ mode: 'serial' });
 
     let interviewId: string;
+    let navigatedToStart = false;
 
     test.beforeAll(async ({ protocol }) => {
       interviewId = await protocol.createInterview(sharedProtocolId);
+      navigatedToStart = false;
     });
 
-    test.beforeEach(async ({ interview }, testInfo) => {
+    test.beforeEach(async ({ interview }) => {
       interview.interviewId = interviewId;
       interview.snapshotPrefix = 'female-ineligibility';
-      const stageMatch = /^Stage (\d+)/.exec(testInfo.title);
-      if (stageMatch) {
-        await interview.goto(parseInt(stageMatch[1]!, 10));
+      if (!navigatedToStart) {
+        await interview.goto(0);
+        navigatedToStart = true;
       }
     });
 
@@ -1782,6 +1789,9 @@ test.describe('SILOS Protocol', () => {
     });
 
     test('Stage 53: Finish Interview', async ({ interview, database }) => {
+      // Assert that we skipped to stage 53
+      await expect(interview.page).toHaveURL(/step=53/);
+
       interview.skipNext = true;
       await interview.finishInterview();
       // Verify interview has finishTime set in database
