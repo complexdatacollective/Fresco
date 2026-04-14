@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createCollectionStore } from '../store';
 import { type Key } from '../types';
 
@@ -11,11 +11,21 @@ const keyExtractor = (item: TestItem): Key => item.id;
 const textValueExtractor = (item: TestItem) => item.name;
 
 describe('store duplicate key handling', () => {
+  let warnSpy: ReturnType<typeof vi.spyOn>;
+
+  beforeEach(() => {
+    warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+  });
+
+  afterEach(() => {
+    warnSpy.mockRestore();
+  });
+
   it('should not produce duplicate entries in orderedKeys when items share the same key', () => {
     const store = createCollectionStore<TestItem>();
 
-    // Simulate external data where some rows are identical and produce
-    // the same key (e.g. roster CSV with duplicate students).
+    // Simulate external data where the extractor collapses multiple rows
+    // onto the same key (e.g. a roster CSV with a repeated `_uid` column).
     const items: TestItem[] = [
       { id: '1', name: 'Alice' },
       { id: '2', name: 'Bob' },
@@ -35,6 +45,9 @@ describe('store duplicate key handling', () => {
     expect(state.orderedKeys).toHaveLength(state.items.size);
     expect(state.orderedKeys).toEqual(['1', '2', '3', '4']);
     expect(state.size).toBe(4);
+    expect(warnSpy).toHaveBeenCalledTimes(2);
+    expect(warnSpy.mock.calls[0]?.[0]).toMatch(/Duplicate key "2"/);
+    expect(warnSpy.mock.calls[1]?.[0]).toMatch(/Duplicate key "3"/);
   });
 
   it('should handle duplicates correctly after resortItems', () => {

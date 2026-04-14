@@ -154,10 +154,19 @@ function buildNodes<T>(
   items.forEach((item, index) => {
     const key = keyExtractor(item);
     // Skip duplicate keys — the first occurrence wins. External data sources
-    // (e.g. roster CSVs) can contain identical rows that hash to the same key.
-    // Duplicates in orderedKeys cause measurement to never complete because
-    // the Map-based measurement count can never equal the array length.
-    if (itemsMap.has(key)) return;
+    // (e.g. roster CSVs) can legitimately contain rows that produce the same
+    // key when the extractor collapses them (for example, a `_uid` column
+    // that repeats across rows). Duplicates in orderedKeys cause measurement
+    // to never complete because the Map-based measurement count can never
+    // equal the array length.
+    if (itemsMap.has(key)) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `[collection/store] Duplicate key "${String(key)}" encountered at index ${index}; skipping. ` +
+          `This row will not be displayed. Check that your keyExtractor returns a unique value for each item.`,
+      );
+      return;
+    }
     const node: Node<T> = {
       key,
       type: 'item',
