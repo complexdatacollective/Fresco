@@ -42,8 +42,6 @@ type PresignedUrlWithAssetId = {
   url: string;
   /** Whether the client must attach its Bearer token to the upload PUT request. */
   requiresAuth: boolean;
-  /** How to encode the file in the request body. */
-  bodyFormat: 'raw' | 'formdata';
 };
 
 type JobCreatedResponse = {

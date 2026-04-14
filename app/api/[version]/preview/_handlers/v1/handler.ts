@@ -196,7 +196,6 @@ export async function v1(request: NextRequest) {
           assetId: string;
           url: string;
           requiresAuth: boolean;
-          bodyFormat: 'raw' | 'formdata';
         }[] = [];
 
         if (provider === 's3') {
@@ -204,7 +203,6 @@ export async function v1(request: NextRequest) {
             assetId: asset.assetId,
             url: s3Presigned[i]!.uploadUrl,
             requiresAuth: false,
-            bodyFormat: 'formdata',
           }));
         } else if (provider === 'uploadthing') {
           const publicBase = env.PUBLIC_URL ?? request.nextUrl.origin;
@@ -222,7 +220,6 @@ export async function v1(request: NextRequest) {
               assetId: asset.assetId,
               url: `${baseOrigin}/api/preview/${protocol.id}/upload?${params.toString()}`,
               requiresAuth: true,
-              bodyFormat: 'raw',
             };
           });
         }
