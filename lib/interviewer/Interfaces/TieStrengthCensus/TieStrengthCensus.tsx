@@ -14,6 +14,7 @@ import Heading from '~/components/typography/Heading';
 import BooleanOption from '~/lib/interviewer/components/BooleanOption';
 import Prompts from '~/lib/interviewer/components/Prompts';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
+import { type VariableOptionValue, type VariableOptions } from '~/lib/codebook';
 import { getCodebook } from '~/lib/interviewer/ducks/modules/protocol';
 import {
   addEdge,
@@ -107,7 +108,7 @@ export default function TieStrengthCensus(props: TieStrengthCensusProps) {
           'options',
         ])
       : []
-  ) as { label: string; value: string | number }[];
+  ) as VariableOptions;
 
   const pair =
     pairIndex >= 0 && pairIndex < pairs.length
@@ -234,7 +235,7 @@ export default function TieStrengthCensus(props: TieStrengthCensusProps) {
   }, [isTouched, isChanged]);
 
   // Handle option selection
-  const handleChange = (value: string | number | false) => {
+  const handleChange = (value: VariableOptionValue | false) => {
     if (!pair || isTouched) return;
 
     setIsChanged(hasEdge !== (value !== false));
@@ -350,7 +351,7 @@ export default function TieStrengthCensus(props: TieStrengthCensusProps) {
                   <div className="grid auto-cols-fr grid-flow-col gap-4">
                     {edgeVariableOptions.map((option) => (
                       <BooleanOption
-                        key={option.value}
+                        key={String(option.value)}
                         selected={
                           !!hasEdge && edgeVariableValue === option.value
                         }

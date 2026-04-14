@@ -14,6 +14,7 @@ import Annotations, {
 } from '~/lib/interviewer/Interfaces/Narrative/Annotations';
 import ConvexHullLayer from '~/lib/interviewer/Interfaces/Narrative/ConvexHullLayer';
 import DrawingControls from '~/lib/interviewer/Interfaces/Narrative/DrawingControls';
+import { type VariableOptions } from '~/lib/codebook';
 import PresetSwitcher from '~/lib/interviewer/Interfaces/Narrative/PresetSwitcher';
 import {
   getCategoricalOptions,
@@ -148,7 +149,7 @@ const Narrative = ({ stage }: NarrativeProps) => {
     getCategoricalOptions(state, {
       variableId: convexHullVariable,
     }),
-  ) as { value: string | number | boolean; label: string }[];
+  ) as VariableOptions;
 
   // Highlight attribute
   const highlightAttribute = showHighlightedNodes

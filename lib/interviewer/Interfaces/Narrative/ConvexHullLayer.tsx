@@ -5,17 +5,14 @@ import {
 } from '@codaco/shared-consts';
 import concaveman from 'concaveman';
 import { useEffect, useRef } from 'react';
+import { type VariableOption, type VariableOptionValue } from '~/lib/codebook';
 import { type CanvasStoreApi } from '~/lib/interviewer/canvas/useCanvasStore';
-
-type CategoricalValue = string | number | boolean;
-
-type CategoricalOption = { value: CategoricalValue; label: string };
 
 type ConvexHullLayerProps = {
   store: CanvasStoreApi;
   nodes: NcNode[];
   groupVariable: string;
-  categoricalOptions: CategoricalOption[];
+  categoricalOptions: VariableOption[];
 };
 
 type GroupData = {
@@ -31,17 +28,17 @@ type GroupData = {
 export function groupNodesByVariable(
   nodes: NcNode[],
   groupVariable: string,
-  categoricalOptions: CategoricalOption[],
-): Map<CategoricalValue, GroupData> {
-  const groups = new Map<CategoricalValue, GroupData>();
+  categoricalOptions: VariableOption[],
+): Map<VariableOptionValue, GroupData> {
+  const groups = new Map<VariableOptionValue, GroupData>();
 
   for (const node of nodes) {
     const raw = node[entityAttributesProperty][groupVariable];
     if (raw == null) continue;
 
-    const values: CategoricalValue[] = Array.isArray(raw)
-      ? (raw as CategoricalValue[])
-      : [raw as CategoricalValue];
+    const values: VariableOptionValue[] = Array.isArray(raw)
+      ? (raw as VariableOptionValue[])
+      : [raw as VariableOptionValue];
 
     for (const value of values) {
       let group = groups.get(value);
@@ -71,7 +68,7 @@ export default function ConvexHullLayer({
   const svgRef = useRef<SVGSVGElement>(null);
   const elementsRef = useRef<SVGElement[]>([]);
   const rafRef = useRef<number | null>(null);
-  const groupsRef = useRef<Map<CategoricalValue, GroupData>>(new Map());
+  const groupsRef = useRef<Map<VariableOptionValue, GroupData>>(new Map());
 
   // Update groups when nodes or groupVariable change
   useEffect(() => {
@@ -100,7 +97,7 @@ export default function ConvexHullLayer({
     groupsRef.current = groups;
 
     const svgNS = svg.namespaceURI;
-    const elementMap = new Map<CategoricalValue, SVGElement>();
+    const elementMap = new Map<VariableOptionValue, SVGElement>();
 
     for (const [value, group] of groups) {
       // Create a polygon for each group (will be updated to circle/ellipse as needed)

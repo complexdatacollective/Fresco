@@ -20,6 +20,7 @@ import { MotionSurface } from '~/components/layout/Surface';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
 import { IconButton } from '~/components/ui/Button';
+import { type VariableOption } from '~/lib/codebook';
 import { getCodebook } from '~/lib/interviewer/ducks/modules/protocol';
 import { getSubjectType } from '~/lib/interviewer/selectors/session';
 
@@ -121,14 +122,12 @@ export default function PresetSwitcher({
         );
 
         const groupVariable = currentPreset?.groupVariable;
-        let categoricalOptions: { label: string; value: number }[] | undefined;
+        let categoricalOptions: VariableOption[] | undefined;
         if (subjectType && groupVariable) {
           const variable =
             codebook?.node?.[subjectType]?.variables?.[groupVariable];
           categoricalOptions =
-            variable && 'options' in variable
-              ? (variable.options as { label: string; value: number }[])
-              : undefined;
+            variable && 'options' in variable ? variable.options : undefined;
         }
 
         return { categoricalOptions, edges, highlightLabels };

@@ -40,6 +40,31 @@ type PredicateInput = {
   other: unknown;
 };
 
+// Bridges scalar/array storage of categorical attribute values for EXACTLY/NOT
+// rules. Categorical attributes assigned via CategoricalBin are stored as
+// scalars; via CheckboxGroup as arrays. A length-1 array is treated as
+// equivalent to its single element so author-facing "is exactly X" rules in
+// Architect work consistently regardless of which interface assigned the value.
+const categoricalEqual = (a: unknown, b: unknown): boolean => {
+  if (Array.isArray(a) && !Array.isArray(b)) {
+    return a.length === 1 && a[0] === b;
+  }
+  if (!Array.isArray(a) && Array.isArray(b)) {
+    return b.length === 1 && b[0] === a;
+  }
+  return isEqual(a, b);
+};
+
+// Treat scalar attribute values as a one-element sequence so OPTIONS_* counts
+// work for categorical variables assigned via the CategoricalBin interface
+// (which writes scalars). Array attributes (CheckboxGroup-assigned) keep their
+// existing length semantics. Null / undefined count as zero.
+const optionsLength = (value: unknown): number => {
+  if (Array.isArray(value)) return value.length;
+  if (value === null || value === undefined) return 0;
+  return 1;
+};
+
 /**
  * returns functions that can be used to compare `value` with `other`
  *
@@ -68,9 +93,11 @@ const predicate =
       case countOperators.COUNT_LESS_THAN_OR_EQUAL:
         return (value as number) <= (variableValue as number);
       case operators.EXACTLY:
+        return categoricalEqual(value, variableValue);
       case countOperators.COUNT:
         return isEqual(value, variableValue);
       case operators.NOT:
+        return !categoricalEqual(value, variableValue);
       case countOperators.COUNT_NOT:
         return !isEqual(value, variableValue);
       case operators.CONTAINS: {
@@ -138,28 +165,16 @@ const predicate =
       case countOperators.COUNT_NONE:
         return value === 0;
       case operators.OPTIONS_GREATER_THAN: {
-        if (!Array.isArray(value)) {
-          return false;
-        }
-        return value.length > (variableValue as number);
+        return optionsLength(value) > (variableValue as number);
       }
       case operators.OPTIONS_LESS_THAN: {
-        if (!Array.isArray(value)) {
-          return false;
-        }
-        return value.length < (variableValue as number);
+        return optionsLength(value) < (variableValue as number);
       }
       case operators.OPTIONS_EQUALS: {
-        if (!Array.isArray(value)) {
-          return false;
-        }
-        return value.length === variableValue;
+        return optionsLength(value) === variableValue;
       }
       case operators.OPTIONS_NOT_EQUALS: {
-        if (!Array.isArray(value)) {
-          return false;
-        }
-        return value.length !== variableValue;
+        return optionsLength(value) !== variableValue;
       }
       default:
         return false;

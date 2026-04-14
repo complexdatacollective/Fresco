@@ -43,10 +43,7 @@ export const getResolvedNodeFormFields = createSelector(
           prompt: field.prompt,
           component: variable.component as string,
           type: variable.type as string,
-          options:
-            'options' in variable
-              ? (variable.options as { label: string; value: string }[])
-              : undefined,
+          options: 'options' in variable ? variable.options : undefined,
           validation:
             'validation' in variable
               ? (variable.validation as Record<string, unknown>)

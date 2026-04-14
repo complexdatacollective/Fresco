@@ -5,9 +5,8 @@ import {
   type VariableValue,
 } from '@codaco/shared-consts';
 import { describe, expect, it } from 'vitest';
+import { type VariableOption } from '~/lib/codebook';
 import { groupNodesByVariable } from '~/lib/interviewer/Interfaces/Narrative/ConvexHullLayer';
-
-type CategoricalOption = { value: string | number | boolean; label: string };
 
 function makeNode(
   id: string,
@@ -22,7 +21,7 @@ function makeNode(
   };
 }
 
-const OPTIONS: CategoricalOption[] = [
+const OPTIONS: VariableOption[] = [
   { value: 'red', label: 'Red' },
   { value: 'blue', label: 'Blue' },
   { value: 'green', label: 'Green' },
@@ -84,7 +83,7 @@ describe('groupNodesByVariable', () => {
   });
 
   it('handles numeric scalar values', () => {
-    const numericOptions: CategoricalOption[] = [
+    const numericOptions: VariableOption[] = [
       { value: 1, label: 'One' },
       { value: 2, label: 'Two' },
     ];
@@ -123,7 +122,7 @@ describe('groupNodesByVariable', () => {
   });
 
   it('handles array of numeric values (from CheckboxGroup forms)', () => {
-    const numericOptions: CategoricalOption[] = [
+    const numericOptions: VariableOption[] = [
       { value: 1, label: 'One' },
       { value: 2, label: 'Two' },
       { value: 3, label: 'Three' },

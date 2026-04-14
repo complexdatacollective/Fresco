@@ -11,8 +11,12 @@ import {
   type NcNode,
 } from '@codaco/shared-consts';
 import { v4 as uuid } from 'uuid';
+import { type VariableOptions } from '~/lib/codebook';
 import { ValueGenerator } from '~/lib/interviewer/utils/SyntheticInterview/ValueGenerator';
-import { type VariableEntry } from '~/lib/interviewer/utils/SyntheticInterview/types';
+import {
+  type VariableEntry,
+  type VariableOption,
+} from '~/lib/interviewer/utils/SyntheticInterview/types';
 import getFilter from '~/lib/network-query/filter';
 import getQuery from '~/lib/network-query/query';
 
@@ -29,7 +33,7 @@ type NcAttributeValue =
 type VariableDefinition = {
   name: string;
   type: string;
-  options?: { label: string; value: string | number }[];
+  options?: VariableOptions;
   validation?: Record<string, unknown>;
   component?: string;
 };
@@ -76,7 +80,9 @@ function toVariableEntry(
     name: variable.name,
     type: variable.type as VariableEntry['type'],
     component: variable.component as VariableEntry['component'],
-    options: variable.options,
+    options: variable.options?.filter(
+      (o): o is VariableOption => typeof o.value !== 'boolean',
+    ),
     validation: variable.validation,
   };
 }
@@ -595,7 +601,10 @@ export function generateNetwork(
           if (!varId || !nodeTypeDef?.variables?.[varId]) continue;
 
           const varDef = nodeTypeDef.variables[varId];
-          const options = varDef.options ?? [];
+          const options =
+            varDef.options?.filter(
+              (o): o is VariableOption => typeof o.value !== 'boolean',
+            ) ?? [];
           if (options.length === 0) continue;
 
           for (const node of subjectNodes) {
