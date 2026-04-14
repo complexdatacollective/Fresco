@@ -34,7 +34,11 @@ test.describe('Sign In Page', () => {
 
     await fillField(page, 'username', 'testadmin');
     await fillField(page, 'password', 'TestAdmin123!');
-    await page.getByRole('button', { name: 'Sign in', exact: true }).click();
+    // Submit via Enter from the password field instead of clicking the Sign in
+    // button. Webkit occasionally reports the button as "unstable" due to the
+    // elevation/translate transition classes on <Button> even with reduced
+    // motion, causing 5s click timeouts.
+    await page.keyboard.press('Enter');
 
     await page.waitForURL('**/dashboard', { timeout: 15_000 });
     await expectURL(page, /\/dashboard/);
