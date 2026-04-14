@@ -11,8 +11,7 @@ export async function fillField(
 ): Promise<void> {
   const field = getField(page, fieldName);
   const input = field.locator('input, textarea').first();
-  // fill() focuses and types. Skipping click avoids webkit stability
-  // timeouts on field-sizing-content inputs that re-layout on focus.
+  await input.click();
   await input.fill(value);
   await expect(input).toHaveValue(value);
 }
