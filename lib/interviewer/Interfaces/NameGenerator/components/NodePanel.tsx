@@ -2,10 +2,12 @@ import { type Panel as PanelType } from '@codaco/protocol-validation';
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { useCallback, useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
+import { type ItemProps } from '~/lib/collection/types';
 import { type DragMetadata, type DropCallback } from '~/lib/dnd/types';
 import NodeList from '~/lib/interviewer/components/NodeList';
 import Panel from '~/lib/interviewer/components/Panel';
 import useExternalData from '~/lib/interviewer/hooks/useExternalData';
+import ExternalNodeItem from '~/lib/interviewer/Interfaces/NameGenerator/components/ExternalNodeItem';
 import { getPanelNodes } from '~/lib/interviewer/selectors/name-generator';
 import { getStageSubject } from '~/lib/interviewer/selectors/session';
 
@@ -82,6 +84,15 @@ function NodePanel(props: NodePanelProps) {
     [panelConfig.dataSource, fullNodeIndex],
   );
 
+  const isExternalData = panelConfig.dataSource !== 'existing';
+
+  const renderItem = useCallback(
+    (node: NcNode, itemProps: ItemProps) => (
+      <ExternalNodeItem node={node} itemProps={itemProps} size="sm" />
+    ),
+    [],
+  );
+
   return (
     <Panel
       title={panelConfig.title}
@@ -100,6 +111,7 @@ function NodePanel(props: NodePanelProps) {
         animationKey={animationKey}
         announcedName={panelConfig.title}
         className="p-2"
+        renderItem={isExternalData ? renderItem : undefined}
       />
     </Panel>
   );

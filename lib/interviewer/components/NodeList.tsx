@@ -20,11 +20,11 @@ import { cx } from '~/utils/cva';
 type InternalCollectionProps =
   | 'keyExtractor'
   | 'textValueExtractor'
-  | 'renderItem'
   | 'layout'
   | 'dragAndDropHooks'
   | 'items'
-  | 'children';
+  | 'children'
+  | 'renderItem';
 
 type NodeListProps = Omit<CollectionProps<NcNode>, InternalCollectionProps> & {
   items?: NcNode[];
@@ -36,6 +36,7 @@ type NodeListProps = Omit<CollectionProps<NcNode>, InternalCollectionProps> & {
   nodeSize?: 'xxs' | 'xs' | 'sm' | 'md' | 'lg';
   announcedName: string; // For accessibility announcements related to drag and drop
   testId?: string;
+  renderItem?: CollectionProps<NcNode>['renderItem'];
 };
 
 const EXIT_DURATION = 0.2;
@@ -59,6 +60,7 @@ const NodeList = memo(
     emptyState = null,
     announcedName,
     'aria-label': ariaLabel = 'Node list',
+    'renderItem': renderItemOverride,
     // All other Collection props passed through
     ...collectionProps
   }: NodeListProps) => {
@@ -193,13 +195,12 @@ const NodeList = memo(
       className,
     );
 
-    const renderItem = useCallback(
+    const defaultRenderItem = useCallback(
       (node: NcNode, itemProps: ItemProps) => (
         <Node
           {...itemProps}
           nodeId={node[entityPrimaryKeyProperty]}
           type={node.type}
-          fallbackNode={node}
           size={nodeSize}
           onClick={() => onItemClick?.(node)}
         />
@@ -230,7 +231,7 @@ const NodeList = memo(
             keyExtractor={keyExtractor}
             textValueExtractor={textValueExtractor}
             layout={layout}
-            renderItem={renderItem}
+            renderItem={renderItemOverride ?? defaultRenderItem}
             dragAndDropHooks={dragAndDropHooks}
             className={containerClasses}
             animate={animate}
