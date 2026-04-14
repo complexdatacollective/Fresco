@@ -115,6 +115,11 @@ export class InterviewFixture {
   async captureFinal(): Promise<void> {
     const step = this.getCurrentStep();
     if (step) {
+      // Tests may have interacted with the map/sociogram before the final
+      // capture (panning, selecting nodes). Re-wait for idle so tile/label
+      // rendering catches up before the screenshot, matching captureInitial.
+      await this.waitForMapReadyIfPresent();
+      await this.waitForSociogramSettledIfPresent();
       const prefix = this.snapshotPrefix ? `${this.snapshotPrefix}-` : '';
       await this.capture(`${prefix}stage-${step}-final`);
     }
