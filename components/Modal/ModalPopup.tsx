@@ -4,6 +4,7 @@ import {
   motion,
   useAnimate,
   usePresence,
+  useReducedMotion,
   type HTMLMotionProps,
   type TargetAndTransition,
   type VariantLabels,
@@ -87,12 +88,20 @@ export default function ModalPopup({
 
   const [isPresent, safeToRemove] = usePresence(!hasLayoutId);
 
+  // useAnimate is imperative and doesn't respect MotionConfig's skipAnimations
+  // or prefers-reduced-motion — short-circuit here so Playwright's
+  // `reducedMotion: 'reduce'` context yields a stable popup for screenshots.
+  const shouldReduceMotion = useReducedMotion();
+
   useEffect(() => {
     if (hasLayoutId) {
       return;
     }
 
     if (isPresent) {
+      if (shouldReduceMotion) {
+        return;
+      }
       const enterAnimation = async () => {
         await animate(
           scope.current,
@@ -112,6 +121,10 @@ export default function ModalPopup({
       };
       void enterAnimation();
     } else {
+      if (shouldReduceMotion) {
+        safeToRemove();
+        return;
+      }
       const exitAnimation = async () => {
         await animate(scope.current, {
           opacity: [1, 0],
@@ -124,7 +137,14 @@ export default function ModalPopup({
 
       void exitAnimation();
     }
-  }, [isPresent, scope, safeToRemove, animate, hasLayoutId]);
+  }, [
+    isPresent,
+    scope,
+    safeToRemove,
+    animate,
+    hasLayoutId,
+    shouldReduceMotion,
+  ]);
 
   const popup = (
     <Dialog.Popup

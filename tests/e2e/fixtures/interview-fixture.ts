@@ -177,7 +177,17 @@ export class InterviewFixture {
    * the filled/interacted state is screenshotted before navigation.
    */
   async next(): Promise<void> {
+    const before = this.getCurrentStep();
     await this.nextButton.click();
+    if (before !== null) {
+      await this.page.waitForURL(
+        (url) => {
+          const match = /step=(\d+)/.exec(url.toString());
+          return match ? match[1] !== before : false;
+        },
+        { timeout: 10_000 },
+      );
+    }
   }
 
   /**
