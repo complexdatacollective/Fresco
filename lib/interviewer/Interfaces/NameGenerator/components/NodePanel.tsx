@@ -110,7 +110,6 @@ function NodePanel(props: NodePanelProps) {
         nodeSize="sm"
         animationKey={animationKey}
         announcedName={panelConfig.title}
-        className="p-2"
         renderItem={isExternalData ? renderItem : undefined}
       />
     </Panel>
