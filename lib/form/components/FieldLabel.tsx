@@ -7,7 +7,7 @@ import rehypeSanitize from 'rehype-sanitize';
 import remarkGemoji from 'remark-gemoji';
 import { Label as UILabel } from '~/components/ui/Label';
 
-export const ALLOWED_MARKDOWN_FIELD_TAGS = ['em', 'strong', 'ul', 'ol', 'li'];
+const ALLOWED_MARKDOWN_LABEL_TAGS = ['em', 'strong', 'ul', 'ol', 'li'];
 
 /**
  * Hack for `>` characters that already exist in some protocols
@@ -54,7 +54,7 @@ const FieldLabel = React.forwardRef<HTMLLabelElement, FieldLabelProps>(
       <UILabel ref={ref} {...props}>
         {typeof processedChildren === 'string' ? (
           <ReactMarkdown
-            allowedElements={ALLOWED_MARKDOWN_FIELD_TAGS}
+            allowedElements={ALLOWED_MARKDOWN_LABEL_TAGS}
             components={defaultMarkdownRenderers}
             remarkPlugins={[remarkGemoji]}
             rehypePlugins={[rehypeRaw, rehypeSanitize]}

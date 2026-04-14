@@ -358,44 +358,39 @@ export const HintWithValidationHints: Story = {
 };
 
 /**
- * Demonstrates how markdown formatting renders in field labels and hints.
- * Both support a subset of markdown: **bold** and *italic*
+ * Demonstrates how markdown formatting renders in field labels.
+ * Labels support a subset of markdown: **bold** and *italic*
  *
  * **Known issue:** All label text currently renders bold because the
  * parent `<label>` element applies `font-bold`, overriding markdown
  * formatting like *italic*.
  */
-export const Markdown: Story = {
+export const MarkdownLabels: Story = {
   render: () => (
     <div className="flex max-w-lg flex-col">
       <UnconnectedField
         name="plain"
         label="Plain label with no formatting"
-        hint="Plain hint with no formatting"
         component={InputField}
       />
       <UnconnectedField
         name="italic"
         label="This has *italic* text"
-        hint="This has *italic* text"
         component={InputField}
       />
       <UnconnectedField
         name="bold"
         label="This has **bold** text"
-        hint="This has **bold** text"
         component={InputField}
       />
       <UnconnectedField
         name="mixed"
         label="Mix of **bold** and *italic* in one label"
-        hint="Mix of **bold** and *italic* in one hint"
         component={InputField}
       />
       <UnconnectedField
         name="all-italic"
         label="*Entire label is italic*"
-        hint="*Entire hint is italic*"
         component={InputField}
       />
     </div>
@@ -404,7 +399,7 @@ export const Markdown: Story = {
     docs: {
       description: {
         story:
-          'Field labels and hints are rendered with ReactMarkdown, supporting `*italic*` and `**bold**`. This story demonstrates markdown rendering in both.',
+          'Field labels are rendered with ReactMarkdown, supporting `*italic*` and `**bold**`. This story demonstrates the current rendering of markdown in labels.',
       },
     },
   },
