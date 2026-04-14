@@ -131,7 +131,7 @@ type JsonBody = {
   message?: string;
   previewUrl?: string;
   protocolId?: string;
-  presignedUrls?: { assetId: string; url: string }[];
+  presignedUrls?: { assetId: string; url: string; headers: Record<string, string> }[];
 };
 
 function createPostRequest(body: unknown): NextRequest {

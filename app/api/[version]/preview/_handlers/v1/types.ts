@@ -40,8 +40,8 @@ export type PreviewRequest =
 export type PresignedUrlWithAssetId = {
   assetId: string;
   url: string;
-  /** Whether the client must attach its Bearer token to the upload PUT request. */
-  requiresAuth: boolean;
+  /** Headers the client must include on the upload PUT request. */
+  headers: Record<string, string>;
 };
 
 type JobCreatedResponse = {

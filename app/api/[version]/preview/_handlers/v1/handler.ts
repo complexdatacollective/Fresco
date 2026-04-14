@@ -199,11 +199,15 @@ export async function v1(request: NextRequest) {
           presignedUrls = newAssets.map((asset, i) => ({
             assetId: asset.assetId,
             url: s3Presigned[i]!.uploadUrl,
-            requiresAuth: false,
+            headers: {},
           }));
         } else if (provider === 'uploadthing') {
           const publicBase = env.PUBLIC_URL ?? request.nextUrl.origin;
           const baseOrigin = new URL(publicBase).origin;
+          const authHeader = request.headers.get('authorization');
+          const uploadHeaders: Record<string, string> = authHeader
+            ? { Authorization: authHeader }
+            : {};
           presignedUrls = newAssets.map((asset) => {
             const manifestEntry = assetManifest[asset.assetId];
             const assetType = manifestEntry?.type ?? 'file';
@@ -216,7 +220,7 @@ export async function v1(request: NextRequest) {
             return {
               assetId: asset.assetId,
               url: `${baseOrigin}/api/preview/${protocol.id}/upload?${params.toString()}`,
-              requiresAuth: true,
+              headers: uploadHeaders,
             };
           });
         }
