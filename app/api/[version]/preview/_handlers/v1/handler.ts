@@ -19,6 +19,7 @@ import {
   type AbortResponse,
   type CompleteResponse,
   type InitializeResponse,
+  type PresignedUrlWithAssetId,
   type PreviewRequest,
   type ReadyResponse,
   type RejectedResponse,
@@ -192,11 +193,7 @@ export async function v1(request: NextRequest) {
         // Build upload URLs for the response. S3 returns real presigned
         // URLs; UploadThing returns proxy URLs that route back to our
         // own server, which uploads via UTApi on behalf of the client.
-        let presignedUrls: {
-          assetId: string;
-          url: string;
-          requiresAuth: boolean;
-        }[] = [];
+        let presignedUrls: PresignedUrlWithAssetId[] = [];
 
         if (provider === 's3') {
           presignedUrls = newAssets.map((asset, i) => ({

@@ -37,7 +37,7 @@ export type PreviewRequest =
 
 // RESPONSE TYPES
 
-type PresignedUrlWithAssetId = {
+export type PresignedUrlWithAssetId = {
   assetId: string;
   url: string;
   /** Whether the client must attach its Bearer token to the upload PUT request. */
