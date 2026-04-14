@@ -49,10 +49,9 @@ test.describe('SILOS Protocol', () => {
       await interview.captureInitial();
     });
 
-    test.afterEach(async ({ interview, page }) => {
+    test.afterEach(async ({ interview }) => {
       if (!interview.skipNext) {
         await interview.next();
-        await page.waitForLoadState('networkidle');
       }
     });
 

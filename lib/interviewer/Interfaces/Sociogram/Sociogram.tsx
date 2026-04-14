@@ -198,7 +198,13 @@ const Sociogram = (stageProps: SociogramProps) => {
       : null;
 
   return (
-    <div className="interface h-dvh overflow-hidden" ref={interfaceRef}>
+    <div
+      className="interface h-dvh overflow-hidden"
+      ref={interfaceRef}
+      data-testid="sociogram"
+      data-layout-mode={layoutMode}
+      data-simulation-running={simulation.isRunning}
+    >
       <Canvas
         background={background}
         nodes={canvasNodes}

@@ -5,6 +5,7 @@ import {
 } from '@codaco/shared-consts';
 import { clamp } from 'es-toolkit';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { env } from '~/env.js';
 import { type AppDispatch } from '~/lib/interviewer/store';
 import { type CanvasStoreApi } from '~/lib/interviewer/canvas/useCanvasStore';
 
@@ -80,10 +81,25 @@ export function useForceSimulation({
   useEffect(() => {
     if (!enabled) return;
 
-    const worker = new Worker(
-      new URL('./forceSimulation.worker', import.meta.url),
-      { type: 'module' },
-    );
+    // In e2e tests, swap in a deterministic grid-layout worker so
+    // visual snapshots aren't sensitive to simulation randomness.
+    //
+    // Both branches must use the literal `new Worker(new URL(<literal>,
+    // import.meta.url), ...)` form. Webpack only treats a `new URL()`
+    // as a worker chunk (bundling its imports, evaluating it as a
+    // module) when it's nested directly inside `new Worker(...)`.
+    // Lifting the URL into a const turns it into a static asset
+    // import, which ships the file as raw text the browser can't run.
+    const worker =
+      env.NEXT_PUBLIC_E2E_TEST === true
+        ? new Worker(
+            new URL('./forceSimulation.worker.mock', import.meta.url),
+            { type: 'module' },
+          )
+        : new Worker(
+            new URL('./forceSimulation.worker', import.meta.url),
+            { type: 'module' },
+          );
     workerRef.current = worker;
 
     worker.onmessage = (event: MessageEvent) => {
@@ -129,6 +145,7 @@ export function useForceSimulation({
     worker.postMessage({
       type: 'initialize',
       network: { nodes: simNodes, links: simLinks },
+      deterministic: env.NEXT_PUBLIC_E2E_TEST === true,
     });
 
     return () => {

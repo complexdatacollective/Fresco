@@ -106,6 +106,7 @@ export class InterviewFixture {
 
     await this.waitForStageLoad();
     await this.waitForMapReadyIfPresent();
+    await this.waitForSociogramSettledIfPresent();
 
     const prefix = this.snapshotPrefix ? `${this.snapshotPrefix}-` : '';
     await this.capture(`${prefix}stage-${stageIndex}`);
@@ -123,6 +124,22 @@ export class InterviewFixture {
     await expect(mapContainer).toHaveAttribute('data-map-idle', 'true', {
       timeout: 30000,
     });
+  }
+
+  // Sociogram stages with automaticLayout run a force simulation. In e2e
+  // mode the worker is mocked with a deterministic grid layout (see
+  // forceSimulation.worker.mock.ts) that emits `end` immediately, so this
+  // wait settles on the next tick rather than after force convergence.
+  private async waitForSociogramSettledIfPresent(): Promise<void> {
+    const sociogram = this.page.getByTestId('sociogram');
+    if ((await sociogram.count()) === 0) {
+      return;
+    }
+    await expect(sociogram).toHaveAttribute(
+      'data-simulation-running',
+      'false',
+      { timeout: 15000 },
+    );
   }
 
   /**
