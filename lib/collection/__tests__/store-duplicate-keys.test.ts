@@ -1,4 +1,12 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
+  type MockInstance,
+} from 'vitest';
 import { createCollectionStore } from '../store';
 import { type Key } from '../types';
 
@@ -11,7 +19,7 @@ const keyExtractor = (item: TestItem): Key => item.id;
 const textValueExtractor = (item: TestItem) => item.name;
 
 describe('store duplicate key handling', () => {
-  let warnSpy: ReturnType<typeof vi.spyOn>;
+  let warnSpy: MockInstance<typeof console.warn>;
 
   beforeEach(() => {
     warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => undefined);

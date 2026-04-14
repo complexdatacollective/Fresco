@@ -34,8 +34,9 @@ test.describe('SILOS Protocol', () => {
 
     let interviewId: string;
 
-    test.beforeAll(async ({ protocol }) => {
+    test.beforeAll(async ({ protocol, interview }) => {
       interviewId = await protocol.createInterview(sharedProtocolId);
+      await interview.goto(0);
     });
 
     test.beforeEach(async ({ interview }) => {
@@ -50,7 +51,6 @@ test.describe('SILOS Protocol', () => {
     });
 
     test('Stage 0: Welcome', async ({ page, interview }) => {
-      await interview.goto(0);
       // Verify welcome stage content
       await expect(
         page.getByRole('heading', { name: 'Welcome!' }),
@@ -1458,7 +1458,7 @@ test.describe('SILOS Protocol', () => {
 
     test('Stage 47: Healthcare Access (EgoForm)', async ({
       page,
-      interview,
+      interview: _interview,
       stage,
     }) => {
       await expect(
@@ -1700,7 +1700,7 @@ test.describe('SILOS Protocol', () => {
 
     test('Stage 3: Ego Form - Select Female at Birth', async ({
       page,
-      interview,
+      interview: _interview,
       stage,
     }) => {
       await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
@@ -1756,7 +1756,7 @@ test.describe('SILOS Protocol', () => {
 
     test('Stage 4: Sex Assigned at Birth Confirmation', async ({
       page,
-      interview,
+      interview: _interview,
       stage,
     }) => {
       await expect(
