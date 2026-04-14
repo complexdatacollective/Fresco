@@ -169,11 +169,13 @@ export const test = baseTest.extend<
       }
 
       // Use soft assertion - doesn't trigger retries on failure.
-      // Default to 2% tolerance for interview screenshots — they run in
-      // Docker where minor rendering variations between runs are expected.
+      // Allow up to 5% pixel diff for interview screenshots — they run in
+      // Docker where minor rendering variations (particularly mapbox GL
+      // tile/label rasterization across runs) are expected.
       await expect.soft(page).toHaveScreenshot(`${name}.png`, {
         fullPage: false,
         mask: options.mask,
+        maxDiffPixelRatio: 0.05,
       });
     });
   },
