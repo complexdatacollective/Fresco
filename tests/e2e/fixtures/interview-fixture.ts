@@ -105,10 +105,24 @@ export class InterviewFixture {
     const stageIndex = this.getCurrentStep() ?? 'unknown';
 
     await this.waitForStageLoad();
+    await this.waitForMapReadyIfPresent();
 
-    // Capture screenshot on stage load
     const prefix = this.snapshotPrefix ? `${this.snapshotPrefix}-` : '';
     await this.capture(`${prefix}stage-${stageIndex}`);
+  }
+
+  // Geospatial stages render a Mapbox map that loads tiles and async
+  // overlays (GeoJSON, transit) after mount. `data-map-idle` is set true
+  // by the stage only once every layer it configured has rendered, so a
+  // single wait is stage-agnostic.
+  private async waitForMapReadyIfPresent(): Promise<void> {
+    const mapContainer = this.page.getByTestId('map-container');
+    if ((await mapContainer.count()) === 0) {
+      return;
+    }
+    await expect(mapContainer).toHaveAttribute('data-map-idle', 'true', {
+      timeout: 30000,
+    });
   }
 
   /**

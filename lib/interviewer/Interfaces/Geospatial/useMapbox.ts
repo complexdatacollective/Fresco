@@ -116,9 +116,21 @@ export const useMapbox = ({
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
-  const [isMapIdle, setIsMapIdle] = useState(false);
+  const [isMapIdleEvent, setIsMapIdleEvent] = useState(false);
   const [isGeoJsonLoaded, setIsGeoJsonLoaded] = useState(false);
+  const [isTransitLoaded, setIsTransitLoaded] = useState(false);
   const [zoomLevel, setZoomLevel] = useState<number>(initialZoom);
+
+  // Composite readiness flag exposed to e2e tests via `data-map-idle`.
+  // Gates the stage as fully rendered: map idle + every async resource
+  // this stage configured has rendered features. Layer presence is
+  // derived from stage config (dataSourceAssetId, showTransit) so tests
+  // can wait on a single attribute regardless of which layers are active.
+  const isStageReady =
+    isMapLoaded &&
+    isMapIdleEvent &&
+    (!dataSourceAssetId || isGeoJsonLoaded) &&
+    (!showTransit || isTransitLoaded);
 
   // get token value from asset manifest, using id
   const getApiAssetKeyValue = useSelector(makeGetApiKeyAssetValue);
@@ -320,23 +332,33 @@ export const useMapbox = ({
       }
     });
 
-    // Track map idle state for e2e tests — idle means all tiles are
-    // rendered and all animations/transitions have completed.
-    // Also check if the GeoJSON outline layer has rendered features,
-    // which confirms the async GeoJSON fetch completed and the layer
-    // is visible. queryRenderedFeatures is more reliable than
+    // On idle: mark the map idle, then probe rendered features per layer
+    // to confirm async sources (GeoJSON fetch, vector tileset) have
+    // actually painted. queryRenderedFeatures is more reliable than
     // isSourceLoaded() which may not work consistently across browsers.
     mapRef.current.on('idle', () => {
-      setIsMapIdle(true);
-      const features = mapRef.current?.queryRenderedFeatures({
-        layers: ['outline'],
-      });
-      if (features && features.length > 0) {
-        setIsGeoJsonLoaded(true);
+      setIsMapIdleEvent(true);
+      const map = mapRef.current;
+      if (!map) return;
+
+      if (dataSourceAssetId) {
+        const features = map.queryRenderedFeatures({ layers: ['outline'] });
+        if (features.length > 0) {
+          setIsGeoJsonLoaded(true);
+        }
+      }
+
+      if (showTransit) {
+        const features = map.queryRenderedFeatures({
+          layers: ['transit-lines', 'transit-stations'],
+        });
+        if (features.length > 0) {
+          setIsTransitLoaded(true);
+        }
       }
     });
     mapRef.current.on('movestart', () => {
-      setIsMapIdle(false);
+      setIsMapIdleEvent(false);
     });
 
     return () => {
@@ -466,9 +488,7 @@ export const useMapbox = ({
     mapContainerRef,
     mapRef,
     accessToken,
-    isMapLoaded,
-    isMapIdle,
-    isGeoJsonLoaded,
+    isStageReady,
     zoomLevel,
     handleResetMapZoom,
     handleZoomIn,

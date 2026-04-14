@@ -710,17 +710,9 @@ class GeospatialFixture {
   async waitForMapIdle(): Promise<void> {
     const canvas = this.mapContainer.locator('canvas.mapboxgl-canvas');
     await expect(canvas).toBeVisible({ timeout: 30000 });
-    await expect(this.mapContainer).toHaveAttribute('data-map-loaded', 'true', {
-      timeout: 30000,
-    });
-    // Wait for the GeoJSON source data to be fetched and parsed.
-    // The map can fire 'idle' before the async GeoJSON fetch completes,
-    // so this prevents snapshots from being taken without the layer visible.
-    await expect(this.mapContainer).toHaveAttribute(
-      'data-geojson-loaded',
-      'true',
-      { timeout: 30000 },
-    );
+    // `data-map-idle` is a composite flag: the stage component only sets it
+    // true once the map is idle AND every async layer it configured
+    // (GeoJSON, transit) has rendered features.
     await expect(this.mapContainer).toHaveAttribute('data-map-idle', 'true', {
       timeout: 30000,
     });
