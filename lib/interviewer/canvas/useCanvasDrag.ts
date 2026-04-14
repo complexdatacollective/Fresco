@@ -141,6 +141,16 @@ export function useCanvasDrag({
       let newPos: { x: number; y: number } | null = null;
 
       switch (e.key) {
+        case 'Enter':
+          // ARIA button pattern: Enter activates on keydown (and auto-repeats).
+          e.preventDefault();
+          onClick?.();
+          return;
+        case ' ':
+          // ARIA button pattern: Space activates on keyup; keydown only
+          // preventDefaults to suppress page scroll.
+          e.preventDefault();
+          return;
         case 'ArrowUp':
           newPos = { x: pos.x, y: clamp(pos.y - NUDGE_AMOUNT, 0, 1) };
           break;
@@ -162,13 +172,23 @@ export function useCanvasDrag({
       simulation?.moveNode(nodeId, newPos);
       onDragEnd?.(nodeId, newPos);
     },
-    [disabled, nodeId, store, simulation, onDragEnd],
+    [disabled, nodeId, store, simulation, onDragEnd, onClick],
+  );
+
+  const onKeyUp = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (disabled) return;
+      if (e.key !== ' ') return;
+      onClick?.();
+    },
+    [disabled, onClick],
   );
 
   return {
     dragProps: {
       onPointerDown,
       onKeyDown,
+      onKeyUp,
       style: {
         cursor: disabled ? 'default' : 'grab',
         touchAction: 'none' as const,

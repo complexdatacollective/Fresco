@@ -1,15 +1,11 @@
-import {
-  entityAttributesProperty,
-  entityPrimaryKeyProperty,
-  type NcNode,
-} from '@codaco/shared-consts';
-import { type RefObject, useCallback } from 'react';
-import Node from '~/lib/interviewer/components/ConnectedNode';
+import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
+import { useCallback, type RefObject } from 'react';
 import { useCanvasDrag } from '~/lib/interviewer/canvas/useCanvasDrag';
 import {
   useCanvasStore,
   type CanvasStoreApi,
 } from '~/lib/interviewer/canvas/useCanvasStore';
+import Node from '~/lib/interviewer/components/ConnectedNode';
 
 type CanvasNodeProps = {
   node: NcNode;
@@ -66,8 +62,15 @@ export default function CanvasNode({
   const { style: dragStyle, ...restDragProps } = dragProps;
 
   return (
-    <div
-      className="absolute"
+    <Node
+      nodeId={nodeId}
+      type={node.type}
+      selected={selected}
+      linking={linking}
+      highlighted={highlighted}
+      disabled={disabled}
+      size="sm"
+      className="absolute outline-offset-8!"
       style={{
         left: `${position.x * 100}%`,
         top: `${position.y * 100}%`,
@@ -75,19 +78,6 @@ export default function CanvasNode({
         ...dragStyle,
       }}
       {...restDragProps}
-      role="button"
-      tabIndex={0}
-      aria-label={`${typeof node[entityAttributesProperty].name === 'string' ? node[entityAttributesProperty].name : 'Node'} at position ${Math.round(position.x * 100)}%, ${Math.round(position.y * 100)}%`}
-    >
-      <Node
-        nodeId={nodeId}
-        type={node.type}
-        selected={selected}
-        linking={linking}
-        highlighted={highlighted}
-        disabled={disabled}
-        size="sm"
-      />
-    </div>
+    />
   );
 }
