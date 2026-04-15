@@ -596,6 +596,66 @@ const email = () => () => {
     .check(z.meta({ hint }));
 };
 
+/**
+ * Require that a date string be on or after a minimum date.
+ * Compares YYYY-MM-DD strings lexicographically (equivalent to chronological).
+ */
+const minDate: ValidationFunction<string> = (min) => () => {
+  invariant(min, 'Min date must be specified');
+
+  const hint = `Enter a date on or after ${min}.`;
+
+  return z
+    .prefault(
+      z
+        .string()
+        .check(
+          z.superRefine((value, ctx) => {
+            if (value && value < min) {
+              ctx.addIssue({
+                code: 'custom',
+                input: value,
+                message: `Date must be on or after ${min}.`,
+                path: [],
+              });
+            }
+          }),
+        ),
+      '',
+    )
+    .check(z.meta({ hint }));
+};
+
+/**
+ * Require that a date string be on or before a maximum date.
+ * Compares YYYY-MM-DD strings lexicographically (equivalent to chronological).
+ */
+const maxDate: ValidationFunction<string> = (max) => () => {
+  invariant(max, 'Max date must be specified');
+
+  const hint = `Enter a date on or before ${max}.`;
+
+  return z
+    .prefault(
+      z
+        .string()
+        .check(
+          z.superRefine((value, ctx) => {
+            if (value && value > max) {
+              ctx.addIssue({
+                code: 'custom',
+                input: value,
+                message: `Date must be on or before ${max}.`,
+                path: [],
+              });
+            }
+          }),
+        ),
+      '',
+    )
+    .check(z.meta({ hint }));
+};
+
 const custom = () => () => void 0; // Placeholder for custom validation handled elsewhere
 
 export const validations = {
@@ -606,6 +666,8 @@ export const validations = {
   pattern,
   minValue,
   maxValue,
+  minDate,
+  maxDate,
   minSelected,
   maxSelected,
   unique,

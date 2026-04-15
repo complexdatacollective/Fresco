@@ -97,12 +97,21 @@ type ArrayValidationProps = {
 };
 
 /**
+ * Validation props specific to date values.
+ */
+type DateValidationProps = {
+  minDate?: string;
+  maxDate?: string;
+};
+
+/**
  * Combined catalogue of all validation props
  */
 export type ValidationPropsCatalogue = CommonValidationProps &
   StringValidationProps &
   NumberValidationProps &
-  ArrayValidationProps;
+  ArrayValidationProps &
+  DateValidationProps;
 
 /**
  * Infers the appropriate validation props based on the field's value type.

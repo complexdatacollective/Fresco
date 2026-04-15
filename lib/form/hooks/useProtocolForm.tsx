@@ -207,8 +207,14 @@ export default function useProtocolForm({
     // Handle DatePicker parameters
     if (field.component === 'DatePicker' && field.parameters) {
       const params = field.parameters;
-      if (params.min) props.min = params.min;
-      if (params.max) props.max = params.max;
+      if (params.min) {
+        props.min = params.min;
+        props.minDate = params.min;
+      }
+      if (params.max) {
+        props.max = params.max;
+        props.maxDate = params.max;
+      }
       if (params.type) props.type = params.type;
     }
 
