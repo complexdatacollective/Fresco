@@ -24,13 +24,14 @@ const MEDIA_MIME_TYPES: Record<string, string> = {
   '.mp4': 'video/mp4',
   '.m4v': 'video/mp4',
   '.webm': 'video/webm',
-  // Modern .mov files use H.264/HEVC which all browsers support. We use
-  // video/mp4 instead of video/quicktime because Chrome rejects the latter
-  // even when it can decode the underlying codec.
+  // Many .mov files contain codecs such as H.264 or HEVC, but browser
+  // support varies by codec, browser, and platform. We use video/mp4
+  // instead of video/quicktime because Chrome rejects the latter even
+  // when it can decode the underlying codec.
   '.mov': 'video/mp4',
   '.avi': 'video/x-msvideo',
   '.ogv': 'video/ogg',
-  // Audio
+  // Audio (.ogg is audio-only; video ogg files use the .ogv extension above)
   '.mp3': 'audio/mpeg',
   '.wav': 'audio/wav',
   '.ogg': 'audio/ogg',
