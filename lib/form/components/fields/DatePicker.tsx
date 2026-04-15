@@ -58,8 +58,8 @@ export default function DatePickerField(props: DatePickerFieldProps) {
     [max, today],
   );
 
-  const minYear = minDate.getFullYear();
-  const maxYear = maxDate.getFullYear();
+  const minYear = minDate.getUTCFullYear();
+  const maxYear = maxDate.getUTCFullYear();
 
   const [selectedYear, setSelectedYear] = useState<string | undefined>();
   const [selectedMonth, setSelectedMonth] = useState<string | undefined>();
@@ -89,8 +89,8 @@ export default function DatePickerField(props: DatePickerFieldProps) {
     const year = parseInt(selectedYear, 10);
     let startMonth = 1;
     let endMonth = 12;
-    if (year === minYear) startMonth = minDate.getMonth() + 1;
-    if (year === maxYear) endMonth = maxDate.getMonth() + 1;
+    if (year === minYear) startMonth = minDate.getUTCMonth() + 1;
+    if (year === maxYear) endMonth = maxDate.getUTCMonth() + 1;
     return months.filter((m) => {
       const monthNum = parseInt(String(m.value), 10);
       return monthNum >= startMonth && monthNum <= endMonth;
