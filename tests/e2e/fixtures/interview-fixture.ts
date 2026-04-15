@@ -119,6 +119,21 @@ export class InterviewFixture {
   async captureFinal(): Promise<void> {
     const step = this.getCurrentStep();
     if (step) {
+      // Scroll any internal ScrollArea viewports to the bottom so that
+      // snapshots frame the last-filled fields deterministically. WebKit's
+      // focus-driven scroll-into-view varies frame-to-frame inside nested
+      // overflow containers; pinning scrollTop to scrollHeight removes that
+      // variance.
+      await this.page.evaluate(() => {
+        const viewports = document.querySelectorAll<HTMLElement>(
+          '[data-radix-scroll-area-viewport]',
+        );
+        viewports.forEach((v) => {
+          v.scrollTop = v.scrollHeight;
+        });
+      });
+      await this.page.waitForTimeout(50);
+
       const prefix = this.snapshotPrefix ? `${this.snapshotPrefix}-` : '';
       await this.capture(`${prefix}stage-${step}-final`);
     }

@@ -52,7 +52,8 @@ fi
 
 run_tests() {
   local browser_env="$1"
-  shift
+  local output_dir="$2"
+  shift 2
   docker run --rm \
     -e CI=true \
     -e INSTALLATION_ID=e2e-test-env \
@@ -60,6 +61,7 @@ run_tests() {
     -e DISABLE_ANALYTICS=true \
     -e E2E_TEST=true \
     -e E2E_BROWSERS="$browser_env" \
+    -e E2E_OUTPUT_DIR="$output_dir" \
     -v "$(pwd)":/work \
     -v /dev/null:/work/.env:ro \
     -v /var/run/docker.sock:/var/run/docker.sock \
