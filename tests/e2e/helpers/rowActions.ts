@@ -5,9 +5,11 @@ export function getFirstRow(page: Page): Locator {
 }
 
 export async function openRowActions(row: Locator): Promise<void> {
-  const actionsButton = row.getByRole('button').last();
-  // force: true bypasses Playwright's actionability stability check,
-  // which intermittently fails on webkit for Button components even
-  // with animations disabled.
-  await actionsButton.click({ force: true });
+  const actionsButton = row.getByRole('button', { name: /open menu/i });
+  await actionsButton.waitFor({ state: 'visible' });
+  // Keyboard activation is more reliable than click() on WebKit for
+  // Base UI dropdown triggers — pointer events can race with layout
+  // animations in data-table rows.
+  await actionsButton.focus();
+  await actionsButton.press('Enter');
 }

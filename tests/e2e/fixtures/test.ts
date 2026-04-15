@@ -14,9 +14,34 @@ const DEFAULT_PAGE_VIEWPORTS = [
   { name: 'desktop-xl', width: 2560 },
 ] as const;
 
-const VISUAL_STYLES = `
+export const VISUAL_STYLES = `
   [data-testid="background-blobs"] { visibility: hidden !important; }
-  [data-testid="time-ago"] { color: transparent !important; display: inline-block !important; width: 8ch !important; overflow: hidden !important; }
+  *:focus-visible,
+  *:has(:focus-visible) {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+  .focusable-after::after,
+  .focusable-after-within::after {
+    outline: none !important;
+    box-shadow: none !important;
+    content: none !important;
+  }
+  [data-testid="time-ago"] {
+    color: transparent !important;
+    display: inline-block !important;
+    width: 80px !important;
+    min-width: 80px !important;
+    max-width: 80px !important;
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    vertical-align: middle !important;
+  }
+  td:has([data-testid="time-ago"]) {
+    width: 96px !important;
+    min-width: 96px !important;
+    max-width: 96px !important;
+  }
 `;
 
 const FULL_PAGE_STYLES = `

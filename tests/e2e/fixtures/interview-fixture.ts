@@ -123,16 +123,22 @@ export class InterviewFixture {
       // snapshots frame the last-filled fields deterministically. WebKit's
       // focus-driven scroll-into-view varies frame-to-frame inside nested
       // overflow containers; pinning scrollTop to scrollHeight removes that
-      // variance.
+      // variance. Selects every element that is actually scrollable in Y to
+      // cover ScrollArea, nested containers, and the window.
       await this.page.evaluate(() => {
-        const viewports = document.querySelectorAll<HTMLElement>(
-          '[data-radix-scroll-area-viewport]',
-        );
-        viewports.forEach((v) => {
-          v.scrollTop = v.scrollHeight;
+        const all = Array.from(document.querySelectorAll<HTMLElement>('*'));
+        const scrollables = all.filter((el) => {
+          const style = getComputedStyle(el);
+          const overflowY = style.overflowY;
+          const canScroll = overflowY === 'auto' || overflowY === 'scroll';
+          return canScroll && el.scrollHeight > el.clientHeight;
         });
+        scrollables.forEach((el) => {
+          el.scrollTop = el.scrollHeight;
+        });
+        window.scrollTo(0, document.documentElement.scrollHeight);
       });
-      await this.page.waitForTimeout(50);
+      await this.page.waitForTimeout(100);
 
       const prefix = this.snapshotPrefix ? `${this.snapshotPrefix}-` : '';
       await this.capture(`${prefix}stage-${step}-final`);

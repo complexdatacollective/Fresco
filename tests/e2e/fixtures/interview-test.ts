@@ -42,7 +42,7 @@ import { getContext, getSuiteId } from '../helpers/context.js';
 import { InterviewFixture } from './interview-fixture.js';
 import { ProtocolFixture } from './protocol-fixture.js';
 import { StageFixture } from './stage-fixture.js';
-import { test as baseTest, expect } from './test.js';
+import { test as baseTest, expect, VISUAL_STYLES } from './test.js';
 
 type CaptureInterviewOptions = {
   mask?: Locator[];
@@ -167,6 +167,8 @@ export const test = baseTest.extend<
       if (!isCI) {
         return;
       }
+
+      await page.addStyleTag({ content: VISUAL_STYLES });
 
       await expect.soft(page).toHaveScreenshot(`${name}.png`, {
         fullPage: false,

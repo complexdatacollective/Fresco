@@ -10,8 +10,7 @@ async function prisma_getParticipants() {
       interviews: true,
       _count: { select: { interviews: true } },
     },
-    // Sort to show the most recently created first
-    orderBy: { id: 'desc' },
+    orderBy: { identifier: 'asc' },
   });
 }
 
