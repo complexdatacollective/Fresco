@@ -5,9 +5,7 @@ import { getProjects } from './config/test-config.js';
 // When running browsers in parallel Docker containers, each sets E2E_OUTPUT_DIR
 // to a per-browser subdirectory so reports and artifacts don't overwrite each other.
 const outputDir = process.env.E2E_OUTPUT_DIR ?? './test-results';
-const reportDir = process.env.E2E_OUTPUT_DIR
-  ? `${process.env.E2E_OUTPUT_DIR}/playwright-report`
-  : './playwright-report';
+const reportDir = process.env.E2E_REPORT_DIR ?? './playwright-report';
 
 export default defineConfig({
   testDir: './specs',

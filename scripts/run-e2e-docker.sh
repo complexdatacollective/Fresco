@@ -53,7 +53,8 @@ fi
 run_tests() {
   local browser_env="$1"
   local output_dir="$2"
-  shift 2
+  local report_dir="$3"
+  shift 3
   docker run --rm \
     -e CI=true \
     -e INSTALLATION_ID=e2e-test-env \
@@ -62,6 +63,7 @@ run_tests() {
     -e E2E_TEST=true \
     -e E2E_BROWSERS="$browser_env" \
     -e E2E_OUTPUT_DIR="$output_dir" \
+    -e E2E_REPORT_DIR="$report_dir" \
     -v "$(pwd)":/work \
     -v /dev/null:/work/.env:ro \
     -v /var/run/docker.sock:/var/run/docker.sock \
@@ -87,7 +89,7 @@ run_tests() {
 # Locally, run each browser sequentially to avoid OOM crashes.
 if [ "$GITHUB_ACTIONS" = "true" ]; then
   BROWSER_LIST=$(IFS=','; echo "${BROWSERS[*]}")
-  run_tests "$BROWSER_LIST" "$@"
+  run_tests "$BROWSER_LIST" "./test-results" "./playwright-report" "$@"
 else
   FAILED_BROWSERS=()
   for browser in "${BROWSERS[@]}"; do
@@ -96,7 +98,7 @@ else
     echo "  Running e2e tests: $browser"
     echo "=========================================="
     echo ""
-    if ! run_tests "$browser" "$@"; then
+    if ! run_tests "$browser" "./test-results/$browser" "./playwright-report/$browser" "$@"; then
       FAILED_BROWSERS+=("$browser")
     fi
   done
