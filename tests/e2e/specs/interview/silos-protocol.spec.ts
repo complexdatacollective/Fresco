@@ -517,6 +517,7 @@ test.describe('SILOS Protocol', () => {
       page,
       interview,
       stage,
+      protocol,
     }) => {
       await interview.captureInitial();
       await expect(stage.getPrompt()).toBeVisible();
@@ -538,6 +539,12 @@ test.describe('SILOS Protocol', () => {
 
       await stage.nameGenerator.submitForm();
       await expect(stage.getNode('Evan')).toBeVisible();
+
+      // Wait for Evan to persist to Redux/DB before dragging. Without this,
+      // dnd-kit's sortable index map can be stale when Ctrl+D fires, causing
+      // ArrowRight to navigate to a wrong slot and Enter to drop Bob onto an
+      // invalid target (rare Firefox race — see stage-12 snapshot flake).
+      await protocol.waitForNode(interview.interviewId, 'Evan');
 
       // --- Drag Bob from side panel ---
       const mainList = page.getByTestId('node-list');

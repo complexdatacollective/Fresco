@@ -48,19 +48,29 @@ export function useCircleLayout({
   useEffect(() => {
     if (!container) return;
 
-    const observer = new ResizeObserver((entries) => {
-      const box = entries[0]?.contentBoxSize[0];
-      if (!box) return;
+    let rafId: number | null = null;
+
+    const measure = () => {
+      rafId = null;
+      const rect = container.getBoundingClientRect();
       const computedGap = parseFloat(getComputedStyle(container).gap) || 0;
       setDimensions({
-        width: box.inlineSize,
-        height: box.blockSize,
+        width: rect.width,
+        height: rect.height,
         gap: computedGap,
       });
+    };
+
+    const observer = new ResizeObserver(() => {
+      if (rafId !== null) cancelAnimationFrame(rafId);
+      rafId = requestAnimationFrame(measure);
     });
 
     observer.observe(container);
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      if (rafId !== null) cancelAnimationFrame(rafId);
+    };
   }, [container]);
 
   const { width, height, gap } = dimensions;
