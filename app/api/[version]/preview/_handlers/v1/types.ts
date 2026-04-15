@@ -37,9 +37,11 @@ export type PreviewRequest =
 
 // RESPONSE TYPES
 
-type PresignedUrlWithAssetId = {
+export type PresignedUrlWithAssetId = {
   assetId: string;
   url: string;
+  /** Headers the client must include on the upload PUT request. */
+  headers: Record<string, string>;
 };
 
 type JobCreatedResponse = {

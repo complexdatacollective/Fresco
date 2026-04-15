@@ -131,14 +131,17 @@ type JsonBody = {
   message?: string;
   previewUrl?: string;
   protocolId?: string;
-  presignedUrls?: { assetId: string; url: string }[];
+  presignedUrls?: { assetId: string; url: string; headers: Record<string, string> }[];
 };
 
-function createPostRequest(body: unknown): NextRequest {
+function createPostRequest(
+  body: unknown,
+  extraHeaders?: Record<string, string>,
+): NextRequest {
   return new NextRequest('http://localhost:3000/api/v1/preview', {
     method: 'POST',
     body: JSON.stringify(body),
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...extraHeaders },
   });
 }
 
@@ -303,6 +306,68 @@ describe('Preview API v1 handler', () => {
       expect(body.protocolId).toBe('new-protocol-id');
       expect(body.presignedUrls).toHaveLength(1);
       expect(body.presignedUrls![0]!.assetId).toBe('asset-1');
+      expect(body.presignedUrls![0]!.headers).toEqual({});
+    });
+
+    it('should echo authorization header in presigned URLs for uploadthing provider', async () => {
+      mockGetStorageProvider.mockResolvedValue('uploadthing');
+      mockValidateAndMigrateProtocol.mockResolvedValue({
+        success: true,
+        protocol: validProtocol,
+      });
+      mockPrisma.previewProtocol.findFirst.mockResolvedValue(null);
+      mockPrisma.previewProtocol.create.mockResolvedValue({
+        id: 'new-protocol-id',
+      });
+
+      const request = createPostRequest(
+        {
+          type: 'initialize-preview',
+          protocol: validProtocol,
+          assetMeta: [{ assetId: 'asset-1', name: 'image.png', size: 1024 }],
+        },
+        { Authorization: 'Bearer test-token-123' },
+      );
+
+      const response = await v1(request);
+      const body = (await response.json()) as JsonBody;
+
+      expect(response.status).toBe(200);
+      expect(body.status).toBe('job-created');
+      expect(body.presignedUrls).toHaveLength(1);
+      expect(body.presignedUrls![0]!.assetId).toBe('asset-1');
+      expect(body.presignedUrls![0]!.url).toMatch(
+        /\/api\/preview\/new-protocol-id\/upload\?/,
+      );
+      expect(body.presignedUrls![0]!.headers).toEqual({
+        Authorization: 'Bearer test-token-123',
+      });
+    });
+
+    it('should return empty headers in presigned URLs for uploadthing provider when no authorization header', async () => {
+      mockGetStorageProvider.mockResolvedValue('uploadthing');
+      mockValidateAndMigrateProtocol.mockResolvedValue({
+        success: true,
+        protocol: validProtocol,
+      });
+      mockPrisma.previewProtocol.findFirst.mockResolvedValue(null);
+      mockPrisma.previewProtocol.create.mockResolvedValue({
+        id: 'new-protocol-id',
+      });
+
+      const request = createPostRequest({
+        type: 'initialize-preview',
+        protocol: validProtocol,
+        assetMeta: [{ assetId: 'asset-1', name: 'image.png', size: 1024 }],
+      });
+
+      const response = await v1(request);
+      const body = (await response.json()) as JsonBody;
+
+      expect(response.status).toBe(200);
+      expect(body.status).toBe('job-created');
+      expect(body.presignedUrls).toHaveLength(1);
+      expect(body.presignedUrls![0]!.headers).toEqual({});
     });
 
     it('should prune old preview protocols before creating new ones', async () => {

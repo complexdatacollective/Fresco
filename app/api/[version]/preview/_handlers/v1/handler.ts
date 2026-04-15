@@ -1,3 +1,4 @@
+import { Effect } from 'effect';
 import { after, type NextRequest } from 'next/server';
 import { hash } from 'ohash';
 import { addEvent } from '~/actions/activityFeed';
@@ -7,7 +8,6 @@ import { prisma } from '~/lib/db';
 import { Prisma } from '~/lib/db/generated/client';
 import { captureException, shutdownPostHog } from '~/lib/posthog-server';
 import { validateAndMigrateProtocol } from '~/lib/protocol/validateAndMigrateProtocol';
-import { Effect } from 'effect';
 import { getStorageLayer } from '~/lib/storage/layers/StorageLayer';
 import { AssetStorage } from '~/lib/storage/services/AssetStorage';
 import { getExistingAssets } from '~/queries/protocols';
@@ -19,6 +19,7 @@ import {
   type AbortResponse,
   type CompleteResponse,
   type InitializeResponse,
+  type PresignedUrlWithAssetId,
   type PreviewRequest,
   type ReadyResponse,
   type RejectedResponse,
@@ -192,16 +193,21 @@ export async function v1(request: NextRequest) {
         // Build upload URLs for the response. S3 returns real presigned
         // URLs; UploadThing returns proxy URLs that route back to our
         // own server, which uploads via UTApi on behalf of the client.
-        let presignedUrls: { assetId: string; url: string }[] = [];
+        let presignedUrls: PresignedUrlWithAssetId[] = [];
 
         if (provider === 's3') {
           presignedUrls = newAssets.map((asset, i) => ({
             assetId: asset.assetId,
             url: s3Presigned[i]!.uploadUrl,
+            headers: {},
           }));
         } else if (provider === 'uploadthing') {
           const publicBase = env.PUBLIC_URL ?? request.nextUrl.origin;
           const baseOrigin = new URL(publicBase).origin;
+          const authHeader = request.headers.get('authorization');
+          const uploadHeaders: Record<string, string> = authHeader
+            ? { Authorization: authHeader }
+            : {};
           presignedUrls = newAssets.map((asset) => {
             const manifestEntry = assetManifest[asset.assetId];
             const assetType = manifestEntry?.type ?? 'file';
@@ -214,6 +220,7 @@ export async function v1(request: NextRequest) {
             return {
               assetId: asset.assetId,
               url: `${baseOrigin}/api/preview/${protocol.id}/upload?${params.toString()}`,
+              headers: uploadHeaders,
             };
           });
         }
