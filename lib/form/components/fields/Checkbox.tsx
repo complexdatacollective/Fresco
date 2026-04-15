@@ -22,12 +22,6 @@ const checkboxRootVariants = compose(
   }),
 );
 
-const checkboxIndicatorVariants = compose(
-  cva({
-    base: '',
-  }),
-);
-
 type CheckboxProps = Omit<
   ComponentPropsWithoutRef<typeof BaseCheckbox.Root>,
   'size' | 'value' | 'onChange'
@@ -110,11 +104,7 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
           />
         }
       >
-        <BaseCheckbox.Indicator
-          className={checkboxIndicatorVariants()}
-          render={<span />}
-          keepMounted
-        >
+        <BaseCheckbox.Indicator className="flex size-full">
           <svg
             viewBox="0 0 24 24"
             fill="none"

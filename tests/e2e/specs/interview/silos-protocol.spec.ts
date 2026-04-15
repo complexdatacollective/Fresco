@@ -1760,11 +1760,15 @@ test.describe('SILOS Protocol', () => {
       expect(await interview.nextButtonHasPulse()).toBe(true);
     });
 
-    test('Stage 3: Ego Form - Select Female at Birth', async ({ page,
+    test('Stage 3: Ego Form - Select Female at Birth', async ({
+      page,
       interview,
-      stage, }) => {
-
+      stage,
+    }) => {
       await interview.captureInitial();
+      // Pause for manual inspection of the CheckboxGroup rendering bug.
+      // Remove this line before committing.
+      await page.pause();
       await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 
       // Fill all required fields using UUID-based methods (same as Happy Path)
