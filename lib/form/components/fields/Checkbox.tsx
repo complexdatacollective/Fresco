@@ -1,7 +1,6 @@
 'use client';
 
 import { Checkbox as BaseCheckbox } from '@base-ui/react/checkbox';
-import { motion } from 'motion/react';
 import { type ComponentPropsWithoutRef, forwardRef, useState } from 'react';
 import {
   controlVariants,
@@ -21,6 +20,18 @@ const checkboxRootVariants = compose(
     base: 'focusable flex aspect-square shrink-0 items-center justify-center rounded-[0.15em]',
   }),
 );
+
+const checkboxIndicatorVariants = cva({
+  base: 'text-primary flex p-[0.1em]',
+  variants: {
+    size: {
+      sm: 'size-4',
+      md: 'size-5',
+      lg: 'size-6',
+      xl: 'size-7',
+    },
+  },
+});
 
 type CheckboxProps = Omit<
   ComponentPropsWithoutRef<typeof BaseCheckbox.Root>,
@@ -96,19 +107,19 @@ const Checkbox = forwardRef<HTMLButtonElement, CheckboxProps>(
             'aria-invalid': !!ariaInvalid,
           }),
         })}
-        nativeButton
-        render={
-          <motion.button
-            whileTap={(disabled ?? readOnly) ? undefined : { scale: 0.85 }}
-            transition={{ type: 'spring', duration: 0.3, bounce: 0.3 }}
-          />
-        }
+        // nativeButton
+        // render={
+        //   <motion.button
+        //     whileTap={(disabled ?? readOnly) ? undefined : { scale: 0.85 }}
+        //     transition={{ type: 'spring', duration: 0.3, bounce: 0.3 }}
+        //   />
+        // }
       >
-        <BaseCheckbox.Indicator className="flex size-full">
+        <BaseCheckbox.Indicator className="text-primary flex" keepMounted>
           <svg
             viewBox="0 0 24 24"
             fill="none"
-            className="text-primary size-full p-[0.1em]"
+            className={checkboxIndicatorVariants({ size })}
             stroke="currentColor"
             strokeWidth="3"
           >
