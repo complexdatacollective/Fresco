@@ -14,30 +14,80 @@ import { type StageProps } from '~/lib/interviewer/types';
 import { cx } from '~/utils/cva';
 import AssetMetaProvider from '../utils/AssetMetaProvider';
 
-function VideoPlayer({ src }: { src: string }) {
-  const [isLoading, setIsLoading] = useState(true);
+// UploadThing's CDN serves files uploaded via the `blob` router with an invalid
+// Content-Type (e.g. `video` instead of `video/mp4`). Safari strictly requires
+// a valid MIME type and refuses to play otherwise. We work around this by
+// providing an explicit `type` on the `<source>` element, derived from the
+// original filename extension stored in the asset record.
+const MEDIA_MIME_TYPES: Record<string, string> = {
+  // Video
+  '.mp4': 'video/mp4',
+  '.m4v': 'video/mp4',
+  '.webm': 'video/webm',
+  // Modern .mov files use H.264/HEVC which all browsers support. We use
+  // video/mp4 instead of video/quicktime because Chrome rejects the latter
+  // even when it can decode the underlying codec.
+  '.mov': 'video/mp4',
+  '.avi': 'video/x-msvideo',
+  '.ogv': 'video/ogg',
+  // Audio
+  '.mp3': 'audio/mpeg',
+  '.wav': 'audio/wav',
+  '.ogg': 'audio/ogg',
+  '.m4a': 'audio/mp4',
+  '.aac': 'audio/aac',
+};
+
+function getMediaMimeType(
+  filename: string | undefined,
+  fallback: string,
+): string {
+  if (!filename) return fallback;
+  const dotIndex = filename.lastIndexOf('.');
+  if (dotIndex === -1) return fallback;
+  const ext = filename.slice(dotIndex).toLowerCase();
+  return MEDIA_MIME_TYPES[ext] ?? fallback;
+}
+
+type MediaLoadState = 'loading' | 'loaded' | 'error';
+
+function VideoPlayer({ src, name }: { src: string; name: string }) {
+  const [state, setState] = useState<MediaLoadState>('loading');
 
   // Disable autoPlay and preload to prevent browser crashes in headless E2E tests.
   const isE2E = env.NEXT_PUBLIC_E2E_TEST === true;
+  const mimeType = getMediaMimeType(name, 'video/mp4');
 
   return (
-    <div className={cx('relative', isLoading && 'min-h-48')}>
-      {isLoading && !isE2E && (
+    <div className={cx('relative', state === 'loading' && 'min-h-48')}>
+      {state === 'loading' && !isE2E && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-4">
           <Spinner size="lg" />
           <Paragraph intent="smallText">Loading video...</Paragraph>
         </div>
       )}
+      {state === 'error' && (
+        <Paragraph intent="smallText" className="text-center">
+          Video could not be loaded.
+        </Paragraph>
+      )}
       <video
-        src={src}
         loop
         controls
         autoPlay={!isE2E}
+        muted
         playsInline
         preload={isE2E ? 'none' : 'auto'}
-        className={cx(isLoading && !isE2E && 'invisible')}
-        onCanPlay={() => setIsLoading(false)}
-      />
+        className={cx(
+          (state === 'loading' && !isE2E) || state === 'error'
+            ? 'invisible h-0'
+            : '',
+        )}
+        onLoadedData={() => setState('loaded')}
+        onError={() => setState('error')}
+      >
+        <source src={src} type={mimeType} />
+      </video>
     </div>
   );
 }
@@ -69,9 +119,16 @@ const getItemComponent = (item: Item) => {
                   />
                 );
               case 'audio':
-                return <audio src={assetMeta.url} controls autoPlay />;
+                return (
+                  <audio controls autoPlay>
+                    <source
+                      src={assetMeta.url}
+                      type={getMediaMimeType(assetMeta.name, 'audio/mpeg')}
+                    />
+                  </audio>
+                );
               case 'video':
-                return <VideoPlayer src={assetMeta.url} />;
+                return <VideoPlayer src={assetMeta.url} name={assetMeta.name} />;
               default:
                 return null;
             }
