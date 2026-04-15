@@ -69,6 +69,7 @@ export const ActionsDropdown = ({ row }: { row: Row<InterviewRow> }) => {
               size="sm"
             />
           }
+          nativeButton
         />
         <DropdownMenuContent align="end">
           <DropdownMenuGroup>

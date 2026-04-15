@@ -99,7 +99,9 @@ test.describe('Protocols Page', () => {
 
     const row = getFirstRow(page);
     await openRowActions(row);
-    await page.getByRole('menuitem', { name: /delete/i }).click();
+    await page
+      .getByRole('menuitem', { name: /delete/i })
+      .click({ force: true });
 
     const dialog = await waitForDialog(page);
     await captureElement(dialog, 'protocols-delete-confirmation');

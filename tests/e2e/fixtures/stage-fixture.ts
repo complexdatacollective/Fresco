@@ -294,6 +294,21 @@ class SociogramFixture {
   }
 
   /**
+   * Wait for the force simulation to settle. In e2e mode the worker is
+   * mocked with a deterministic grid layout that emits `end` on the
+   * first tick, so this resolves almost instantly — call before taking
+   * a visual snapshot of a sociogram stage.
+   */
+  async waitForSimulationSettled(): Promise<void> {
+    const sociogram = this.page.getByTestId('sociogram');
+    await expect(sociogram).toHaveAttribute(
+      'data-simulation-running',
+      'false',
+      { timeout: 15000 },
+    );
+  }
+
+  /**
    * Get a node on the canvas by its label.
    * Nodes are rendered as buttons with aria-label containing their name.
    */
@@ -710,12 +725,51 @@ class GeospatialFixture {
   async waitForMapIdle(): Promise<void> {
     const canvas = this.mapContainer.locator('canvas.mapboxgl-canvas');
     await expect(canvas).toBeVisible({ timeout: 30000 });
-    // `data-map-idle` is a composite flag: the stage component only sets it
-    // true once the map is idle AND every async layer it configured
-    // (GeoJSON, transit) has rendered features.
     await expect(this.mapContainer).toHaveAttribute('data-map-idle', 'true', {
       timeout: 30000,
     });
+  }
+
+  /**
+   * Stronger stabilisation than waitForMapIdle: additionally verify
+   * that the configured GeoJSON layer has features in its source AND
+   * has rendered features on the visible canvas, by querying the live
+   * mapbox instance via window.__e2eMap (populated only when
+   * NEXT_PUBLIC_E2E_TEST is set).
+   *
+   * On webkit, mapbox-gl 3.21 sometimes reports the layer as rendered
+   * (queryRenderedFeatures > 0) while the layer's pixels are not
+   * actually composited to the visible canvas. After the readiness
+   * check passes we explicitly force a paint cycle (resize +
+   * triggerRepaint) and wait for the next idle event, which on webkit
+   * reliably flushes the stale frame.
+   */
+  async waitForGeoJsonRendered(): Promise<void> {
+    await this.waitForMapIdle();
+    await this.page.waitForFunction(
+      () => {
+        const map = window.__e2eMap;
+        if (!map) return false;
+        if (!map.getSource('geojson-data')) return true; // no source configured
+        if (!map.isSourceLoaded('geojson-data')) return false;
+        if (map.querySourceFeatures('geojson-data').length === 0) return false;
+        return map.queryRenderedFeatures({ layers: ['outline'] }).length > 0;
+      },
+      null,
+      { timeout: 30000 },
+    );
+
+    // Force a fresh paint cycle and wait for it to complete.
+    await this.page.evaluate(
+      () =>
+        new Promise<void>((resolve) => {
+          const map = window.__e2eMap;
+          if (!map) return resolve();
+          map.once('idle', () => resolve());
+          map.resize();
+          map.triggerRepaint();
+        }),
+    );
   }
 
   /**

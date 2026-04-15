@@ -8,6 +8,7 @@ export type ExtendedMapOptions = MapOptions & {
 import mapboxgl from 'mapbox-gl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { env } from '~/env.js';
 import { makeGetApiKeyAssetValue } from '~/lib/interviewer/selectors/protocol';
 
 const MAP_CONSTS = {
@@ -163,6 +164,14 @@ export const useMapbox = ({
   useEffect(() => {
     if (!mapContainerRef.current || !center || !accessToken) return;
 
+    // Reset readiness flags whenever the map is re-initialised, so a
+    // prior stage's resolved state can't leak into a stage that hasn't
+    // actually finished loading yet.
+    setIsMapLoaded(false);
+    setIsMapIdleEvent(false);
+    setIsGeoJsonLoaded(false);
+    setIsTransitLoaded(false);
+
     mapboxgl.accessToken = accessToken;
 
     mapRef.current = new mapboxgl.Map({
@@ -171,6 +180,15 @@ export const useMapbox = ({
       zoom: initialZoom,
       style,
     });
+
+    // Expose the current map instance to e2e tests. The data-map-idle
+    // attribute is a necessary but insufficient signal on webkit for
+    // "geojson layer is painted"; tests that need stronger stabilisation
+    // can query the live map (isSourceLoaded, queryRenderedFeatures)
+    // through this handle. Not written in production builds.
+    if (env.NEXT_PUBLIC_E2E_TEST === true && typeof window !== 'undefined') {
+      window.__e2eMap = mapRef.current;
+    }
 
     const handleMapLoad = () => {
       if (mapRef.current) {
@@ -332,30 +350,41 @@ export const useMapbox = ({
       }
     });
 
-    // On idle: mark the map idle, then probe rendered features per layer
-    // to confirm async sources (GeoJSON fetch, vector tileset) have
-    // actually painted. queryRenderedFeatures is more reliable than
-    // isSourceLoaded() which may not work consistently across browsers.
-    mapRef.current.on('idle', () => {
-      setIsMapIdleEvent(true);
+    // Only declare a layer ready inside the `idle` handler. `idle` fires
+    // AFTER mapbox has finished painting everything pending, so at that
+    // moment we can trust both that the source has loaded AND that its
+    // features have been painted to tiles that are now visible.
+    //
+    // Checking from `sourcedata` (or any pre-idle event) is racy:
+    // `isSourceLoaded` can return true before the source's features
+    // have been rendered, which would flip our flag prematurely and let
+    // a screenshot capture before the paint arrives — exactly the
+    // symptom observed on webkit where the geojson outline was missing
+    // from the actual snapshot despite data-map-idle="true".
+    const checkLayerReadiness = () => {
       const map = mapRef.current;
       if (!map) return;
 
-      if (dataSourceAssetId) {
-        const features = map.queryRenderedFeatures({ layers: ['outline'] });
-        if (features.length > 0) {
-          setIsGeoJsonLoaded(true);
-        }
+      if (
+        dataSourceAssetId &&
+        map.getSource('geojson-data') &&
+        map.isSourceLoaded('geojson-data')
+      ) {
+        setIsGeoJsonLoaded(true);
       }
 
-      if (showTransit) {
-        const features = map.queryRenderedFeatures({
-          layers: ['transit-lines', 'transit-stations'],
-        });
-        if (features.length > 0) {
-          setIsTransitLoaded(true);
-        }
+      if (
+        showTransit &&
+        map.getSource(TRANSIT_SOURCE_ID) &&
+        map.isSourceLoaded(TRANSIT_SOURCE_ID)
+      ) {
+        setIsTransitLoaded(true);
       }
+    };
+
+    mapRef.current.on('idle', () => {
+      setIsMapIdleEvent(true);
+      checkLayerReadiness();
     });
     mapRef.current.on('movestart', () => {
       setIsMapIdleEvent(false);

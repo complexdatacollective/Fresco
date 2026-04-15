@@ -31,6 +31,7 @@ export function ActionsDropdown({
             size="sm"
           />
         }
+        nativeButton
       />
       <DropdownMenuContent align="end">
         <DropdownMenuGroup>

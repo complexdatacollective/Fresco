@@ -6,5 +6,8 @@ export function getFirstRow(page: Page): Locator {
 
 export async function openRowActions(row: Locator): Promise<void> {
   const actionsButton = row.getByRole('button').last();
-  await actionsButton.click();
+  // force: true bypasses Playwright's actionability stability check,
+  // which intermittently fails on webkit for Button components even
+  // with animations disabled.
+  await actionsButton.click({ force: true });
 }

@@ -124,7 +124,24 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         ) => {
           await page.addStyleTag({ content: VISUAL_STYLES });
 
-          await expect(element).toHaveScreenshot(`${name}.png`, {
+          // Use a page-level screenshot clipped to the element's bounding
+          // box rather than an element-level `toHaveScreenshot`. The
+          // locator form runs an actionability pre-check (bbox stability
+          // + `getAnimations({ subtree: true })`) that produces
+          // false-positive timeouts on webkit — which reports
+          // zero-duration transitions as running animations even under
+          // `prefers-reduced-motion: reduce`. The app already disables
+          // animations globally in CI, so the stability wait is
+          // redundant.
+          const box = await element.boundingBox();
+          if (!box) {
+            throw new Error(
+              `captureElement(${name}): element has no bounding box`,
+            );
+          }
+
+          await expect(page).toHaveScreenshot(`${name}.png`, {
+            clip: box,
             mask: options.mask,
           });
         },

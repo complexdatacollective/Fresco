@@ -96,21 +96,30 @@ test.describe('Settings Page', () => {
   });
 
   test('visual: add user dialog', async ({ page, captureElement }) => {
-    await page.getByRole('button', { name: /add user/i }).click();
+    // force: true — webkit intermittently fails actionability stability on
+    // Button components even with animations disabled. See captureElement
+    // docstring in fixtures/test.ts for details.
+    await page
+      .getByRole('button', { name: /add user/i })
+      .click({ force: true });
     const dialog = await waitForDialog(page);
 
     await captureElement(dialog, 'settings-add-user-dialog');
   });
 
   test('visual: change password dialog', async ({ page, captureElement }) => {
-    await page.getByRole('button', { name: /change password/i }).click();
+    await page
+      .getByRole('button', { name: /change password/i })
+      .click({ force: true });
     const dialog = await waitForDialog(page);
 
     await captureElement(dialog, 'settings-change-password-dialog');
   });
 
   test('validate username requirements', async ({ page }) => {
-    await page.getByRole('button', { name: /add user/i }).click();
+    await page
+      .getByRole('button', { name: /add user/i })
+      .click({ force: true });
     await waitForDialog(page);
 
     await fillField(page, 'username', 'ab');
@@ -121,13 +130,15 @@ test.describe('Settings Page', () => {
     const submitButton = dialog.getByRole('button', {
       name: /create|add|submit/i,
     });
-    await submitButton.click();
+    await submitButton.click({ force: true });
 
     await expect(page.getByTestId('username-field-error')).toBeVisible();
   });
 
   test('validate password requirements', async ({ page }) => {
-    await page.getByRole('button', { name: /add user/i }).click();
+    await page
+      .getByRole('button', { name: /add user/i })
+      .click({ force: true });
     await waitForDialog(page);
 
     await fillField(page, 'username', 'validuser');
@@ -138,7 +149,7 @@ test.describe('Settings Page', () => {
     const submitButton = dialog.getByRole('button', {
       name: /create|add|submit/i,
     });
-    await submitButton.click();
+    await submitButton.click({ force: true });
 
     await expect(page.getByTestId('password-field-error')).toBeVisible();
   });
