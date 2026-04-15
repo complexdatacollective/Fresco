@@ -76,7 +76,7 @@ function VideoPlayer({ src, name }: { src: string; name: string }) {
         loop
         controls
         autoPlay={!isE2E}
-        muted
+        muted={!isE2E}
         playsInline
         preload={isE2E ? 'none' : 'auto'}
         className={cx(
