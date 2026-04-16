@@ -19,8 +19,6 @@ jobs:
       fail-fast: false
       matrix:
         browser: [chromium, firefox, webkit]
-    outputs:
-      test-result: ${{ steps.test.outcome }}
 
     steps:
       - name: Setup
@@ -76,18 +74,25 @@ jobs:
         id: pr
         env:
           GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          PR_NUMBER_INPUT: ${{ github.event.pull_request.number }}
+          PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          HEAD_REF: ${{ github.head_ref }}
+          REF_NAME: ${{ github.ref_name }}
+          COMMIT_SHA: ${{ github.sha }}
+          REPO: ${{ github.repository }}
         run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "number=${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
-            echo "head_sha=${{ github.event.pull_request.head.sha }}" >> "$GITHUB_OUTPUT"
-            echo "branch=${{ github.head_ref }}" >> "$GITHUB_OUTPUT"
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            echo "number=$PR_NUMBER_INPUT" >> "$GITHUB_OUTPUT"
+            echo "head_sha=$PR_HEAD_SHA" >> "$GITHUB_OUTPUT"
+            echo "branch=$HEAD_REF" >> "$GITHUB_OUTPUT"
           else
-            PR_NUMBER=$(gh pr list --repo "${{ github.repository }}" --head "${{ github.ref_name }}" --json number --jq '.[0].number')
+            PR_NUMBER=$(gh pr list --repo "$REPO" --head "$REF_NAME" --json number --jq '.[0].number')
             if [ -n "$PR_NUMBER" ] && [ "$PR_NUMBER" != "null" ]; then
               echo "number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
             fi
-            echo "head_sha=${{ github.sha }}" >> "$GITHUB_OUTPUT"
-            echo "branch=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
+            echo "head_sha=$COMMIT_SHA" >> "$GITHUB_OUTPUT"
+            echo "branch=$REF_NAME" >> "$GITHUB_OUTPUT"
           fi
 
   # Deploy report to GitHub Pages on test failure (PR-specific subdirectory)
@@ -95,7 +100,6 @@ jobs:
     if: failure() && needs.resolve-pr.outputs.pr-number != ''
     needs: [e2e, resolve-pr]
     runs-on: ubuntu-latest
-    # Single concurrency group for all Pages deployments to prevent race conditions
     concurrency:
       group: e2e-pages-deploy
       cancel-in-progress: false
@@ -104,7 +108,7 @@ jobs:
       url: https://complexdatacollective.github.io/Fresco/pr-${{ needs.resolve-pr.outputs.pr-number }}/
 
     steps:
-      - name: Download playwright report
+      - name: Download playwright reports
         uses: actions/download-artifact@v4
         with:
           pattern: playwright-report-*
@@ -119,86 +123,32 @@ jobs:
         continue-on-error: true
 
       - name: Merge reports into PR subdirectory
+        env:
+          PR_NUMBER: ${{ needs.resolve-pr.outputs.pr-number }}
         run: |
           mkdir -p merged
 
           # Copy existing pages content if it exists
           if [ -d existing-pages ] && [ "$(ls -A existing-pages 2>/dev/null)" ]; then
             cp -r existing-pages/* merged/ 2>/dev/null || true
-            # Remove git files
             rm -rf merged/.git
           fi
 
           # Create PR-specific subdirectory with new report
-          mkdir -p merged/pr-${{ needs.resolve-pr.outputs.pr-number }}
-          cp -r new-report/playwright-report/* merged/pr-${{ needs.resolve-pr.outputs.pr-number }}/
+          mkdir -p "merged/pr-${PR_NUMBER}"
+          cp -r new-report/playwright-report/* "merged/pr-${PR_NUMBER}/"
 
-          # Generate index page listing all reports
-          cat > merged/index.html << 'EOF'
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Fresco E2E Test Reports</title>
-            <style>
-              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
-              h1 { color: #333; }
-              ul { list-style: none; padding: 0; }
-              li { padding: 10px 0; border-bottom: 1px solid #eee; }
-              a { color: #0066cc; text-decoration: none; }
-              a:hover { text-decoration: underline; }
-              .timestamp { color: #666; font-size: 0.9em; }
-            </style>
-          </head>
-          <body>
-            <h1>🎭 Fresco E2E Test Reports</h1>
-            <p>Failed test reports by PR:</p>
-            <ul id="reports"></ul>
-            <script>
-              const reportsEl = document.getElementById('reports');
-              const prDirs = Array.from(document.querySelectorAll('a[href^="pr-"]')).map(a => a.getAttribute('href'));
-              // This will be populated by the directory listing
-            </script>
-          </body>
-          </html>
-          EOF
-
-          # Create a simple directory listing
-          echo "<ul>" > merged/index.html.tmp
-          for dir in merged/pr-*/; do
-            if [ -d "$dir" ]; then
-              pr_num=$(basename "$dir")
-              echo "  <li><a href=\"$pr_num/\">$pr_num</a></li>" >> merged/index.html.tmp
-            fi
-          done
-          echo "</ul>" >> merged/index.html.tmp
-
-          # Build final index
-          cat > merged/index.html << EOF
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Fresco E2E Test Reports</title>
-            <style>
-              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
-              h1 { color: #333; }
-              ul { list-style: none; padding: 0; }
-              li { padding: 10px 0; border-bottom: 1px solid #eee; }
-              a { color: #0066cc; text-decoration: none; font-size: 1.1em; }
-              a:hover { text-decoration: underline; }
-            </style>
-          </head>
-          <body>
-            <h1>🎭 Fresco E2E Test Reports</h1>
-            <p>Failed test reports by PR:</p>
-          $(cat merged/index.html.tmp)
-          </body>
-          </html>
-          EOF
-          rm merged/index.html.tmp
+          # Build index page listing all reports
+          {
+            echo '<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">'
+            echo '<title>Fresco E2E Test Reports</title>'
+            echo '<style>body{font-family:system-ui;max-width:800px;margin:40px auto;padding:20px}ul{list-style:none;padding:0}li{padding:10px 0;border-bottom:1px solid #eee}a{color:#0066cc;text-decoration:none;font-size:1.1em}a:hover{text-decoration:underline}</style>'
+            echo '</head><body><h1>Fresco E2E Test Reports</h1><p>Failed test reports by PR:</p><ul>'
+            for dir in merged/pr-*/; do
+              [ -d "$dir" ] && echo "  <li><a href=\"$(basename "$dir")/\">$(basename "$dir")</a></li>"
+            done
+            echo '</ul></body></html>'
+          } > merged/index.html
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
@@ -219,12 +169,10 @@ jobs:
         run: |
           REPORT_URL="https://complexdatacollective.github.io/Fresco/pr-${PR_NUMBER}/"
 
-          # Query the workflow run to find which browser jobs failed
           gh api "repos/${REPO}/actions/runs/${RUN_ID}/jobs" \
             --jq '.jobs[] | select(.name | startswith("e2e")) | {name: .name, conclusion: .conclusion}' \
           | jq -r '. | "\(.name)|\(.conclusion)"' \
           | while IFS='|' read -r job_name conclusion; do
-            # Extract browser name from job name (e.g. "e2e (chromium)" -> "chromium")
             browser=$(echo "$job_name" | sed 's/.*(\(.*\))/\1/')
 
             if [ "$conclusion" = "failure" ]; then

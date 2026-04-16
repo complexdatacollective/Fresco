@@ -32,12 +32,12 @@ async function getDndAnnouncement(page: Page): Promise<string> {
  *   - Delete bin: "Drop target X of Y: Delete bin"
  * @param maxSteps - Maximum arrow presses before giving up (default 20)
  */
-async function navigateDndToTarget(
+async function attemptDnd(
   page: Page,
   sourceLocator: Locator,
   targetText: string,
-  maxSteps = 20,
-): Promise<void> {
+  maxSteps: number,
+): Promise<boolean> {
   // Must use evaluate for focus — nodes have tabIndex=-1 (roving tabindex)
   // and Playwright's .focus() fails silently in WebKit for unfocusable elements.
   await sourceLocator.evaluate((el) => (el as HTMLElement).focus());
@@ -57,12 +57,48 @@ async function navigateDndToTarget(
   }
 
   if (!found) {
-    throw new Error(
-      `Could not find DnD target "${targetText}" after ${maxSteps} steps`,
-    );
+    // Cancel the drag before returning
+    await page.keyboard.press('Escape');
+    return false;
   }
 
   await page.keyboard.press('Enter');
+  return true;
+}
+
+/**
+ * Navigate a DnD operation from source to target via keyboard, with retry.
+ * dnd-kit's keyboard drop can silently fail if React state is
+ * mid-reconciliation when Enter fires. Retrying the full sequence
+ * (focus → Ctrl+D → navigate → Enter) resolves the race.
+ */
+async function navigateDndToTarget(
+  page: Page,
+  sourceLocator: Locator,
+  targetText: string,
+  maxSteps = 20,
+): Promise<void> {
+  const maxAttempts = 3;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    const found = await attemptDnd(page, sourceLocator, targetText, maxSteps);
+
+    if (!found) {
+      throw new Error(
+        `Could not find DnD target "${targetText}" after ${maxSteps} steps`,
+      );
+    }
+
+    // Brief wait for drop to commit, then check if source is still visible.
+    // If the node is gone from the source, the drop succeeded.
+    await page.waitForTimeout(100);
+    const stillVisible = await sourceLocator.isVisible().catch(() => false);
+    if (!stillVisible) {
+      return;
+    }
+
+    // Drop didn't commit — retry
+  }
 }
 
 /**
@@ -724,8 +760,11 @@ class GeospatialFixture {
 
   /**
    * Wait for the map to reach idle state — all tiles rendered and all
-   * animations/transitions completed. Use this before taking snapshots
-   * or after any map interaction (zoom, fly-to, search selection).
+   * animations/transitions completed — then verify the canvas pixels
+   * have stabilised. The mapbox `idle` event signals "no pending work"
+   * but on WebKit, base-map text labels can still be in the tile
+   * rasterisation pipeline when `idle` fires. Polling the canvas data
+   * until two consecutive reads match ensures labels are composited.
    */
   async waitForMapIdle(): Promise<void> {
     const canvas = this.mapContainer.locator('canvas.mapboxgl-canvas');
@@ -733,6 +772,42 @@ class GeospatialFixture {
     await expect(this.mapContainer).toHaveAttribute('data-map-idle', 'true', {
       timeout: 30000,
     });
+
+    // Wait for the canvas pixels to stabilise. Two consecutive reads
+    // with matching hashes means the text rendering pipeline has flushed.
+    await this.page.waitForFunction(
+      () => {
+        const cv = document.querySelector<HTMLCanvasElement>(
+          'canvas.mapboxgl-canvas',
+        );
+        if (!cv) return false;
+
+        // Sample a horizontal strip from the upper third of the canvas
+        // where labels are most likely rendered, to keep the hash cheap.
+        const ctx = cv.getContext('webgl2') ?? cv.getContext('webgl');
+        if (!ctx) return false;
+
+        const w = cv.width;
+        const stripH = 80;
+        const y = Math.floor(cv.height * 0.15);
+        const buf = new Uint8Array(w * stripH * 4);
+        ctx.readPixels(0, y, w, stripH, ctx.RGBA, ctx.UNSIGNED_BYTE, buf);
+
+        // Simple FNV-1a hash of the pixel data
+        let hash = 2166136261;
+        for (let i = 0; i < buf.length; i += 64) {
+          hash ^= buf[i]!;
+          hash = (hash * 16777619) >>> 0;
+        }
+
+        const prev = (window as unknown as Record<string, number>)
+          .__mapCanvasHash;
+        (window as unknown as Record<string, number>).__mapCanvasHash = hash;
+        return prev !== undefined && prev === hash;
+      },
+      null,
+      { timeout: 10000, polling: 200 },
+    );
   }
 
   /**

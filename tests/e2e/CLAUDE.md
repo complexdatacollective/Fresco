@@ -133,16 +133,16 @@ tests/e2e/
 Projects are generated from `BROWSERS x ENVIRONMENT_CHAIN` with explicit dependencies.
 For each browser the chain runs sequentially:
 
-| Project Pattern       | Tests            | Auth                           | Depends On        |
-| --------------------- | ---------------- | ------------------------------ | ----------------- |
-| `setup-{browser}`     | specs/setup/     | None                           | —                 |
-| `auth-{browser}`      | specs/auth/      | None (saves per-browser state) | `setup-{browser}` |
-| `dashboard-{browser}` | specs/dashboard/ | storageState from auth         | `auth-{browser}`  |
-| `api-{browser}`       | specs/api/       | None                           | `auth-{browser}`  |
-| `interview-{browser}` | specs/interview/ | None                           | `auth-{browser}`  |
-| `preview-{browser}`   | specs/preview/   | None                           | `auth-{browser}`  |
+| Project Pattern       | Tests            | Auth                           | Depends On            |
+| --------------------- | ---------------- | ------------------------------ | --------------------- |
+| `setup-{browser}`     | specs/setup/     | None                           | —                     |
+| `auth-{browser}`      | specs/auth/      | None (saves per-browser state) | `setup-{browser}`     |
+| `dashboard-{browser}` | specs/dashboard/ | storageState from auth         | `auth-{browser}`      |
+| `api-{browser}`       | specs/api/       | None                           | `dashboard-{browser}` |
+| `interview-{browser}` | specs/interview/ | None                           | `api-{browser}`       |
+| `preview-{browser}`   | specs/preview/   | None                           | `interview-{browser}` |
 
-Auth state is saved to per-browser paths (e.g., `.auth/dashboard-chromium.json`). The
+Auth state is saved to per-browser paths (e.g., `.auth/chromium.json`). The
 `api`, `interview`, and `preview` environments use the same shared DB seeded after setup,
 but without authentication, making them suitable for unauthenticated endpoints and
 interview/preview flows.

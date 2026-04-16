@@ -1,7 +1,7 @@
 import { expect, test } from '../../fixtures/test.js';
 import { expectURL } from '../../helpers/expectations.js';
 import { fillField } from '../../helpers/form.js';
-import { seedDashboardEnvironment } from '../../helpers/seed.js';
+import { seedDashboardData } from '../../helpers/seed.js';
 
 test.describe('Setup Flow', () => {
   test.describe.configure({ mode: 'serial' });
@@ -97,6 +97,6 @@ test.describe('Setup Flow', () => {
   });
 
   test.afterAll(async ({ database }) => {
-    await database.seedAndSnapshot(seedDashboardEnvironment, 'initial');
+    await database.seedAndSnapshot(seedDashboardData, 'initial');
   });
 });

@@ -360,6 +360,9 @@ test.describe('SILOS Protocol', () => {
         .poll(() => interview.nextButtonHasPulse(), { timeout: 5000 })
         .toBe(true);
 
+      // Wait for map to settle so captureFinal gets fully rendered labels
+      await stage.geospatial.waitForMapIdle();
+
       await expect(interview.nextButton).toBeEnabled();
     });
 
@@ -948,6 +951,8 @@ test.describe('SILOS Protocol', () => {
         .poll(() => interview.nextButtonHasPulse(), { timeout: 5000 })
         .toBe(true);
 
+      await stage.geospatial.waitForMapIdle();
+
       // Click next — last node, exits stage
       await expect(interview.nextButton).toBeEnabled();
     });
@@ -1413,6 +1418,8 @@ test.describe('SILOS Protocol', () => {
         }
       }
 
+      await stage.geospatial.waitForMapIdle();
+
       // Exit stage on last node
       await expect(interview.nextButton).toBeEnabled();
     });
@@ -1600,6 +1607,8 @@ test.describe('SILOS Protocol', () => {
       await expect
         .poll(() => interview.nextButtonHasPulse(), { timeout: 5000 })
         .toBe(true);
+
+      await stage.geospatial.waitForMapIdle();
 
       await expect(interview.nextButton).toBeEnabled();
     });

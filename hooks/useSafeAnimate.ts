@@ -1,12 +1,12 @@
 'use client';
 
-import { useContext, useMemo } from 'react';
 import {
   MotionConfigContext,
   useAnimate,
   useReducedMotionConfig,
   type AnimationScope,
 } from 'motion/react';
+import { useContext, useMemo } from 'react';
 
 type AnimateFn<T extends Element> = ReturnType<typeof useAnimate<T>>[1];
 
@@ -67,7 +67,10 @@ export function useSafeAnimate<T extends Element = HTMLDivElement>() {
           const finalValue = Array.isArray(value)
             ? value[value.length - 1]
             : value;
-          if (finalValue != null) {
+          if (
+            typeof finalValue === 'string' ||
+            typeof finalValue === 'number'
+          ) {
             el.style.setProperty(
               prop.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`),
               String(finalValue),
