@@ -274,6 +274,7 @@ test.describe('SILOS Protocol', () => {
       await stage.geospatial.zoomIn();
       await stage.geospatial.zoomOut();
       await stage.geospatial.recenter();
+      await stage.geospatial.waitForMapIdle();
 
       // --- Test search toggle ---
       await expect(stage.geospatial.searchToggle).toBeVisible();
@@ -303,6 +304,10 @@ test.describe('SILOS Protocol', () => {
       // Clear search and close panel
       await stage.geospatial.closeSearch();
       expect(await stage.geospatial.isSearchOpen()).toBe(false);
+
+      // Wait for the map to settle after the search-triggered zoom/pan
+      // so tile labels are fully rendered before any screenshot.
+      await stage.geospatial.waitForMapIdle();
 
       // --- Test map selection by clicking on a selectable area ---
       // The silos protocol uses Chicago neighborhoods - click near center of map

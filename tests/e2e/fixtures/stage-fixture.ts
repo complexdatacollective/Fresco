@@ -128,13 +128,18 @@ class FormFixture {
     await slider.focus();
     await slider.press('Home');
 
-    // Arrow right until we find the target label (max steps = option count)
+    // Arrow right until we find the target label (max steps = option count).
+    // After each key press, wait for the aria-label to update before reading
+    // — WebKit can lag behind on attribute updates after synthetic key events.
     for (let i = 0; i <= max; i++) {
+      await expect(slider).toHaveAttribute('aria-label', /.+/);
       const label = await slider.getAttribute('aria-label');
-      if (label?.includes(optionLabel)) {
+      if (label?.trim().includes(optionLabel)) {
         return;
       }
-      await slider.press('ArrowRight');
+      if (i < max) {
+        await slider.press('ArrowRight');
+      }
     }
 
     const finalLabel = await slider.getAttribute('aria-label');

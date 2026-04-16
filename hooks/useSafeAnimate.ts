@@ -18,8 +18,9 @@ type AnimateFn<T extends Element> = ReturnType<typeof useAnimate<T>>[1];
  * WebKit reports these zero-duration WAAPI animations via
  * `getAnimations()`, which breaks Playwright's element stability check.
  *
- * This wrapper returns a no-op `animate` that resolves immediately when
- * either `skipAnimations` is true or reduced motion is active.
+ * When skipping, the final keyframe values are applied directly to the
+ * element's inline style so visual state (e.g. selected borders) still
+ * renders correctly without creating WAAPI animations.
  */
 export function useSafeAnimate<T extends Element = HTMLDivElement>() {
   const [scope, animate] = useAnimate<T>();
@@ -31,12 +32,14 @@ export function useSafeAnimate<T extends Element = HTMLDivElement>() {
   const safeAnimate = useMemo(() => {
     if (!shouldSkip) return animate;
 
+    // eslint-disable-next-line @typescript-eslint/no-empty-function
+    const voidFn = () => {};
     const noop = {
-      stop: () => {},
-      cancel: () => {},
-      complete: () => {},
-      pause: () => {},
-      play: () => {},
+      stop: voidFn,
+      cancel: voidFn,
+      complete: voidFn,
+      pause: voidFn,
+      play: voidFn,
       then: (resolve?: () => void) => {
         resolve?.();
         return noop;
@@ -46,12 +49,35 @@ export function useSafeAnimate<T extends Element = HTMLDivElement>() {
       startTime: null,
       state: 'finished' as const,
       duration: 0,
-      attachTimeline: () => () => {},
-      flatten: () => {},
+      attachTimeline: () => voidFn,
+      flatten: voidFn,
     };
 
-    return ((..._args: Parameters<AnimateFn<T>>) =>
-      noop) as unknown as AnimateFn<T>;
+    return ((...args: Parameters<AnimateFn<T>>) => {
+      const [elementOrSelector, keyframes] = args;
+
+      if (
+        elementOrSelector instanceof Element &&
+        keyframes &&
+        typeof keyframes === 'object' &&
+        !Array.isArray(keyframes)
+      ) {
+        const el = elementOrSelector as HTMLElement;
+        for (const [prop, value] of Object.entries(keyframes)) {
+          const finalValue = Array.isArray(value)
+            ? value[value.length - 1]
+            : value;
+          if (finalValue != null) {
+            el.style.setProperty(
+              prop.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`),
+              String(finalValue),
+            );
+          }
+        }
+      }
+
+      return noop;
+    }) as unknown as AnimateFn<T>;
   }, [shouldSkip, animate]);
 
   return [scope, safeAnimate] as [AnimationScope<T>, AnimateFn<T>];
