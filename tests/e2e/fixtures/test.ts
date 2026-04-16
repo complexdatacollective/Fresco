@@ -123,6 +123,18 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         await page.addStyleTag({ content: VISUAL_STYLES });
         await page.addStyleTag({ content: FULL_PAGE_STYLES });
 
+        // Wait for NoSSR-wrapped components (e.g. TimeAgo) to hydrate
+        // before capturing. Without this, td:has([data-testid="time-ago"])
+        // doesn't match because the <time> element hasn't mounted yet,
+        // producing inconsistent column widths across runs.
+        await page
+          .locator('[data-testid="time-ago"]')
+          .first()
+          .waitFor({ state: 'attached', timeout: 2000 })
+          .catch(() => {
+            // Page may not have time-ago elements — that's fine
+          });
+
         for (const viewport of viewports) {
           await page.setViewportSize({ width: viewport.width, height: 1080 });
 
