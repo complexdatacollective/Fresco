@@ -155,7 +155,20 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
         ) => {
           await page.addStyleTag({ content: VISUAL_STYLES });
 
-          await expect(element).toHaveScreenshot(`${name}.png`, {
+          // Use page-level screenshot clipped to element bbox. The native
+          // expect(element).toHaveScreenshot() runs a getBoundingClientRect
+          // stability check that WebKit can never pass for fixed-position
+          // elements with translate(-50%, -50%) — subpixel rounding causes
+          // the bbox to oscillate between frames indefinitely.
+          const box = await element.boundingBox();
+          if (!box) {
+            throw new Error(
+              `captureElement(${name}): element has no bounding box`,
+            );
+          }
+
+          await expect(page).toHaveScreenshot(`${name}.png`, {
+            clip: box,
             mask: options.mask,
           });
         },
@@ -163,7 +176,6 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
     },
     { scope: 'test' },
   ],
-
 });
 
 export { expect };
