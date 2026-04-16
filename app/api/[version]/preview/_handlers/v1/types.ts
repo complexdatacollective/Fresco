@@ -42,6 +42,13 @@ export type PresignedUrlWithAssetId = {
   url: string;
   /** Headers the client must include on the upload PUT request. */
   headers: Record<string, string>;
+  /**
+   * How to wrap the file bytes when PUTting to `url`:
+   * - `raw`: PUT the file as the request body (S3 presigned URLs).
+   * - `formdata`: wrap the file in a `FormData` with field name `file`
+   *   (UploadThing ingest endpoint requires multipart/form-data).
+   */
+  bodyFormat: 'raw' | 'formdata';
 };
 
 type JobCreatedResponse = {
