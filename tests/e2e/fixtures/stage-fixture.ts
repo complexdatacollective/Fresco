@@ -127,6 +127,7 @@ class FormFixture {
   async fillText(fieldName: string, value: string): Promise<void> {
     const field = this.getField(fieldName);
     const input = field.locator('input, textarea').first();
+    await input.scrollIntoViewIfNeeded();
     await input.click({ force: true });
     await input.fill(value);
     await expect(input).toHaveValue(value);
@@ -145,6 +146,7 @@ class FormFixture {
       name: optionLabel,
       exact: options?.exact ?? true,
     });
+    await radio.scrollIntoViewIfNeeded();
     await radio.click({ force: true });
     await expect(radio).toBeChecked();
   }
@@ -198,6 +200,7 @@ class FormFixture {
       name: optionLabel,
       exact: true,
     });
+    await option.scrollIntoViewIfNeeded();
     await option.click({ force: true });
     await expect(option).toBeChecked();
   }
@@ -211,6 +214,7 @@ class FormFixture {
       name: optionLabel,
       exact: true,
     });
+    await checkbox.scrollIntoViewIfNeeded();
     await checkbox.click({ force: true });
     await expect(checkbox).toBeChecked();
   }
@@ -231,6 +235,7 @@ class FormFixture {
   async fillNumber(fieldName: string, value: string): Promise<void> {
     const field = this.getField(fieldName);
     const input = field.getByRole('spinbutton');
+    await input.scrollIntoViewIfNeeded();
     await input.click({ force: true });
     await input.fill(value);
     await expect(input).toHaveValue(value);
