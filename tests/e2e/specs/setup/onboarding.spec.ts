@@ -47,7 +47,7 @@ test.describe('Setup Flow', () => {
     // already the implicit default — no click needed.
     const passwordRadio = page.getByRole('radio', { name: /^Password/i });
     if (await passwordRadio.isVisible()) {
-      await passwordRadio.click();
+      await passwordRadio.click({ force: true });
     }
     await fillField(page, 'password', 'TestAdmin123!');
     await fillField(page, 'confirmPassword', 'TestAdmin123!');

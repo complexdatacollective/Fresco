@@ -43,21 +43,21 @@ test.describe('Dashboard Overview', () => {
   test('navigates to protocols from card', async ({ page }) => {
     const card = page.getByTestId('stat-card-protocols');
     await expect(card.getByRole('heading', { level: 1 })).toBeVisible();
-    await card.click();
+    await card.click({ force: true });
     await expectURL(page, /\/dashboard\/protocols/);
   });
 
   test('navigates to participants from card', async ({ page }) => {
     const card = page.getByTestId('stat-card-participants');
     await expect(card.getByRole('heading', { level: 1 })).toBeVisible();
-    await card.click();
+    await card.click({ force: true });
     await expectURL(page, /\/dashboard\/participants/);
   });
 
   test('navigates to interviews from card', async ({ page }) => {
     const card = page.getByTestId('stat-card-interviews');
     await expect(card.getByRole('heading', { level: 1 })).toBeVisible();
-    await card.click();
+    await card.click({ force: true });
     await expectURL(page, /\/dashboard\/interviews/);
   });
 

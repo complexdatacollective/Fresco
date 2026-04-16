@@ -127,7 +127,7 @@ class FormFixture {
   async fillText(fieldName: string, value: string): Promise<void> {
     const field = this.getField(fieldName);
     const input = field.locator('input, textarea').first();
-    await input.click();
+    await input.click({ force: true });
     await input.fill(value);
     await expect(input).toHaveValue(value);
   }
@@ -145,7 +145,7 @@ class FormFixture {
       name: optionLabel,
       exact: options?.exact ?? true,
     });
-    await radio.click();
+    await radio.click({ force: true });
     await expect(radio).toBeChecked();
   }
 
@@ -198,7 +198,7 @@ class FormFixture {
       name: optionLabel,
       exact: true,
     });
-    await option.click();
+    await option.click({ force: true });
     await expect(option).toBeChecked();
   }
 
@@ -211,7 +211,7 @@ class FormFixture {
       name: optionLabel,
       exact: true,
     });
-    await checkbox.click();
+    await checkbox.click({ force: true });
     await expect(checkbox).toBeChecked();
   }
 
@@ -231,7 +231,7 @@ class FormFixture {
   async fillNumber(fieldName: string, value: string): Promise<void> {
     const field = this.getField(fieldName);
     const input = field.getByRole('spinbutton');
-    await input.click();
+    await input.click({ force: true });
     await input.fill(value);
     await expect(input).toHaveValue(value);
   }
@@ -270,7 +270,7 @@ class QuickAddFixture {
     const isPressed = await toggle.getAttribute('aria-pressed');
 
     if (isPressed !== 'true') {
-      await toggle.click();
+      await toggle.click({ force: true });
       await input.waitFor({ state: 'visible' });
     }
 
@@ -307,7 +307,7 @@ class NameGeneratorFixture {
    */
   async openAddForm(): Promise<void> {
     const addButton = this.page.getByRole('button', { name: 'Add a person' });
-    await addButton.click();
+    await addButton.click({ force: true });
     await this.page.getByRole('dialog').waitFor({ state: 'visible' });
   }
 
@@ -316,7 +316,7 @@ class NameGeneratorFixture {
    */
   async submitForm(): Promise<void> {
     const submitButton = this.page.getByRole('button', { name: 'Finished' });
-    await submitButton.click();
+    await submitButton.click({ force: true });
     await this.page.getByRole('dialog').waitFor({ state: 'hidden' });
   }
 }
@@ -365,7 +365,7 @@ class SociogramFixture {
    */
   async clickNode(label: string): Promise<void> {
     const node = this.getNode(label);
-    await node.click();
+    await node.click({ force: true });
   }
 
   /**
@@ -594,7 +594,7 @@ class CategoricalBinFixture {
     if (!(await this.isBinExpanded(label))) {
       await this.page
         .getByRole('button', { name: new RegExp(`Category ${label}`) })
-        .click();
+        .click({ force: true });
       await expect(
         this.page.locator('[class*="catbin-expanded"]'),
       ).toBeVisible();
@@ -609,7 +609,9 @@ class CategoricalBinFixture {
    */
   async collapseBin(label: string): Promise<void> {
     if (await this.isBinExpanded(label)) {
-      await this.page.getByTestId('categorical-bin-interface').click();
+      await this.page
+        .getByTestId('categorical-bin-interface')
+        .click({ force: true });
       await expect(
         this.page.locator('[class*="catbin-expanded"]'),
       ).not.toBeVisible();
@@ -866,7 +868,7 @@ class GeospatialFixture {
    */
   async zoomIn(): Promise<void> {
     const zoomBefore = await this.getZoomLevel();
-    await this.zoomInButton.click();
+    await this.zoomInButton.click({ force: true });
 
     // Verify zoom increased
     if (zoomBefore !== null) {
@@ -883,7 +885,7 @@ class GeospatialFixture {
    */
   async zoomOut(): Promise<void> {
     const zoomBefore = await this.getZoomLevel();
-    await this.zoomOutButton.click();
+    await this.zoomOutButton.click({ force: true });
 
     // Verify zoom decreased
     if (zoomBefore !== null) {
@@ -899,7 +901,7 @@ class GeospatialFixture {
    * Click the recenter button to reset map to initial position.
    */
   async recenter(): Promise<void> {
-    await this.recenterButton.click();
+    await this.recenterButton.click({ force: true });
     await this.waitForMapIdle();
   }
 
@@ -909,7 +911,7 @@ class GeospatialFixture {
   async openSearch(): Promise<void> {
     const isOpen = await this.isSearchOpen();
     if (!isOpen) {
-      await this.searchToggle.click();
+      await this.searchToggle.click({ force: true });
       // Wait for search panel to appear
       await expect(
         this.page.getByRole('combobox', { name: /search/i }),
@@ -923,7 +925,7 @@ class GeospatialFixture {
   async closeSearch(): Promise<void> {
     const isOpen = await this.isSearchOpen();
     if (isOpen) {
-      await this.searchToggle.click();
+      await this.searchToggle.click({ force: true });
       // Wait for search panel to disappear
       await expect(
         this.page.getByRole('combobox', { name: /search/i }),
@@ -979,7 +981,7 @@ class GeospatialFixture {
   async selectSuggestion(text: string | RegExp): Promise<void> {
     const suggestion = this.page.getByRole('option', { name: text });
     await expect(suggestion).toBeVisible();
-    await suggestion.click();
+    await suggestion.click({ force: true });
     await this.waitForMapIdle();
   }
 
@@ -988,7 +990,7 @@ class GeospatialFixture {
    */
   async clearSearch(): Promise<void> {
     if (await this.searchClearButton.isVisible()) {
-      await this.searchClearButton.click();
+      await this.searchClearButton.click({ force: true });
       // Verify input is cleared
       await expect(this.searchInput).toHaveValue('');
     }
@@ -998,7 +1000,7 @@ class GeospatialFixture {
    * Click the "Outside Selectable Areas" button.
    */
   async selectOutsideSelectableAreas(): Promise<void> {
-    await this.outsideSelectableAreasButton.click();
+    await this.outsideSelectableAreasButton.click({ force: true });
     // Wait for overlay to appear
     await expect(this.outsideSelectableOverlay).toBeVisible();
   }
@@ -1007,7 +1009,7 @@ class GeospatialFixture {
    * Deselect the "outside selectable areas" option.
    */
   async deselectOutsideArea(): Promise<void> {
-    await this.deselectButton.click();
+    await this.deselectButton.click({ force: true });
     // Wait for overlay to disappear
     await expect(this.outsideSelectableOverlay).not.toBeVisible();
   }

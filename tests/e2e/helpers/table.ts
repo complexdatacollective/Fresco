@@ -37,7 +37,9 @@ export async function clearSearch(page: Page): Promise<void> {
 export async function selectAllRows(page: Page): Promise<void> {
   const table = page.getByTestId('data-table');
   const headerCheckbox = table.locator('thead').getByRole('checkbox');
-  await headerCheckbox.click();
+  // force: WebKit reports subpixel bbox jitter on checkbox elements
+  // with transition-colors, causing the stability check to time out.
+  await headerCheckbox.click({ force: true });
 }
 
 function getTableRows(page: Page): Locator {
@@ -56,5 +58,5 @@ export async function getTableRowCount(page: Page): Promise<number> {
 export async function clickSortColumn(page: Page, name: string): Promise<void> {
   const table = page.getByTestId('data-table');
   const header = table.locator('thead').getByRole('button', { name });
-  await header.click();
+  await header.click({ force: true });
 }

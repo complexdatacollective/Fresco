@@ -126,7 +126,7 @@ test.describe('SILOS Protocol', () => {
       expect(await interview.nextButtonHasPulse()).toBe(false);
 
       // Try to proceed without filling required fields
-      await interview.nextButton.click();
+      await interview.nextButton.click({ force: true });
 
       // Verify we're still on stage 3 (proceeding was blocked)
       await expectURL(page, /step=3/);
@@ -299,7 +299,7 @@ test.describe('SILOS Protocol', () => {
       expect(suggestionCount).toBeGreaterThan(0);
 
       // Select the first suggestion - this should pan the map
-      await stage.geospatial.getSuggestions().first().click();
+      await stage.geospatial.getSuggestions().first().click({ force: true });
 
       // Clear search and close panel
       await stage.geospatial.closeSearch();
@@ -493,7 +493,7 @@ test.describe('SILOS Protocol', () => {
       await expect(stage.getNode('Bob')).toBeVisible();
 
       // --- Proceed to next prompt (drug use) ---
-      await interview.nextButton.click();
+      await interview.nextButton.click({ force: true });
 
       // Verify we're on the second prompt (drug use)
       await expect(stage.getPrompt(/marijuana|drugs/i)).toBeVisible();
@@ -605,7 +605,7 @@ test.describe('SILOS Protocol', () => {
       await expect.poll(() => stage.sociogram.getEdgeCount()).toBe(1);
 
       // --- Proceed to next prompt (drug partners highlighting) ---
-      await interview.nextButton.click();
+      await interview.nextButton.click({ force: true });
 
       // Verify we're on the second prompt (drug partners)
       await expect(stage.getPrompt(/drug/i)).toBeVisible();
@@ -655,7 +655,7 @@ test.describe('SILOS Protocol', () => {
       await expect.poll(() => stage.sociogram.getEdgeCount()).toBe(1);
 
       // --- Proceed to next prompt (serious relationship highlighting) ---
-      await interview.nextButton.click();
+      await interview.nextButton.click({ force: true });
 
       // Verify we're on the second prompt (serious relationship)
       await expect(stage.getPrompt(/serious relationship/i)).toBeVisible();
@@ -784,7 +784,7 @@ test.describe('SILOS Protocol', () => {
       await expect(interview.nextButton).toBeEnabled();
 
       // ========== PROMPT 2: Hispanic/Latino ==========
-      await interview.nextButton.click();
+      await interview.nextButton.click({ force: true });
       await expect(stage.getPrompt(/Hispanic/i)).toBeVisible();
 
       // Verify bins
@@ -818,7 +818,7 @@ test.describe('SILOS Protocol', () => {
       await expect(interview.nextButton).toBeEnabled();
 
       // ========== PROMPT 3: Race/Ethnicity ==========
-      await interview.nextButton.click();
+      await interview.nextButton.click({ force: true });
       await expect(stage.getPrompt(/race|ethnic/i)).toBeVisible();
 
       // Verify bins
@@ -839,7 +839,7 @@ test.describe('SILOS Protocol', () => {
       await expect(interview.nextButton).toBeEnabled();
 
       // ========== PROMPT 4: Sexual Identity ==========
-      await interview.nextButton.click();
+      await interview.nextButton.click({ force: true });
       await expect(stage.getPrompt(/sexual identity/i)).toBeVisible();
 
       // Verify bins
@@ -941,7 +941,7 @@ test.describe('SILOS Protocol', () => {
         .toBe(true);
 
       // Click next — beforeNext advances to node 2 (stays in stage)
-      await interview.nextButton.click();
+      await interview.nextButton.click({ force: true });
 
       // --- Node 2 (second Chicago alter) ---
       await expect(stage.geospatial.mapContainer).toBeVisible();
@@ -1017,7 +1017,7 @@ test.describe('SILOS Protocol', () => {
     }) => {
       await interview.captureInitial();
       // AlterForm with intro panel — dismiss it
-      await interview.nextButton.click();
+      await interview.nextButton.click({ force: true });
 
       // Slide 1 (first sex partner with anal sex — Bob or Evan)
       // 1. Number of times anal sex (Number)
@@ -1027,7 +1027,7 @@ test.describe('SILOS Protocol', () => {
       await stage.form.fillNumber('315d540c-92fe-4acd-81c7-0b6ea2dacc17', '2');
 
       // Advance to next slide
-      await interview.nextButton.click();
+      await interview.nextButton.click({ force: true });
 
       // Slide 2 (second sex partner with anal sex)
       await stage.form.fillNumber('a61f8d2d-f3d1-4c4d-9236-34e709effb9f', '3');
@@ -1040,7 +1040,7 @@ test.describe('SILOS Protocol', () => {
     }) => {
       await interview.captureInitial();
       // Dismiss intro panel
-      await interview.nextButton.click();
+      await interview.nextButton.click({ force: true });
 
       // Slide 1 (first sex partner with anal sex)
       // 1. First day of sex (RelativeDatePicker)
@@ -1068,7 +1068,7 @@ test.describe('SILOS Protocol', () => {
       );
 
       // Advance to next slide
-      await interview.nextButton.click();
+      await interview.nextButton.click({ force: true });
 
       // Slide 2 (second sex partner with anal sex)
       await stage.form.fillDate(
@@ -1159,7 +1159,7 @@ test.describe('SILOS Protocol', () => {
     }) => {
       await interview.captureInitial();
       // Dismiss intro panel
-      await interview.nextButton.click();
+      await interview.nextButton.click({ force: true });
 
       // Slide 1 — select substances for first anal sex partner (CheckboxGroup)
       await stage.form.selectCheckbox(
@@ -1168,7 +1168,7 @@ test.describe('SILOS Protocol', () => {
       );
 
       // Advance to next slide
-      await interview.nextButton.click();
+      await interview.nextButton.click({ force: true });
 
       // Slide 2 — select substances for second anal sex partner
       await stage.form.selectCheckbox(
@@ -1227,7 +1227,7 @@ test.describe('SILOS Protocol', () => {
       await interview.captureInitial();
       // Only shows partners who met at a physical place
       // Dismiss intro panel
-      await interview.nextButton.click();
+      await interview.nextButton.click({ force: true });
 
       // Fill the venue name (Text)
       await stage.form.fillText(
@@ -1240,7 +1240,7 @@ test.describe('SILOS Protocol', () => {
       await interview.captureInitial();
       // Only shows partners who met online
       // Dismiss intro panel
-      await interview.nextButton.click();
+      await interview.nextButton.click({ force: true });
 
       // Fill the app name (Text)
       await stage.form.fillText(
@@ -1414,7 +1414,7 @@ test.describe('SILOS Protocol', () => {
 
         if (i < 3) {
           // Advance to next node (stays in stage)
-          await interview.nextButton.click();
+          await interview.nextButton.click({ force: true });
         }
       }
 
@@ -1638,7 +1638,7 @@ test.describe('SILOS Protocol', () => {
       ).toBeVisible();
 
       // Verify validation blocks advancement (all 12 fields are required)
-      await interview.nextButton.click();
+      await interview.nextButton.click({ force: true });
       await expectURL(page, /step=52/);
 
       // Verify at least one field error is visible

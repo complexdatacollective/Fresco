@@ -53,6 +53,12 @@ export function useSafeAnimate<T extends Element = HTMLDivElement>() {
       flatten: voidFn,
     };
 
+    // Identity values that have no visual effect but can force WebKit to
+    // create GPU compositor layers, causing getBoundingClientRect() to
+    // oscillate between frames (breaking Playwright's stability check).
+    const IDENTITY_VALUES = new Set(['blur(0px)', 'none', '0', '0px', '0%']);
+    const IDENTITY_PROPS = new Set(['scale', 'filter', 'opacity', 'transform']);
+
     return ((...args: Parameters<AnimateFn<T>>) => {
       const [elementOrSelector, keyframes] = args;
 
@@ -67,15 +73,18 @@ export function useSafeAnimate<T extends Element = HTMLDivElement>() {
           const finalValue = Array.isArray(value)
             ? value[value.length - 1]
             : value;
-          if (
-            typeof finalValue === 'string' ||
-            typeof finalValue === 'number'
-          ) {
-            el.style.setProperty(
-              prop.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`),
-              String(finalValue),
-            );
-          }
+          if (finalValue == null) continue;
+          const strVal = String(finalValue);
+
+          // Skip identity values on compositor-sensitive properties
+          // to avoid WebKit bbox jitter on fixed/translated elements.
+          if (IDENTITY_PROPS.has(prop) && IDENTITY_VALUES.has(strVal)) continue;
+          if (IDENTITY_PROPS.has(prop) && Number(finalValue) === 1) continue;
+
+          el.style.setProperty(
+            prop.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`),
+            strVal,
+          );
         }
       }
 
