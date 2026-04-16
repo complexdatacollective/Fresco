@@ -11,11 +11,11 @@ import {
   type Subject,
 } from '~/lib/interviewer/selectors/forms';
 import Field from '../components/Field/Field';
-import FieldNamespace from '../components/FieldNamespace';
 import {
   type FieldValue,
   type ValidationPropsCatalogue,
 } from '../components/Field/types';
+import FieldNamespace from '../components/FieldNamespace';
 import BooleanField from '../components/fields/Boolean';
 import CheckboxGroupField from '../components/fields/CheckboxGroup';
 import DatePickerField from '../components/fields/DatePicker';
@@ -207,15 +207,16 @@ export default function useProtocolForm({
     // Handle DatePicker parameters
     if (field.component === 'DatePicker' && field.parameters) {
       const params = field.parameters;
-      if (params.min) {
-        props.min = params.min;
-        props.minDate = params.min;
-      }
-      if (params.max) {
-        props.max = params.max;
-        props.maxDate = params.max;
-      }
+      if (params.min) props.min = params.min;
+      if (params.max) props.max = params.max;
       if (params.type) props.type = params.type;
+
+      // Min/max validation only for full date pickers (typed input)
+      // Month/year already constrain options on select dropdowns
+      if (params.type !== 'month' && params.type !== 'year') {
+        if (params.min) props.minValue = String(params.min);
+        if (params.max) props.maxValue = String(params.max);
+      }
     }
 
     // Handle RelativeDatePicker parameters

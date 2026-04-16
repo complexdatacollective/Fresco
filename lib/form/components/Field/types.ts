@@ -81,11 +81,12 @@ type StringValidationProps = {
 };
 
 /**
- * Validation props specific to number values.
+ * Validation props specific to number/date values.
+ * Accepts strings for date comparisons (YYYY-MM-DD)
  */
 type NumberValidationProps = {
-  minValue?: number;
-  maxValue?: number;
+  minValue?: number | string;
+  maxValue?: number | string;
 };
 
 /**
@@ -97,21 +98,12 @@ type ArrayValidationProps = {
 };
 
 /**
- * Validation props specific to date values.
- */
-type DateValidationProps = {
-  minDate?: string;
-  maxDate?: string;
-};
-
-/**
  * Combined catalogue of all validation props
  */
 export type ValidationPropsCatalogue = CommonValidationProps &
   StringValidationProps &
   NumberValidationProps &
-  ArrayValidationProps &
-  DateValidationProps;
+  ArrayValidationProps;
 
 /**
  * Infers the appropriate validation props based on the field's value type.

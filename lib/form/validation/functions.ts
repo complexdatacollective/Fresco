@@ -124,10 +124,33 @@ const minLength: ValidationFunction<number> = (min) => () => {
 };
 
 /**
- * Require that a number be greater than or equal to a minimum value
+ * Require that a value be greater than or equal to a minimum.
  * Uses coerce to handle string inputs from HTML number inputs
+ * Also handles date strings (YYYY-MM-DD) by comparing lexicographically, which is equivalent to chronological order for that format.
+
  */
-const minValue: ValidationFunction<number> = (min) => () => {
+const minValue: ValidationFunction<number | string> = (min) => () => {
+  if (typeof min === 'string') {
+    const hint = `Enter a date on or after ${min}.`;
+    return z
+      .prefault(
+        z.string().check(
+          z.superRefine((value, ctx) => {
+            if (value && value < min) {
+              ctx.addIssue({
+                code: 'custom',
+                input: value,
+                message: `Date must be on or after ${min}.`,
+                path: [],
+              });
+            }
+          }),
+        ),
+        '',
+      )
+      .check(z.meta({ hint }));
+  }
+
   invariant(!isNaN(Number(min)), 'Min value must be specified');
 
   const hint = `Enter a value greater than or equal to ${min}.`;
@@ -143,10 +166,32 @@ const minValue: ValidationFunction<number> = (min) => () => {
 };
 
 /**
- * Require that a number be less than or equal to a maximum value
- * Uses coerce to handle string inputs from HTML number inputs
+ * Require that a value be less than or equal to a maximum.
+ * Handles both numeric values (coerced from HTML inputs) and date strings
+ * (YYYY-MM-DD, compared lexicographically which is equivalent to chronological).
  */
-const maxValue: ValidationFunction<number> = (max) => () => {
+const maxValue: ValidationFunction<number | string> = (max) => () => {
+  if (typeof max === 'string') {
+    const hint = `Enter a date on or before ${max}.`;
+    return z
+      .prefault(
+        z.string().check(
+          z.superRefine((value, ctx) => {
+            if (value && value > max) {
+              ctx.addIssue({
+                code: 'custom',
+                input: value,
+                message: `Date must be on or before ${max}.`,
+                path: [],
+              });
+            }
+          }),
+        ),
+        '',
+      )
+      .check(z.meta({ hint }));
+  }
+
   invariant(max, 'Max value must be specified');
 
   const hint = `Enter a value less than or equal to ${max}.`;
@@ -596,66 +641,6 @@ const email = () => () => {
     .check(z.meta({ hint }));
 };
 
-/**
- * Require that a date string be on or after a minimum date.
- * Compares YYYY-MM-DD strings lexicographically (equivalent to chronological).
- */
-const minDate: ValidationFunction<string> = (min) => () => {
-  invariant(min, 'Min date must be specified');
-
-  const hint = `Enter a date on or after ${min}.`;
-
-  return z
-    .prefault(
-      z
-        .string()
-        .check(
-          z.superRefine((value, ctx) => {
-            if (value && value < min) {
-              ctx.addIssue({
-                code: 'custom',
-                input: value,
-                message: `Date must be on or after ${min}.`,
-                path: [],
-              });
-            }
-          }),
-        ),
-      '',
-    )
-    .check(z.meta({ hint }));
-};
-
-/**
- * Require that a date string be on or before a maximum date.
- * Compares YYYY-MM-DD strings lexicographically (equivalent to chronological).
- */
-const maxDate: ValidationFunction<string> = (max) => () => {
-  invariant(max, 'Max date must be specified');
-
-  const hint = `Enter a date on or before ${max}.`;
-
-  return z
-    .prefault(
-      z
-        .string()
-        .check(
-          z.superRefine((value, ctx) => {
-            if (value && value > max) {
-              ctx.addIssue({
-                code: 'custom',
-                input: value,
-                message: `Date must be on or before ${max}.`,
-                path: [],
-              });
-            }
-          }),
-        ),
-      '',
-    )
-    .check(z.meta({ hint }));
-};
-
 const custom = () => () => void 0; // Placeholder for custom validation handled elsewhere
 
 export const validations = {
@@ -666,8 +651,6 @@ export const validations = {
   pattern,
   minValue,
   maxValue,
-  minDate,
-  maxDate,
   minSelected,
   maxSelected,
   unique,
