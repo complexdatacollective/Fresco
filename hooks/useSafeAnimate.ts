@@ -73,7 +73,8 @@ export function useSafeAnimate<T extends Element = HTMLDivElement>() {
           const finalValue = Array.isArray(value)
             ? value[value.length - 1]
             : value;
-          if (finalValue == null) continue;
+          if (typeof finalValue !== 'string' && typeof finalValue !== 'number')
+            continue;
           const strVal = String(finalValue);
 
           // Skip identity values on compositor-sensitive properties
