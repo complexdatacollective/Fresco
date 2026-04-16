@@ -1,32 +1,26 @@
-/* eslint-disable no-process-env */
 import { defineConfig } from '@playwright/test';
 import { getProjects } from './config/test-config.js';
 
-// When running browsers in parallel Docker containers, each sets E2E_OUTPUT_DIR
-// to a per-browser subdirectory so reports and artifacts don't overwrite each other.
-const outputDir = process.env.E2E_OUTPUT_DIR ?? './test-results';
-const reportDir = process.env.E2E_REPORT_DIR ?? './playwright-report';
-
 export default defineConfig({
   testDir: './specs',
-  outputDir,
+  outputDir: './test-results',
   snapshotDir: './visual-snapshots',
   snapshotPathTemplate: '{snapshotDir}/{projectName}/{arg}{ext}',
 
   retries: 0,
   fullyParallel: false,
+  workers: 3,
 
   reporter: [
     ['line'],
-    ['html', { outputFolder: reportDir, open: 'never' }],
-    ['json', { outputFile: `${outputDir}/results.json` }],
+    ['html', { outputFolder: './playwright-report', open: 'never' }],
+    ['json', { outputFile: './test-results/results.json' }],
   ],
   expect: {
     timeout: 10_000,
     toHaveScreenshot: {
       animations: 'disabled',
       // Different GPUs do aliasing differently, so allow a small amount of pixel difference for CI screenshots.
-      // Don't make this too high, or actual differences will start passing through!
       maxDiffPixels: 250,
     },
   },

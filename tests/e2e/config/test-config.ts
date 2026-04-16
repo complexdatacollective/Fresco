@@ -6,12 +6,6 @@ type BrowserConfig = {
   device: (typeof devices)[string];
 };
 
-type EnvironmentConfig = {
-  id: string;
-  testMatch: string;
-  auth: boolean;
-};
-
 const ALL_BROWSERS: BrowserConfig[] = [
   { name: 'chromium', device: devices['Desktop Chrome'] },
   { name: 'firefox', device: devices['Desktop Firefox'] },
@@ -26,64 +20,37 @@ function getActiveBrowsers(): BrowserConfig[] {
   return filtered.length > 0 ? filtered : ALL_BROWSERS;
 }
 
-const ENVIRONMENTS: EnvironmentConfig[] = [
-  {
-    id: 'setup',
-    testMatch: '**/setup/*.spec.ts',
-    auth: false,
-  },
-  {
-    id: 'dashboard',
-    testMatch: '**/dashboard/*.spec.ts',
-    auth: true,
-  },
-  {
-    id: 'api',
-    testMatch: '**/api/*.spec.ts',
-    auth: false,
-  },
+const ENVIRONMENT_CHAIN = [
+  { id: 'setup', testMatch: '**/setup/*.spec.ts', needsAuth: false },
+  { id: 'auth', testMatch: '**/auth/*.spec.ts', needsAuth: false },
+  { id: 'dashboard', testMatch: '**/dashboard/*.spec.ts', needsAuth: true },
+  { id: 'api', testMatch: '**/api/*.spec.ts', needsAuth: false },
   {
     id: 'interview',
     testMatch: '**/interview/**/*.spec.ts',
-    auth: false,
+    needsAuth: false,
   },
-  {
-    id: 'preview',
-    testMatch: '**/preview/**/*.spec.ts',
-    auth: false,
-  },
-];
+  { id: 'preview', testMatch: '**/preview/**/*.spec.ts', needsAuth: false },
+] as const;
 
-function envInstanceId(envId: string, browserName: string): string {
-  return `${envId}-${browserName}`;
+export function envUrlVar(browserName: string): string {
+  return `E2E_${browserName.toUpperCase()}_URL`;
 }
 
-export function envUrlVar(instanceId: string): string {
-  return `${instanceId.toUpperCase().replace(/-/g, '_')}_URL`;
-}
-
-function authStatePath(envId: string, browserName: string): string {
-  return `./tests/e2e/.auth/${envId}-${browserName}.json`;
+function authStatePath(browserName: string): string {
+  return `./tests/e2e/.auth/${browserName}.json`;
 }
 
 export function authStatePathForProject(projectName: string): string {
-  const instanceId = projectName.replace(/^auth-/, '');
-  const lastDash = instanceId.lastIndexOf('-');
-  const envId = instanceId.substring(0, lastDash);
-  const browserName = instanceId.substring(lastDash + 1);
-  return authStatePath(envId, browserName);
+  const lastDash = projectName.lastIndexOf('-');
+  const browserName = projectName.substring(lastDash + 1);
+  return authStatePath(browserName);
 }
 
-export function getEnvironmentInstances(): {
-  suiteId: string;
-  envId: string;
-}[] {
-  return getActiveBrowsers().flatMap((browser) =>
-    ENVIRONMENTS.map((env) => ({
-      suiteId: envInstanceId(env.id, browser.name),
-      envId: env.id,
-    })),
-  );
+export function getEnvironmentInstances(): { suiteId: string }[] {
+  return getActiveBrowsers().map((browser) => ({
+    suiteId: browser.name,
+  }));
 }
 
 export function getProjects(): {
@@ -92,57 +59,42 @@ export function getProjects(): {
   dependencies?: string[];
   use: Record<string, unknown>;
 }[] {
-  return getActiveBrowsers().flatMap((browser) =>
-    ENVIRONMENTS.flatMap((env) => {
-      const projects = [];
-      const instanceId = envInstanceId(env.id, browser.name);
-      const baseURL = process.env[envUrlVar(instanceId)];
+  return getActiveBrowsers().flatMap((browser) => {
+    const baseURL = process.env[envUrlVar(browser.name)];
+    let previousProjectName: string | undefined;
 
-      if (env.auth) {
-        projects.push({
-          name: `auth-${instanceId}`,
-          testMatch: '**/auth/*.spec.ts',
-          use: {
-            ...browser.device,
-            baseURL,
-          },
-        });
+    return ENVIRONMENT_CHAIN.map((env) => {
+      const projectName = `${env.id}-${browser.name}`;
+      const dependencies = previousProjectName
+        ? [previousProjectName]
+        : undefined;
 
-        projects.push({
-          name: instanceId,
-          testMatch: env.testMatch,
-          dependencies: [`auth-${instanceId}`],
-          use: {
-            ...browser.device,
-            baseURL,
-            storageState: authStatePath(env.id, browser.name),
-          },
-        });
-      } else {
-        projects.push({
-          name: instanceId,
-          testMatch: env.testMatch,
-          use: {
-            ...browser.device,
-            baseURL,
-          },
-        });
+      previousProjectName = projectName;
+
+      const use: Record<string, unknown> = {
+        ...browser.device,
+        baseURL,
+      };
+
+      if (env.needsAuth) {
+        use.storageState = authStatePath(browser.name);
       }
 
-      return projects;
-    }),
-  );
+      return {
+        name: projectName,
+        testMatch: env.testMatch,
+        ...(dependencies && { dependencies }),
+        use,
+      };
+    });
+  });
 }
 
 export function getContextMappings(): Record<string, string> {
   const mappings: Record<string, string> = {};
   for (const browser of getActiveBrowsers()) {
-    for (const env of ENVIRONMENTS) {
-      const instanceId = envInstanceId(env.id, browser.name);
-      mappings[instanceId] = instanceId;
-      if (env.auth) {
-        mappings[`auth-${instanceId}`] = instanceId;
-      }
+    for (const env of ENVIRONMENT_CHAIN) {
+      mappings[`${env.id}-${browser.name}`] = browser.name;
     }
   }
   return mappings;

@@ -1,6 +1,7 @@
 import { expect, test } from '../../fixtures/test.js';
 import { expectURL } from '../../helpers/expectations.js';
 import { fillField } from '../../helpers/form.js';
+import { seedDashboardEnvironment } from '../../helpers/seed.js';
 
 test.describe('Setup Flow', () => {
   test.describe.configure({ mode: 'serial' });
@@ -10,7 +11,7 @@ test.describe('Setup Flow', () => {
   // if it times out (e.g. slow WebKit screenshots) the retry would hit a
   // unique constraint error without a clean slate.
   test.beforeAll(async ({ database }) => {
-    await database.restoreSnapshot();
+    await database.restoreSnapshot('setup');
   });
 
   test('redirects to setup page on first visit', async ({ page }) => {
@@ -93,5 +94,9 @@ test.describe('Setup Flow', () => {
     await expect(
       page.getByRole('heading', { name: 'Dashboard' }),
     ).toBeVisible();
+  });
+
+  test.afterAll(async ({ database }) => {
+    await database.seedAndSnapshot(seedDashboardEnvironment, 'initial');
   });
 });

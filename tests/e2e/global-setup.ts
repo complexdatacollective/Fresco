@@ -8,24 +8,12 @@ import {
 import { AssetServer, ASSET_SERVER_PORT } from './helpers/assetServer.js';
 import { type SuiteContext, saveContext } from './helpers/context.js';
 import { log, logError } from './helpers/logger.js';
-import {
-  seedDashboardEnvironment,
-  seedSetupEnvironment,
-} from './helpers/seed.js';
+import { seedSetupEnvironment } from './helpers/seed.js';
 import { TestDatabase } from './helpers/testDatabase.js';
 import { envUrlVar, getEnvironmentInstances } from './config/test-config.js';
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '../../');
 const E2E_ASSETS_DIR = path.join(PROJECT_ROOT, '.e2e-assets');
-
-const SEED_FUNCTIONS: Record<string, (connectionUri: string) => Promise<void>> =
-  {
-    setup: seedSetupEnvironment,
-    dashboard: seedDashboardEnvironment,
-    api: seedDashboardEnvironment, // Reuse dashboard seed (configured app with data, but no auth)
-    interview: seedDashboardEnvironment, // Reuse dashboard seed (configured app with data, but no auth)
-    preview: seedDashboardEnvironment, // Reuse dashboard seed (configured app for protocol preview tests)
-  };
 
 declare global {
   var __TEST_DBS__: TestDatabase[];
@@ -33,30 +21,29 @@ declare global {
   var __ASSET_SERVER__: AssetServer | undefined;
 }
 
-async function startEnvironment(
-  suiteId: string,
+async function startBrowserInstance(
+  browserName: string,
   port: number,
-  seedFn: (connectionUri: string) => Promise<void>,
   assetServerUrl: string,
 ): Promise<{ db: TestDatabase; server: AppServer; context: SuiteContext }> {
   const db = await TestDatabase.start();
   db.runMigrations();
-  await seedFn(db.connectionUri);
+  await seedSetupEnvironment(db.connectionUri);
 
   const server = await AppServer.start({
-    suiteId,
+    suiteId: browserName,
     port,
     databaseUrl: db.connectionUri,
   });
 
-  db.suiteId = suiteId;
-  await db.createSnapshot('initial');
+  db.suiteId = browserName;
+  await db.createSnapshot('setup');
 
   return {
     db,
     server,
     context: {
-      suiteId,
+      suiteId: browserName,
       appUrl: server.url,
       databaseUrl: db.connectionUri,
       assetServerUrl,
@@ -88,13 +75,9 @@ export default async function globalSetup() {
       port: allocatePort(),
     }));
     const environments = await Promise.all(
-      instancesWithPorts.map((inst) => {
-        const seedFn = SEED_FUNCTIONS[inst.envId];
-        if (!seedFn) {
-          throw new Error(`No seed function for environment "${inst.envId}"`);
-        }
-        return startEnvironment(inst.suiteId, inst.port, seedFn, assetServer.url);
-      }),
+      instancesWithPorts.map((inst) =>
+        startBrowserInstance(inst.suiteId, inst.port, assetServer.url),
+      ),
     );
 
     const suites: Record<string, SuiteContext> = {};

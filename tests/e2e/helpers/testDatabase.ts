@@ -169,6 +169,14 @@ export class TestDatabase {
     }
   }
 
+  async seedAndSnapshot(
+    seedFn: (connectionUri: string) => Promise<void>,
+    snapshotName: string,
+  ): Promise<void> {
+    await seedFn(this.connectionUri);
+    await this.createSnapshot(snapshotName);
+  }
+
   async stop(): Promise<void> {
     if (!this.container) return;
     log('teardown', 'Stopping PostgreSQL container...');
