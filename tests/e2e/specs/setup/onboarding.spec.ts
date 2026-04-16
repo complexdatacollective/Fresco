@@ -51,7 +51,9 @@ test.describe('Setup Flow', () => {
     }
     await fillField(page, 'password', 'TestAdmin123!');
     await fillField(page, 'confirmPassword', 'TestAdmin123!');
-    await page.getByRole('button', { name: 'Create account' }).click();
+    // Submit via Enter — WebKit reports Button's elevation/transition
+    // classes as unstable animations, causing click() to time out.
+    await page.keyboard.press('Enter');
 
     // Step 2: Configure Storage
     await expect(

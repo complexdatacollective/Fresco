@@ -22,7 +22,7 @@ const buttonSpecificVariants = cva({
     'focusable',
     'elevation-low',
     'not-disabled:active:elevation-none not-disabled:active:translate-y-[2px]',
-    'transition-[background-color,border-color,color,box-shadow,opacity,translate] duration-150',
+    'motion-safe:transition-[background-color,border-color,color,box-shadow,opacity,translate] motion-safe:duration-150',
   ),
   variants: {
     variant: {
