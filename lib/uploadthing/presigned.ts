@@ -1,37 +1,12 @@
 import { createHmac } from 'crypto';
 import Sqids, { defaultOptions } from 'sqids';
 import { type PresignedUploadUrl } from '~/lib/storage/services/AssetStorage';
-import { getAppSetting } from '~/queries/appSettings';
+import { type ParsedToken } from '~/lib/uploadthing/token';
 
 const UPLOADTHING_SLUG = 'assetRouter';
 const UPLOADTHING_VERSION = '7.4.0';
 const REGISTER_TIMEOUT_MS = 30_000;
 const DEFAULT_TTL_MS = 60 * 60 * 1000;
-
-export type ParsedToken = {
-  apiKey: string;
-  appId: string;
-  regions: string[];
-  ingestHost: string;
-};
-
-export async function parseUploadThingToken(): Promise<ParsedToken | null> {
-  const token = await getAppSetting('uploadThingToken');
-  if (!token) return null;
-
-  try {
-    const decoded = Buffer.from(token, 'base64').toString('utf-8');
-    const parsed = JSON.parse(decoded) as ParsedToken;
-    return {
-      apiKey: parsed.apiKey,
-      appId: parsed.appId,
-      regions: parsed.regions,
-      ingestHost: parsed.ingestHost ?? 'ingest.uploadthing.com',
-    };
-  } catch {
-    return null;
-  }
-}
 
 // Key-derivation and signing algorithms from:
 // https://docs.uploadthing.com/uploading-files#generating-presigned-urls

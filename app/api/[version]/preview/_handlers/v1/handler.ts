@@ -15,9 +15,9 @@ import {
 } from '~/lib/storage/services/AssetStorage';
 import {
   generatePresignedUploadUrl,
-  parseUploadThingToken,
   registerUploadWithUploadThing,
 } from '~/lib/uploadthing/presigned';
+import { parseUploadThingToken } from '~/lib/uploadthing/token';
 import { getExistingAssets } from '~/queries/protocols';
 import { getStorageProvider } from '~/queries/storageProvider';
 import { ensureError } from '~/utils/ensureError';
