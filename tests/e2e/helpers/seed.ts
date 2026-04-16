@@ -122,30 +122,3 @@ export async function seedDashboardData(connectionUri: string): Promise<void> {
     await builder.close();
   }
 }
-
-export async function seedDashboardEnvironment(
-  connectionUri: string,
-): Promise<void> {
-  log('setup', 'Seeding dashboard environment...');
-  const builder = new TestDataBuilder(connectionUri);
-
-  try {
-    // Create admin user
-    await builder.createUser(
-      ADMIN_CREDENTIALS.username,
-      ADMIN_CREDENTIALS.password,
-    );
-
-    // Create second test user (for admin reset 2FA tests, etc.)
-    await builder.createUser('testuser');
-
-    // Configure app settings
-    await builder.setupAppSettings();
-
-    await seedProtocolAndData(builder);
-
-    log('setup', 'Dashboard environment seeded');
-  } finally {
-    await builder.close();
-  }
-}

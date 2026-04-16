@@ -20,9 +20,6 @@ const config: KnipConfig = {
   ],
   ignoreDependencies: [
     'sharp', // Used by next/image but not directly imported
-    'esbuild', // Used by Vite but not directly imported
-    'sass-embedded', // Used in next.js config but not detected as used
-    '@vitest/coverage-v8', // Dependency of chromatic falsely detected as unused
     '@tailwindcss/forms', // Used in globals.css but not detected as used
     'tailwindcss-animate', // Used in globals.css but not detected as used
     '@prisma/client', // Used at runtime by Prisma generated client (imports @prisma/client/runtime/client)
