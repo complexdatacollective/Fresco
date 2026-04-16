@@ -12,7 +12,9 @@ test.describe('Protocol Import', () => {
   test('error: upload invalid ZIP file', async ({ page }) => {
     await waitForTable(page, { minRows: 1 });
 
-    await page.getByRole('button', { name: /import protocols/i }).click();
+    await page
+      .getByRole('button', { name: /import protocols/i })
+      .click({ force: true });
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(path.join(DATA_DIR, 'not-a-zip.netcanvas'));
 
@@ -31,7 +33,9 @@ test.describe('Protocol Import', () => {
   test('error: upload ZIP without protocol.json', async ({ page }) => {
     await waitForTable(page, { minRows: 1 });
 
-    await page.getByRole('button', { name: /import protocols/i }).click();
+    await page
+      .getByRole('button', { name: /import protocols/i })
+      .click({ force: true });
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(
       path.join(DATA_DIR, 'missing-protocol-json.netcanvas'),
@@ -50,7 +54,9 @@ test.describe('Protocol Import', () => {
   test('error: upload unsupported schema version', async ({ page }) => {
     await waitForTable(page, { minRows: 1 });
 
-    await page.getByRole('button', { name: /import protocols/i }).click();
+    await page
+      .getByRole('button', { name: /import protocols/i })
+      .click({ force: true });
     const fileInput = page.locator('input[type="file"]');
     await fileInput.setInputFiles(
       path.join(DATA_DIR, 'invalid-schema.netcanvas'),

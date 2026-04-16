@@ -448,7 +448,7 @@ test.describe('SILOS Protocol', () => {
 
       // Attempt to submit - should be blocked due to missing age
       const submitButton = page.getByRole('button', { name: 'Finished' });
-      await submitButton.click();
+      await submitButton.click({ force: true });
 
       // Dialog should still be open (submission was blocked)
       await expect(page.getByRole('dialog')).toBeVisible();

@@ -70,7 +70,11 @@ test.describe('Setup Flow', () => {
       'uploadThingToken',
       'UPLOADTHING_TOKEN=eyJhcGlLZXkiOiJza19saXZlX3Rlc3QxMjMiLCJhcHBJZCI6InRlc3QtYXBwLWlkIn0=',
     );
-    await page.getByRole('button', { name: 'Save and continue' }).click();
+    // force: WebKit reports Button as unstable due to subpixel bounding
+    // box jitter (playwright#12370), causing click() to time out.
+    await page
+      .getByRole('button', { name: 'Save and continue' })
+      .click({ force: true });
 
     // Step 3: Upload Protocol - skip
     await expect(
@@ -79,7 +83,9 @@ test.describe('Setup Flow', () => {
 
     await capturePage('setup-step-3-import-protocols');
 
-    await page.getByRole('button', { name: /continue/i }).click();
+    await page
+      .getByRole('button', { name: /continue/i })
+      .click({ force: true });
 
     // Step 4: Documentation - complete
     await expect(
@@ -88,7 +94,11 @@ test.describe('Setup Flow', () => {
 
     await capturePage('setup-step-4-documentation');
 
-    await page.getByRole('button', { name: 'Go to the dashboard!' }).click();
+    // force: WebKit reports Button as unstable even with motion-safe
+    // transitions, causing click() stability check to time out.
+    await page
+      .getByRole('button', { name: 'Go to the dashboard!' })
+      .click({ force: true });
 
     // Should redirect to dashboard
     await expectURL(page, /\/dashboard/);

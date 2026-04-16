@@ -168,7 +168,7 @@ export class InterviewFixture {
    */
   async next(): Promise<void> {
     const before = this.getCurrentStep();
-    await this.nextButton.click();
+    await this.nextButton.click({ force: true });
     if (before !== null) {
       await this.page.waitForURL(
         (url) => {
@@ -193,14 +193,18 @@ export class InterviewFixture {
     ).toBeVisible();
 
     // Click the Finish button
-    await this.page.getByRole('button', { name: 'Finish' }).click();
+    await this.page
+      .getByRole('button', { name: 'Finish' })
+      .click({ force: true });
 
     // Confirmation dialog appears
     const dialog = this.page.getByRole('dialog');
     await expect(dialog).toBeVisible();
 
     // Confirm finish
-    await dialog.getByRole('button', { name: 'Finish Interview' }).click();
+    await dialog
+      .getByRole('button', { name: 'Finish Interview' })
+      .click({ force: true });
 
     // Should redirect to finished page
     await expectURL(this.page, /\/interview\/finished/);

@@ -67,7 +67,7 @@ test.describe('Interviews Page', () => {
     await waitForTable(page, { minRows: 1 });
     const trigger = page.getByTestId('export-incomplete-urls-button');
     await expect(trigger).toBeVisible();
-    await trigger.click();
+    await trigger.click({ force: true });
 
     const popover = page.getByRole('dialog');
     await expect(popover).toBeVisible();
