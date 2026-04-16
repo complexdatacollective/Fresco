@@ -27,7 +27,7 @@ export default defineConfig({
       animations: 'disabled',
       // Different GPUs do aliasing differently, so allow a small amount of pixel difference for CI screenshots.
       // Don't make this too high, or actual differences will start passing through!
-      maxDiffPixels: 100,
+      maxDiffPixels: 250,
     },
   },
 

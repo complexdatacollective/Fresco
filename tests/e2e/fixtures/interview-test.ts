@@ -161,6 +161,7 @@ export const test = baseTest.extend<
   captureInterview: async ({ page }, use) => {
     // eslint-disable-next-line no-process-env
     const isCI = !!process.env.CI;
+    let stylesInjected = false;
 
     await use(async (name: string, options: CaptureInterviewOptions = {}) => {
       // Only capture screenshots in CI
@@ -168,7 +169,13 @@ export const test = baseTest.extend<
         return;
       }
 
-      await page.addStyleTag({ content: VISUAL_STYLES });
+      // Inject once to avoid re-layout between Playwright's consecutive
+      // stability screenshots (which would cause "Failed to take two
+      // consecutive stable screenshots").
+      if (!stylesInjected) {
+        await page.addStyleTag({ content: VISUAL_STYLES });
+        stylesInjected = true;
+      }
 
       await expect.soft(page).toHaveScreenshot(`${name}.png`, {
         fullPage: false,
