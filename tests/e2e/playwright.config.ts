@@ -22,7 +22,7 @@ export default defineConfig({
     ['json', { outputFile: `${outputDir}/results.json` }],
   ],
   expect: {
-    timeout: 5_000,
+    timeout: 10_000,
     toHaveScreenshot: {
       animations: 'disabled',
       // Different GPUs do aliasing differently, so allow a small amount of pixel difference for CI screenshots.

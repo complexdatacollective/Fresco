@@ -16,6 +16,12 @@ const DEFAULT_PAGE_VIEWPORTS = [
 
 export const VISUAL_STYLES = `
   [data-testid="background-blobs"] { visibility: hidden !important; }
+  *, *::before, *::after {
+    animation: none !important;
+    animation-duration: 0s !important;
+    transition: none !important;
+    transition-duration: 0s !important;
+  }
   *:focus-visible,
   *:has(:focus-visible) {
     outline: none !important;

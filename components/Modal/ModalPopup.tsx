@@ -2,13 +2,13 @@ import { Dialog } from '@base-ui/react/dialog';
 import {
   LayoutGroup,
   motion,
-  useAnimate,
   usePresence,
   type HTMLMotionProps,
   type TargetAndTransition,
   type VariantLabels,
 } from 'motion/react';
 import { useEffect, useId, type ComponentProps } from 'react';
+import { useSafeAnimate } from '~/hooks/useSafeAnimate';
 
 /**
  * Makes the opacity property required in TargetAndTransition.
@@ -83,7 +83,7 @@ export default function ModalPopup({
       } as const)
     : {};
 
-  const [scope, animate] = useAnimate();
+  const [scope, animate] = useSafeAnimate();
 
   const [isPresent, safeToRemove] = usePresence(!hasLayoutId);
 

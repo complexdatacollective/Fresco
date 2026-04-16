@@ -1,4 +1,4 @@
-import { useAnimate } from 'motion/react';
+import { useSafeAnimate } from '~/hooks/useSafeAnimate';
 import { useCallback, useState, type CSSProperties } from 'react';
 
 type UseNodeInteractionsOptions = {
@@ -54,7 +54,7 @@ export function useNodeInteractions(
 ): UseNodeInteractionsReturn {
   const { hasClickHandler = false, disabled = false } = options;
 
-  const [scope, animate] = useAnimate<HTMLElement>();
+  const [scope, animate] = useSafeAnimate<HTMLElement>();
   const [isPressed, setIsPressed] = useState(false);
 
   // Enable press animation when there's a click handler and not disabled

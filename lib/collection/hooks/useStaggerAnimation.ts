@@ -1,4 +1,5 @@
-import { stagger, useAnimate } from 'motion/react';
+import { stagger } from 'motion/react';
+import { useSafeAnimate } from '~/hooks/useSafeAnimate';
 import { useEffect, useRef } from 'react';
 
 const TOTAL_STAGGER_DURATION = 0.8;
@@ -24,7 +25,7 @@ export function useStaggerAnimation(
   itemCount: number,
   animationKey?: string | number,
 ) {
-  const [scope, animate] = useAnimate<HTMLDivElement>();
+  const [scope, animate] = useSafeAnimate<HTMLDivElement>();
   const hasAnimatedRef = useRef(false);
   const prevAnimationKeyRef = useRef(animationKey);
 

@@ -1,7 +1,8 @@
 'use client';
 
 import { Loader2 } from 'lucide-react';
-import { AnimatePresence, motion, useAnimate } from 'motion/react';
+import { AnimatePresence, motion } from 'motion/react';
+import { useSafeAnimate } from '~/hooks/useSafeAnimate';
 import {
   useEffect,
   type ButtonHTMLAttributes,
@@ -213,7 +214,7 @@ export default function Node(props: UINodeProps) {
   });
 
   // Scope for selected state animation (box-shadow on main element)
-  const [stateScope, animate] = useAnimate();
+  const [stateScope, animate] = useSafeAnimate();
 
   // Track previous states for animation transitions
   const prevSelected = usePrevious(selected);
