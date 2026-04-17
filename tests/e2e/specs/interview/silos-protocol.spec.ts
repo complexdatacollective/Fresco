@@ -1858,6 +1858,7 @@ test.describe('SILOS Protocol', () => {
         page.getByRole('heading', { name: 'Welcome!' }),
       ).toBeVisible();
       await expect(interview.nextButton).toBeEnabled();
+      await interview.captureFinal();
     });
 
     test('Stage 1: Getting Started', async ({ page, interview }) => {
@@ -1870,6 +1871,7 @@ test.describe('SILOS Protocol', () => {
       await expect(video).toBeVisible();
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.captureFinal();
     });
 
     test('Stage 2: Self-Nomination', async ({ interview, stage }) => {
@@ -1880,6 +1882,7 @@ test.describe('SILOS Protocol', () => {
 
       // Validation released
       expect(await interview.nextButtonHasPulse()).toBe(true);
+      await interview.captureFinal();
     });
 
     test('Stage 3: Ego Form - Select Female at Birth', async ({
@@ -1937,6 +1940,7 @@ test.describe('SILOS Protocol', () => {
         'fe681ff5-adaf-40b8-8376-20b5f53c93c7',
         'HIV Negative',
       );
+      await interview.captureFinal();
     });
 
     test('Stage 4: Sex Assigned at Birth Confirmation', async ({
@@ -1954,6 +1958,7 @@ test.describe('SILOS Protocol', () => {
         'f249c2d1-3f54-49a9-83d8-81e2387df5e5',
         'Yes',
       );
+      await interview.captureFinal();
     });
 
     test('Stage 5: Ineligibility Notice and Finish Interview', async ({
@@ -1966,6 +1971,7 @@ test.describe('SILOS Protocol', () => {
       ).toBeVisible();
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.captureFinal();
     });
 
     test('Stage 53: Finish Interview', async ({ interview, prisma }) => {
