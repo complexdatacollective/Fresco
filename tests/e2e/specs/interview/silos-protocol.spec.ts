@@ -23,8 +23,7 @@ test.describe('SILOS Protocol', () => {
   test.describe.configure({ mode: 'serial' });
 
   // Install protocol once for all nested suites
-  test.beforeAll(async ({ database, protocol }) => {
-    await database.restoreSnapshot();
+  test.beforeAll(async ({ protocol }) => {
     const { protocolId } = await protocol.install(SILOS_PROTOCOL_PATH);
     sharedProtocolId = protocolId;
   });
@@ -1805,13 +1804,13 @@ test.describe('SILOS Protocol', () => {
       await interview.captureFinal();
     });
 
-    test('Stage 53: Finish Interview', async ({ interview, database }) => {
+    test('Stage 53: Finish Interview', async ({ interview, prisma }) => {
       await interview.captureInitial();
       interview.skipNext = true;
       await interview.finishInterview();
 
-      // Verify interview has finishTime set in database
-      const finishedInterview = await database.prisma.interview.findUnique({
+      // Verify interview has finishTime set
+      const finishedInterview = await prisma.interview.findUnique({
         where: { id: interviewId },
       });
       expect(finishedInterview?.finishTime).not.toBeNull();
@@ -1969,15 +1968,15 @@ test.describe('SILOS Protocol', () => {
       await expect(interview.nextButton).toBeEnabled();
     });
 
-    test('Stage 53: Finish Interview', async ({ interview, database }) => {
+    test('Stage 53: Finish Interview', async ({ interview, prisma }) => {
       await interview.captureInitial();
       // Assert that we skipped to stage 53
       await expect(interview.page).toHaveURL(/step=53/);
 
       interview.skipNext = true;
       await interview.finishInterview();
-      // Verify interview has finishTime set in database
-      const finishedInterview = await database.prisma.interview.findUnique({
+      // Verify interview has finishTime set
+      const finishedInterview = await prisma.interview.findUnique({
         where: { id: interviewId },
       });
       expect(finishedInterview?.finishTime).not.toBeNull();
