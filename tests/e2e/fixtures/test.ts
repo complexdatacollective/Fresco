@@ -2,11 +2,13 @@
 import { test as base, expect } from '@playwright/test';
 import { createTestPrisma, type TestPrismaClient } from '../helpers/prisma.js';
 
+type NoTestFixtures = object;
+
 type WorkerFixtures = {
   prisma: TestPrismaClient;
 };
 
-export const test = base.extend<Record<string, never>, WorkerFixtures>({
+export const test = base.extend<NoTestFixtures, WorkerFixtures>({
   prisma: [
     // eslint-disable-next-line no-empty-pattern
     async ({}, use) => {
