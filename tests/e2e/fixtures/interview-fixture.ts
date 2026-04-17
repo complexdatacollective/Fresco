@@ -175,7 +175,12 @@ export class InterviewFixture {
           const match = /step=(\d+)/.exec(url.toString());
           return match ? match[1] !== before : false;
         },
-        { timeout: 10_000 },
+        // Stage transitions trigger a server round-trip (persist interview
+        // state, hydrate the next stage). WebKitGTK under CI load can
+        // occasionally take >10s to commit the client-side URL change,
+        // especially when the next stage initialises Mapbox. 20s gives
+        // headroom while still catching real stalls.
+        { timeout: 20_000 },
       );
     }
   }
