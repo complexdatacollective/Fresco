@@ -4,243 +4,115 @@ permissions:
   contents: read
   pages: write
   id-token: write
-  statuses: write
+  pull-requests: write
 
 on:
-  workflow_dispatch:
   push:
     branches: [main, next]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   e2e:
-    runs-on: ubuntu-24.04-arm
-    timeout-minutes: 30
-    strategy:
-      fail-fast: false
-      matrix:
-        browser: [chromium, firefox, webkit]
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
     outputs:
-      test-result: ${{ steps.test.outcome }}
-
+      outcome: ${{ steps.tests.outcome }}
+      slug: ${{ steps.meta.outputs.slug }}
     steps:
-      - name: Setup
-        id: setup
-        uses: complexdatacollective/github-actions/setup-pnpm@v1
-        with:
-          install: 'false'
-          cache-path: .pnpm-docker-store
-          cache-key-prefix: pnpm-docker-store
+      - uses: actions/checkout@v4
 
-      - name: Run E2E tests (${{ matrix.browser }})
-        id: test
-        run: pnpm test:e2e
+      - name: Compute branch slug
+        id: meta
         env:
-          CI: true
-          E2E_BROWSERS: ${{ matrix.browser }}
+          REF: ${{ github.head_ref || github.ref_name }}
+        run: |
+          SLUG=$(printf '%s' "$REF" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
+          printf 'slug=%s\n' "$SLUG" >> "$GITHUB_OUTPUT"
 
-      - name: Upload test results
+      - name: Run E2E tests
+        id: tests
+        continue-on-error: true
+        run: ./scripts/run-e2e.sh
+
+      - name: Upload report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-${{ matrix.browser }}
-          path: |
-            tests/e2e/playwright-report/
-            tests/e2e/test-results/
-          retention-days: 30
+          name: playwright-report
+          path: tests/e2e/playwright-report/
+          retention-days: 14
 
-      - name: Upload test videos
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-videos-${{ matrix.browser }}
-          path: tests/e2e/test-results/**/*.webm
-          retention-days: 7
-
-      - name: Save pnpm cache
-        if: always() && steps.setup.outputs.cache-hit != 'true'
-        uses: actions/cache/save@v4
-        with:
-          path: .pnpm-docker-store
-          key: ${{ steps.setup.outputs.cache-key }}
-
-  resolve-pr:
-    if: failure()
+  deploy-report:
+    if: always()
     needs: e2e
     runs-on: ubuntu-latest
-    outputs:
-      pr-number: ${{ steps.pr.outputs.number }}
-      head-sha: ${{ steps.pr.outputs.head_sha }}
-      branch: ${{ steps.pr.outputs.branch }}
-    steps:
-      - name: Resolve PR context
-        id: pr
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            echo "number=${{ github.event.pull_request.number }}" >> "$GITHUB_OUTPUT"
-            echo "head_sha=${{ github.event.pull_request.head.sha }}" >> "$GITHUB_OUTPUT"
-            echo "branch=${{ github.head_ref }}" >> "$GITHUB_OUTPUT"
-          else
-            PR_NUMBER=$(gh pr list --repo "${{ github.repository }}" --head "${{ github.ref_name }}" --json number --jq '.[0].number')
-            if [ -n "$PR_NUMBER" ] && [ "$PR_NUMBER" != "null" ]; then
-              echo "number=$PR_NUMBER" >> "$GITHUB_OUTPUT"
-            fi
-            echo "head_sha=${{ github.sha }}" >> "$GITHUB_OUTPUT"
-            echo "branch=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
-          fi
-
-  # Deploy report to GitHub Pages on test failure (PR-specific subdirectory)
-  deploy-report:
-    if: failure() && needs.resolve-pr.outputs.pr-number != ''
-    needs: [e2e, resolve-pr]
-    runs-on: ubuntu-latest
-    # Single concurrency group for all Pages deployments to prevent race conditions
     concurrency:
       group: e2e-pages-deploy
       cancel-in-progress: false
     environment:
       name: github-pages
-      url: https://complexdatacollective.github.io/Fresco/pr-${{ needs.resolve-pr.outputs.pr-number }}/
-
+      url: https://complexdatacollective.github.io/Fresco/${{ needs.e2e.outputs.slug }}/
     steps:
-      - name: Download playwright report
+      - name: Download new report
         uses: actions/download-artifact@v4
         with:
-          pattern: playwright-report-*
+          name: playwright-report
           path: new-report
-          merge-multiple: true
 
-      - name: Fetch existing GitHub Pages content
+      - name: Fetch existing pages content
         uses: actions/checkout@v4
         with:
           ref: gh-pages
           path: existing-pages
         continue-on-error: true
 
-      - name: Merge reports into PR subdirectory
+      - name: Merge report into branch subdirectory
+        env:
+          SLUG: ${{ needs.e2e.outputs.slug }}
         run: |
           mkdir -p merged
-
-          # Copy existing pages content if it exists
           if [ -d existing-pages ] && [ "$(ls -A existing-pages 2>/dev/null)" ]; then
-            cp -r existing-pages/* merged/ 2>/dev/null || true
-            # Remove git files
+            cp -r existing-pages/. merged/
             rm -rf merged/.git
           fi
+          rm -rf "merged/$SLUG"
+          mkdir -p "merged/$SLUG"
+          cp -r new-report/. "merged/$SLUG/"
 
-          # Create PR-specific subdirectory with new report
-          mkdir -p merged/pr-${{ needs.resolve-pr.outputs.pr-number }}
-          cp -r new-report/playwright-report/* merged/pr-${{ needs.resolve-pr.outputs.pr-number }}/
-
-          # Generate index page listing all reports
-          cat > merged/index.html << 'EOF'
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Fresco E2E Test Reports</title>
-            <style>
-              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
-              h1 { color: #333; }
-              ul { list-style: none; padding: 0; }
-              li { padding: 10px 0; border-bottom: 1px solid #eee; }
-              a { color: #0066cc; text-decoration: none; }
-              a:hover { text-decoration: underline; }
-              .timestamp { color: #666; font-size: 0.9em; }
-            </style>
-          </head>
-          <body>
-            <h1>🎭 Fresco E2E Test Reports</h1>
-            <p>Failed test reports by PR:</p>
-            <ul id="reports"></ul>
-            <script>
-              const reportsEl = document.getElementById('reports');
-              const prDirs = Array.from(document.querySelectorAll('a[href^="pr-"]')).map(a => a.getAttribute('href'));
-              // This will be populated by the directory listing
-            </script>
-          </body>
-          </html>
-          EOF
-
-          # Create a simple directory listing
-          echo "<ul>" > merged/index.html.tmp
-          for dir in merged/pr-*/; do
-            if [ -d "$dir" ]; then
-              pr_num=$(basename "$dir")
-              echo "  <li><a href=\"$pr_num/\">$pr_num</a></li>" >> merged/index.html.tmp
-            fi
-          done
-          echo "</ul>" >> merged/index.html.tmp
-
-          # Build final index
-          cat > merged/index.html << EOF
-          <!DOCTYPE html>
-          <html lang="en">
-          <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Fresco E2E Test Reports</title>
-            <style>
-              body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
-              h1 { color: #333; }
-              ul { list-style: none; padding: 0; }
-              li { padding: 10px 0; border-bottom: 1px solid #eee; }
-              a { color: #0066cc; text-decoration: none; font-size: 1.1em; }
-              a:hover { text-decoration: underline; }
-            </style>
-          </head>
-          <body>
-            <h1>🎭 Fresco E2E Test Reports</h1>
-            <p>Failed test reports by PR:</p>
-          $(cat merged/index.html.tmp)
-          </body>
-          </html>
-          EOF
-          rm merged/index.html.tmp
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v3
         with:
           path: merged/
 
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+      - uses: actions/deploy-pages@v4
 
-      - name: Create per-browser status checks
+      - name: Comment on PR
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
         env:
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
-          SHA: ${{ needs.resolve-pr.outputs.head-sha }}
-          PR_NUMBER: ${{ needs.resolve-pr.outputs.pr-number }}
-          RUN_ID: ${{ github.run_id }}
-        run: |
-          REPORT_URL="https://complexdatacollective.github.io/Fresco/pr-${PR_NUMBER}/"
+          SLUG: ${{ needs.e2e.outputs.slug }}
+          OUTCOME: ${{ needs.e2e.outputs.outcome }}
+        with:
+          script: |
+            const { SLUG, OUTCOME } = process.env;
+            const url = `https://complexdatacollective.github.io/Fresco/${SLUG}/`;
+            const emoji = OUTCOME === 'success' ? '✅' : '❌';
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: `${emoji} E2E tests — **${OUTCOME}**\n\n📊 [View report](${url})`,
+            });
 
-          # Query the workflow run to find which browser jobs failed
-          gh api "repos/${REPO}/actions/runs/${RUN_ID}/jobs" \
-            --jq '.jobs[] | select(.name | startswith("e2e")) | {name: .name, conclusion: .conclusion}' \
-          | jq -r '. | "\(.name)|\(.conclusion)"' \
-          | while IFS='|' read -r job_name conclusion; do
-            # Extract browser name from job name (e.g. "e2e (chromium)" -> "chromium")
-            browser=$(echo "$job_name" | sed 's/.*(\(.*\))/\1/')
-
-            if [ "$conclusion" = "failure" ]; then
-              state="failure"
-              description="Tests failed — view report"
-              target_url="${REPORT_URL}#?q=s%3Afailed"
-            else
-              state="success"
-              description="Tests passed"
-              target_url="${REPORT_URL}"
-            fi
-
-            echo "Setting status for ${browser}: ${state}"
-            gh api "repos/${REPO}/statuses/${SHA}" \
-              -f state="$state" \
-              -f target_url="$target_url" \
-              -f description="$description" \
-              -f context="E2E Tests (${browser})"
-          done
+  result:
+    if: always()
+    needs: e2e
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail workflow if tests failed
+        if: needs.e2e.outputs.outcome != 'success'
+        run: exit 1
