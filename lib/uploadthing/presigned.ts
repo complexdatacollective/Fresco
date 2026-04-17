@@ -4,7 +4,6 @@ import { type PresignedUploadUrl } from '~/lib/storage/services/AssetStorage';
 import { type ParsedToken } from '~/lib/uploadthing/token';
 
 const UPLOADTHING_SLUG = 'assetRouter';
-const UPLOADTHING_VERSION = '7.4.0';
 const REGISTER_TIMEOUT_MS = 30_000;
 const DEFAULT_TTL_MS = 60 * 60 * 1000;
 
@@ -105,7 +104,6 @@ export async function registerUploadWithUploadThing(options: {
       headers: {
         'Content-Type': 'application/json',
         'x-uploadthing-api-key': apiKey,
-        'x-uploadthing-version': UPLOADTHING_VERSION,
         'x-uploadthing-be-adapter': 'server',
         'x-uploadthing-fe-package': '@uploadthing/react',
       },
