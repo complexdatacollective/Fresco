@@ -10,7 +10,6 @@ const PROJECT_ROOT = path.resolve(import.meta.dirname, '../../');
 const E2E_ASSETS_DIR = path.join(PROJECT_ROOT, '.e2e-assets');
 
 declare global {
-  // eslint-disable-next-line no-var
   var __E2E__:
     | { db: TestDatabase; app: AppServer; asset: AssetServer }
     | undefined;
