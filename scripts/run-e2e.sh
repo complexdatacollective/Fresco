@@ -26,6 +26,7 @@ docker run --rm \
   -e SKIP_ENV_VALIDATION=true \
   -e DISABLE_ANALYTICS=true \
   -e E2E_TEST=true \
+  -e TESTCONTAINERS_HOST_OVERRIDE=host.docker.internal \
   -v "$(pwd)":/work \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -w /work \
