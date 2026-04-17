@@ -20,25 +20,6 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 45
-    # Build-time Postgres: Next.js prerenders some pages that call cached
-    # `getAppSetting` queries, which execute against the DB because
-    # E2E_TEST=true installs a no-op cacheHandler. The Playwright run's own
-    # testcontainer starts later in globalSetup — not before `pnpm build`.
-    services:
-      postgres:
-        image: postgres:17-alpine
-        env:
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: fresco_build
-        ports: ['5432:5432']
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-    env:
-      BUILD_DATABASE_URL: postgres://postgres:postgres@host.docker.internal:5432/fresco_build
     outputs:
       outcome: ${{ steps.tests.outcome }}
       slug: ${{ steps.meta.outputs.slug }}

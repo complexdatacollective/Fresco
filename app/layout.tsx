@@ -1,4 +1,5 @@
 import { type Metadata, type Viewport } from 'next';
+import { connection } from 'next/server';
 import { Suspense } from 'react';
 import Providers from '~/components/Providers';
 import { PostHogIdentify } from '~/components/Providers/PosthogIdentify';
@@ -17,6 +18,13 @@ export const viewport: Viewport = {
 };
 
 async function AnalyticsLoader() {
+  // Opt this subtree out of prerendering — getInstallationId and
+  // getDisableAnalytics can fall back to the database, which isn't
+  // available at build time (e.g. when building the distributable
+  // Docker image). The <Suspense> boundary in RootLayout lets Next
+  // stream this in at request time instead.
+  await connection();
+
   try {
     const [installationId, disableAnalytics] = await Promise.all([
       getInstallationId(),
