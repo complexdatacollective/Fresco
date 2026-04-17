@@ -89,15 +89,8 @@ test.describe('Interviews Page', () => {
     await waitForTable(page, { minRows: 1 });
 
     const row = getFirstRow(page);
-    // Use dispatchEvent to trigger a plain DOM click. force:true's
-    // pointer-event sequence has proven unreliable on webkit for base-ui
-    // DropdownMenu.Trigger — the menu state toggles but the menu never
-    // ends up visible to subsequent locators. dispatchEvent goes
-    // straight to the element's click handler.
-    await row.getByRole('button').last().dispatchEvent('click');
-    await page
-      .getByRole('menuitem', { name: /delete/i })
-      .dispatchEvent('click');
+    await row.getByRole('button').last().click();
+    await page.getByRole('menuitem', { name: /delete/i }).click();
 
     const dialog = await waitForDialog(page);
     await captureElement(dialog, 'interviews-delete-confirmation');
@@ -106,12 +99,10 @@ test.describe('Interviews Page', () => {
   test('visual: export dialog', async ({ page, captureElement }) => {
     await waitForTable(page, { minRows: 1 });
 
-    // dispatchEvent('click') bypasses actionability and the pointer-event
-    // sequence entirely. See the delete confirmation test above for why.
-    await page.getByTestId('export-interviews-button').dispatchEvent('click');
+    await page.getByTestId('export-interviews-button').click();
     await page
       .getByRole('menuitem', { name: /export all interviews/i })
-      .dispatchEvent('click');
+      .click();
 
     const dialog = await waitForDialog(page);
     await captureElement(dialog, 'interviews-export-dialog');

@@ -80,9 +80,7 @@ test.describe('Participants Page', () => {
   });
 
   test('visual: add participant dialog', async ({ page, captureElement }) => {
-    // force: true — see fixtures/test.ts captureElement for webkit
-    // actionability stability rationale.
-    await page.getByRole('button', { name: /add/i }).click({ force: true });
+    await page.getByRole('button', { name: /add/i }).click();
     const dialog = await waitForDialog(page);
 
     await captureElement(dialog, 'participants-add-dialog');

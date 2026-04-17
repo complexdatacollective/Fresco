@@ -1,13 +1,13 @@
 import { expect, test } from '../../fixtures/test.js';
+import { waitForDialog } from '../../helpers/dialog.js';
+import { getFirstRow, openRowActions } from '../../helpers/rowActions.js';
 import {
-  waitForTable,
+  clickSortColumn,
+  getTableRowCount,
   searchTable,
   selectAllRows,
-  getTableRowCount,
-  clickSortColumn,
+  waitForTable,
 } from '../../helpers/table.js';
-import { getFirstRow, openRowActions } from '../../helpers/rowActions.js';
-import { waitForDialog } from '../../helpers/dialog.js';
 
 test.describe('Protocols Page', () => {
   test.beforeEach(async ({ page }) => {
@@ -99,9 +99,7 @@ test.describe('Protocols Page', () => {
 
     const row = getFirstRow(page);
     await openRowActions(row);
-    await page
-      .getByRole('menuitem', { name: /delete/i })
-      .click({ force: true });
+    await page.getByRole('menuitem', { name: /delete/i }).click();
 
     const dialog = await waitForDialog(page);
     await captureElement(dialog, 'protocols-delete-confirmation');
