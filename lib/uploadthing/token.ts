@@ -1,11 +1,14 @@
+import { z } from 'zod/mini';
 import { getAppSetting } from '~/queries/appSettings';
 
-export type ParsedToken = {
-  apiKey: string;
-  appId: string;
-  regions: string[];
-  ingestHost: string;
-};
+const uploadThingTokenSchema = z.object({
+  apiKey: z.string().check(z.minLength(1)),
+  appId: z.string().check(z.minLength(1)),
+  regions: z.array(z.string()),
+  ingestHost: z._default(z.optional(z.string()), 'ingest.uploadthing.com'),
+});
+
+export type ParsedToken = z.infer<typeof uploadThingTokenSchema>;
 
 export async function parseUploadThingToken(): Promise<ParsedToken | null> {
   const token = await getAppSetting('uploadThingToken');
@@ -13,13 +16,8 @@ export async function parseUploadThingToken(): Promise<ParsedToken | null> {
 
   try {
     const decoded = Buffer.from(token, 'base64').toString('utf-8');
-    const parsed = JSON.parse(decoded) as ParsedToken;
-    return {
-      apiKey: parsed.apiKey,
-      appId: parsed.appId,
-      regions: parsed.regions,
-      ingestHost: parsed.ingestHost ?? 'ingest.uploadthing.com',
-    };
+    const parsed = uploadThingTokenSchema.safeParse(JSON.parse(decoded));
+    return parsed.success ? parsed.data : null;
   } catch {
     return null;
   }
