@@ -23,8 +23,7 @@ test.describe('SILOS Protocol', () => {
   test.describe.configure({ mode: 'serial' });
 
   // Install protocol once for all nested suites
-  test.beforeAll(async ({ database, protocol }) => {
-    await database.restoreSnapshot();
+  test.beforeAll(async ({ protocol }) => {
     const { protocolId } = await protocol.install(SILOS_PROTOCOL_PATH);
     sharedProtocolId = protocolId;
   });
@@ -257,6 +256,17 @@ test.describe('SILOS Protocol', () => {
       test.skip(
         browserName === 'firefox',
         'Firefox lacks WebGL support in Playwright',
+      );
+
+      // WebKitGTK's WebGL paint pipeline settles noticeably slower than
+      // Chromium's. Stage 8 drives ~6 map mutations (zoom in/out/recenter,
+      // search, two clickOnMap calls, select/deselect outside-area) each
+      // followed by a map-idle poll, plus two captureInterview snapshots —
+      // around ~21s on Chromium, ~31s on WebKit. Mark slow so the per-test
+      // budget (30s) scales by 3x only where it's genuinely needed.
+      test.slow(
+        browserName === 'webkit',
+        'WebKit is much slower than other browsers when using WebGL',
       );
 
       await stage.geospatial.waitForGeoJsonRendered();
@@ -955,6 +965,11 @@ test.describe('SILOS Protocol', () => {
         'Firefox lacks WebGL support in Playwright',
       );
 
+      test.slow(
+        browserName === 'webkit',
+        'WebKit is much slower than other browsers when using WebGL',
+      );
+
       await stage.geospatial.waitForGeoJsonRendered();
       await interview.captureInitial();
 
@@ -1462,6 +1477,11 @@ test.describe('SILOS Protocol', () => {
         'Firefox lacks WebGL support in Playwright',
       );
 
+      test.slow(
+        browserName === 'webkit',
+        'WebKit is much slower than other browsers when using WebGL',
+      );
+
       await stage.geospatial.waitForGeoJsonRendered();
       await interview.captureInitial();
 
@@ -1674,6 +1694,11 @@ test.describe('SILOS Protocol', () => {
         'Firefox lacks WebGL support in Playwright',
       );
 
+      test.slow(
+        browserName === 'webkit',
+        'WebKit is much slower than other browsers when using WebGL',
+      );
+
       await stage.geospatial.waitForGeoJsonRendered();
       await interview.captureInitial();
 
@@ -1805,13 +1830,13 @@ test.describe('SILOS Protocol', () => {
       await interview.captureFinal();
     });
 
-    test('Stage 53: Finish Interview', async ({ interview, database }) => {
+    test('Stage 53: Finish Interview', async ({ interview, prisma }) => {
       await interview.captureInitial();
       interview.skipNext = true;
       await interview.finishInterview();
 
-      // Verify interview has finishTime set in database
-      const finishedInterview = await database.prisma.interview.findUnique({
+      // Verify interview has finishTime set
+      const finishedInterview = await prisma.interview.findUnique({
         where: { id: interviewId },
       });
       expect(finishedInterview?.finishTime).not.toBeNull();
@@ -1859,6 +1884,7 @@ test.describe('SILOS Protocol', () => {
         page.getByRole('heading', { name: 'Welcome!' }),
       ).toBeVisible();
       await expect(interview.nextButton).toBeEnabled();
+      await interview.captureFinal();
     });
 
     test('Stage 1: Getting Started', async ({ page, interview }) => {
@@ -1871,6 +1897,7 @@ test.describe('SILOS Protocol', () => {
       await expect(video).toBeVisible();
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.captureFinal();
     });
 
     test('Stage 2: Self-Nomination', async ({ interview, stage }) => {
@@ -1881,6 +1908,7 @@ test.describe('SILOS Protocol', () => {
 
       // Validation released
       expect(await interview.nextButtonHasPulse()).toBe(true);
+      await interview.captureFinal();
     });
 
     test('Stage 3: Ego Form - Select Female at Birth', async ({
@@ -1938,6 +1966,7 @@ test.describe('SILOS Protocol', () => {
         'fe681ff5-adaf-40b8-8376-20b5f53c93c7',
         'HIV Negative',
       );
+      await interview.captureFinal();
     });
 
     test('Stage 4: Sex Assigned at Birth Confirmation', async ({
@@ -1955,6 +1984,7 @@ test.describe('SILOS Protocol', () => {
         'f249c2d1-3f54-49a9-83d8-81e2387df5e5',
         'Yes',
       );
+      await interview.captureFinal();
     });
 
     test('Stage 5: Ineligibility Notice and Finish Interview', async ({
@@ -1967,17 +1997,18 @@ test.describe('SILOS Protocol', () => {
       ).toBeVisible();
 
       await expect(interview.nextButton).toBeEnabled();
+      await interview.captureFinal();
     });
 
-    test('Stage 53: Finish Interview', async ({ interview, database }) => {
+    test('Stage 53: Finish Interview', async ({ interview, prisma }) => {
       await interview.captureInitial();
       // Assert that we skipped to stage 53
       await expect(interview.page).toHaveURL(/step=53/);
 
       interview.skipNext = true;
       await interview.finishInterview();
-      // Verify interview has finishTime set in database
-      const finishedInterview = await database.prisma.interview.findUnique({
+      // Verify interview has finishTime set
+      const finishedInterview = await prisma.interview.findUnique({
         where: { id: interviewId },
       });
       expect(finishedInterview?.finishTime).not.toBeNull();

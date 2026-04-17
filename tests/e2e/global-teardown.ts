@@ -1,42 +1,29 @@
-import { clearContext } from './helpers/context.js';
 import { log, logError } from './helpers/logger.js';
 
 export default async function globalTeardown() {
   log('teardown', '=== E2E Global Teardown Starting ===');
+  const state = globalThis.__E2E__;
+  if (!state) {
+    log('teardown', 'No global state found, nothing to tear down');
+    return;
+  }
+  const { db, app, asset } = state;
 
   try {
-    const servers = globalThis.__APP_SERVERS__ ?? [];
-    for (const server of servers) {
-      try {
-        await server.stop();
-      } catch (error) {
-        logError('teardown', 'Failed to stop app server', error);
-      }
-    }
-
-    // Stop the asset server
-    const assetServer = globalThis.__ASSET_SERVER__;
-    if (assetServer) {
-      try {
-        await assetServer.stop();
-      } catch (error) {
-        logError('teardown', 'Failed to stop asset server', error);
-      }
-    }
-
-    const dbs = globalThis.__TEST_DBS__ ?? [];
-    for (const db of dbs) {
-      try {
-        await db.stop();
-      } catch (error) {
-        logError('teardown', 'Failed to stop database', error);
-      }
-    }
-
-    await clearContext();
-
-    log('teardown', '=== E2E Global Teardown Complete ===');
+    await app.stop();
   } catch (error) {
-    logError('teardown', 'Global teardown failed', error);
+    logError('teardown', 'Failed to stop app server', error);
   }
+  try {
+    await asset.stop();
+  } catch (error) {
+    logError('teardown', 'Failed to stop asset server', error);
+  }
+  try {
+    await db.stop();
+  } catch (error) {
+    logError('teardown', 'Failed to stop database', error);
+  }
+
+  log('teardown', '=== E2E Global Teardown Complete ===');
 }

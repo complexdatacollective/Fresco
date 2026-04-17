@@ -20,9 +20,6 @@ const config: KnipConfig = {
   ],
   ignoreDependencies: [
     'sharp', // Used by next/image but not directly imported
-    'esbuild', // Used by Vite but not directly imported
-    'sass-embedded', // Used in next.js config but not detected as used
-    '@vitest/coverage-v8', // Dependency of chromatic falsely detected as unused
     '@tailwindcss/forms', // Used in globals.css but not detected as used
     'tailwindcss-animate', // Used in globals.css but not detected as used
     '@prisma/client', // Used at runtime by Prisma generated client (imports @prisma/client/runtime/client)
@@ -31,16 +28,6 @@ const config: KnipConfig = {
     'netlify', // Installed during CI via pnpm add -g netlify-cli
   ],
   ignoreIssues: {
-    // TestFixtures is used by Playwright via base.extend<TestFixtures>() generic type parameter
-    // Knip cannot detect usage through TypeScript generic type inference
-    'tests/e2e/fixtures/test.ts': ['types', 'exports'],
-
-    // Table helpers are part of the public test API used by future specs
-    'tests/e2e/helpers/table.ts': ['exports'],
-
-    // Stage handlers for interview automation — exports will be consumed as tests are built out
-    'tests/e2e/helpers/stage-handlers.ts': ['exports'],
-
     // Server actions for passkey password management — UI not yet wired
     'actions/webauthn.ts': ['exports'],
 

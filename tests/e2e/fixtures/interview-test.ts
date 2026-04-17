@@ -1,48 +1,35 @@
-/**
- * Interview test fixtures.
- *
- * Extends the base test with `interview` and `stage` fixtures for testing
- * interview flows with proper separation of concerns:
- *
- * - `interview` - Navigation and interview shell (goto, nextButton)
- * - `stage` - Stage-specific interactions (quickAdd, nodes, deleteNode)
- * - `page` - Raw Playwright page for assertions
- *
- * Usage:
- * ```typescript
- * import { test, expect } from '~/tests/e2e/fixtures/interview-test.js';
- *
- * test.describe('My Interview Test', () => {
- *   let interviewId: string;
- *
- *   test.beforeAll(async ({ database, protocol }) => {
- *     const { protocolId } = await protocol.install(PROTOCOL_PATH);
- *     interviewId = await protocol.createInterview(protocolId);
- *   });
- *
- *   test.beforeEach(({ interview }) => {
- *     interview.interviewId = interviewId;
- *   });
- *
- *   test('Stage 0', async ({ interview }) => {
- *     await interview.goto(0);
- *     await expect(interview.nextButton).toBeEnabled();
- *   });
- * });
- * ```
- */
-
+/* eslint-disable no-process-env */
 import {
   type BrowserContext,
   type BrowserContextOptions,
   type Locator,
   type Page,
 } from '@playwright/test';
-import { getContext, getSuiteId } from '../helpers/context.js';
 import { InterviewFixture } from './interview-fixture.js';
 import { ProtocolFixture } from './protocol-fixture.js';
 import { StageFixture } from './stage-fixture.js';
-import { test as baseTest, expect, VISUAL_STYLES } from './test.js';
+import { test as baseTest, expect } from './test.js';
+
+const VISUAL_STYLES = `
+  [data-testid="background-blobs"] { visibility: hidden !important; }
+  *, *::before, *::after {
+    animation: none !important;
+    animation-duration: 0s !important;
+    transition: none !important;
+    transition-duration: 0s !important;
+  }
+  *:focus-visible,
+  *:has(:focus-visible) {
+    outline: none !important;
+    box-shadow: none !important;
+  }
+  .focusable-after::after,
+  .focusable-after-within::after {
+    outline: none !important;
+    box-shadow: none !important;
+    content: none !important;
+  }
+`;
 
 type CaptureInterviewOptions = {
   mask?: Locator[];
@@ -63,9 +50,6 @@ type InterviewWorkerFixtures = {
   sharedPage: Page;
 };
 
-// Keys from the project's `use` config that are valid BrowserContextOptions.
-// Copied into the worker-scoped context so it inherits baseURL, viewport,
-// device emulation, etc. from playwright.config.ts.
 const CONTEXT_OPTION_KEYS = [
   'baseURL',
   'viewport',
@@ -113,17 +97,11 @@ export const test = baseTest.extend<
   InterviewWorkerFixtures
 >({
   protocol: [
-    async ({ database }, use, workerInfo) => {
-      const projectName = workerInfo.project.name;
-      const suiteId = getSuiteId(projectName);
-      const context = await getContext(suiteId);
-      const protocol = new ProtocolFixture(
-        database.prisma,
-        context.assetServerUrl,
-      );
-
+    async ({ prisma }, use) => {
+      const assetUrl = process.env.E2E_ASSET_URL;
+      if (!assetUrl) throw new Error('E2E_ASSET_URL not set by globalSetup');
+      const protocol = new ProtocolFixture(prisma, assetUrl);
       await use(protocol);
-      await protocol.cleanup();
     },
     { scope: 'worker' },
   ],
@@ -154,29 +132,16 @@ export const test = baseTest.extend<
     await use(sharedPage);
   },
 
-  // Use soft assertions for screenshots to avoid retries resetting serial test state.
-  // Soft assertions don't stop execution or trigger retries - failures are collected
-  // and reported at the end. This allows --update-snapshots to work without breaking
-  // subsequent stages.
   captureInterview: async ({ page }, use) => {
-    // eslint-disable-next-line no-process-env
     const isCI = !!process.env.CI;
     let stylesInjected = false;
 
     await use(async (name: string, options: CaptureInterviewOptions = {}) => {
-      // Only capture screenshots in CI
-      if (!isCI) {
-        return;
-      }
-
-      // Inject once to avoid re-layout between Playwright's consecutive
-      // stability screenshots (which would cause "Failed to take two
-      // consecutive stable screenshots").
+      if (!isCI) return;
       if (!stylesInjected) {
         await page.addStyleTag({ content: VISUAL_STYLES });
         stylesInjected = true;
       }
-
       await expect.soft(page).toHaveScreenshot(`${name}.png`, {
         fullPage: false,
         mask: options.mask,
