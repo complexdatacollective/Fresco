@@ -258,6 +258,14 @@ test.describe('SILOS Protocol', () => {
         'Firefox lacks WebGL support in Playwright',
       );
 
+      // WebKitGTK's WebGL paint pipeline settles noticeably slower than
+      // Chromium's. Stage 8 drives ~6 map mutations (zoom in/out/recenter,
+      // search, two clickOnMap calls, select/deselect outside-area) each
+      // followed by a map-idle poll, plus two captureInterview snapshots —
+      // around ~21s on Chromium, ~31s on WebKit. Mark slow so the per-test
+      // budget (30s) scales by 3x only where it's genuinely needed.
+      if (browserName === 'webkit') test.slow();
+
       await stage.geospatial.waitForGeoJsonRendered();
       await interview.captureInitial();
 
