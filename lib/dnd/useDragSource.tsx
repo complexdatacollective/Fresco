@@ -79,6 +79,7 @@ export function useDragSource(
 
   const startDrag = useDndStore((state) => state.startDrag);
   const updateDragPosition = useDndStore((state) => state.updateDragPosition);
+  const setActiveDropTarget = useDndStore((state) => state.setActiveDropTarget);
   const endDrag = useDndStore((state) => state.endDrag);
 
   const updatePosition = useRef(rafThrottle(updateDragPosition)).current;
@@ -346,6 +347,11 @@ export function useDragSource(
           target.x + target.width / 2,
           target.y + target.height / 2,
         );
+        // Keyboard nav knows the target by index; pin activeDropTargetId
+        // explicitly so the drop doesn't depend on elementsFromPoint
+        // seeing the bin at the stored center — which is racy in WebKit
+        // right after Ctrl+D (drag overlay mount) before layout stabilises.
+        setActiveDropTarget(target.id);
         const description = getDropTargetDescription(
           nextIndex,
           compatibleTargets.length,
@@ -354,7 +360,13 @@ export function useDragSource(
         announce(getKeyboardDragAnnouncement('navigate', description));
       }
     },
-    [currentDropTargetIndex, updateDragPosition, announce, compatibleTargets],
+    [
+      currentDropTargetIndex,
+      updateDragPosition,
+      setActiveDropTarget,
+      announce,
+      compatibleTargets,
+    ],
   );
 
   const handleKeyDown = useCallback(
