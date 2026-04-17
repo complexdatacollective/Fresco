@@ -10,7 +10,7 @@ import { ProtocolFixture } from './protocol-fixture.js';
 import { StageFixture } from './stage-fixture.js';
 import { test as baseTest, expect } from './test.js';
 
-export const VISUAL_STYLES = `
+const VISUAL_STYLES = `
   [data-testid="background-blobs"] { visibility: hidden !important; }
   *, *::before, *::after {
     animation: none !important;

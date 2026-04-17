@@ -7,7 +7,7 @@ import { log } from './logger.js';
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '../../../');
 const STANDALONE_SERVER = path.join(PROJECT_ROOT, '.next/standalone/server.js');
 
-export const APP_SERVER_PORT = 4100;
+const APP_SERVER_PORT = 4100;
 
 export class AppServer {
   url: string;
