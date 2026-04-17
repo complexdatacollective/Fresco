@@ -1,52 +1,47 @@
 /* eslint-disable no-process-env */
-import { defineConfig } from '@playwright/test';
-import { getProjects } from './config/test-config.js';
-
-// When running browsers in parallel Docker containers, each sets E2E_OUTPUT_DIR
-// to a per-browser subdirectory so reports and artifacts don't overwrite each other.
-const outputDir = process.env.E2E_OUTPUT_DIR ?? './test-results';
-const reportDir = process.env.E2E_REPORT_DIR ?? './playwright-report';
+import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './specs',
-  outputDir,
   snapshotDir: './visual-snapshots',
   snapshotPathTemplate: '{snapshotDir}/{projectName}/{arg}{ext}',
 
-  retries: 0,
   fullyParallel: false,
+  workers: 1,
+  retries: 0,
+  timeout: 30_000,
 
   reporter: [
     ['line'],
-    ['html', { outputFolder: reportDir, open: 'never' }],
-    ['json', { outputFile: `${outputDir}/results.json` }],
+    ['html', { outputFolder: './playwright-report', open: 'never' }],
+    ['json', { outputFile: './test-results/results.json' }],
   ],
+
   expect: {
     timeout: 10_000,
     toHaveScreenshot: {
       animations: 'disabled',
-      // Different GPUs do aliasing differently, so allow a small amount of pixel difference for CI screenshots.
-      // Don't make this too high, or actual differences will start passing through!
       maxDiffPixels: 250,
     },
   },
 
-  timeout: 30_000,
-
   use: {
+    baseURL: process.env.E2E_APP_URL,
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
     actionTimeout: 5_000,
     navigationTimeout: 10_000,
     viewport: { width: 1920, height: 1080 },
-    contextOptions: {
-      reducedMotion: 'reduce',
-    },
+    contextOptions: { reducedMotion: 'reduce' },
   },
 
   globalSetup: './global-setup.ts',
   globalTeardown: './global-teardown.ts',
 
-  projects: getProjects(),
+  projects: [
+    { name: 'chromium', use: devices['Desktop Chrome'] },
+    { name: 'firefox', use: devices['Desktop Firefox'] },
+    { name: 'webkit', use: devices['Desktop Safari'] },
+  ],
 });
