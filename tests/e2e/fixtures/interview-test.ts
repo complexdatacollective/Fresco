@@ -102,7 +102,6 @@ export const test = baseTest.extend<
       if (!assetUrl) throw new Error('E2E_ASSET_URL not set by globalSetup');
       const protocol = new ProtocolFixture(prisma, assetUrl);
       await use(protocol);
-      await protocol.cleanup();
     },
     { scope: 'worker' },
   ],
