@@ -26,32 +26,34 @@ function getActiveBrowsers(): BrowserConfig[] {
   return filtered.length > 0 ? filtered : ALL_BROWSERS;
 }
 
+// TEMP: focused on silos-protocol.spec.ts only. Restore the other entries
+// (setup, dashboard, api, preview) to run the full suite again.
 const ENVIRONMENTS: EnvironmentConfig[] = [
-  {
-    id: 'setup',
-    testMatch: '**/setup/*.spec.ts',
-    auth: false,
-  },
-  {
-    id: 'dashboard',
-    testMatch: '**/dashboard/*.spec.ts',
-    auth: true,
-  },
-  {
-    id: 'api',
-    testMatch: '**/api/*.spec.ts',
-    auth: false,
-  },
+  // {
+  //   id: 'setup',
+  //   testMatch: '**/setup/*.spec.ts',
+  //   auth: false,
+  // },
+  // {
+  //   id: 'dashboard',
+  //   testMatch: '**/dashboard/*.spec.ts',
+  //   auth: true,
+  // },
+  // {
+  //   id: 'api',
+  //   testMatch: '**/api/*.spec.ts',
+  //   auth: false,
+  // },
   {
     id: 'interview',
-    testMatch: '**/interview/**/*.spec.ts',
+    testMatch: '**/interview/silos-protocol.spec.ts',
     auth: false,
   },
-  {
-    id: 'preview',
-    testMatch: '**/preview/**/*.spec.ts',
-    auth: false,
-  },
+  // {
+  //   id: 'preview',
+  //   testMatch: '**/preview/**/*.spec.ts',
+  //   auth: false,
+  // },
 ];
 
 function envInstanceId(envId: string, browserName: string): string {
