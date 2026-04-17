@@ -264,7 +264,10 @@ test.describe('SILOS Protocol', () => {
       // followed by a map-idle poll, plus two captureInterview snapshots —
       // around ~21s on Chromium, ~31s on WebKit. Mark slow so the per-test
       // budget (30s) scales by 3x only where it's genuinely needed.
-      if (browserName === 'webkit') test.slow();
+      test.slow(
+        browserName === 'webkit',
+        'WebKit is much slower than other browsers when using WebGL',
+      );
 
       await stage.geospatial.waitForGeoJsonRendered();
       await interview.captureInitial();
@@ -962,6 +965,11 @@ test.describe('SILOS Protocol', () => {
         'Firefox lacks WebGL support in Playwright',
       );
 
+      test.slow(
+        browserName === 'webkit',
+        'WebKit is much slower than other browsers when using WebGL',
+      );
+
       await stage.geospatial.waitForGeoJsonRendered();
       await interview.captureInitial();
 
@@ -1469,6 +1477,11 @@ test.describe('SILOS Protocol', () => {
         'Firefox lacks WebGL support in Playwright',
       );
 
+      test.slow(
+        browserName === 'webkit',
+        'WebKit is much slower than other browsers when using WebGL',
+      );
+
       await stage.geospatial.waitForGeoJsonRendered();
       await interview.captureInitial();
 
@@ -1679,6 +1692,11 @@ test.describe('SILOS Protocol', () => {
       test.skip(
         browserName === 'firefox',
         'Firefox lacks WebGL support in Playwright',
+      );
+
+      test.slow(
+        browserName === 'webkit',
+        'WebKit is much slower than other browsers when using WebGL',
       );
 
       await stage.geospatial.waitForGeoJsonRendered();
