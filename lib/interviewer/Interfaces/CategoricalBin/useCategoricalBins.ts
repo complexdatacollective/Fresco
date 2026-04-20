@@ -58,9 +58,11 @@ export function useCategoricalBins() {
     const attributes = node[entityAttributesProperty];
 
     const activeVarExists = activePromptVariable
-      ? !!attributes[activePromptVariable]
+      ? attributes[activePromptVariable] != null
       : false;
-    const otherVarExists = otherVariable ? !!attributes[otherVariable] : false;
+    const otherVarExists = otherVariable
+      ? attributes[otherVariable] != null
+      : false;
 
     return !activeVarExists && !otherVarExists;
   });
