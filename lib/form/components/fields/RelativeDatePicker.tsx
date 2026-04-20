@@ -1,11 +1,13 @@
+import { cx } from '~/utils/cva';
 import { type CreateFormFieldProps } from '../Field/types';
+import { addDays, todayYmd } from '../../utils/ymd';
 import InputField from './InputField';
 
 type RelativeDatePickerFieldProps = CreateFormFieldProps<
   string,
   'input',
   {
-    anchor?: string; // ISO date string
+    anchor?: string; // ISO date string (YYYY-MM-DD)
     before?: number; // days before anchor
     after?: number; // days after anchor
     size?: 'sm' | 'md' | 'lg';
@@ -13,20 +15,15 @@ type RelativeDatePickerFieldProps = CreateFormFieldProps<
   }
 >;
 
-function formatDateForInput(date: Date): string {
-  const isoString = date.toISOString();
-  const datePart = isoString.split('T')[0];
-  if (!datePart) {
-    throw new Error('Invalid date format');
-  }
-  return datePart;
-}
-
-function addDays(date: Date, days: number): Date {
-  const result = new Date(date);
-  result.setDate(result.getDate() + days);
-  return result;
-}
+// See DatePicker for rationale — native <input type="date"> doesn't expose its
+// empty-state format hint via ::placeholder, so we style Firefox (via the
+// input's own color) and Chromium/Safari (via ::-webkit-datetime-edit)
+// directly when the value is empty.
+const emptyDateInputClass = cx(
+  'text-input-contrast/50 italic',
+  '[&::-webkit-datetime-edit]:text-input-contrast/50',
+  '[&::-webkit-datetime-edit]:italic',
+);
 
 export default function RelativeDatePickerField(
   props: RelativeDatePickerFieldProps,
@@ -46,25 +43,25 @@ export default function RelativeDatePickerField(
     ...rest
   } = props;
 
-  // Parse anchor date or default to today
-  const anchorDate =
-    anchor && typeof anchor === 'string' ? new Date(anchor) : new Date();
-
-  // Calculate min and max dates
-  const minDate = addDays(anchorDate, -before);
-  const maxDate = addDays(anchorDate, after);
+  const anchorYmd = anchor && typeof anchor === 'string' ? anchor : todayYmd();
+  const minYmd = addDays(anchorYmd, -before);
+  const maxYmd = addDays(anchorYmd, after);
 
   return (
     <InputField
       type="date"
       size={size}
-      min={formatDateForInput(minDate)}
-      max={formatDateForInput(maxDate)}
+      min={minYmd}
+      max={maxYmd}
       value={value}
       onChange={(value) => onChange?.(String(value))}
       name={name ?? ''}
       placeholder={placeholder}
-      className={className}
+      className={cx(
+        'outline-input-contrast',
+        !value && emptyDateInputClass,
+        className,
+      )}
       disabled={disabled}
       readOnly={readOnly}
       aria-invalid={rest['aria-invalid']}

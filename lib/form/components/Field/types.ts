@@ -97,23 +97,38 @@ type ArrayValidationProps = {
 };
 
 /**
+ * Validation props shared by ordered-value fields: HTML date/month/week/time/
+ * datetime-local use ISO strings, number/range use numbers. Matches the
+ * semantics of the `min`/`max` HTML attributes.
+ */
+type OrderedValidationProps = {
+  min?: string | number;
+  max?: string | number;
+};
+
+/**
  * Combined catalogue of all validation props
  */
 export type ValidationPropsCatalogue = CommonValidationProps &
   StringValidationProps &
   NumberValidationProps &
-  ArrayValidationProps;
+  ArrayValidationProps &
+  OrderedValidationProps;
 
 /**
  * Infers the appropriate validation props based on the field's value type.
  * - All fields get CommonValidationProps (required, custom, unique, sameAs, etc.)
- * - String fields additionally get minLength, maxLength, pattern
- * - Number fields additionally get minValue, maxValue
+ * - String fields additionally get minLength, maxLength, pattern, min, max
+ * - Number fields additionally get minValue, maxValue, min, max
  * - Array fields additionally get minSelected, maxSelected
  */
 export type ValidationPropsForValue<V> = CommonValidationProps &
-  (V extends string ? StringValidationProps : unknown) &
-  (V extends number ? NumberValidationProps : unknown) &
+  (V extends string
+    ? StringValidationProps & OrderedValidationProps
+    : unknown) &
+  (V extends number
+    ? NumberValidationProps & OrderedValidationProps
+    : unknown) &
   (V extends unknown[] ? ArrayValidationProps : unknown);
 
 // ═══════════════════════════════════════════════════════════════

@@ -1,5 +1,6 @@
 import type { Decorator } from '@storybook/nextjs-vite';
 import { useLayoutEffect, useState } from 'react';
+import { cx } from '~/utils/cva';
 
 const THEME_KEY = 'theme';
 const STORAGE_KEY = 'storybook-theme-preference';
@@ -87,10 +88,15 @@ function ThemeWrapper({
     });
   }, [selectedTheme]);
 
+  const isInterview = selectedTheme === 'interview';
+
   return (
     <div
-      {...(selectedTheme === 'interview' ? { 'data-interview': '' } : {})}
-      className="bg-background text-text publish-colors"
+      {...(isInterview ? { 'data-interview': '' } : {})}
+      className={cx(
+        'bg-background text-text publish-colors',
+        isInterview && 'scheme-dark',
+      )}
       style={{ opacity: isLoading ? 0 : 1, transition: 'opacity 150ms' }}
     >
       {children}

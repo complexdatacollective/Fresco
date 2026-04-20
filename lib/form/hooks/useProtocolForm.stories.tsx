@@ -377,7 +377,7 @@ const ProtocolFormDemo = ({
   initialValues?: Record<string, FieldValue>;
 }) => {
   const { fieldComponents } = useProtocolForm({
-    fields,
+    fields: fields.map((field) => ({ ...field, showValidationHints: true })), // Show validation hints for demo
     autoFocus,
     initialValues,
   });

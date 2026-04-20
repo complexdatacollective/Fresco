@@ -57,7 +57,7 @@ export default function SelectField(props: SelectProps) {
         className={cx(
           'w-full',
           nativeSelectVariants(),
-          !hasValue && 'text-input-contrast/50 italic',
+          !hasValue && 'text-current/50 italic',
         )}
       >
         {placeholder && <option value="">{placeholder}</option>}

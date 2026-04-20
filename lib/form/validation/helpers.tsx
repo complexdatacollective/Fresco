@@ -220,12 +220,22 @@ export function makeValidationHints(props: Record<string, unknown>) {
   );
 }
 
+/**
+ * Validation keys that are also valid HTML attributes and should reach the
+ * underlying component for native constraint UI (e.g. `<input type="date">`
+ * honouring `min`/`max` in its picker) in addition to driving validation.
+ */
+const DUAL_USE_VALIDATION_KEYS = new Set(['min', 'max']);
+
 export function filterValidationProps(
   props: Record<string, unknown>,
 ): Record<string, unknown> {
   const filtered: Record<string, unknown> = {};
   for (const [key, value] of Object.entries(props)) {
-    if (!validationPropKeys.includes(key as keyof typeof validations)) {
+    const isValidationKey = validationPropKeys.includes(
+      key as keyof typeof validations,
+    );
+    if (!isValidationKey || DUAL_USE_VALIDATION_KEYS.has(key)) {
       filtered[key] = value;
     }
   }

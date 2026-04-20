@@ -23,8 +23,8 @@ importers:
         specifier: 1.4.0
         version: 1.4.0(@date-fns/tz@1.4.1)(@types/react@19.2.14)(date-fns@4.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@codaco/protocol-validation':
-        specifier: 11.3.0-alpha.3
-        version: 11.3.0-alpha.3
+        specifier: 11.4.0-alpha.0
+        version: 11.4.0-alpha.0
       '@codaco/shared-consts':
         specifier: 5.0.0
         version: 5.0.0
@@ -809,8 +809,8 @@ packages:
     peerDependencies:
       storybook: ^0.0.0-0 || ^10.1.0 || ^10.1.0-0 || ^10.2.0-0 || ^10.3.0-0 || ^10.4.0-0
 
-  '@codaco/protocol-validation@11.3.0-alpha.3':
-    resolution: {integrity: sha512-bw+S11LRq5QVVa+/kyaK+kgaNNPYX+rn5KLUMl5QyZ0+b4Q9/tjQtjt+HpuX/itYN+3y4bQtmOakpI+zJNwQXw==}
+  '@codaco/protocol-validation@11.4.0-alpha.0':
+    resolution: {integrity: sha512-/58nFJxRjW2TV9iopfqPQM6utMVSZCYRcV0o8b5Rlk/oLSRN97KkqHUTI5j7QJcJYT8N/yNmw8aGq+tdlNseSg==}
     hasBin: true
 
   '@codaco/shared-consts@5.0.0':
@@ -9155,7 +9155,7 @@ snapshots:
       - '@chromatic-com/cypress'
       - '@chromatic-com/playwright'
 
-  '@codaco/protocol-validation@11.3.0-alpha.3':
+  '@codaco/protocol-validation@11.4.0-alpha.0':
     dependencies:
       '@codaco/shared-consts': 5.0.0
       '@faker-js/faker': 10.4.0

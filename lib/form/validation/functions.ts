@@ -162,6 +162,230 @@ const maxValue: ValidationFunction<number> = (max) => () => {
 };
 
 /**
+ * Detects strings shaped like the ISO/HTML date-time literals accepted by
+ * `<input type="date|month|week|time|datetime-local">`. A bare year like
+ * "2000" is ambiguous with a number, so it's NOT treated as date-shaped
+ * here — the caller checks the opposing side (param or value) for a
+ * separator before committing to string-comparison mode.
+ */
+function matchesDatePattern(s: string): boolean {
+  if (s === '') return false;
+  // YYYY-MM, YYYY-MM-DD, YYYY-MM-DDTHH:MM(:SS)?
+  if (/^\d{4}-\d{2}(-\d{2}(T\d{2}:\d{2}(:\d{2})?)?)?$/.test(s)) {
+    return true;
+  }
+  // HH:MM(:SS)? — <input type="time">
+  if (/^\d{2}:\d{2}(:\d{2})?$/.test(s)) return true;
+  // YYYY-W## — <input type="week">
+  if (/^\d{4}-W\d{2}$/.test(s)) return true;
+  return false;
+}
+
+/**
+ * Compare two ISO-style date/time strings that may be at different
+ * resolutions (e.g. "2020", "2020-06", "2020-06-15"). Truncates both to the
+ * shorter length before comparison so that a year value overlapping a
+ * YYYY-MM-DD bound is considered in-range — matching DatePicker's UI, which
+ * exposes partially-overlapping years/months.
+ */
+function compareDateStrings(a: string, b: string): number {
+  const len = Math.min(a.length, b.length);
+  const truncA = a.substring(0, len);
+  const truncB = b.substring(0, len);
+  if (truncA < truncB) return -1;
+  if (truncA > truncB) return 1;
+  return 0;
+}
+
+const YEAR_RE = /^(\d{4})$/;
+const YEAR_MONTH_RE = /^(\d{4})-(\d{2})$/;
+const DATE_TIME_RE =
+  /^(\d{4})-(\d{2})-(\d{2})(?:T(\d{2}):(\d{2})(?::(\d{2}))?)?$/;
+const TIME_RE = /^(\d{2}):(\d{2})(?::(\d{2}))?$/;
+
+/**
+ * Format a min/max bound for human-readable display in validation hints.
+ * Uses the runtime's locale via Intl.DateTimeFormat with timeZone: 'UTC' so
+ * the formatted date matches the literal YYYY-MM-DD bound regardless of the
+ * viewer's timezone. Returns the raw string for values we don't recognise
+ * as date/time literals.
+ */
+function formatBoundForDisplay(bound: string): string {
+  if (YEAR_RE.test(bound)) return bound;
+
+  const yearMonth = YEAR_MONTH_RE.exec(bound);
+  if (yearMonth) {
+    const year = Number(yearMonth[1]);
+    const month = Number(yearMonth[2]);
+    return new Intl.DateTimeFormat(undefined, {
+      year: 'numeric',
+      month: 'long',
+      timeZone: 'UTC',
+    }).format(new Date(Date.UTC(year, month - 1, 1)));
+  }
+
+  const dateTime = DATE_TIME_RE.exec(bound);
+  if (dateTime) {
+    const year = Number(dateTime[1]);
+    const month = Number(dateTime[2]);
+    const day = Number(dateTime[3]);
+    const hour = dateTime[4];
+    if (hour !== undefined) {
+      const date = new Date(
+        Date.UTC(
+          year,
+          month - 1,
+          day,
+          Number(hour),
+          Number(dateTime[5]),
+          dateTime[6] !== undefined ? Number(dateTime[6]) : 0,
+        ),
+      );
+      return new Intl.DateTimeFormat(undefined, {
+        dateStyle: 'long',
+        timeStyle: 'short',
+        timeZone: 'UTC',
+      }).format(date);
+    }
+    return new Intl.DateTimeFormat(undefined, {
+      dateStyle: 'long',
+      timeZone: 'UTC',
+    }).format(new Date(Date.UTC(year, month - 1, day)));
+  }
+
+  const time = TIME_RE.exec(bound);
+  if (time) {
+    const anchor = new Date(Date.UTC(1970, 0, 1));
+    anchor.setUTCHours(
+      Number(time[1]),
+      Number(time[2]),
+      time[3] !== undefined ? Number(time[3]) : 0,
+      0,
+    );
+    return new Intl.DateTimeFormat(undefined, {
+      timeStyle: 'short',
+      timeZone: 'UTC',
+    }).format(anchor);
+  }
+
+  return bound;
+}
+
+/**
+ * HTML-aligned minimum bound. Handles inputs whose `min` attribute is a
+ * date/time ISO string (date, month, week, time, datetime-local) or a number
+ * (number, range). Dispatches based on parameter type.
+ */
+const min: ValidationFunction<number | string> = (minParam) => () => {
+  invariant(
+    minParam !== undefined && minParam !== null && minParam !== '',
+    'Min must be specified',
+  );
+
+  const paramIsDateShaped =
+    typeof minParam === 'string' && matchesDatePattern(minParam);
+  const displayMin = paramIsDateShaped
+    ? formatBoundForDisplay(minParam)
+    : String(minParam);
+  const hint = paramIsDateShaped
+    ? `Must be on or after ${displayMin}.`
+    : `Enter a value greater than or equal to ${displayMin}.`;
+
+  return z.unknown().check(
+    z.superRefine((value, ctx) => {
+      if (value === undefined || value === null || value === '') {
+        return;
+      }
+
+      const valueIsDateShaped =
+        typeof value === 'string' && matchesDatePattern(value);
+
+      if (paramIsDateShaped || valueIsDateShaped) {
+        if (typeof value !== 'string' || typeof minParam !== 'string') return;
+        if (compareDateStrings(value, minParam) < 0) {
+          ctx.addIssue({
+            code: 'custom',
+            input: value,
+            message: `Must be on or after ${displayMin}.`,
+            path: [],
+          });
+        }
+        return;
+      }
+
+      const numValue = Number(value);
+      const numMin = Number(minParam);
+      if (isNaN(numValue) || isNaN(numMin)) return;
+      if (numValue < numMin) {
+        ctx.addIssue({
+          code: 'custom',
+          input: value,
+          message: `Too small. Value must be at least ${displayMin}.`,
+          path: [],
+        });
+      }
+    }),
+    z.meta({ hint }),
+  );
+};
+
+/**
+ * HTML-aligned maximum bound. See `min` for dispatch rules.
+ */
+const max: ValidationFunction<number | string> = (maxParam) => () => {
+  invariant(
+    maxParam !== undefined && maxParam !== null && maxParam !== '',
+    'Max must be specified',
+  );
+
+  const paramIsDateShaped =
+    typeof maxParam === 'string' && matchesDatePattern(maxParam);
+  const displayMax = paramIsDateShaped
+    ? formatBoundForDisplay(maxParam)
+    : String(maxParam);
+  const hint = paramIsDateShaped
+    ? `Must be on or before ${displayMax}.`
+    : `Enter a value less than or equal to ${displayMax}.`;
+
+  return z.unknown().check(
+    z.superRefine((value, ctx) => {
+      if (value === undefined || value === null || value === '') {
+        return;
+      }
+
+      const valueIsDateShaped =
+        typeof value === 'string' && matchesDatePattern(value);
+
+      if (paramIsDateShaped || valueIsDateShaped) {
+        if (typeof value !== 'string' || typeof maxParam !== 'string') return;
+        if (compareDateStrings(value, maxParam) > 0) {
+          ctx.addIssue({
+            code: 'custom',
+            input: value,
+            message: `Must be on or before ${displayMax}.`,
+            path: [],
+          });
+        }
+        return;
+      }
+
+      const numValue = Number(value);
+      const numMax = Number(maxParam);
+      if (isNaN(numValue) || isNaN(numMax)) return;
+      if (numValue > numMax) {
+        ctx.addIssue({
+          code: 'custom',
+          input: value,
+          message: `Too large. Value must be at most ${displayMax}.`,
+          path: [],
+        });
+      }
+    }),
+    z.meta({ hint }),
+  );
+};
+
+/**
  * Require that an array have a minimum number of elements
  */
 const minSelected: ValidationFunction<number> = (min) => () => {
@@ -604,6 +828,8 @@ export const validations = {
   minLength,
   maxLength,
   pattern,
+  min,
+  max,
   minValue,
   maxValue,
   minSelected,

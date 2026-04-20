@@ -261,6 +261,177 @@ describe('Validation Functions', () => {
     });
   });
 
+  describe('min (numeric)', () => {
+    it('rejects numbers less than min', () => {
+      const validator = validations.min(10, createMockContext())({});
+      const result = validator.safeParse(5);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0]?.message).toBe(
+          'Too small. Value must be at least 10.',
+        );
+      }
+    });
+
+    it('accepts numbers equal to min', () => {
+      const validator = validations.min(10, createMockContext())({});
+      expect(validator.safeParse(10).success).toBe(true);
+    });
+
+    it('accepts numbers greater than min', () => {
+      const validator = validations.min(10, createMockContext())({});
+      expect(validator.safeParse(15).success).toBe(true);
+    });
+
+    it('coerces numeric string values for number/range inputs', () => {
+      const validator = validations.min(10, createMockContext())({});
+      expect(validator.safeParse('15').success).toBe(true);
+      expect(validator.safeParse('5').success).toBe(false);
+    });
+
+    it('ignores empty values (required handles emptiness)', () => {
+      const validator = validations.min(10, createMockContext())({});
+      expect(validator.safeParse('').success).toBe(true);
+      expect(validator.safeParse(undefined).success).toBe(true);
+      expect(validator.safeParse(null).success).toBe(true);
+    });
+
+    it('throws when min is not specified', () => {
+      expect(() => {
+        validations.min(
+          undefined as unknown as number,
+          createMockContext(),
+        )({});
+      }).toThrow('Min must be specified');
+    });
+  });
+
+  describe('min (date)', () => {
+    it('rejects YYYY-MM-DD values before min', () => {
+      const validator = validations.min('2000-06-15', createMockContext())({});
+      const result = validator.safeParse('2000-06-14');
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        // Locale pinned to en-US in vitest.setup.ts.
+        expect(result.error.issues[0]?.message).toBe(
+          'Must be on or after June 15, 2000.',
+        );
+      }
+    });
+
+    it('accepts YYYY-MM-DD values equal to or after min', () => {
+      const validator = validations.min('2000-06-15', createMockContext())({});
+      expect(validator.safeParse('2000-06-15').success).toBe(true);
+      expect(validator.safeParse('2000-06-16').success).toBe(true);
+      expect(validator.safeParse('2001-01-01').success).toBe(true);
+    });
+
+    it('truncates value to YYYY-MM resolution when comparing against a YYYY-MM-DD min', () => {
+      const validator = validations.min('2000-06-15', createMockContext())({});
+      // "2000-06" truncates min to "2000-06" → equal → accept (year/month overlaps)
+      expect(validator.safeParse('2000-06').success).toBe(true);
+      // "2000-05" is strictly earlier month → reject
+      expect(validator.safeParse('2000-05').success).toBe(false);
+    });
+
+    it('truncates value to YYYY resolution when comparing against a YYYY-MM-DD min', () => {
+      const validator = validations.min('2000-06-15', createMockContext())({});
+      // "2000" truncates min to "2000" → equal → accept
+      expect(validator.safeParse('2000').success).toBe(true);
+      expect(validator.safeParse('1999').success).toBe(false);
+    });
+
+    it('handles YYYY-MM min with YYYY-MM-DD value', () => {
+      const validator = validations.min('2000-06', createMockContext())({});
+      expect(validator.safeParse('2000-06-01').success).toBe(true);
+      expect(validator.safeParse('2000-05-31').success).toBe(false);
+    });
+
+    it('handles YYYY min with YYYY-MM-DD value', () => {
+      const validator = validations.min('2000', createMockContext())({});
+      expect(validator.safeParse('2000-01-01').success).toBe(true);
+      expect(validator.safeParse('1999-12-31').success).toBe(false);
+    });
+
+    it('handles time inputs (HH:MM)', () => {
+      const validator = validations.min('09:00', createMockContext())({});
+      expect(validator.safeParse('09:00').success).toBe(true);
+      expect(validator.safeParse('10:30').success).toBe(true);
+      expect(validator.safeParse('08:59').success).toBe(false);
+    });
+
+    it('handles datetime-local inputs', () => {
+      const validator = validations.min(
+        '2000-06-15T09:00',
+        createMockContext(),
+      )({});
+      expect(validator.safeParse('2000-06-15T09:00').success).toBe(true);
+      expect(validator.safeParse('2000-06-15T08:59').success).toBe(false);
+    });
+  });
+
+  describe('max (numeric)', () => {
+    it('rejects numbers greater than max', () => {
+      const validator = validations.max(10, createMockContext())({});
+      const result = validator.safeParse(15);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0]?.message).toBe(
+          'Too large. Value must be at most 10.',
+        );
+      }
+    });
+
+    it('accepts numbers equal to max', () => {
+      const validator = validations.max(10, createMockContext())({});
+      expect(validator.safeParse(10).success).toBe(true);
+    });
+
+    it('accepts numbers less than max', () => {
+      const validator = validations.max(10, createMockContext())({});
+      expect(validator.safeParse(5).success).toBe(true);
+    });
+
+    it('throws when max is not specified', () => {
+      expect(() => {
+        validations.max(
+          undefined as unknown as number,
+          createMockContext(),
+        )({});
+      }).toThrow('Max must be specified');
+    });
+  });
+
+  describe('max (date)', () => {
+    it('rejects YYYY-MM-DD values after max', () => {
+      const validator = validations.max('2020-05-15', createMockContext())({});
+      const result = validator.safeParse('2020-05-16');
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0]?.message).toBe(
+          'Must be on or before May 15, 2020.',
+        );
+      }
+    });
+
+    it('accepts values equal to or before max', () => {
+      const validator = validations.max('2020-05-15', createMockContext())({});
+      expect(validator.safeParse('2020-05-15').success).toBe(true);
+      expect(validator.safeParse('2020-05-14').success).toBe(true);
+      expect(validator.safeParse('1999-12-31').success).toBe(true);
+    });
+
+    it('allows partially-overlapping years/months via truncation', () => {
+      const validator = validations.max('2020-05-15', createMockContext())({});
+      // "2020" truncates max to "2020" → equal → accept (year overlaps)
+      expect(validator.safeParse('2020').success).toBe(true);
+      // "2020-05" truncates max to "2020-05" → equal → accept (month overlaps)
+      expect(validator.safeParse('2020-05').success).toBe(true);
+      // "2020-06" is strictly later month → reject
+      expect(validator.safeParse('2020-06').success).toBe(false);
+    });
+  });
+
   describe('minSelected', () => {
     it('should reject arrays with fewer than min items', () => {
       const validator = validations.minSelected(3, createMockContext())({});

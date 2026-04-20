@@ -1,7 +1,8 @@
+import { render } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { z } from 'zod/mini';
 import type { FieldValue } from '../store/types';
-import { validateFieldValue } from './helpers';
+import { makeValidationHints, validateFieldValue } from './helpers';
 
 describe('Validation Utils', () => {
   const mockFormValues: Record<string, FieldValue> = {};
@@ -143,6 +144,39 @@ describe('Validation Utils', () => {
           'Must be at least 5 chars',
         );
       }
+    });
+  });
+
+  describe('makeValidationHints — min/max', () => {
+    function hintTexts(element: ReturnType<typeof makeValidationHints>) {
+      if (!element) return [];
+      const { container } = render(element);
+      return Array.from(container.querySelectorAll('li')).map(
+        (li) => li.textContent?.trim() ?? '',
+      );
+    }
+
+    it('renders a locale-formatted date hint when min is a YYYY-MM-DD string', () => {
+      expect(hintTexts(makeValidationHints({ min: '2000-01-01' }))).toEqual([
+        'Must be on or after January 1, 2000.',
+      ]);
+    });
+
+    it('renders the numeric hint when min is a number', () => {
+      expect(hintTexts(makeValidationHints({ min: 10 }))).toEqual([
+        'Enter a value greater than or equal to 10.',
+      ]);
+    });
+
+    it('renders both min and max hints together', () => {
+      expect(
+        hintTexts(
+          makeValidationHints({ min: '2000-01-01', max: '2020-12-31' }),
+        ),
+      ).toEqual([
+        'Must be on or after January 1, 2000.',
+        'Must be on or before December 31, 2020.',
+      ]);
     });
   });
 });

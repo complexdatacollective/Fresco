@@ -293,6 +293,28 @@ if (typeof Element.prototype.scrollTo !== 'function') {
   };
 }
 
+// Pin the default locale for Intl.DateTimeFormat. Node's runtime default
+// depends on the host's LANG/LC_ALL env vars, which makes any assertion
+// against locale-formatted strings flaky across dev machines and CI. We
+// subclass the original constructor and substitute 'en-US' when no locale
+// is passed, so `new Intl.DateTimeFormat(undefined, …)` (our production call
+// site) behaves as en-US under test while explicit locale arguments still
+// work unchanged.
+const OriginalDateTimeFormat = Intl.DateTimeFormat;
+class PinnedDateTimeFormat extends OriginalDateTimeFormat {
+  constructor(
+    locales?: Intl.LocalesArgument,
+    options?: Intl.DateTimeFormatOptions,
+  ) {
+    super(locales ?? 'en-US', options);
+  }
+}
+// Cast matches the pattern already used for `global.Worker = WorkerMock as
+// unknown as typeof Worker` below — `Intl.DateTimeFormat`'s type includes a
+// call-without-`new` signature that ES classes can't express directly.
+Intl.DateTimeFormat =
+  PinnedDateTimeFormat as unknown as typeof Intl.DateTimeFormat;
+
 // Mock offsetWidth and offsetHeight on HTMLElement for immediate container width detection
 // This allows hooks like useCollectionSetup to get initial dimensions synchronously
 Object.defineProperty(HTMLElement.prototype, 'offsetWidth', {

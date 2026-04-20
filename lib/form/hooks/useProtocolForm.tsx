@@ -28,6 +28,7 @@ import ToggleButtonGroupField from '../components/fields/ToggleButtonGroup';
 import ToggleField from '../components/fields/ToggleField';
 import VisualAnalogScaleField from '../components/fields/VisualAnalogScale';
 import { type ValidationContext } from '../store/types';
+import { addDays, todayYmd } from '../utils/ymd';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const fieldTypeMap: Record<ComponentType, React.ComponentType<any>> = {
@@ -97,6 +98,7 @@ export default function useProtocolForm({
       maxLabel?: string;
       min?: string;
       max?: string;
+      anchor?: string;
       before?: number;
       after?: number;
       initialValue?: FieldValue;
@@ -212,11 +214,23 @@ export default function useProtocolForm({
       if (params.type) props.type = params.type;
     }
 
-    // Handle RelativeDatePicker parameters
+    // Handle RelativeDatePicker parameters. We forward anchor/before/after
+    // to the component for its UI-side range calculation AND pre-compute
+    // absolute min/max here so the Field-level min/max validators fire on
+    // submission. Without this, RelativeDatePicker's internally-computed
+    // min/max would only constrain the native picker UI — keyboard-typed
+    // out-of-range values would pass through validation.
     if (field.component === 'RelativeDatePicker' && field.parameters) {
       const params = field.parameters;
+      if (params.anchor !== undefined) props.anchor = params.anchor;
       if (params.before !== undefined) props.before = params.before;
       if (params.after !== undefined) props.after = params.after;
+
+      const anchor = params.anchor ?? todayYmd();
+      const before = params.before ?? 180;
+      const after = params.after ?? 0;
+      props.min = addDays(anchor, -before);
+      props.max = addDays(anchor, after);
     }
 
     return props;
