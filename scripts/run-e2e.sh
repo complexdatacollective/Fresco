@@ -11,6 +11,14 @@
 # For local debug iteration (skips Docker wrapper):
 #   pnpm build
 #   pnpm exec playwright test --ui
+#
+# node_modules and .next are backed by named Docker volumes, not the host
+# bind mount. Without this, `pnpm install` inside the Linux container
+# overwrites the host's native bindings (rolldown, @next/swc, sharp, etc.)
+# with Linux-x64 binaries, corrupting local dev on macOS/arm64. The volumes
+# persist between runs so --frozen-lockfile skips redundant installs, and
+# can be wiped with `docker volume rm fresco-e2e-node-modules
+# fresco-e2e-next-cache` if they ever drift.
 
 set -e
 
@@ -28,6 +36,8 @@ docker run --rm \
   -e E2E_TEST=true \
   -e TESTCONTAINERS_HOST_OVERRIDE=host.docker.internal \
   -v "$(pwd)":/work \
+  -v fresco-e2e-node-modules:/work/node_modules \
+  -v fresco-e2e-next-cache:/work/.next \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -w /work \
   --add-host=host.docker.internal:host-gateway \
