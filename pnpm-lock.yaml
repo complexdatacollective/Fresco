@@ -229,6 +229,9 @@ importers:
       sharp:
         specifier: ^0.34.5
         version: 0.34.5
+      sqids:
+        specifier: ^0.3.0
+        version: 0.3.0
       superjson:
         specifier: ^2.2.5
         version: 2.2.6

@@ -19,6 +19,10 @@ const {
   mockAddEvent,
   mockCaptureException,
   mockExtractApikeyAssetsFromManifest,
+  mockParseUploadThingToken,
+  mockGeneratePresignedUploadUrl,
+  mockRegisterUploadWithUploadThing,
+  mockGetBaseUrl,
 } = vi.hoisted(() => ({
   mockCheckPreviewAuth: vi.fn(),
   mockValidateAndMigrateProtocol: vi.fn(),
@@ -44,6 +48,10 @@ const {
   mockAddEvent: vi.fn(),
   mockCaptureException: vi.fn(),
   mockExtractApikeyAssetsFromManifest: vi.fn(),
+  mockParseUploadThingToken: vi.fn(),
+  mockGeneratePresignedUploadUrl: vi.fn(),
+  mockRegisterUploadWithUploadThing: vi.fn(),
+  mockGetBaseUrl: vi.fn(),
 }));
 
 vi.mock('next/server', async (importOriginal) => {
@@ -124,6 +132,19 @@ vi.mock('~/utils/protocolImport', () => ({
   extractApikeyAssetsFromManifest: mockExtractApikeyAssetsFromManifest,
 }));
 
+vi.mock('~/lib/uploadthing/token', () => ({
+  parseUploadThingToken: mockParseUploadThingToken,
+}));
+
+vi.mock('~/lib/uploadthing/presigned', () => ({
+  generatePresignedUploadUrl: mockGeneratePresignedUploadUrl,
+  registerUploadWithUploadThing: mockRegisterUploadWithUploadThing,
+}));
+
+vi.mock('~/utils/getBaseUrl', () => ({
+  getBaseUrl: mockGetBaseUrl,
+}));
+
 import { v1 } from '../handler';
 
 type JsonBody = {
@@ -131,7 +152,12 @@ type JsonBody = {
   message?: string;
   previewUrl?: string;
   protocolId?: string;
-  presignedUrls?: { assetId: string; url: string; headers: Record<string, string> }[];
+  presignedUrls?: {
+    assetId: string;
+    url: string;
+    headers: Record<string, string>;
+    bodyFormat: 'raw' | 'formdata';
+  }[];
 };
 
 function createPostRequest(
@@ -162,6 +188,14 @@ describe('Preview API v1 handler', () => {
     mockGetExistingAssets.mockResolvedValue([]);
     mockAddEvent.mockResolvedValue({ success: true, error: null });
     mockGetStorageProvider.mockResolvedValue('s3');
+    mockParseUploadThingToken.mockResolvedValue({
+      apiKey: 'sk_test',
+      appId: 'app-id',
+      regions: ['sea1'],
+      ingestHost: 'ingest.uploadthing.com',
+    });
+    mockRegisterUploadWithUploadThing.mockResolvedValue(undefined);
+    mockGetBaseUrl.mockReturnValue('http://localhost:3000');
   });
 
   describe('authentication', () => {
@@ -307,9 +341,10 @@ describe('Preview API v1 handler', () => {
       expect(body.presignedUrls).toHaveLength(1);
       expect(body.presignedUrls![0]!.assetId).toBe('asset-1');
       expect(body.presignedUrls![0]!.headers).toEqual({});
+      expect(body.presignedUrls![0]!.bodyFormat).toBe('raw');
     });
 
-    it('should echo authorization header in presigned URLs for uploadthing provider', async () => {
+    it('should generate direct UploadThing presigned URLs and register with UT for uploadthing provider', async () => {
       mockGetStorageProvider.mockResolvedValue('uploadthing');
       mockValidateAndMigrateProtocol.mockResolvedValue({
         success: true,
@@ -319,40 +354,10 @@ describe('Preview API v1 handler', () => {
       mockPrisma.previewProtocol.create.mockResolvedValue({
         id: 'new-protocol-id',
       });
-
-      const request = createPostRequest(
-        {
-          type: 'initialize-preview',
-          protocol: validProtocol,
-          assetMeta: [{ assetId: 'asset-1', name: 'image.png', size: 1024 }],
-        },
-        { Authorization: 'Bearer test-token-123' },
-      );
-
-      const response = await v1(request);
-      const body = (await response.json()) as JsonBody;
-
-      expect(response.status).toBe(200);
-      expect(body.status).toBe('job-created');
-      expect(body.presignedUrls).toHaveLength(1);
-      expect(body.presignedUrls![0]!.assetId).toBe('asset-1');
-      expect(body.presignedUrls![0]!.url).toMatch(
-        /\/api\/preview\/new-protocol-id\/upload\?/,
-      );
-      expect(body.presignedUrls![0]!.headers).toEqual({
-        Authorization: 'Bearer test-token-123',
-      });
-    });
-
-    it('should return empty headers in presigned URLs for uploadthing provider when no authorization header', async () => {
-      mockGetStorageProvider.mockResolvedValue('uploadthing');
-      mockValidateAndMigrateProtocol.mockResolvedValue({
-        success: true,
-        protocol: validProtocol,
-      });
-      mockPrisma.previewProtocol.findFirst.mockResolvedValue(null);
-      mockPrisma.previewProtocol.create.mockResolvedValue({
-        id: 'new-protocol-id',
+      mockGeneratePresignedUploadUrl.mockReturnValue({
+        uploadUrl: 'https://sea1.ingest.uploadthing.com/file-key-1?signature=abc',
+        fileKey: 'file-key-1',
+        publicUrl: 'https://app-id.ufs.sh/f/file-key-1',
       });
 
       const request = createPostRequest({
@@ -367,7 +372,53 @@ describe('Preview API v1 handler', () => {
       expect(response.status).toBe(200);
       expect(body.status).toBe('job-created');
       expect(body.presignedUrls).toHaveLength(1);
+      expect(body.presignedUrls![0]!.assetId).toBe('asset-1');
+      expect(body.presignedUrls![0]!.url).toMatch(
+        /^https:\/\/sea1\.ingest\.uploadthing\.com\/file-key-1/,
+      );
       expect(body.presignedUrls![0]!.headers).toEqual({});
+      expect(body.presignedUrls![0]!.bodyFormat).toBe('formdata');
+
+      expect(mockParseUploadThingToken).toHaveBeenCalled();
+      expect(mockGeneratePresignedUploadUrl).toHaveBeenCalledWith(
+        expect.objectContaining({
+          fileName: 'image.png',
+          fileSize: 1024,
+        }),
+      );
+      expect(mockRegisterUploadWithUploadThing).toHaveBeenCalledWith(
+        expect.objectContaining({
+          fileKeys: ['file-key-1'],
+          callbackUrl: 'http://localhost:3000/api/uploadthing',
+        }),
+      );
+      expect(mockGeneratePresignedUploadUrls).not.toHaveBeenCalled();
+    });
+
+    it('should return 500 when uploadthing provider is selected but token is not configured', async () => {
+      mockGetStorageProvider.mockResolvedValue('uploadthing');
+      mockParseUploadThingToken.mockResolvedValue(null);
+      mockValidateAndMigrateProtocol.mockResolvedValue({
+        success: true,
+        protocol: validProtocol,
+      });
+      mockPrisma.previewProtocol.findFirst.mockResolvedValue(null);
+
+      const request = createPostRequest({
+        type: 'initialize-preview',
+        protocol: validProtocol,
+        assetMeta: [{ assetId: 'asset-1', name: 'image.png', size: 1024 }],
+      });
+
+      const response = await v1(request);
+      const body = (await response.json()) as JsonBody;
+
+      expect(response.status).toBe(500);
+      expect(body.status).toBe('error');
+      expect(body.message).toBe('UploadThing is not configured');
+      expect(mockGeneratePresignedUploadUrl).not.toHaveBeenCalled();
+      expect(mockRegisterUploadWithUploadThing).not.toHaveBeenCalled();
+      expect(mockPrisma.previewProtocol.create).not.toHaveBeenCalled();
     });
 
     it('should prune old preview protocols before creating new ones', async () => {

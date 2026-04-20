@@ -1,38 +1,9 @@
-import { File } from 'node:buffer';
 import { Effect, Layer } from 'effect';
+import { File } from 'node:buffer';
 import { FileStorageError, getUserMessage } from '~/lib/storage/errors';
 import { FileStorage } from '~/lib/storage/services/FileStorage';
 import { getUTApi } from '~/lib/uploadthing/server-helpers';
-import { getAppSetting } from '~/queries/appSettings';
-
-type ParsedToken = {
-  apiKey: string;
-  appId: string;
-  regions: string[];
-  ingestHost: string;
-};
-
-async function parseUploadThingToken(): Promise<ParsedToken | null> {
-  const token = await getAppSetting('uploadThingToken');
-
-  if (!token) {
-    return null;
-  }
-
-  try {
-    const decoded = Buffer.from(token, 'base64').toString('utf-8');
-    const parsed = JSON.parse(decoded) as ParsedToken;
-
-    return {
-      apiKey: parsed.apiKey,
-      appId: parsed.appId,
-      regions: parsed.regions,
-      ingestHost: parsed.ingestHost ?? 'ingest.uploadthing.com',
-    };
-  } catch {
-    return null;
-  }
-}
+import { parseUploadThingToken } from '~/lib/uploadthing/token';
 
 export const UploadThingFileStorage = Layer.succeed(FileStorage, {
   upload: (fileBuffer, fileName) =>
