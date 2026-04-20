@@ -63,6 +63,14 @@ const threePointOptions = [
   { label: 'High', value: 3 },
 ];
 
+const markdownLabelOptions = [
+  { label: '**Strongly** disagree', value: 1 },
+  { label: '_Somewhat_ disagree', value: 2 },
+  { label: 'Neutral', value: 3 },
+  { label: '_Somewhat_ agree', value: 4 },
+  { label: '**Strongly** agree', value: 5 },
+];
+
 function ControlledLikert({
   initialValue = 1,
   ...args
@@ -159,6 +167,14 @@ export const ThreePoint: Story = {
   args: {
     options: threePointOptions,
     value: 2,
+  },
+  render: (args) => <ControlledLikert {...args} initialValue={args.value} />,
+};
+
+export const MarkdownLabels: Story = {
+  args: {
+    options: markdownLabelOptions,
+    value: 3,
   },
   render: (args) => <ControlledLikert {...args} initialValue={args.value} />,
 };

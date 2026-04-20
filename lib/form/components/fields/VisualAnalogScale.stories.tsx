@@ -160,6 +160,15 @@ export const FineGrained: Story = {
   render: (args) => <ControlledVAS {...args} initialValue={args.value} />,
 };
 
+export const MarkdownLabels: Story = {
+  args: {
+    value: 50,
+    minLabel: '**Not at all** _(lowest)_',
+    maxLabel: '**Extremely** _(highest)_',
+  },
+  render: (args) => <ControlledVAS {...args} initialValue={args.value} />,
+};
+
 function UnsetVASWithValueDisplay({
   ...args
 }: Omit<

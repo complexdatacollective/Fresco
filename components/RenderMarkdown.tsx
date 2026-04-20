@@ -1,7 +1,6 @@
 'use client';
 
-import { useRender } from '@base-ui/react/use-render';
-import * as React from 'react';
+import { cloneElement, type ReactElement, type ReactNode } from 'react';
 import ReactMarkdown, { type Components, type Options } from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
 import rehypeSanitize from 'rehype-sanitize';
@@ -29,7 +28,7 @@ const externalLinkRenderer = ({
   children,
 }: {
   href?: string;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }) => (
   <NativeLink href={href ?? '#'} target="_blank" rel="noopener noreferrer">
     {children}
@@ -38,22 +37,22 @@ const externalLinkRenderer = ({
 
 const defaultMarkdownRenderers = {
   a: externalLinkRenderer,
-  h1: ({ children }: { children?: React.ReactNode }) => (
+  h1: ({ children }: { children?: ReactNode }) => (
     <Heading level="h1">{children}</Heading>
   ),
-  h2: ({ children }: { children?: React.ReactNode }) => (
+  h2: ({ children }: { children?: ReactNode }) => (
     <Heading level="h2">{children}</Heading>
   ),
-  h3: ({ children }: { children?: React.ReactNode }) => (
+  h3: ({ children }: { children?: ReactNode }) => (
     <Heading level="h3">{children}</Heading>
   ),
-  h4: ({ children }: { children?: React.ReactNode }) => (
+  h4: ({ children }: { children?: ReactNode }) => (
     <Heading level="h4">{children}</Heading>
   ),
-  h5: ({ children }: { children?: React.ReactNode }) => (
+  h5: ({ children }: { children?: ReactNode }) => (
     <Heading level="h4">{children}</Heading>
   ),
-  h6: ({ children }: { children?: React.ReactNode }) => (
+  h6: ({ children }: { children?: ReactNode }) => (
     <Heading level="h4">{children}</Heading>
   ),
   p: Paragraph,
@@ -62,57 +61,37 @@ const defaultMarkdownRenderers = {
 };
 
 type RenderMarkdownProps = Options & {
-  render?: useRender.RenderProp;
+  render?: ReactElement;
 };
 
-const RenderMarkdown = React.forwardRef<HTMLSpanElement, RenderMarkdownProps>(
-  (
-    {
-      children,
-      render,
-      allowedElements,
-      components,
-      remarkPlugins,
-      rehypePlugins,
-      unwrapDisallowed,
-      ...props
-    },
-    ref,
-  ) => {
-    const markdownContent = React.useMemo(
-      () => (
-        <ReactMarkdown
-          allowedElements={allowedElements ?? ALLOWED_MARKDOWN_LABEL_TAGS}
-          components={(components ?? defaultMarkdownRenderers) as Components}
-          remarkPlugins={remarkPlugins ?? [remarkGemoji]}
-          rehypePlugins={rehypePlugins ?? [rehypeRaw, rehypeSanitize]}
-          unwrapDisallowed={unwrapDisallowed ?? true}
-          {...props}
-        >
-          {children}
-        </ReactMarkdown>
-      ),
-      [
-        allowedElements,
-        children,
-        components,
-        props,
-        rehypePlugins,
-        remarkPlugins,
-        unwrapDisallowed,
-      ],
-    );
+const RenderMarkdown = ({
+  children,
+  render,
+  allowedElements,
+  components,
+  remarkPlugins,
+  rehypePlugins,
+  unwrapDisallowed,
+  ...props
+}: RenderMarkdownProps) => {
+  const markdownContent = (
+    <ReactMarkdown
+      allowedElements={allowedElements ?? ALLOWED_MARKDOWN_LABEL_TAGS}
+      components={(components ?? defaultMarkdownRenderers) as Components}
+      remarkPlugins={remarkPlugins ?? [remarkGemoji]}
+      rehypePlugins={rehypePlugins ?? [rehypeRaw, rehypeSanitize]}
+      unwrapDisallowed={unwrapDisallowed ?? true}
+      {...props}
+    >
+      {children}
+    </ReactMarkdown>
+  );
 
-    return useRender({
-      render: render ?? <React.Fragment />,
-      props: {
-        children: markdownContent,
-      },
-      ref,
-    });
-  },
-);
+  if (render) {
+    return cloneElement(render, undefined, markdownContent);
+  }
 
-RenderMarkdown.displayName = 'RenderMarkdown';
+  return markdownContent;
+};
 
 export { RenderMarkdown };
