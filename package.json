@@ -176,7 +176,7 @@
     "knip": "^6.4.1",
     "pg": "^8.20.0",
     "playwright": "^1.59.1",
-    "prettier": "^3.8.2",
+    "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.7.2",
     "prisma": "^7.7.0",
     "sass": "^1.99.0",
