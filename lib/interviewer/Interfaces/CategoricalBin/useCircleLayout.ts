@@ -65,8 +65,8 @@ export function useCircleLayout({
         (parseFloat(styles.paddingBlockStart) || 0) +
         (parseFloat(styles.paddingBlockEnd) || 0);
       setDimensions({
-        width: container.clientWidth - padX,
-        height: container.clientHeight - padY,
+        width: Math.max(0, container.clientWidth - padX),
+        height: Math.max(0, container.clientHeight - padY),
         gap: computedGap,
       });
     };
