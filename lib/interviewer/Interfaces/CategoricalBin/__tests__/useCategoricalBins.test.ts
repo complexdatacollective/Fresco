@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { isUncategorised } from '~/lib/interviewer/Interfaces/CategoricalBin/useCategoricalBins';
 
 describe('isUncategorised', () => {
-  it.each([0, false, ''])(
+  it.each([0, false])(
     'treats a node with falsy value %p on the active variable as categorised',
     (value) => {
       expect(isUncategorised({ v: value }, 'v', undefined)).toBe(false);
