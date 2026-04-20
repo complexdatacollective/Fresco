@@ -1,4 +1,4 @@
-import { isEqual, isNull } from 'es-toolkit';
+import { isEqual, isNil, isNull } from 'es-toolkit';
 
 export const operators = {
   EXACTLY: 'EXACTLY',
@@ -117,9 +117,11 @@ const predicate =
        * If you change these, make sure you test all the cases!
        */
       case operators.INCLUDES: {
-        if (!value) {
+        // isNil, not `!value`: stored `0` / `false` are valid option values
+        // and must reach the equality checks below.
+        if (isNil(value)) {
           return false;
-        } // ord/cat vars are initialised to null
+        }
 
         if (Array.isArray(variableValue)) {
           if (Array.isArray(value)) {
@@ -137,9 +139,10 @@ const predicate =
         return value === variableValue;
       }
       case operators.EXCLUDES: {
-        if (!value) {
+        // See INCLUDES for why this is isNil, not `!value`.
+        if (isNil(value)) {
           return true;
-        } // ord/cat vars are initialised to null
+        }
 
         if (Array.isArray(variableValue)) {
           if (Array.isArray(value)) {
