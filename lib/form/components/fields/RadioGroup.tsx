@@ -105,6 +105,7 @@ export default function RadioGroupField(props: RadioGroupFieldProps) {
   return (
     <div className="@container w-full">
       <RadioGroup
+        {...rest}
         id={id}
         name={name}
         {...(isControlled
