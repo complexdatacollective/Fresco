@@ -2,6 +2,7 @@ import addonA11y from '@storybook/addon-a11y';
 import addonDocs from '@storybook/addon-docs';
 import addonVitest from '@storybook/addon-vitest';
 import { definePreview } from '@storybook/nextjs-vite';
+import isChromatic from 'chromatic/isChromatic';
 import { NuqsTestingAdapter } from 'nuqs/adapters/testing';
 import { StrictMode } from 'react';
 import Providers from '../components/Providers';
@@ -73,12 +74,8 @@ export default definePreview({
       // development still gets the full animations by default.
       const disableAnimationsFromAutomation =
         typeof navigator !== 'undefined' && navigator.webdriver === true;
-      const disableAnimationsFromUrl =
-        typeof window !== 'undefined' &&
-        new URLSearchParams(window.location.search).get('disableAnimations') ===
-          '1';
       const disableAnimations =
-        disableAnimationsFromAutomation || disableAnimationsFromUrl;
+        disableAnimationsFromAutomation || isChromatic();
 
       return (
         // nextjs-vite doesn't seem to pick up the strict mode setting from next config
