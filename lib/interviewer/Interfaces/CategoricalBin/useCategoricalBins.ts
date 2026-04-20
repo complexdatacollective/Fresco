@@ -33,6 +33,21 @@ type CategoricalBinPrompts = Extract<
   { type: 'CategoricalBin' }
 >['prompts'][number];
 
+export function isUncategorised(
+  attributes: NcNode[typeof entityAttributesProperty],
+  activePromptVariable: string | undefined,
+  otherVariable: string | undefined,
+) {
+  const activeVarExists = activePromptVariable
+    ? attributes[activePromptVariable] != null
+    : false;
+  const otherVarExists = otherVariable
+    ? attributes[otherVariable] != null
+    : false;
+
+  return !activeVarExists && !otherVarExists;
+}
+
 export function useCategoricalBins() {
   const stageNodes = useSelector(getNetworkNodesForType);
   const {
@@ -53,19 +68,14 @@ export function useCategoricalBins() {
       ? variableDefinition.options!
       : [];
 
-  // Calculate uncategorised nodes by filtering stageNodes to those that don't have a value for either the active prompt variable or the other variable
-  const uncategorisedNodes = stageNodes.filter((node) => {
-    const attributes = node[entityAttributesProperty];
-
-    const activeVarExists = activePromptVariable
-      ? attributes[activePromptVariable] != null
-      : false;
-    const otherVarExists = otherVariable
-      ? attributes[otherVariable] != null
-      : false;
-
-    return !activeVarExists && !otherVarExists;
-  });
+  // Calcualte uncategorised nodes by filtering stageNodes to those that don't have a value for either the active prompt variable or the other variable
+  const uncategorisedNodes = stageNodes.filter((node) =>
+    isUncategorised(
+      node[entityAttributesProperty],
+      activePromptVariable,
+      otherVariable,
+    ),
+  );
 
   const sortedUncategorisedNodes = useSortedNodeList(
     uncategorisedNodes,
