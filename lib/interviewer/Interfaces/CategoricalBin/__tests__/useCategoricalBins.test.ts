@@ -29,4 +29,16 @@ describe('isUncategorised', () => {
     expect(isUncategorised({}, 'v', 'o')).toBe(true);
     expect(isUncategorised({ v: null, o: null }, 'v', 'o')).toBe(true);
   });
+
+  it('treats an empty array on the active variable as uncategorised', () => {
+    expect(isUncategorised({ v: [] }, 'v', undefined)).toBe(true);
+  });
+
+  it('treats a non-empty array on the active variable as categorised', () => {
+    expect(isUncategorised({ v: ['a'] }, 'v', undefined)).toBe(false);
+  });
+
+  it('treats an empty array on the other variable as uncategorised', () => {
+    expect(isUncategorised({ o: [] }, 'v', 'o')).toBe(true);
+  });
 });
