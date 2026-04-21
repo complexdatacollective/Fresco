@@ -1,3 +1,4 @@
+import isChromatic from 'chromatic/isChromatic';
 import { useEffect, useRef, useState } from 'react';
 
 type Stream = {
@@ -208,6 +209,36 @@ const createStream = (yPosition = -20, thresholdPosition: number) => {
   };
 };
 
+const createDeterministicStream = (
+  index: number,
+  streamCount: number,
+  thresholdPosition: number,
+): Stream => {
+  const yPosition = -20 + (index * 120) / streamCount;
+  const name = names[index % names.length]!;
+  const shouldBeEncrypted = yPosition > thresholdPosition;
+
+  return {
+    id: index,
+    word: name,
+    x: 10 + ((index * 83) % 80),
+    y: yPosition,
+    speed: 0,
+    encrypted: shouldBeEncrypted,
+    lastScrambleTime: 0,
+    letters: Array.from(name).map((letter, letterIndex) => ({
+      original: letter,
+      current: shouldBeEncrypted
+        ? encryptionChars[(index + letterIndex) % encryptionChars.length]!
+        : letter,
+      target: '',
+      isScrambling: false,
+      scrambleCount: 0,
+      maxScrambles: 0,
+    })),
+  };
+};
+
 type EncryptionBackgroundProps = {
   thresholdPosition: number;
 };
@@ -221,6 +252,16 @@ const EncryptionBackground = ({
 
   useEffect(() => {
     const streamCount = 40;
+
+    if (isChromatic()) {
+      setStreams(
+        Array.from({ length: streamCount }, (_, index) =>
+          createDeterministicStream(index, streamCount, thresholdPosition),
+        ),
+      );
+      return;
+    }
+
     const initialStreams = Array.from({ length: streamCount }, (_, index) =>
       createStream(-20 + (index * 120) / streamCount, thresholdPosition),
     );
