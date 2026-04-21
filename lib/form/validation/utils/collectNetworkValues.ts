@@ -1,6 +1,7 @@
 import { type StageSubject } from '@codaco/protocol-validation';
 import {
   entityAttributesProperty,
+  entityPrimaryKeyProperty,
   type NcNetwork,
 } from '@codaco/shared-consts';
 
@@ -8,10 +9,12 @@ export default function collectNetworkValues(
   network: NcNetwork,
   subject: Extract<StageSubject, { entity: 'node' | 'edge' }>,
   attribute: string,
+  excludeEntityId?: string,
 ) {
-  if (subject.entity === 'node') {
-    return network.nodes.map((n) => n[entityAttributesProperty][attribute]);
-  }
+  const entities =
+    subject.entity === 'node' ? network.nodes : network.edges;
 
-  return network.edges.map((e) => e[entityAttributesProperty][attribute]);
+  return entities
+    .filter((e) => e[entityPrimaryKeyProperty] !== excludeEntityId)
+    .map((e) => e[entityAttributesProperty][attribute]);
 }

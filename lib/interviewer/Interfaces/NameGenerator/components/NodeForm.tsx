@@ -88,6 +88,7 @@ const NodeForm = (props: NodeFormProps) => {
     fields: form.fields,
     autoFocus: true,
     initialValues,
+    currentEntityId: selectedNode?.[entityPrimaryKeyProperty],
   });
 
   // Handle form submission

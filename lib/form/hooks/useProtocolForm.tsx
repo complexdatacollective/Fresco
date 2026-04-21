@@ -65,16 +65,22 @@ export default function useProtocolForm({
   initialValues,
   subject,
   namespace,
+  currentEntityId,
 }: {
   fields: FormField[];
   autoFocus?: boolean;
   initialValues?: Record<string, FieldValue>;
   subject?: Subject;
   namespace?: string;
+  currentEntityId?: string;
 }) {
-  const validationContext = useSelector(
+  const baseValidationContext = useSelector(
     getValidationContext,
   ) as ValidationContext | null;
+
+  const validationContext: ValidationContext | null = baseValidationContext
+    ? { ...baseValidationContext, currentEntityId }
+    : null;
 
   const fieldsMetadata = useSelector((state) =>
     subject

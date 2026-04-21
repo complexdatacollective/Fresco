@@ -56,6 +56,7 @@ export type ValidationContext = {
   stageSubject: StageSubject;
   codebook: Codebook;
   network: NcNetwork;
+  currentEntityId?: string;
 };
 
 // ═══════════════════════════════════════════════════════════════

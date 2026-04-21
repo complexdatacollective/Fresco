@@ -101,6 +101,7 @@ const SlideContentInner = forwardRef<SlideHandle, SlideContentProps>(
       autoFocus: false,
       initialValues,
       subject,
+      currentEntityId: id,
     });
 
     const handleSubmit: FormSubmitHandler = (values) => {

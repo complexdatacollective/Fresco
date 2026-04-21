@@ -440,7 +440,7 @@ const unique: ValidationFunction<string> = (attribute, context) => () => {
     context,
     'Validation context must be provided when using unique validation',
   );
-  const { stageSubject, network } = context;
+  const { stageSubject, network, currentEntityId } = context;
 
   const hint = 'Must be unique.';
 
@@ -455,11 +455,14 @@ const unique: ValidationFunction<string> = (attribute, context) => () => {
         'Attribute must be specified for unique validation',
       );
 
-      // Collect other values of the same type.
+      // Collect other values of the same type, excluding the entity
+      // currently being edited (if any) so its own value isn't treated
+      // as a duplicate.
       const existingValues = collectNetworkValues(
         network,
         stageSubject,
         attribute,
+        currentEntityId,
       );
 
       if (existingValues.some((v) => isMatchingValue(value, v))) {
