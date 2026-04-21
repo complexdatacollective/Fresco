@@ -17,7 +17,7 @@ export default defineMain({
       },
     },
   },
-  staticDirs: ['../public', { from: '../styles/themes', to: '/styles/themes' }],
+  staticDirs: ['../public'],
   typescript: {
     check: false,
   },

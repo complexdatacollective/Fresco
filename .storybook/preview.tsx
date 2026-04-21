@@ -7,6 +7,8 @@ import { NuqsTestingAdapter } from 'nuqs/adapters/testing';
 import { StrictMode } from 'react';
 import Providers from '../components/Providers';
 import '../styles/globals.css';
+import '../styles/themes/default.css';
+import '../styles/themes/interview.css';
 import { getInitialTheme, globalTypes, withTheme } from './theme-switcher';
 
 // @chromatic-com/storybook is not included here because it doesn't export a

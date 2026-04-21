@@ -1,5 +1,5 @@
 import type { Decorator } from '@storybook/nextjs-vite';
-import { useLayoutEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { cx } from '~/utils/cva';
 
 const THEME_KEY = 'theme';
@@ -8,17 +8,13 @@ const STORAGE_KEY = 'storybook-theme-preference';
 const themes = {
   dashboard: {
     name: 'Dashboard',
-    path: '/styles/themes/default.css',
   },
   interview: {
     name: 'Interview',
-    path: '/styles/themes/interview.css',
   },
 } as const;
 
 type ThemeKey = keyof typeof themes;
-
-const THEME_LINK_ID = 'storybook-theme-stylesheet';
 
 function getStoredTheme(): ThemeKey | null {
   try {
@@ -42,35 +38,6 @@ function setStoredTheme(theme: ThemeKey) {
   }
 }
 
-function loadTheme(themeKey: ThemeKey): Promise<void> {
-  return new Promise((resolve) => {
-    const existingLink = document.getElementById(
-      THEME_LINK_ID,
-    ) as HTMLLinkElement | null;
-
-    if (existingLink?.href.endsWith(themes[themeKey].path)) {
-      resolve();
-      return;
-    }
-
-    if (existingLink) {
-      existingLink.remove();
-    }
-
-    const link = document.createElement('link');
-    link.id = THEME_LINK_ID;
-    link.rel = 'stylesheet';
-    link.href = themes[themeKey].path;
-
-    link.onload = () => resolve();
-    link.onerror = () => resolve();
-
-    document.head.appendChild(link);
-
-    setTimeout(resolve, 1000);
-  });
-}
-
 function ThemeWrapper({
   selectedTheme,
   children,
@@ -78,14 +45,8 @@ function ThemeWrapper({
   selectedTheme: ThemeKey;
   children: React.ReactNode;
 }) {
-  const [isLoading, setIsLoading] = useState(true);
-
-  useLayoutEffect(() => {
-    setIsLoading(true);
-    void loadTheme(selectedTheme).then(() => {
-      setStoredTheme(selectedTheme);
-      setIsLoading(false);
-    });
+  useEffect(() => {
+    setStoredTheme(selectedTheme);
   }, [selectedTheme]);
 
   const isInterview = selectedTheme === 'interview';
@@ -97,7 +58,6 @@ function ThemeWrapper({
         'bg-background text-text publish-colors',
         isInterview && 'scheme-dark',
       )}
-      style={{ opacity: isLoading ? 0 : 1, transition: 'opacity 150ms' }}
     >
       {children}
     </div>
