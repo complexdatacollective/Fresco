@@ -110,6 +110,12 @@ const CategoricalBin = (_props: CategoricalBinStageProps) => {
     count: circleCount,
   });
 
+  // Shrink the expanded panel as bin count grows so the remaining bins have room
+  const panelFraction = Math.max(
+    0.25,
+    0.5 - 0.04 * Math.max(0, bins.length - 4),
+  );
+
   const dispatch = useAppDispatch();
   const { openDialog } = useDialog();
   const nodeColor = useSelector(getNodeColorSelector);
@@ -189,6 +195,11 @@ const CategoricalBin = (_props: CategoricalBinStageProps) => {
             ref={containerRef}
             className="catbin-circles flex size-full flex-wrap content-center items-center justify-center gap-4 data-expanded:content-start"
             data-expanded={hasExpanded || undefined}
+            style={
+              {
+                '--catbin-panel-fraction': panelFraction,
+              } as React.CSSProperties
+            }
             variants={binsContainerVariants}
             initial="initial"
             animate="animate"
