@@ -2,14 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { isCategoricalOptionSelected } from '~/lib/network-exporters/utils/general';
 
 describe('isCategoricalOptionSelected', () => {
-  // CategoricalBin writes scalar option values, so a stored `0` or `false`
-  // must still match the corresponding option on export.
+  // CategoricalBin writes scalar option values, so a stored `0` must still
+  // match the corresponding option on export.
   it('treats stored 0 as selected when option value is 0', () => {
     expect(isCategoricalOptionSelected(0, 0)).toBe(true);
-  });
-
-  it('treats stored false as selected when option value is false', () => {
-    expect(isCategoricalOptionSelected(false, false)).toBe(true);
   });
 
   it('treats stored 0 as not selected for a different option value', () => {

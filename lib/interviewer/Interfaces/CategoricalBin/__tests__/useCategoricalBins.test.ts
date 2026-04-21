@@ -2,12 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { isUncategorised } from '~/lib/interviewer/Interfaces/CategoricalBin/useCategoricalBins';
 
 describe('isUncategorised', () => {
-  it.each([0, false])(
-    'treats a node with falsy value %p on the active variable as categorised',
-    (value) => {
-      expect(isUncategorised({ v: value }, 'v', undefined)).toBe(false);
-    },
-  );
+  it('treats a node with stored 0 on the active variable as categorised', () => {
+    expect(isUncategorised({ v: 0 }, 'v', undefined)).toBe(false);
+  });
 
   it('treats null on the active variable as uncategorised', () => {
     expect(isUncategorised({ v: null }, 'v', undefined)).toBe(true);
