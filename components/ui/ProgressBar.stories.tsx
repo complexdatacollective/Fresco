@@ -120,6 +120,9 @@ export const CompleteWithoutNudge: Story = {
 };
 
 export const AnimatedProgress: Story = {
+  parameters: {
+    chromatic: { disableSnapshot: true },
+  },
   render: () => {
     const [progress, setProgress] = useState(0);
 
