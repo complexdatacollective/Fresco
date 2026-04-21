@@ -16,6 +16,7 @@ import {
 } from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
 import { ScrollArea } from '~/components/ui/ScrollArea';
+import { useScrolledToBottom } from '~/hooks/useScrolledToBottom';
 import useDialog from '~/lib/dialogs/useDialog';
 import { FormWithoutProvider } from '~/lib/form/components/Form';
 import { useFormMeta } from '~/lib/form/hooks/useFormState';
@@ -29,7 +30,6 @@ import {
   type BeforeNextFunction,
   type StageProps,
 } from '~/lib/interviewer/types';
-import elementHasOverflow from '~/utils/elementHasOverflow';
 import { updateEgo } from '../../ducks/modules/session';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';
 import { getEgoAttributes } from '../../selectors/session';
@@ -45,7 +45,6 @@ const EgoFormInner = (props: EgoFormProps) => {
   const dispatch = useAppDispatch();
   const { openDialog } = useDialog();
 
-  const [hasScrolled, setHasScrolled] = useState(false);
   const [nudgeVisible, setNudgeVisible] = useState(false);
 
   const { isDirty: isFormDirty, isValid: isFormValid } = useFormMeta();
@@ -59,16 +58,19 @@ const EgoFormInner = (props: EgoFormProps) => {
 
   const fields = useFormStore((s) => s.fields);
 
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const { hasScrolledToBottom, sentinelRef } =
+    useScrolledToBottom(scrollAreaRef);
+
   // Show nudge after 15s of inactivity. Reset on field changes.
-  // Once the user has scrolled, permanently hide the nudge.
+  // Once the user has scrolled to the bottom, permanently hide the nudge.
   useEffect(() => {
     setNudgeVisible(false);
-    if (hasScrolled) return;
+    if (hasScrolledToBottom) return;
     const timer = setTimeout(() => setNudgeVisible(true), 15000);
     return () => clearTimeout(timer);
-  }, [fields, hasScrolled]);
+  }, [fields, hasScrolledToBottom]);
 
-  const [isOverflowing, setIsOverflowing] = useState(false);
   const { updateReady: setIsReadyForNext } = useReadyForNextStage();
   const egoAttributes = useSelector(getEgoAttributes);
 
@@ -142,7 +144,7 @@ const EgoFormInner = (props: EgoFormProps) => {
     setIsReadyForNext(true);
   }, [isFormValid, setIsReadyForNext]);
 
-  const showScrollNudge = nudgeVisible && isOverflowing;
+  const showScrollNudge = nudgeVisible && !hasScrolledToBottom;
 
   const { fieldComponents } = useProtocolForm({
     fields: form.fields,
@@ -150,31 +152,6 @@ const EgoFormInner = (props: EgoFormProps) => {
       Object.entries(egoAttributes).filter(([, value]) => value !== null),
     ) as Record<string, FieldValue>,
   });
-
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const viewport = scrollAreaRef.current;
-    if (!viewport) return;
-
-    const checkOverflow = () => setIsOverflowing(elementHasOverflow(viewport));
-    const onScroll = () => setHasScrolled(true);
-
-    const observer = new ResizeObserver(checkOverflow);
-    observer.observe(viewport);
-
-    if (contentRef.current) {
-      observer.observe(contentRef.current);
-    }
-
-    viewport.addEventListener('scroll', onScroll, { passive: true });
-
-    return () => {
-      observer.disconnect();
-      viewport.removeEventListener('scroll', onScroll);
-    };
-  }, []);
 
   const scrollToBottom = useCallback(() => {
     scrollAreaRef.current?.scrollTo({
@@ -186,10 +163,7 @@ const EgoFormInner = (props: EgoFormProps) => {
   return (
     <>
       <ScrollArea className="m-0 size-full" ref={scrollAreaRef}>
-        <div
-          ref={contentRef}
-          className="interface mx-auto max-w-[80ch] flex-col"
-        >
+        <div className="interface mx-auto max-w-[80ch] flex-col">
           <Surface>
             <Heading level="h1">{introductionPanel.title}</Heading>
             <RenderMarkdown allowedElements={ALLOWED_MARKDOWN_SECTION_TAGS}>
@@ -202,6 +176,7 @@ const EgoFormInner = (props: EgoFormProps) => {
             </FormWithoutProvider>
           </Surface>
         </div>
+        <div ref={sentinelRef} aria-hidden />
       </ScrollArea>
       <AnimatePresence>
         {showScrollNudge && (

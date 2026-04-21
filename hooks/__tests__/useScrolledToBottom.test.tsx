@@ -46,7 +46,7 @@ describe('useScrolledToBottom', () => {
 
     const { result } = renderHook(() => useScrolledToBottom());
 
-    expect(result.current.isAtBottom).toBe(false);
+    expect(result.current.hasScrolledToBottom).toBe(false);
   });
 
   test('observes sentinel when callback ref is attached', () => {
@@ -79,10 +79,10 @@ describe('useScrolledToBottom', () => {
       );
     });
 
-    expect(result.current.isAtBottom).toBe(true);
+    expect(result.current.hasScrolledToBottom).toBe(true);
   });
 
-  test('returns false when sentinel leaves viewport', () => {
+  test('stays true when sentinel leaves viewport after being visible', () => {
     vi.stubGlobal('IntersectionObserver', MockIntersectionObserver);
 
     const { result } = renderHook(() => useScrolledToBottom());
@@ -98,7 +98,7 @@ describe('useScrolledToBottom', () => {
         latest() as unknown as IntersectionObserver,
       );
     });
-    expect(result.current.isAtBottom).toBe(true);
+    expect(result.current.hasScrolledToBottom).toBe(true);
 
     act(() => {
       latest()?.callback(
@@ -106,7 +106,7 @@ describe('useScrolledToBottom', () => {
         latest() as unknown as IntersectionObserver,
       );
     });
-    expect(result.current.isAtBottom).toBe(false);
+    expect(result.current.hasScrolledToBottom).toBe(true);
   });
 
   test('disconnects old observer when sentinel changes', () => {
@@ -161,11 +161,11 @@ describe('useScrolledToBottom', () => {
         latest() as unknown as IntersectionObserver,
       );
     });
-    expect(result.current.isAtBottom).toBe(true);
+    expect(result.current.hasScrolledToBottom).toBe(true);
 
     act(() => {
       result.current.sentinelRef(null);
     });
-    expect(result.current.isAtBottom).toBe(false);
+    expect(result.current.hasScrolledToBottom).toBe(false);
   });
 });

@@ -120,7 +120,7 @@ const SlideContentInner = forwardRef<SlideHandle, SlideContentProps>(
     const scrollAreaRef = useRef<HTMLDivElement>(null);
     const { scrollY } = useScroll({ container: scrollAreaRef });
     const headerScale = useTransform(scrollY, [0, 150], [1, 0.75]);
-    const { isAtBottom: hasScrolledToBottom, sentinelRef } =
+    const { hasScrolledToBottom, sentinelRef } =
       useScrolledToBottom(scrollAreaRef);
 
     useEffect(() => {
@@ -152,7 +152,7 @@ const SlideContentInner = forwardRef<SlideHandle, SlideContentProps>(
               {header}
             </motion.div>
           </div>
-          <Surface noContainer className="phone:min-w-lg max-w-2xl shrink-0">
+          <Surface noContainer className="tablet:min-w-lg max-w-2xl shrink-0">
             <FormWithoutProvider
               onSubmit={handleSubmit}
               className="[&_.form-field-container]:break-inside-avoid"
