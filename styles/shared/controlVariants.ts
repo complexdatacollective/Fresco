@@ -255,8 +255,13 @@ export const orientationVariants = cva({
   },
 });
 
+// `relative` is load-bearing: base-ui renders a hidden `position: absolute`
+// form input inside each option. Without a positioned ancestor in the scroll
+// content, that input resolves its containing block to the ScrollArea's
+// non-scrolling outer wrapper, leaving it stranded at its un-scrolled
+// natural-flow page position. Focusing it then auto-scrolls the whole dialog.
 export const groupOptionVariants = cva({
-  base: cx('flex items-center transition-colors duration-200'),
+  base: cx('relative flex items-center transition-colors duration-200'),
   variants: {
     size: {
       sm: 'gap-2',

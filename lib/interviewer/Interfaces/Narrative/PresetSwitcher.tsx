@@ -305,9 +305,12 @@ export default function PresetSwitcher({
                                 className="flex flex-col gap-2"
                               >
                                 {highlightLabels.map((label, index) => (
+                                  // `relative` anchors the hidden position-absolute
+                                  // input emitted by base-ui's Radio. See
+                                  // groupOptionVariants for details.
                                   <label
                                     key={index}
-                                    className="flex cursor-pointer items-center gap-4 text-sm"
+                                    className="relative flex cursor-pointer items-center gap-4 text-sm"
                                   >
                                     <Radio.Root
                                       value={String(index)}
