@@ -172,6 +172,7 @@ const mockProtocol = {
             type: 'datetime',
             component: 'RelativeDatePicker',
             parameters: {
+              anchor: '2026-01-01',
               before: 30,
               after: 90,
             },
