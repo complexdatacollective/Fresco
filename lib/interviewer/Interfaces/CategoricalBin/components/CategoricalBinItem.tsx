@@ -160,14 +160,16 @@ const CategoricalBinItem = (props: CategoricalBinItemProps) => {
   }
 
   const circleClasses = cx(
-    'focusable flex min-w-0 cursor-pointer flex-col items-center justify-center overflow-hidden text-center outline-(--cat-color)',
-    'border-4 p-4',
-    'border-(--cat-color)',
-    catColor && 'bg-[oklch(from_var(--cat-color)_l_c_h/0.1)]',
-    !catColor && 'bg-surface',
+    'focusable flex min-w-0 cursor-pointer items-center justify-center text-center outline-(--cat-color)',
     isOver &&
       willAccept &&
       'scale-110 shadow-[0_0_24px_var(--cat-color)] ring-4 ring-(--cat-color)',
+  );
+
+  const circleContentClasses = cx(
+    'flex size-full flex-col items-center justify-center border-4 border-(--cat-color) p-4 text-center',
+    catColor && 'bg-[oklch(from_var(--cat-color)_l_c_h/0.1)]',
+    !catColor && 'bg-surface',
   );
 
   return (
@@ -184,7 +186,6 @@ const CategoricalBinItem = (props: CategoricalBinItemProps) => {
         flexBasis: `${flexBasis}px`,
         aspectRatio: '1 / 1',
         borderRadius: '50%',
-        clipPath: 'circle(50%)',
       }}
       onClick={(e) => {
         e.stopPropagation();
@@ -195,20 +196,25 @@ const CategoricalBinItem = (props: CategoricalBinItemProps) => {
       transition={springTransition}
       variants={binItemVariants}
     >
-      <Heading level="h4">
-        <RenderMarkdown>{label}</RenderMarkdown>
-      </Heading>
-      <AnimatePresence>
-        {nodes.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            <BinSummary nodes={nodes} />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      <div
+        className={circleContentClasses}
+        style={{ borderRadius: '50%', clipPath: 'circle(50%)' }}
+      >
+        <Heading level="h4">
+          <RenderMarkdown>{label}</RenderMarkdown>
+        </Heading>
+        <AnimatePresence>
+          {nodes.length > 0 && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <BinSummary nodes={nodes} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </motion.div>
   );
 };
