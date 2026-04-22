@@ -1,5 +1,6 @@
 import { type Stage } from '@codaco/protocol-validation';
 import { entityAttributesProperty, type NcNode } from '@codaco/shared-consts';
+import { isNil } from 'es-toolkit';
 import { get } from 'es-toolkit/compat';
 import { useSelector } from 'react-redux';
 import { usePrompts } from '../../components/Prompts/usePrompts';
@@ -33,6 +34,31 @@ type CategoricalBinPrompts = Extract<
   { type: 'CategoricalBin' }
 >['prompts'][number];
 
+// An empty array is treated as unset: a CheckboxGroup stage may leave `[]`
+// behind when all options are deselected, and such a node would otherwise
+// match no bin (matchVariableValue's some() returns false for []) *and*
+// be filtered out of the drawer, making it invisible.
+function hasValue(value: unknown): boolean {
+  if (isNil(value)) return false;
+  if (Array.isArray(value) && value.length === 0) return false;
+  return true;
+}
+
+export function isUncategorised(
+  attributes: NcNode[typeof entityAttributesProperty],
+  activePromptVariable: string | undefined,
+  otherVariable: string | undefined,
+) {
+  const activeVarExists = activePromptVariable
+    ? hasValue(attributes[activePromptVariable])
+    : false;
+  const otherVarExists = otherVariable
+    ? hasValue(attributes[otherVariable])
+    : false;
+
+  return !activeVarExists && !otherVarExists;
+}
+
 export function useCategoricalBins() {
   const stageNodes = useSelector(getNetworkNodesForType);
   const {
@@ -53,17 +79,15 @@ export function useCategoricalBins() {
       ? variableDefinition.options!
       : [];
 
-  // Calculate uncategorised nodes by filtering stageNodes to those that don't have a value for either the active prompt variable or the other variable
-  const uncategorisedNodes = stageNodes.filter((node) => {
-    const attributes = node[entityAttributesProperty];
-
-    const activeVarExists = activePromptVariable
-      ? !!attributes[activePromptVariable]
-      : false;
-    const otherVarExists = otherVariable ? !!attributes[otherVariable] : false;
-
-    return !activeVarExists && !otherVarExists;
-  });
+  // Calculate uncategorised nodes by filtering stageNodes to those that
+  // don't have a value for either the active prompt variable or the other variable
+  const uncategorisedNodes = stageNodes.filter((node) =>
+    isUncategorised(
+      node[entityAttributesProperty],
+      activePromptVariable,
+      otherVariable,
+    ),
+  );
 
   const sortedUncategorisedNodes = useSortedNodeList(
     uncategorisedNodes,
@@ -100,7 +124,7 @@ export function useCategoricalBins() {
   // Handle 'other' bin
   if (otherVariable && otherOptionLabel) {
     const otherNodes = stageNodes.filter(
-      (node) => get(node, [entityAttributesProperty, otherVariable]) != null,
+      (node) => !isNil(get(node, [entityAttributesProperty, otherVariable])),
     );
 
     const sortedOtherNodes = getSortedNodeList(
