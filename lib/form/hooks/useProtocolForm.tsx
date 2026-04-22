@@ -2,7 +2,7 @@ import {
   type ComponentType,
   type FormField,
 } from '@codaco/protocol-validation';
-import { type ReactNode } from 'react';
+import { type ReactNode, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import {
   getValidationContext,
@@ -11,11 +11,11 @@ import {
   type Subject,
 } from '~/lib/interviewer/selectors/forms';
 import Field from '../components/Field/Field';
-import FieldNamespace from '../components/FieldNamespace';
 import {
   type FieldValue,
   type ValidationPropsCatalogue,
 } from '../components/Field/types';
+import FieldNamespace from '../components/FieldNamespace';
 import BooleanField from '../components/fields/Boolean';
 import CheckboxGroupField from '../components/fields/CheckboxGroup';
 import DatePickerField from '../components/fields/DatePicker';
@@ -65,16 +65,24 @@ export default function useProtocolForm({
   initialValues,
   subject,
   namespace,
+  currentEntityId,
 }: {
   fields: FormField[];
   autoFocus?: boolean;
   initialValues?: Record<string, FieldValue>;
   subject?: Subject;
   namespace?: string;
+  currentEntityId?: string;
 }) {
-  const validationContext = useSelector(
+  const baseValidationContext = useSelector(
     getValidationContext,
   ) as ValidationContext | null;
+
+  const validationContext = useMemo<ValidationContext | null>(() => {
+    if (!baseValidationContext) return null;
+    if (currentEntityId === undefined) return baseValidationContext;
+    return { ...baseValidationContext, currentEntityId };
+  }, [baseValidationContext, currentEntityId]);
 
   const fieldsMetadata = useSelector((state) =>
     subject

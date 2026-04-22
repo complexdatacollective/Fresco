@@ -611,6 +611,72 @@ describe('Validation Functions', () => {
           .safeParse('test');
       }).toThrow('Attribute must be specified for unique validation');
     });
+
+    it("should accept the currently-edited entity's own value", () => {
+      const mockNetwork = {
+        nodes: [
+          {
+            _uid: 'node1',
+            type: 'person',
+            [entityAttributesProperty]: { name: 'John' },
+          },
+          {
+            _uid: 'node2',
+            type: 'person',
+            [entityAttributesProperty]: { name: 'Jane' },
+          },
+        ],
+        edges: [],
+        ego: {
+          _uid: 'ego',
+          [entityAttributesProperty]: {},
+        },
+      } as NcNetwork;
+
+      const validator = validations.unique(
+        'name',
+        createMockContext({
+          network: mockNetwork,
+          currentEntityId: 'node1',
+        }),
+      )({});
+
+      const result = validator.safeParse('John');
+      expect(result.success).toBe(true);
+    });
+
+    it("should still reject other entities' values when editing", () => {
+      const mockNetwork = {
+        nodes: [
+          {
+            _uid: 'node1',
+            type: 'person',
+            [entityAttributesProperty]: { name: 'John' },
+          },
+          {
+            _uid: 'node2',
+            type: 'person',
+            [entityAttributesProperty]: { name: 'Jane' },
+          },
+        ],
+        edges: [],
+        ego: {
+          _uid: 'ego',
+          [entityAttributesProperty]: {},
+        },
+      } as NcNetwork;
+
+      const validator = validations.unique(
+        'name',
+        createMockContext({
+          network: mockNetwork,
+          currentEntityId: 'node1',
+        }),
+      )({});
+
+      const result = validator.safeParse('Jane');
+      expect(result.success).toBe(false);
+    });
   });
 
   describe('differentFrom', () => {
