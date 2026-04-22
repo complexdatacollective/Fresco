@@ -52,11 +52,21 @@ export function useCircleLayout({
 
     const measure = () => {
       rafId = null;
-      const rect = container.getBoundingClientRect();
-      const computedGap = parseFloat(getComputedStyle(container).gap) || 0;
+      const styles = getComputedStyle(container);
+      const computedGap = parseFloat(styles.gap) || 0;
+
+      // When a bin expands, padding is added that reduces the content area by half.
+      // We need to subtract padding so circles are sized for the new content area when a bin is expanded.
+      // This ensures the circles resize to fit the new content area instead of overflowing it.
+      const padX =
+        (parseFloat(styles.paddingInlineStart) || 0) +
+        (parseFloat(styles.paddingInlineEnd) || 0);
+      const padY =
+        (parseFloat(styles.paddingBlockStart) || 0) +
+        (parseFloat(styles.paddingBlockEnd) || 0);
       setDimensions({
-        width: rect.width,
-        height: rect.height,
+        width: Math.max(0, container.clientWidth - padX),
+        height: Math.max(0, container.clientHeight - padY),
         gap: computedGap,
       });
     };
