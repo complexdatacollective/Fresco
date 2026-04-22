@@ -184,6 +184,7 @@ const CategoricalBinItem = (props: CategoricalBinItemProps) => {
         flexBasis: `${flexBasis}px`,
         aspectRatio: '1 / 1',
         borderRadius: '50%',
+        clipPath: 'circle(50%)',
       }}
       onClick={(e) => {
         e.stopPropagation();
