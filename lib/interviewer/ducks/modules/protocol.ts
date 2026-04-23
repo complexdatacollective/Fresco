@@ -2,14 +2,14 @@ import {
   type Stage,
   type VersionedProtocol,
 } from '@codaco/protocol-validation';
-import { type Asset } from '~/lib/db/generated/browser';
 import { createSelector, createSlice } from '@reduxjs/toolkit';
 import { v4 } from 'uuid';
-import { type GetInterviewByIdQuery } from '~/queries/interviews';
-import { type Serialize } from '~/utils/serializeHelpers';
+import type {
+  ProtocolPayload,
+  ResolvedAsset,
+} from '~/lib/interviewer/contract/types';
 
-// Redux stores dates as ISO strings to ensure serializability
-type ProtocolState = Serialize<NonNullable<GetInterviewByIdQuery>['protocol']>;
+type ProtocolState = ProtocolPayload;
 
 const initialState = {} as ProtocolState;
 
@@ -27,7 +27,7 @@ const protocolSlice = createSlice({
     getProtocol: (state) => state,
     getShouldEncryptNames: (state) => {
       // experiments only exists in schema version 8+
-      if (state.schemaVersion >= 8) {
+      if (state.schemaVersion === 8) {
         const experiments = (
           state as Extract<VersionedProtocol, { schemaVersion: 8 }>
         ).experiments;
@@ -60,7 +60,7 @@ const protocolSlice = createSlice({
               manifest[asset.assetId] = asset;
               return manifest;
             },
-            {} as Record<string, Asset>,
+            {} as Record<string, ResolvedAsset>,
           ) ?? {}
         );
       },
