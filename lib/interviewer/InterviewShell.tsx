@@ -4,7 +4,6 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { useRef } from 'react';
 import { Provider } from 'react-redux';
-import DialogProvider from '~/lib/dialogs/DialogProvider';
 import useMediaQuery from '~/hooks/useMediaQuery';
 import { InterviewToastProvider } from '~/lib/interviewer/components/InterviewToast';
 import Navigation from '~/lib/interviewer/components/Navigation';
@@ -139,9 +138,7 @@ const InterviewShell = ({
         onRequestAsset={onRequestAsset}
         flags={flags}
       >
-        <DialogProvider>
-          <Interview />
-        </DialogProvider>
+        <Interview />
       </ContractProvider>
     </Provider>
   );
