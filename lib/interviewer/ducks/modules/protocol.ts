@@ -27,7 +27,7 @@ const protocolSlice = createSlice({
     getProtocol: (state) => state,
     getShouldEncryptNames: (state) => {
       // experiments only exists in schema version 8+
-      if (state.schemaVersion === 8) {
+      if (typeof state.schemaVersion === 'number' && state.schemaVersion >= 8) {
         const experiments = (
           state as Extract<VersionedProtocol, { schemaVersion: 8 }>
         ).experiments;
