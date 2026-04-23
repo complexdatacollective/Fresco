@@ -6,62 +6,52 @@ import {
   type Middleware,
 } from '@reduxjs/toolkit';
 import { useDispatch } from 'react-redux';
+import type {
+  InterviewPayload,
+  SyncHandler,
+} from '~/lib/interviewer/contract/types';
 import protocol from '~/lib/interviewer/ducks/modules/protocol';
 import session from '~/lib/interviewer/ducks/modules/session';
 import ui from '~/lib/interviewer/ducks/modules/ui';
-import { type GetInterviewByIdQuery } from '~/queries/interviews';
-import { env } from '~/env.js';
 import logger from './ducks/middleware/logger';
 import { createSyncMiddleware } from './middleware/syncMiddleware';
-
-const syncMiddleware = createSyncMiddleware();
 
 const rootReducer = combineReducers({
   session,
   protocol,
-  ui, // don't do it - this is used for FORM_IS_READY
+  ui,
 });
 
+type StoreOptions = {
+  onSync: SyncHandler;
+  extraMiddleware?: Middleware[];
+};
+
 export const store = (
-  { protocol, ...session }: NonNullable<GetInterviewByIdQuery>,
-  options?: { disableSync?: boolean; extraMiddleware?: Middleware[] },
-) =>
-  configureStore({
+  { session: sessionPayload, protocol: protocolPayload }: InterviewPayload,
+  options: StoreOptions,
+) => {
+  const syncMiddleware = createSyncMiddleware({ onSync: options.onSync });
+
+  return configureStore({
     reducer: rootReducer,
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware({
         serializableCheck: {
-          ignoredActions: [
-            'dialogs/addDialog', // Dialogs store callback functions
-            'dialogs/open/pending', // Dialogs store callback functions
-          ],
+          ignoredActions: ['dialogs/addDialog', 'dialogs/open/pending'],
         },
       }).concat(
-        ...(env.NODE_ENV === 'development' ? [logger] : []),
-        ...(options?.disableSync ? [] : [syncMiddleware]),
-        ...(options?.extraMiddleware ?? []),
+        // eslint-disable-next-line no-process-env
+        ...(process.env.NODE_ENV === 'development' ? [logger] : []),
+        syncMiddleware,
+        ...(options.extraMiddleware ?? []),
       ),
     preloadedState: {
-      session: {
-        // Important to manually pass only the required state items to the session
-        // reducer, otherwise it will complain about items that aren't able to
-        // be serialised.
-        id: session.id,
-        currentStep: session.currentStep,
-        startTime: session.startTime.toISOString(),
-        finishTime: session.finishTime?.toISOString() ?? null,
-        exportTime: session.exportTime?.toISOString() ?? null,
-        lastUpdated: session.lastUpdated.toISOString(),
-        network: session.network,
-        stageMetadata: session.stageMetadata ?? undefined,
-      },
-      protocol: {
-        ...protocol,
-        // Convert date strings to Date objects
-        importedAt: protocol.importedAt.toISOString(),
-      },
+      session: sessionPayload,
+      protocol: protocolPayload,
     },
   });
+};
 
 export type RootState = ReturnType<typeof rootReducer>;
 export type AppDispatch = ReturnType<typeof store>['dispatch'];
