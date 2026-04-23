@@ -18,6 +18,11 @@ import useMediaQuery from '~/hooks/useMediaQuery';
 import { InterviewToastProvider } from '~/lib/interviewer/components/InterviewToast';
 import Navigation from '~/lib/interviewer/components/Navigation';
 import StageErrorBoundary from '~/lib/interviewer/components/StageErrorBoundary';
+import { ContractProvider } from '~/lib/interviewer/contract/context';
+import type {
+  InterviewPayload,
+  ResolvedAsset,
+} from '~/lib/interviewer/contract/types';
 import { StageMetadataProvider } from '~/lib/interviewer/contexts/StageMetadataContext';
 import {
   updatePrompt,
@@ -40,7 +45,6 @@ import {
   type RegisterBeforeNext,
   type StageProps,
 } from '~/lib/interviewer/types';
-import { type GetInterviewByIdQuery } from '~/queries/interviews';
 import { cx } from '~/utils/cva';
 
 const variants = {
@@ -252,14 +256,125 @@ function StoryInterview() {
   );
 }
 
+const validAssetTypes: readonly ResolvedAsset['type'][] = [
+  'image',
+  'video',
+  'audio',
+  'network',
+  'geojson',
+  'apikey',
+];
+
+function inferAssetType(asset: Record<string, unknown>): ResolvedAsset['type'] {
+  const t = asset.type;
+  if (
+    typeof t === 'string' &&
+    (validAssetTypes as readonly string[]).includes(t)
+  ) {
+    return t as ResolvedAsset['type'];
+  }
+  if (typeof asset.value === 'string') return 'apikey';
+  if (typeof asset.url === 'string' && asset.url.endsWith('.geojson'))
+    return 'geojson';
+  return 'network';
+}
+
+type RawAsset = Record<string, unknown>;
+
+type RawSyntheticPayload = {
+  id: string;
+  startTime: Date;
+  finishTime: Date | null;
+  exportTime: Date | null;
+  lastUpdated: Date;
+  currentStep: number;
+  stageMetadata?: unknown;
+  network: InterviewPayload['session']['network'];
+  protocol: {
+    id: string;
+    schemaVersion: number;
+    codebook: unknown;
+    stages: unknown[];
+    assets: RawAsset[];
+    name: string;
+    description: string | null;
+    importedAt: Date;
+    isPreview: boolean;
+    isPending: boolean;
+    experiments: unknown;
+  };
+};
+
+function buildInterviewPayload(raw: RawSyntheticPayload): {
+  payload: InterviewPayload;
+  assetUrls: Record<string, string>;
+} {
+  const { protocol, stageMetadata, ...sessionFields } = raw;
+
+  const assets: ResolvedAsset[] = protocol.assets.flatMap((a) => {
+    const assetId = typeof a.assetId === 'string' ? a.assetId : null;
+    if (!assetId) return [];
+    return [
+      {
+        assetId,
+        name: typeof a.name === 'string' ? a.name : assetId,
+        type: inferAssetType(a),
+        value: typeof a.value === 'string' ? a.value : undefined,
+      },
+    ];
+  });
+
+  const assetUrls: Record<string, string> = {};
+  for (const a of protocol.assets) {
+    const id = typeof a.assetId === 'string' ? a.assetId : null;
+    if (id && typeof a.url === 'string') {
+      assetUrls[id] = a.url;
+    }
+  }
+
+  const payload: InterviewPayload = {
+    session: {
+      id: sessionFields.id,
+      startTime: sessionFields.startTime.toISOString(),
+      finishTime: sessionFields.finishTime?.toISOString() ?? null,
+      exportTime: sessionFields.exportTime?.toISOString() ?? null,
+      lastUpdated: sessionFields.lastUpdated.toISOString(),
+      currentStep: sessionFields.currentStep,
+      network: sessionFields.network,
+      ...(stageMetadata !== undefined && stageMetadata !== null
+        ? {
+            stageMetadata:
+              stageMetadata as InterviewPayload['session']['stageMetadata'],
+          }
+        : {}),
+    },
+    protocol: {
+      ...(protocol as Omit<typeof protocol, 'assets' | 'importedAt'>),
+      importedAt: protocol.importedAt.toISOString(),
+      assets,
+    } as InterviewPayload['protocol'],
+  };
+
+  return { payload, assetUrls };
+}
+
 const StoryInterviewShell = (props: {
   rawPayload: string;
   disableSync?: boolean;
   onAction?: (action: { type: string; payload?: unknown }) => void;
 }) => {
-  const decodedPayload = useMemo(
-    () => SuperJSON.parse<NonNullable<GetInterviewByIdQuery>>(props.rawPayload),
-    [props.rawPayload],
+  const { payload, assetUrls } = useMemo(() => {
+    const raw = SuperJSON.parse<RawSyntheticPayload>(props.rawPayload);
+    return buildInterviewPayload(raw);
+  }, [props.rawPayload]);
+
+  const onRequestAsset = useCallback(
+    (assetId: string) =>
+      Promise.resolve(
+        assetUrls[assetId] ??
+          `data:text/plain;base64,${btoa(`storybook-asset:${assetId}`)}`,
+      ),
+    [assetUrls],
   );
 
   const actionMiddleware: Middleware | undefined = useMemo(() => {
@@ -282,18 +397,23 @@ const StoryInterviewShell = (props: {
 
   const storeInstance = useMemo(
     () =>
-      store(decodedPayload, {
-        disableSync: props.disableSync,
+      store(payload, {
+        onSync: () => Promise.resolve(),
         extraMiddleware: actionMiddleware ? [actionMiddleware] : undefined,
       }),
-    [decodedPayload, props.disableSync, actionMiddleware],
+    [payload, actionMiddleware],
   );
 
   return (
     <Provider store={storeInstance}>
-      <DialogProvider>
-        <StoryInterview />
-      </DialogProvider>
+      <ContractProvider
+        onFinish={() => Promise.resolve()}
+        onRequestAsset={onRequestAsset}
+      >
+        <DialogProvider>
+          <StoryInterview />
+        </DialogProvider>
+      </ContractProvider>
     </Provider>
   );
 };
