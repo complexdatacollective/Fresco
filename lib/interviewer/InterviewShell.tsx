@@ -117,7 +117,7 @@ function Interview() {
   );
 }
 
-export type InterviewShellProps = {
+type InterviewShellProps = {
   payload: InterviewPayload;
   onSync: SyncHandler;
   onFinish: FinishHandler;
