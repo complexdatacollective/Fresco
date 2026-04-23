@@ -307,6 +307,8 @@ test.describe('SILOS Protocol', () => {
       await expect(stage.geospatial.searchInput).toBeVisible();
 
       // --- Test actual search functionality ---
+      // Suggest/retrieve calls are stubbed by mockMapboxSearchBox (fixture
+      // helper) so this doesn't consume billable Mapbox sessions.
       await stage.geospatial.searchInput.fill('Sidetrack');
 
       // Wait for suggestions to appear

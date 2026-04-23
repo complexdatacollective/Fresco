@@ -5,6 +5,7 @@ import {
   type Locator,
   type Page,
 } from '@playwright/test';
+import { mockMapboxSearchBox } from '../helpers/mapboxMock.js';
 import { InterviewFixture } from './interview-fixture.js';
 import { ProtocolFixture } from './protocol-fixture.js';
 import { StageFixture } from './stage-fixture.js';
@@ -110,6 +111,7 @@ export const test = baseTest.extend<
     async ({ browser }, use, workerInfo) => {
       const options = pickContextOptions(workerInfo.project.use);
       const context = await browser.newContext(options);
+      await mockMapboxSearchBox(context);
       await use(context);
       await context.close();
     },
