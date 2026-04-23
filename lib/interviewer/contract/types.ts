@@ -25,7 +25,10 @@ export type ResolvedAsset = {
  * Protocol payload: the validated protocol plus per-interview metadata
  * (id, importedAt) the package carries in its store.
  */
-export type ProtocolPayload = DistributiveOmit<VersionedProtocol, 'assetManifest'> & {
+export type ProtocolPayload = DistributiveOmit<
+  VersionedProtocol,
+  'assetManifest'
+> & {
   id: string;
   importedAt: string; // ISO
   assets: ResolvedAsset[];
@@ -47,7 +50,10 @@ export type SyncHandler = (
   session: SessionPayload,
 ) => Promise<void>;
 
-export type FinishHandler = (interviewId: string) => Promise<void>;
+export type FinishHandler = (
+  interviewId: string,
+  signal: AbortSignal,
+) => Promise<void>;
 
 export type AssetRequestHandler = (assetId: string) => Promise<string>;
 
