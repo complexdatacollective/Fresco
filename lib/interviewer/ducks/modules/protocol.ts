@@ -45,7 +45,7 @@ const protocolSlice = createSlice({
     },
     getStages: createSelector(
       [(state: ProtocolState) => state.stages],
-      (stages) => [...(stages ?? []), DefaultFinishStage] as Stage[],
+      (stages) => [...((stages ?? []) as Stage[]), DefaultFinishStage as Stage],
     ),
     getAssetManifest: createSelector(
       [(state: ProtocolState) => state.assets],

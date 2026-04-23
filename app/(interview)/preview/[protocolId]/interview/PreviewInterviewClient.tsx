@@ -13,14 +13,16 @@ export default function PreviewInterviewClient({ payload, assetUrls }: Props) {
   return (
     <InterviewShell
       payload={payload}
-      onSync={async () => {}}
-      onFinish={async () => {
+      onSync={() => Promise.resolve()}
+      onFinish={() => {
         window.close();
+        return Promise.resolve();
       }}
-      onRequestAsset={async (assetId) => {
+      onRequestAsset={(assetId) => {
         const url = assetUrls[assetId];
-        if (!url) throw new Error(`No URL for asset ${assetId}`);
-        return url;
+        if (!url)
+          return Promise.reject(new Error(`No URL for asset ${assetId}`));
+        return Promise.resolve(url);
       }}
       flags={{ isE2E: env.NEXT_PUBLIC_E2E_TEST === true }}
     />

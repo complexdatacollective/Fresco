@@ -153,7 +153,9 @@ function AssetItem({ item, isE2E }: { item: Item; isE2E: boolean }) {
       );
     case 'video':
       return <VideoPlayer src={url} name={assetMeta.name} isE2E={isE2E} />;
-    default:
+    case 'network':
+    case 'geojson':
+    case 'apikey':
       return null;
   }
 }

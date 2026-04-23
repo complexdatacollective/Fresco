@@ -51,7 +51,7 @@ const useExternalData = (
       };
     }
 
-    (async () => {
+    void (async () => {
       try {
         const url = await onRequestAsset(asset.assetId);
         const { nodes } = await loadExternalData(asset.name, url);
