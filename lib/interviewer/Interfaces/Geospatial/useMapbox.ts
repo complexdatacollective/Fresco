@@ -90,6 +90,7 @@ const convertCssColorToHex = (() => {
 
 type UseMapboxProps = {
   mapOptions: ExtendedMapOptions;
+  dataSourceAssetId: string | null | undefined;
   dataSourceUrl: string | null;
   initialSelectionValue?: string;
   onSelectionChange: (value: string) => void;
@@ -99,6 +100,7 @@ const TRANSIT_SOURCE_ID = 'mapbox-streets-v8';
 
 export const useMapbox = ({
   mapOptions,
+  dataSourceAssetId,
   dataSourceUrl,
   initialSelectionValue,
   onSelectionChange,
@@ -108,7 +110,6 @@ export const useMapbox = ({
     center,
     initialZoom,
     tokenAssetId,
-    dataSourceAssetId,
     color,
     targetFeatureProperty,
     style,
@@ -164,6 +165,7 @@ export const useMapbox = ({
 
   useEffect(() => {
     if (!mapContainerRef.current || !center || !accessToken) return;
+    if (dataSourceAssetId && !dataSourceUrl) return;
 
     // Reset readiness flags whenever the map is re-initialised, so a
     // prior stage's resolved state can't leak into a stage that hasn't

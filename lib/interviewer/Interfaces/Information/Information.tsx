@@ -102,19 +102,30 @@ function VideoPlayer({
   );
 }
 
-function AssetItem({
-  item,
-  isE2E,
-}: {
-  item: Item;
-  isE2E: boolean;
-}) {
+function AssetItem({ item, isE2E }: { item: Item; isE2E: boolean }) {
   const assetManifest = useSelector(getAssetManifest);
   const assetMeta = assetManifest[item.content];
   const { url, isLoading } = useAssetUrl(item.content);
 
   if (!assetMeta) return null;
-  if (isLoading) return <Spinner />;
+
+  if (isLoading) {
+    const sizeClass =
+      assetMeta.type === 'image'
+        ? cx(
+            item.size === 'SMALL' && 'min-h-48',
+            item.size === 'MEDIUM' && 'min-h-96',
+            item.size === 'LARGE' && 'min-h-[60vh]',
+          )
+        : 'min-h-12';
+
+    return (
+      <div className={cx('flex items-center justify-center', sizeClass)}>
+        <Spinner />
+      </div>
+    );
+  }
+
   if (!url) return null;
 
   switch (assetMeta.type) {

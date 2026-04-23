@@ -138,6 +138,7 @@ export default function GeospatialInterface({
     handleResetSelection,
   } = useMapbox({
     mapOptions,
+    dataSourceAssetId: mapOptions.dataSourceAssetId,
     dataSourceUrl,
     initialSelectionValue,
     onSelectionChange: (value: string) => {
