@@ -14,12 +14,11 @@ type SyncMiddlewareState = { session: SessionPayload };
 const sessionChanged = (a: SessionPayload, b: SessionPayload) =>
   !isEqual(omit(a, ['promptIndex']), omit(b, ['promptIndex']));
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 export const createSyncMiddleware = ({
   onSync,
 }: {
   onSync: SyncHandler;
-}): Middleware<{}, SyncMiddlewareState> => {
+}): Middleware<Record<string, never>, SyncMiddlewareState> => {
   let lastSyncedState = {} as SessionPayload;
   let isSyncing = false;
   let storeRef: { getState: () => SyncMiddlewareState } | null = null;
