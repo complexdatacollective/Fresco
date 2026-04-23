@@ -17,21 +17,24 @@ const wrap =
     onRequestAsset: AssetRequestHandler;
     flags?: InterviewerFlags;
   }) =>
-  ({ children }: { children: React.ReactNode }) => (
-    <ContractProvider {...value}>{children}</ContractProvider>
-  );
+  function Wrapper({ children }: { children: React.ReactNode }) {
+    return <ContractProvider {...value}>{children}</ContractProvider>;
+  };
 
 describe('ContractProvider', () => {
-  it('exposes handlers via useContractHandlers', () => {
+  it('exposes handlers via useContractHandlers that forward to the originals', async () => {
     const onFinish = vi.fn();
-    const onRequestAsset = vi.fn();
+    const onRequestAsset = vi.fn().mockResolvedValue('url');
 
     const { result } = renderHook(() => useContractHandlers(), {
       wrapper: wrap({ onFinish, onRequestAsset }),
     });
 
-    expect(result.current.onFinish).toBe(onFinish);
-    expect(result.current.onRequestAsset).toBe(onRequestAsset);
+    void result.current.onFinish();
+    expect(onFinish).toHaveBeenCalledTimes(1);
+
+    await result.current.onRequestAsset('id-1');
+    expect(onRequestAsset).toHaveBeenCalledWith('id-1');
   });
 
   it('exposes flags via useContractFlags with default isE2E=false', () => {
@@ -64,5 +67,50 @@ describe('ContractProvider', () => {
     expect(() => renderHook(() => useContractFlags())).toThrow(
       /ContractProvider/,
     );
+  });
+
+  it('returned handlers are reference-stable across parent re-renders', () => {
+    const onFinish = vi.fn();
+    const onRequestAsset = vi.fn();
+    const wrapper = wrap({ onFinish, onRequestAsset });
+
+    const { result, rerender } = renderHook(() => useContractHandlers(), {
+      wrapper,
+    });
+
+    const first = result.current;
+    rerender();
+    expect(result.current.onFinish).toBe(first.onFinish);
+    expect(result.current.onRequestAsset).toBe(first.onRequestAsset);
+  });
+
+  it('stable callback forwards to the latest handler', async () => {
+    let currentHandler = vi.fn<(id: string) => Promise<string>>().mockResolvedValue('a');
+
+    function Wrapper({ children }: { children: React.ReactNode }) {
+      return (
+        <ContractProvider
+          onFinish={vi.fn()}
+          onRequestAsset={(id) => currentHandler(id)}
+        >
+          {children}
+        </ContractProvider>
+      );
+    }
+
+    const { result, rerender } = renderHook(() => useContractHandlers(), {
+      wrapper: Wrapper,
+    });
+
+    await result.current.onRequestAsset('test');
+    expect(currentHandler).toHaveBeenCalledWith('test');
+
+    // Swap the handler via closure; the stable callback should forward to it.
+    currentHandler = vi.fn<(id: string) => Promise<string>>().mockResolvedValue('b');
+    rerender();
+
+    const updatedResult = await result.current.onRequestAsset('test-2');
+    expect(currentHandler).toHaveBeenCalledWith('test-2');
+    expect(updatedResult).toBe('b');
   });
 });

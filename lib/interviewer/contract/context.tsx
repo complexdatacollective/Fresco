@@ -1,6 +1,13 @@
 'use client';
 
-import { createContext, useContext, useMemo, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  type ReactNode,
+} from 'react';
 import type {
   AssetRequestHandler,
   FinishHandler,
@@ -32,12 +39,32 @@ export function ContractProvider({
   flags,
   children,
 }: ContractProviderProps) {
+  // Anchor the latest handler refs so the returned callbacks are stable.
+  // Without this, hosts that pass inline arrow functions would cause every
+  // useAssetUrl consumer to refetch on every render.
+  const onFinishRef = useRef(onFinish);
+  const onRequestAssetRef = useRef(onRequestAsset);
+  onFinishRef.current = onFinish;
+  onRequestAssetRef.current = onRequestAsset;
+
+  const stableOnFinish = useCallback<FinishHandler>(
+    (...args) => onFinishRef.current(...args),
+    [],
+  );
+  const stableOnRequestAsset = useCallback<AssetRequestHandler>(
+    (...args) => onRequestAssetRef.current(...args),
+    [],
+  );
+
   const value = useMemo<ContractValue>(
     () => ({
-      handlers: { onFinish, onRequestAsset },
+      handlers: {
+        onFinish: stableOnFinish,
+        onRequestAsset: stableOnRequestAsset,
+      },
       flags: { isE2E: flags?.isE2E ?? false },
     }),
-    [onFinish, onRequestAsset, flags?.isE2E],
+    [stableOnFinish, stableOnRequestAsset, flags?.isE2E],
   );
 
   return (
