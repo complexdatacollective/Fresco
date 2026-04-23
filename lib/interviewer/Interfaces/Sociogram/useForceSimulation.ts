@@ -5,7 +5,7 @@ import {
 } from '@codaco/shared-consts';
 import { clamp } from 'es-toolkit';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { env } from '~/env.js';
+import { useContractFlags } from '~/lib/interviewer/contract/context';
 import { type AppDispatch } from '~/lib/interviewer/store';
 import { type CanvasStoreApi } from '~/lib/interviewer/canvas/useCanvasStore';
 
@@ -48,6 +48,7 @@ export function useForceSimulation({
   store,
   dispatch,
 }: UseForceSimulationOptions) {
+  const { isE2E } = useContractFlags();
   const workerRef = useRef<Worker | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [simulationEnabled, setSimulationEnabled] = useState(enabled);
@@ -90,16 +91,13 @@ export function useForceSimulation({
     // module) when it's nested directly inside `new Worker(...)`.
     // Lifting the URL into a const turns it into a static asset
     // import, which ships the file as raw text the browser can't run.
-    const worker =
-      env.NEXT_PUBLIC_E2E_TEST === true
-        ? new Worker(
-            new URL('./forceSimulation.worker.mock', import.meta.url),
-            { type: 'module' },
-          )
-        : new Worker(
-            new URL('./forceSimulation.worker', import.meta.url),
-            { type: 'module' },
-          );
+    const worker = isE2E
+      ? new Worker(new URL('./forceSimulation.worker.mock', import.meta.url), {
+          type: 'module',
+        })
+      : new Worker(new URL('./forceSimulation.worker', import.meta.url), {
+          type: 'module',
+        });
     workerRef.current = worker;
 
     worker.onmessage = (event: MessageEvent) => {
@@ -145,7 +143,7 @@ export function useForceSimulation({
     worker.postMessage({
       type: 'initialize',
       network: { nodes: simNodes, links: simLinks },
-      deterministic: env.NEXT_PUBLIC_E2E_TEST === true,
+      deterministic: isE2E,
     });
 
     return () => {
@@ -153,7 +151,7 @@ export function useForceSimulation({
       workerRef.current = null;
     };
     // Re-initialize only when node structure changes, not attribute or edge changes
-  }, [enabled, nodeIdsKey, layoutVariable, store, dispatch]);
+  }, [enabled, isE2E, nodeIdsKey, layoutVariable, store, dispatch]);
 
   // Update links in the existing worker when edges are added/removed
   useEffect(() => {

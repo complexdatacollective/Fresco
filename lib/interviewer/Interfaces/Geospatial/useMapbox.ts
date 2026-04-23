@@ -8,7 +8,7 @@ export type ExtendedMapOptions = MapOptions & {
 import mapboxgl from 'mapbox-gl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { env } from '~/env.js';
+import { useContractFlags } from '~/lib/interviewer/contract/context';
 import { makeGetApiKeyAssetValue } from '~/lib/interviewer/selectors/protocol';
 
 const MAP_CONSTS = {
@@ -103,6 +103,7 @@ export const useMapbox = ({
   initialSelectionValue,
   onSelectionChange,
 }: UseMapboxProps) => {
+  const { isE2E } = useContractFlags();
   const {
     center,
     initialZoom,
@@ -186,7 +187,7 @@ export const useMapbox = ({
     // "geojson layer is painted"; tests that need stronger stabilisation
     // can query the live map (isSourceLoaded, queryRenderedFeatures)
     // through this handle. Not written in production builds.
-    if (env.NEXT_PUBLIC_E2E_TEST === true && typeof window !== 'undefined') {
+    if (isE2E && typeof window !== 'undefined') {
       window.__e2eMap = mapRef.current;
     }
 
@@ -403,6 +404,7 @@ export const useMapbox = ({
     dataSourceAssetId,
     style,
     showTransit,
+    isE2E,
   ]);
 
   // handle selections

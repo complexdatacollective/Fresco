@@ -9,7 +9,7 @@ import Spinner from '~/components/Spinner';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { ScrollArea } from '~/components/ui/ScrollArea';
-import { env } from '~/env';
+import { useContractFlags } from '~/lib/interviewer/contract/context';
 import { type StageProps } from '~/lib/interviewer/types';
 import { cx } from '~/utils/cva';
 import AssetMetaProvider from '../utils/AssetMetaProvider';
@@ -52,11 +52,18 @@ function getMediaMimeType(
 
 type MediaLoadState = 'loading' | 'loaded' | 'error';
 
-function VideoPlayer({ src, name }: { src: string; name: string }) {
+function VideoPlayer({
+  src,
+  name,
+  isE2E,
+}: {
+  src: string;
+  name: string;
+  isE2E: boolean;
+}) {
   const [state, setState] = useState<MediaLoadState>('loading');
 
   // Disable autoPlay and preload to prevent browser crashes in headless E2E tests.
-  const isE2E = env.NEXT_PUBLIC_E2E_TEST === true;
   const mimeType = getMediaMimeType(name, 'video/mp4');
 
   return (
@@ -93,7 +100,7 @@ function VideoPlayer({ src, name }: { src: string; name: string }) {
   );
 }
 
-const getItemComponent = (item: Item) => {
+const getItemComponent = (item: Item, isE2E: boolean) => {
   switch (item.type) {
     case 'text':
       return (
@@ -129,7 +136,13 @@ const getItemComponent = (item: Item) => {
                   </audio>
                 );
               case 'video':
-                return <VideoPlayer src={assetMeta.url} name={assetMeta.name} />;
+                return (
+                  <VideoPlayer
+                    src={assetMeta.url}
+                    name={assetMeta.name}
+                    isE2E={isE2E}
+                  />
+                );
               default:
                 return null;
             }
@@ -145,6 +158,8 @@ type InformationProps = StageProps<'Information'>;
  * Information Interface
  */
 const Information = ({ stage: { title, items } }: InformationProps) => {
+  const { isE2E } = useContractFlags();
+
   return (
     <ScrollArea className="m-0 size-full">
       <div className="interface allow-text-selection mx-auto flex min-h-full max-w-[80ch] flex-col justify-center">
@@ -154,7 +169,7 @@ const Information = ({ stage: { title, items } }: InformationProps) => {
           </Heading>
           {items.map((item) => (
             <React.Fragment key={item.id}>
-              {getItemComponent(item)}
+              {getItemComponent(item, isE2E)}
             </React.Fragment>
           ))}
         </Surface>

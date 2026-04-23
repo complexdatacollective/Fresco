@@ -7,7 +7,6 @@ import { useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
-import { env } from '~/env.js';
 import useDialog from '~/lib/dialogs/useDialog';
 import Prompts from '~/lib/interviewer/components/Prompts/Prompts';
 import { toggleNodeAttributes } from '~/lib/interviewer/ducks/modules/session';
@@ -259,7 +258,8 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
           ref={containerRef}
           className="relative flex size-full grow items-center justify-center"
         >
-          {env.NODE_ENV === 'development' && (
+          {/* eslint-disable-next-line no-process-env */}
+          {process.env.NODE_ENV === 'development' && (
             <div className="absolute top-2 right-2 z-50 flex gap-1">
               <button
                 type="button"
