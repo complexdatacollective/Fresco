@@ -1,4 +1,3 @@
-import dynamic from 'next/dynamic';
 import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
 import { after, connection } from 'next/server';
@@ -15,17 +14,8 @@ import {
   getInterviewById,
   type GetInterviewByIdQuery,
 } from '~/queries/interviews';
-
-const InterviewShell = dynamic(
-  () => import('~/lib/interviewer/InterviewShell'),
-  {
-    loading: () => (
-      <div className="flex h-screen items-center justify-center">
-        <Spinner size="lg" />
-      </div>
-    ),
-  },
-);
+import InterviewClient from './InterviewClient';
+import { mapInterviewPayload } from './mapInterviewPayload';
 
 export default function Page(props: {
   params: Promise<{ interviewId: string }>;
@@ -109,5 +99,7 @@ async function InterviewContent({
     }
   });
 
-  return <InterviewShell rawPayload={rawInterview} />;
+  const { payload, assetUrls } = mapInterviewPayload(interview);
+
+  return <InterviewClient payload={payload} assetUrls={assetUrls} />;
 }
