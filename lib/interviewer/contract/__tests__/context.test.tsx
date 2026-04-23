@@ -30,8 +30,11 @@ describe('ContractProvider', () => {
       wrapper: wrap({ onFinish, onRequestAsset }),
     });
 
-    void result.current.onFinish();
-    expect(onFinish).toHaveBeenCalledTimes(1);
+    void result.current.onFinish('interview-1', new AbortController().signal);
+    expect(onFinish).toHaveBeenCalledWith(
+      'interview-1',
+      expect.any(AbortSignal),
+    );
 
     await result.current.onRequestAsset('id-1');
     expect(onRequestAsset).toHaveBeenCalledWith('id-1');
