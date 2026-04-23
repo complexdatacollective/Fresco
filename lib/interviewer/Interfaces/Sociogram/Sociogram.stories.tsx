@@ -33,7 +33,7 @@ function SociogramStoryWrapper({
 
   return (
     <div className="flex h-dvh w-full">
-      <StoryInterviewShell rawPayload={rawPayload} disableSync />
+      <StoryInterviewShell rawPayload={rawPayload} />
     </div>
   );
 }

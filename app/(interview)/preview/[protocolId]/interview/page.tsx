@@ -8,6 +8,7 @@ import { Suspense } from 'react';
 import { v4 as uuid } from 'uuid';
 import Spinner from '~/components/Spinner';
 import { prisma } from '~/lib/db';
+import { isValidAssetType } from '~/lib/interviewer/contract/assets';
 import type {
   InterviewPayload,
   ResolvedAsset,
@@ -15,19 +16,6 @@ import type {
 import { getPreviewMode } from '~/queries/appSettings';
 import { getProtocolForPreview } from '~/queries/protocols';
 import PreviewInterviewClient from './PreviewInterviewClient';
-
-const validAssetTypes = [
-  'image',
-  'video',
-  'audio',
-  'network',
-  'geojson',
-  'apikey',
-] as const satisfies readonly ResolvedAsset['type'][];
-
-function isValidAssetType(t: string): t is ResolvedAsset['type'] {
-  return (validAssetTypes as readonly string[]).includes(t);
-}
 
 export default function PreviewInterviewPage(props: {
   params: Promise<{ protocolId: string }>;

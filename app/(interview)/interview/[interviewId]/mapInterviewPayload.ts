@@ -1,21 +1,9 @@
+import { isValidAssetType } from '~/lib/interviewer/contract/assets';
 import type {
   InterviewPayload,
   ResolvedAsset,
 } from '~/lib/interviewer/contract/types';
 import type { GetInterviewByIdQuery } from '~/queries/interviews';
-
-const validAssetTypes = [
-  'image',
-  'video',
-  'audio',
-  'network',
-  'geojson',
-  'apikey',
-] as const satisfies readonly ResolvedAsset['type'][];
-
-function isValidAssetType(type: string): type is ResolvedAsset['type'] {
-  return (validAssetTypes as readonly string[]).includes(type);
-}
 
 export function mapInterviewPayload(
   source: NonNullable<GetInterviewByIdQuery>,

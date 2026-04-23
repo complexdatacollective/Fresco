@@ -359,7 +359,6 @@ function buildInterviewPayload(raw: RawSyntheticPayload): {
 
 const StoryInterviewShell = (props: {
   rawPayload: string;
-  disableSync?: boolean;
   onAction?: (action: { type: string; payload?: unknown }) => void;
 }) => {
   const { payload, assetUrls } = useMemo(() => {
