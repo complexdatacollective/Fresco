@@ -13,6 +13,7 @@ import {
 } from 'react';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import SuperJSON from 'superjson';
+import DialogProvider from '~/lib/dialogs/DialogProvider';
 import useMediaQuery from '~/hooks/useMediaQuery';
 import { InterviewToastProvider } from '~/lib/interviewer/components/InterviewToast';
 import Navigation from '~/lib/interviewer/components/Navigation';
@@ -408,7 +409,12 @@ const StoryInterviewShell = (props: {
         onFinish={() => Promise.resolve()}
         onRequestAsset={onRequestAsset}
       >
-        <StoryInterview />
+        {/* Interview-scoped DialogProvider inside the Redux scope —
+         * interview dialogs call useSelector and must render under the
+         * Provider. See InterviewShell.tsx for the same pattern. */}
+        <DialogProvider>
+          <StoryInterview />
+        </DialogProvider>
       </ContractProvider>
     </Provider>
   );

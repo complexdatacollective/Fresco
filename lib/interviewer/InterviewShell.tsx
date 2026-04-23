@@ -4,6 +4,7 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { useRef } from 'react';
 import { Provider } from 'react-redux';
+import DialogProvider from '~/lib/dialogs/DialogProvider';
 import useMediaQuery from '~/hooks/useMediaQuery';
 import { InterviewToastProvider } from '~/lib/interviewer/components/InterviewToast';
 import Navigation from '~/lib/interviewer/components/Navigation';
@@ -138,7 +139,17 @@ const InterviewShell = ({
         onRequestAsset={onRequestAsset}
         flags={flags}
       >
-        <Interview />
+        {/*
+         * Interview-scoped DialogProvider (nested below the app-root one in
+         * components/Providers). Required because dialogs opened from inside
+         * the interview render components that call useSelector, and
+         * DialogProvider renders its dialogs at its own location in the tree.
+         * Without this inner provider, dialog content would mount outside
+         * the Redux Provider and throw on the first useSelector call.
+         */}
+        <DialogProvider>
+          <Interview />
+        </DialogProvider>
       </ContractProvider>
     </Provider>
   );
