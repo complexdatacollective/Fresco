@@ -90,7 +90,7 @@ const convertCssColorToHex = (() => {
 
 type UseMapboxProps = {
   mapOptions: ExtendedMapOptions;
-  getAssetUrl: (url: string) => string | undefined;
+  dataSourceUrl: string | null;
   initialSelectionValue?: string;
   onSelectionChange: (value: string) => void;
 };
@@ -99,7 +99,7 @@ const TRANSIT_SOURCE_ID = 'mapbox-streets-v8';
 
 export const useMapbox = ({
   mapOptions,
-  getAssetUrl,
+  dataSourceUrl,
   initialSelectionValue,
   onSelectionChange,
 }: UseMapboxProps) => {
@@ -195,7 +195,7 @@ export const useMapbox = ({
       if (mapRef.current) {
         mapRef.current.addSource('geojson-data', {
           type: 'geojson',
-          data: getAssetUrl(dataSourceAssetId),
+          data: dataSourceUrl ?? undefined,
           promoteId: targetFeatureProperty,
         });
       }
@@ -397,7 +397,7 @@ export const useMapbox = ({
   }, [
     accessToken,
     center,
-    getAssetUrl,
+    dataSourceUrl,
     initialZoom,
     color,
     targetFeatureProperty,

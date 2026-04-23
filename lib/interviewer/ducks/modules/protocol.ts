@@ -65,21 +65,6 @@ const protocolSlice = createSlice({
         );
       },
     ),
-    getAssetUrlFromId: createSelector(
-      (state: ProtocolState) => state.assets,
-      (manifest) => {
-        return (id: string) => {
-          if (!id) {
-            return undefined;
-          }
-          const asset = manifest?.find((asset) => asset.assetId === id);
-          if (!asset) {
-            return undefined;
-          }
-          return asset.url || undefined;
-        };
-      },
-    ),
   },
 });
 
@@ -89,7 +74,6 @@ export const {
   getCodebook,
   getStages,
   getAssetManifest,
-  getAssetUrlFromId,
 } = protocolSlice.selectors;
 
 export default protocolSlice.reducer;

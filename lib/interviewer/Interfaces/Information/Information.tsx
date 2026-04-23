@@ -1,5 +1,6 @@
 import { type Item } from '@codaco/protocol-validation';
 import React, { useState } from 'react';
+import { useSelector } from 'react-redux';
 import Surface from '~/components/layout/Surface';
 import {
   ALLOWED_MARKDOWN_SECTION_TAGS,
@@ -10,9 +11,10 @@ import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import { ScrollArea } from '~/components/ui/ScrollArea';
 import { useContractFlags } from '~/lib/interviewer/contract/context';
+import { getAssetManifest } from '~/lib/interviewer/ducks/modules/protocol';
+import { useAssetUrl } from '~/lib/interviewer/hooks/useAssetUrl';
 import { type StageProps } from '~/lib/interviewer/types';
 import { cx } from '~/utils/cva';
-import AssetMetaProvider from '../utils/AssetMetaProvider';
 
 // UploadThing's CDN serves files uploaded via the `blob` router with an invalid
 // Content-Type (e.g. `video` instead of `video/mp4`). Safari strictly requires
@@ -100,6 +102,51 @@ function VideoPlayer({
   );
 }
 
+function AssetItem({
+  item,
+  isE2E,
+}: {
+  item: Item;
+  isE2E: boolean;
+}) {
+  const assetManifest = useSelector(getAssetManifest);
+  const assetMeta = assetManifest[item.content];
+  const { url, isLoading } = useAssetUrl(item.content);
+
+  if (!assetMeta) return null;
+  if (isLoading) return <Spinner />;
+  if (!url) return null;
+
+  switch (assetMeta.type) {
+    case 'image':
+      return (
+        <img
+          src={url}
+          alt={item.description ?? ''}
+          className={cx(
+            'size-full object-contain',
+            item.size === 'SMALL' && 'max-h-48',
+            item.size === 'MEDIUM' && 'max-h-96',
+            item.size === 'LARGE' && 'max-h-[60vh]',
+          )}
+        />
+      );
+    case 'audio':
+      return (
+        <audio controls autoPlay>
+          <source
+            src={url}
+            type={getMediaMimeType(assetMeta.name, 'audio/mpeg')}
+          />
+        </audio>
+      );
+    case 'video':
+      return <VideoPlayer src={url} name={assetMeta.name} isE2E={isE2E} />;
+    default:
+      return null;
+  }
+}
+
 const getItemComponent = (item: Item, isE2E: boolean) => {
   switch (item.type) {
     case 'text':
@@ -109,46 +156,7 @@ const getItemComponent = (item: Item, isE2E: boolean) => {
         </RenderMarkdown>
       );
     case 'asset':
-      return (
-        <AssetMetaProvider assetId={item.content}>
-          {(assetMeta) => {
-            switch (assetMeta.type) {
-              case 'image':
-                return (
-                  <img
-                    src={assetMeta.url}
-                    alt={item.description ?? ''}
-                    className={cx(
-                      'size-full object-contain',
-                      item.size === 'SMALL' && 'max-h-48',
-                      item.size === 'MEDIUM' && 'max-h-96',
-                      item.size === 'LARGE' && 'max-h-[60vh]',
-                    )}
-                  />
-                );
-              case 'audio':
-                return (
-                  <audio controls autoPlay>
-                    <source
-                      src={assetMeta.url}
-                      type={getMediaMimeType(assetMeta.name, 'audio/mpeg')}
-                    />
-                  </audio>
-                );
-              case 'video':
-                return (
-                  <VideoPlayer
-                    src={assetMeta.url}
-                    name={assetMeta.name}
-                    isE2E={isE2E}
-                  />
-                );
-              default:
-                return null;
-            }
-          }}
-        </AssetMetaProvider>
-      );
+      return <AssetItem item={item} isE2E={isE2E} />;
   }
 };
 
