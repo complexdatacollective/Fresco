@@ -1,14 +1,7 @@
 import { useSearchBoxCore } from '@mapbox/search-js-react';
 import { debounce } from 'es-toolkit';
 import type { Map } from 'mapbox-gl';
-import {
-  useCallback,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 // Zoom level when flying to a selected location
 const FLY_TO_ZOOM = 14;
@@ -37,8 +30,9 @@ export const useGeospatialSearch = ({
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Stable session token for Mapbox session-based billing - reused across requests in each instance
-  const sessionToken = useId();
+  // UUIDv4 per Mapbox recommendation: https://docs.mapbox.com/api/search/search-box/#get-suggested-results
+  // Reused across all nodes in stage
+  const [sessionToken] = useState(() => crypto.randomUUID());
 
   // Clear state when resetKey changes
   useEffect(() => {
