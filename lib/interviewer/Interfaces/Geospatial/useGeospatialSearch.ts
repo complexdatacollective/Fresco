@@ -31,14 +31,17 @@ export const useGeospatialSearch = ({
   const [isLoading, setIsLoading] = useState(false);
 
   // UUIDv4 per Mapbox recommendation: https://docs.mapbox.com/api/search/search-box/#get-suggested-results
-  // Reused across all nodes in stage
-  const [sessionToken] = useState(() => crypto.randomUUID());
+  // A session is one suggest→retrieve cycle
+  // We create a new token after each completed or abandoned search to avoid unpredictable billing
+  // https://docs.mapbox.com/api/search/search-box/#session-billing
+  const sessionTokenRef = useRef(crypto.randomUUID());
 
   // Clear state when resetKey changes
   useEffect(() => {
     setQuery('');
     setSuggestions([]);
     setIsLoading(false);
+    sessionTokenRef.current = crypto.randomUUID();
   }, [resetKey]);
 
   // Use the hook from @mapbox/search-js-react
@@ -67,7 +70,7 @@ export const useGeospatialSearch = ({
 
       try {
         const response = await searchBoxRef.current.suggest(value, {
-          sessionToken,
+          sessionToken: sessionTokenRef.current,
           proximity: proximityOption,
         });
         setSuggestions(response.suggestions);
@@ -79,7 +82,7 @@ export const useGeospatialSearch = ({
         setIsLoading(false);
       }
     }, 300);
-  }, [accessToken, proximityOption, sessionToken]);
+  }, [accessToken, proximityOption]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -110,7 +113,7 @@ export const useGeospatialSearch = ({
 
       try {
         const result = await searchBoxRef.current.retrieve(suggestion, {
-          sessionToken,
+          sessionToken: sessionTokenRef.current,
         });
         const feature = result.features[0];
         if (feature?.geometry.type === 'Point') {
@@ -121,13 +124,15 @@ export const useGeospatialSearch = ({
         // eslint-disable-next-line no-console
         console.error('Retrieve error:', error);
       }
+      sessionTokenRef.current = crypto.randomUUID();
       setQuery('');
       setSuggestions([]);
     },
-    [map, accessToken, sessionToken],
+    [map, accessToken],
   );
 
   const clear = useCallback(() => {
+    sessionTokenRef.current = crypto.randomUUID();
     setQuery('');
     setSuggestions([]);
   }, []);
