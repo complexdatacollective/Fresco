@@ -1,10 +1,10 @@
 /* eslint-disable no-console */
 import { DeleteObjectsCommand, S3Client } from '@aws-sdk/client-s3';
 import { migrateProtocol } from '@codaco/protocol-validation';
-import { hash } from 'ohash';
 import { UTApi } from 'uploadthing/server';
 import { Prisma, type PrismaClient } from '~/lib/db/generated/client';
 import { type AppSetting } from '~/lib/db/generated/enums';
+import { hashProtocol } from '~/lib/protocol/hashProtocol';
 
 const STORAGE_SETTING_KEYS: AppSetting[] = [
   'storageProvider',
@@ -73,9 +73,6 @@ async function migrateOneProtocol(
     schemaVersion: number;
     stages: unknown;
     codebook: unknown;
-    experiments: unknown;
-    description: string | null;
-    lastModified: Date;
   },
 ): Promise<void> {
   const cleanName = row.name.replace(/\.netcanvas$/i, '');
@@ -85,8 +82,6 @@ async function migrateOneProtocol(
     schemaVersion: row.schemaVersion,
     stages: row.stages,
     codebook: row.codebook,
-    description: row.description ?? undefined,
-    lastModified: row.lastModified.toISOString(),
   };
 
   let migrated: ReturnType<typeof migrateProtocol>;
@@ -98,7 +93,7 @@ async function migrateOneProtocol(
       `Failed to migrate protocol "${row.name}" (id=${row.id}): ${cause}`,
     );
   }
-  const newHash = hash(migrated);
+  const newHash = hashProtocol(migrated);
 
   try {
     await prisma.protocol.update({
@@ -172,9 +167,6 @@ export async function migrateProtocolsToV8(
       schemaVersion: true,
       stages: true,
       codebook: true,
-      experiments: true,
-      description: true,
-      lastModified: true,
     },
   });
 

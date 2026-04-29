@@ -1,6 +1,6 @@
 import { migrateProtocol } from '@codaco/protocol-validation';
-import { hash } from 'ohash';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { hashProtocol } from '~/lib/protocol/hashProtocol';
 import { migrateProtocolsToV8 } from '~/scripts/migrate-protocols-to-v8';
 
 const mockDeleteFiles = vi.fn().mockResolvedValue({ success: true });
@@ -325,7 +325,7 @@ describe('migrateProtocolsToV8', () => {
     const importMigrated = migrateProtocol({ ...v7, name: importName }, 8, {
       name: importName,
     });
-    const importHash = hash(importMigrated);
+    const importHash = hashProtocol(importMigrated);
 
     expect(dbHash).toBe(importHash);
   });
