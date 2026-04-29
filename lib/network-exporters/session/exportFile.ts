@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { getFileExtension, makeFilename } from '../utils/general';
-import getFormatterClass from '../utils/getFormatterClass';
+import { getFormatter } from '../utils/getFormatter';
 import type { ExportFormat, ExportOptions } from '../options';
 import type { ExportResult } from '../output';
 import type { partitionByType } from './partitionByType';
@@ -25,10 +25,8 @@ const exportFile = ({
 }): Promise<ExportResult> => {
   const outDir = tmpdir();
 
-  const Formatter = getFormatterClass(exportFormat);
+  const toReadable = getFormatter(exportFormat);
   const extension = getFileExtension(exportFormat);
-
-  const formatter = new Formatter(network, codebook, exportOptions);
   const outputName = makeFilename(
     prefix,
     network.partitionEntity,
@@ -55,7 +53,8 @@ const exportFile = ({
       });
     });
 
-    formatter.writeToStream(writeStream);
+    const inputStream = toReadable(network, codebook, exportOptions);
+    inputStream.pipe(writeStream);
   });
 };
 
