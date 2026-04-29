@@ -188,7 +188,6 @@ export const SignUpForm = ({ sandboxMode = false }: SignUpFormProps) => {
             placeholder="******************"
             sameAs="password"
             component={PasswordField}
-            type="password"
             autoComplete="do-not-autofill"
           />
         </FieldGroup>

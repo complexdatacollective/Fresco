@@ -5,7 +5,7 @@ import {
   type NcNode,
 } from '@codaco/shared-consts';
 import { describe, expect, it } from 'vitest';
-import { type ExportOptions } from '../../../utils/types';
+import { type ExportOptions } from '~/lib/network-exporters/options';
 import processEntityVariables from '../processEntityVariables';
 
 const mockExportOptions: ExportOptions = {
@@ -60,8 +60,8 @@ describe('processEntityVariables', () => {
 
       // female should be true, male and non-binary should be false
       expect(result.attributes).toEqual({
-        gender_male: false,
-        gender_female: true,
+        'gender_male': false,
+        'gender_female': true,
         'gender_non-binary': false,
       });
     });

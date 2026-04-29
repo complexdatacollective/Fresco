@@ -17,12 +17,12 @@ import {
 import { DOMImplementation } from '@xmldom/xmldom';
 import { createHash } from 'crypto';
 import { isNil } from 'es-toolkit';
-import { getEntityAttributes } from '../../utils/general';
+import { getEntityAttributes } from '~/utils/networkEntities';
 import {
   type EdgeWithResequencedID,
   type NodeWithResequencedID,
-} from '../../utils/types';
-import { type ExportFileNetwork } from '../session/exportFile';
+} from '../../input';
+import { type ExportFileNetwork } from '../../session/exportFile';
 
 export function getCodebookVariablesForEntity(
   entity: NodeWithResequencedID | EdgeWithResequencedID | NcEgo,

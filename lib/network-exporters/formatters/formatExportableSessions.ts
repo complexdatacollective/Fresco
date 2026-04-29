@@ -1,7 +1,6 @@
 import {
   caseProperty,
   codebookHashProperty,
-  type NcNetwork,
   protocolName,
   protocolProperty,
   sessionExportTimeProperty,
@@ -11,34 +10,20 @@ import {
 } from '@codaco/shared-consts';
 import { hash } from 'ohash';
 import { env } from '~/env';
-import type { GetInterviewsForExportQuery } from '~/queries/interviews';
-import { type SessionVariables } from '../utils/types';
+import type { InterviewExportInput } from '~/lib/network-exporters/input';
+import { type SessionVariables } from '../input';
 
 /**
  * Creates an object containing all required session metadata for export
  * and appends it to the session
  */
 
-export const formatExportableSessions = (
-  sessions: Awaited<GetInterviewsForExportQuery>,
-) => {
+export const formatExportableSessions = (sessions: InterviewExportInput[]) => {
   return sessions.map((session) => {
     const sessionProtocol = session.protocol;
-    const sessionParticipant = session.participant;
-
-    const getCaseProperty = () => {
-      if (sessionParticipant.label && sessionParticipant.label !== '') {
-        return sessionParticipant.label;
-      }
-
-      return sessionParticipant.identifier;
-    };
 
     const sessionVariables: SessionVariables = {
-      // Label is optional, but defaults to an empty string!
-      // We **must** fallback to identifier in this case, because caseProperty
-      // is used to create the filename during export.
-      [caseProperty]: getCaseProperty(),
+      [caseProperty]: session.participantIdentifier,
       [sessionProperty]: session.id,
       [protocolProperty]: sessionProtocol.hash,
       [protocolName]: sessionProtocol.name,
@@ -51,10 +36,8 @@ export const formatExportableSessions = (
       APP_VERSION: env.APP_VERSION!,
     };
 
-    const sessionNetwork = session.network as unknown as NcNetwork;
-
     return {
-      ...sessionNetwork,
+      ...session.network,
       sessionVariables,
     };
   });

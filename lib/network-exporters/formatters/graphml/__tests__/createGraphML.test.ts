@@ -8,7 +8,7 @@ import {
   MIME_TYPE,
 } from '@xmldom/xmldom';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { type ExportOptions } from '~/lib/network-exporters/utils/types';
+import { type ExportOptions } from '~/lib/network-exporters/options';
 import {
   mockCodebook,
   mockExportOptions,
@@ -38,8 +38,8 @@ const buildXML = (...args: Parameters<typeof graphMLGenerator>) => {
 };
 
 describe('buildGraphML', () => {
-  const edgeType = mockCodebook.edge['mock-edge-type'].name;
-  const nodeType = mockCodebook.node['mock-node-type'].name;
+  const edgeType = mockCodebook.edge!['mock-edge-type']!.name;
+  const nodeType = mockCodebook.node!['mock-node-type']!.name;
   const codebook = mockCodebook as unknown as Codebook; // Codebook type mistakenly requires variables on all entities - fixed in schema 8
   let exportOptions: ExportOptions;
   let xml: Document;

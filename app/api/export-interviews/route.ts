@@ -2,8 +2,9 @@ import { Effect, Queue, Stream } from 'effect';
 import { addEvent } from '~/actions/activityFeed';
 import { requireApiAuth } from '~/lib/auth/guards';
 import { safeRevalidateTag } from '~/lib/cache';
-import { type ExportEvent, formatSSE } from '~/lib/export/exportEvents';
-import { exportPipeline } from '~/lib/export/pipeline';
+import { formatSSE, type ExportSseEvent } from './sse';
+import { describeExportError } from '~/lib/network-exporters/errors';
+import { exportPipeline } from '~/lib/network-exporters/pipeline';
 import {
   captureEvent,
   captureException,
@@ -45,7 +46,7 @@ export async function POST(request: Request) {
   const storageLayer = await getStorageLayer();
 
   const program = Effect.gen(function* () {
-    const queue = yield* Queue.unbounded<ExportEvent>();
+    const queue = yield* Queue.unbounded<ExportSseEvent>();
 
     yield* exportPipeline(interviewIds, exportOptions, queue).pipe(
       Effect.tap((result) =>
@@ -62,8 +63,8 @@ export async function POST(request: Request) {
           Effect.andThen(
             Queue.offer(queue, {
               type: 'complete',
-              zipUrl: result.zipUrl ?? '',
-              zipKey: result.zipKey ?? '',
+              zipUrl: result.zipUrl,
+              zipKey: result.zipKey,
             }),
           ),
         ),
@@ -75,7 +76,7 @@ export async function POST(request: Request) {
           Effect.andThen(
             Queue.offer(queue, {
               type: 'error',
-              message: error.userMessage,
+              message: describeExportError(error),
             }),
           ),
         ),

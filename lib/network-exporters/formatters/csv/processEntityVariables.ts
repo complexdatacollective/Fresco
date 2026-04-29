@@ -10,11 +10,9 @@ import {
   type NcEgo,
   type NcNode,
 } from '@codaco/shared-consts';
-import {
-  getEntityAttributes,
-  isCategoricalOptionSelected,
-} from '../../utils/general';
-import { type ExportOptions } from '../../utils/types';
+import { getEntityAttributes } from '~/utils/networkEntities';
+import { isCategoricalOptionSelected } from '../../utils/general';
+import { type ExportOptions } from '../../options';
 
 // TODO: move to protocol validation
 export type VariableDefinition = NonNullable<

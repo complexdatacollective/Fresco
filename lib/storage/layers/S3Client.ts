@@ -42,6 +42,5 @@ export async function getS3PublicBaseUrl(): Promise<string> {
     throw new Error('S3 configuration is incomplete');
   }
 
-  const url = new URL(endpoint);
-  return `${url.protocol}//${bucket}.${url.host}`;
+  return `${endpoint.replace(/\/$/, '')}/${bucket}`;
 }

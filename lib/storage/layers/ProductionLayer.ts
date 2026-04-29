@@ -1,6 +1,7 @@
 import { Layer } from 'effect';
-import { NodeFileSystem } from '~/lib/export/layers/NodeFileSystem';
-import { PrismaInterviewRepository } from '~/lib/export/layers/PrismaInterviewRepository';
+import { NodeFileSystem } from '~/lib/exportLayers/NodeFileSystem';
+import { PrismaInterviewRepository } from '~/lib/exportLayers/PrismaInterviewRepository';
+import { makeFrescoFileStorage } from '~/lib/storage/layers/FrescoFileStorage';
 import { UploadThingAssetStorage } from '~/lib/storage/layers/UploadThingAssetStorage';
 import { UploadThingFileStorage } from '~/lib/storage/layers/UploadThingFileStorage';
 import { S3AssetStorage } from '~/lib/storage/layers/S3AssetStorage';
@@ -17,5 +18,6 @@ export function makeProductionLayer(provider: StorageProvider) {
     PrismaInterviewRepository,
     NodeFileSystem,
     storageLayers,
+    makeFrescoFileStorage(provider),
   );
 }

@@ -4,7 +4,7 @@ import posthog from 'posthog-js';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { useContractHandlers } from '~/lib/interviewer/contract/context';
-import { getVariableTypeReplacements } from '~/lib/network-exporters/utils/externalData';
+import { getVariableTypeReplacements } from '~/lib/interviewer/utils/externalData';
 import { ensureError } from '~/utils/ensureError';
 import { getAssetManifest, getCodebook } from '../ducks/modules/protocol';
 import loadExternalData, {

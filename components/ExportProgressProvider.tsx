@@ -8,8 +8,8 @@ import { deleteZipFromStorage } from '~/actions/uploadThing';
 import ProgressBar from '~/components/ui/ProgressBar';
 import { useToast } from '~/components/ui/Toast';
 import { useDownload } from '~/hooks/useDownload';
-import type { ExportEvent } from '~/lib/export/exportEvents';
-import type { ExportOptions } from '~/lib/network-exporters/utils/types';
+import type { ExportSseEvent } from '~/app/api/export-interviews/sse';
+import type { ExportOptions } from '~/lib/network-exporters/options';
 import { ensureError } from '~/utils/ensureError';
 import Spinner from './Spinner';
 
@@ -141,9 +141,9 @@ export function ExportProgressProvider({
                 .find((line) => line.startsWith('data: '));
               if (!dataLine) continue;
 
-              let data: ExportEvent;
+              let data: ExportSseEvent;
               try {
-                data = JSON.parse(dataLine.slice(6)) as ExportEvent;
+                data = JSON.parse(dataLine.slice(6)) as ExportSseEvent;
               } catch {
                 continue;
               }

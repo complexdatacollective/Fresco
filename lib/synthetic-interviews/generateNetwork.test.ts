@@ -1,6 +1,10 @@
 import { type Stage, stageSchema } from '@codaco/protocol-validation';
-import { entityAttributesProperty } from '@codaco/shared-consts';
+import {
+  entityAttributesProperty,
+  entityPrimaryKeyProperty,
+} from '@codaco/shared-consts';
 import { describe, expect, it } from 'vitest';
+import { StageMetadataSchema } from '~/lib/interviewer/ducks/modules/session';
 import { generateNetwork } from './generateNetwork';
 
 type Codebook = Parameters<typeof generateNetwork>[0];
@@ -41,6 +45,47 @@ function makeCodebook(overrides?: Partial<Codebook>): Codebook {
     },
     ...overrides,
   };
+}
+
+function makeNameGeneratorStage(overrides?: Record<string, unknown>): Stage {
+  return {
+    id: 'stage-ng',
+    label: 'Name Generator',
+    type: 'NameGenerator',
+    subject: { entity: 'node', type: 'node-type-1' },
+    prompts: [{ id: 'prompt-ng', text: 'Add people' }],
+    behaviours: { minNodes: 5, maxNodes: 8 },
+    ...overrides,
+  } as Stage;
+}
+
+function makeDyadCensusStage(overrides?: Record<string, unknown>): Stage {
+  return {
+    id: 'stage-dc',
+    label: 'Dyad Census',
+    type: 'DyadCensus',
+    subject: { entity: 'node', type: 'node-type-1' },
+    prompts: [
+      { id: 'prompt-dc-1', text: 'Pair 1', createEdge: 'edge-type-1' },
+      { id: 'prompt-dc-2', text: 'Pair 2', createEdge: 'edge-type-1' },
+    ],
+    ...overrides,
+  } as Stage;
+}
+
+function makeTieStrengthCensusStage(
+  overrides?: Record<string, unknown>,
+): Stage {
+  return {
+    id: 'stage-tsc',
+    label: 'Tie Strength',
+    type: 'TieStrengthCensus',
+    subject: { entity: 'node', type: 'node-type-1' },
+    prompts: [
+      { id: 'prompt-tsc', text: 'Strength', createEdge: 'edge-type-1' },
+    ],
+    ...overrides,
+  } as Stage;
 }
 
 function makeFamilyPedigreeStage(overrides?: Record<string, unknown>): Stage {
@@ -157,6 +202,85 @@ describe('generateNetwork', () => {
         expect(node.type).not.toBe('Unknown');
         expect(node.type).toBe('node-type-1');
       }
+    });
+  });
+
+  describe('stageMetadata schema compliance', () => {
+    it('FamilyPedigree writes isNetworkCommitted keyed by stage step', () => {
+      const codebook = makeCodebook();
+      const stages = [makeFamilyPedigreeStage()];
+
+      const { stageMetadata } = generateNetwork(codebook, stages, 42);
+
+      expect(stageMetadata).toEqual({ 0: { isNetworkCommitted: true } });
+      expect(StageMetadataSchema.safeParse(stageMetadata).success).toBe(true);
+    });
+
+    it('DyadCensus writes [promptIndex, fromId, toId, false] tuples keyed by stage step', () => {
+      const codebook = makeCodebook();
+      const stages = [makeNameGeneratorStage(), makeDyadCensusStage()];
+
+      const { stageMetadata, network } = generateNetwork(codebook, stages, 42);
+
+      expect(stageMetadata).not.toBeNull();
+      const meta = stageMetadata?.[1];
+      expect(Array.isArray(meta)).toBe(true);
+
+      const nodeIds = new Set(
+        network.nodes.map((n) => n[entityPrimaryKeyProperty]),
+      );
+      const promptCount = 2;
+
+      for (const tuple of meta as unknown[][]) {
+        expect(tuple).toHaveLength(4);
+        expect(typeof tuple[0]).toBe('number');
+        expect(tuple[0] as number).toBeGreaterThanOrEqual(0);
+        expect(tuple[0] as number).toBeLessThan(promptCount);
+        expect(nodeIds.has(tuple[1] as string)).toBe(true);
+        expect(nodeIds.has(tuple[2] as string)).toBe(true);
+        expect(tuple[3]).toBe(false);
+      }
+
+      expect(StageMetadataSchema.safeParse(stageMetadata).success).toBe(true);
+    });
+
+    it('TieStrengthCensus writes the same tuple shape as DyadCensus', () => {
+      const codebook = makeCodebook();
+      const stages = [makeNameGeneratorStage(), makeTieStrengthCensusStage()];
+
+      const { stageMetadata, network } = generateNetwork(codebook, stages, 42);
+
+      const meta = stageMetadata?.[1];
+      expect(Array.isArray(meta)).toBe(true);
+
+      const nodeIds = new Set(
+        network.nodes.map((n) => n[entityPrimaryKeyProperty]),
+      );
+
+      for (const tuple of meta as unknown[][]) {
+        expect(tuple).toHaveLength(4);
+        expect(typeof tuple[0]).toBe('number');
+        expect(nodeIds.has(tuple[1] as string)).toBe(true);
+        expect(nodeIds.has(tuple[2] as string)).toBe(true);
+        expect(tuple[3]).toBe(false);
+      }
+
+      expect(StageMetadataSchema.safeParse(stageMetadata).success).toBe(true);
+    });
+
+    it('mixed protocol with FamilyPedigree + DyadCensus produces schema-valid metadata', () => {
+      const codebook = makeCodebook();
+      const stages = [
+        makeNameGeneratorStage(),
+        makeDyadCensusStage(),
+        makeFamilyPedigreeStage({ id: 'stage-fp-2' }),
+      ];
+
+      const { stageMetadata } = generateNetwork(codebook, stages, 42);
+
+      const result = StageMetadataSchema.safeParse(stageMetadata);
+      expect(result.success).toBe(true);
+      expect(stageMetadata?.[2]).toEqual({ isNetworkCommitted: true });
     });
   });
 

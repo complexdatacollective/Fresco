@@ -2,7 +2,7 @@ import { type Dispatch, type SetStateAction } from 'react';
 import Heading from '~/components/typography/Heading';
 import Paragraph from '~/components/typography/Paragraph';
 import Switch from '~/lib/form/components/fields/ToggleField';
-import type { ExportOptions } from '~/lib/network-exporters/utils/types';
+import type { ExportOptions } from '~/lib/network-exporters/options';
 import { cx } from '~/utils/cva';
 
 const sectionClasses = cx(
