@@ -18,6 +18,50 @@ vi.mock('@aws-sdk/client-s3', () => ({
   }),
 }));
 
+/**
+ * A minimal v7 protocol JSON containing the fields the v7→v8 migration
+ * actually transforms (iconVariant on a node, Toggle with options, alter
+ * filter rule). This lets the tests verify the real migration applies, not
+ * just that some hand-rolled stub produced the right output.
+ */
+function makeV7Protocol() {
+  return {
+    schemaVersion: 7,
+    description: 'Test protocol',
+    lastModified: '2024-01-01T00:00:00.000Z',
+    codebook: {
+      node: {
+        person: {
+          name: 'Person',
+          color: 'node-color-seq-1',
+          iconVariant: 'add-a-person',
+          variables: {
+            isAttending: {
+              name: 'isAttending',
+              type: 'boolean',
+              component: 'Toggle',
+              options: [
+                { label: 'Yes', value: true },
+                { label: 'No', value: false },
+              ],
+            },
+          },
+        },
+      },
+      edge: {},
+      ego: { variables: {} },
+    },
+    stages: [
+      {
+        id: 'stage-1',
+        type: 'Information',
+        label: 'Stage 1',
+        items: [],
+      },
+    ],
+  };
+}
+
 type MockPrisma = {
   asset: {
     findMany: ReturnType<typeof vi.fn>;
@@ -120,7 +164,10 @@ describe('migrateProtocolsToV8', () => {
       prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
     );
 
-    expect(mockDeleteFiles).toHaveBeenCalledWith(['ut-orphan-1', 'ut-orphan-2']);
+    expect(mockDeleteFiles).toHaveBeenCalledWith([
+      'ut-orphan-1',
+      'ut-orphan-2',
+    ]);
   });
 
   it('deletes orphan blobs from S3 when provider is s3', async () => {
@@ -182,5 +229,63 @@ describe('migrateProtocolsToV8', () => {
     );
 
     errorSpy.mockRestore();
+  });
+
+  it('migrates a v7 protocol row to v8 and writes the result back', async () => {
+    const v7 = makeV7Protocol();
+    const prisma = makeMockPrisma();
+    prisma.protocol.findMany.mockResolvedValue([
+      {
+        id: 'cm-protocol-1',
+        name: 'Test Protocol.netcanvas',
+        schemaVersion: 7,
+        stages: v7.stages,
+        codebook: v7.codebook,
+        experiments: null,
+        description: v7.description,
+      },
+    ]);
+
+    await migrateProtocolsToV8(
+      prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
+    );
+
+    expect(prisma.protocol.update).toHaveBeenCalledTimes(1);
+
+    type UpdateCallArg = {
+      where: { id: string };
+      data: {
+        schemaVersion: number;
+        experiments: unknown;
+        codebook: {
+          node: { person: Record<string, unknown> };
+        };
+        hash: string;
+      };
+    };
+
+    const rawCall: unknown = prisma.protocol.update.mock.calls[0]?.[0];
+    expect(rawCall).toBeDefined();
+    const updateCall = rawCall as UpdateCallArg;
+
+    expect(updateCall.where).toEqual({ id: 'cm-protocol-1' });
+    expect(updateCall.data.schemaVersion).toBe(8);
+    expect(updateCall.data.experiments).toEqual({});
+
+    // iconVariant → icon, with shape added
+    const personNode = updateCall.data.codebook.node.person;
+    expect(personNode.icon).toBe('add-a-person');
+    expect(personNode).not.toHaveProperty('iconVariant');
+    expect(personNode.shape).toEqual({ default: 'circle' });
+
+    // Toggle options removed
+    const toggleVar = personNode.variables as {
+      isAttending: Record<string, unknown>;
+    };
+    expect(toggleVar.isAttending).not.toHaveProperty('options');
+
+    // Hash recomputed
+    expect(typeof updateCall.data.hash).toBe('string');
+    expect(updateCall.data.hash.length).toBeGreaterThan(0);
   });
 });
