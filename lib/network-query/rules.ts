@@ -236,7 +236,7 @@ type SingleEdgeRuleRunner = ((node: NcNode, edges: NcEdge[]) => boolean) & {
   options: FilterRule['options'];
 };
 
-export type FilterRuleRunner = NetworkRuleRunner | EgoRuleRunner;
+type FilterRuleRunner = NetworkRuleRunner | EgoRuleRunner;
 type SingleRuleRunner =
   | SingleNodeRuleRunner
   | SingleEdgeRuleRunner

@@ -27,7 +27,7 @@ export type DropTarget = {
 /**
  * Represents a dragged item in the collection.
  */
-export type DragItem = {
+type DragItem = {
   /** Type identifier for the drag operation */
   type: string;
   /** Set of keys being dragged (supports multi-select) */
@@ -81,7 +81,7 @@ export type DroppableCollectionResult = {
  * Note: isDragging is not included as it's not a valid DOM attribute.
  * Use the data-dragging attribute for styling instead.
  */
-export type DraggableItemProps = {
+type DraggableItemProps = {
   'ref': (el: HTMLElement | null) => void;
   'onPointerDown': (e: React.PointerEvent) => void;
   'onKeyDown': (e: React.KeyboardEvent) => void;
@@ -97,7 +97,7 @@ export type DraggableItemProps = {
 /**
  * Props returned by useDroppableItemProps hook.
  */
-export type DroppableItemProps = {
+type DroppableItemProps = {
   'ref': (el: HTMLElement | null) => void;
   'onPointerMove': (e: React.PointerEvent) => void;
   'isOver': boolean;

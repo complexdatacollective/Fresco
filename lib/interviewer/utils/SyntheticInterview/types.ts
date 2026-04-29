@@ -20,7 +20,7 @@ export type VariableEntry = {
   validation?: Record<string, unknown>;
 };
 
-export type ShapeMapping =
+type ShapeMapping =
   | {
       variable: string;
       type: 'discrete';
@@ -90,7 +90,7 @@ export type SociogramPromptEntry = {
   };
 };
 
-export type SortRule = {
+type SortRule = {
   property: string;
   direction: 'asc' | 'desc';
 };
@@ -149,7 +149,7 @@ export type GeospatialPromptEntry = {
   variable: string;
 };
 
-export type MapOptionsEntry = {
+type MapOptionsEntry = {
   tokenAssetId: string;
   style: string;
   center: [number, number];
@@ -161,7 +161,7 @@ export type MapOptionsEntry = {
   allowSearch?: boolean;
 };
 
-export type PromptEntry =
+type PromptEntry =
   | NameGeneratorPromptEntry
   | SociogramPromptEntry
   | DyadCensusPromptEntry
@@ -188,18 +188,18 @@ type FormFieldEntry = {
   prompt?: string;
 };
 
-export type FormEntry = {
+type FormEntry = {
   title: string;
   fields: FormFieldEntry[];
 };
 
-export type PanelEntry = {
+type PanelEntry = {
   id: string;
   title: string;
   dataSource: string;
 };
 
-export type InformationItem = {
+type InformationItem = {
   id: string;
   type: 'text';
   content: string;

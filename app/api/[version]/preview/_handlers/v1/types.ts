@@ -68,7 +68,7 @@ export type RejectedResponse = {
   message: 'Invalid protocol';
 };
 
-export type ErrorResponse = {
+type ErrorResponse = {
   status: 'error';
   message: string;
 };

@@ -24,7 +24,7 @@ export type Key = string | number;
  * - 'section': Group container (not selectable)
  * - 'header': Section header (not selectable)
  */
-export type NodeType = 'item' | 'section' | 'header';
+type NodeType = 'item' | 'section' | 'header';
 
 /**
  * Represents a single node in the collection.
@@ -271,6 +271,6 @@ export type CollectionProps<T> = SortProps &
     'children': CollectionChildrenRenderer;
   };
 
-export type CollectionChildrenRenderer = (
+type CollectionChildrenRenderer = (
   CollectionElements: React.ReactNode,
 ) => React.ReactNode;

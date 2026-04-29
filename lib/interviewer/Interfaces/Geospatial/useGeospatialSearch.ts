@@ -1,14 +1,7 @@
 import { useSearchBoxCore } from '@mapbox/search-js-react';
 import { debounce } from 'es-toolkit';
 import type { Map } from 'mapbox-gl';
-import {
-  useCallback,
-  useEffect,
-  useId,
-  useMemo,
-  useRef,
-  useState,
-} from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 // Zoom level when flying to a selected location
 const FLY_TO_ZOOM = 14;
@@ -37,15 +30,15 @@ export const useGeospatialSearch = ({
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Stable session token for Mapbox session-based billing - reused across requests in each instance
-  const sessionToken = useId();
-
-  // Clear state when resetKey changes
-  useEffect(() => {
-    setQuery('');
-    setSuggestions([]);
-    setIsLoading(false);
-  }, [resetKey]);
+  // UUIDv4 per Mapbox recommendation: https://docs.mapbox.com/api/search/search-box/#get-suggested-results
+  // A session is one suggest→retrieve cycle.
+  // We rotate the token when a search is explicitly completed, cleared, or reset
+  // to avoid unpredictable billing.
+  // https://docs.mapbox.com/api/search/search-box/#session-billing
+  // Use a state initializer so crypto.randomUUID() is only called once (on mount),
+  // not on every render.
+  const [initialSessionToken] = useState(() => crypto.randomUUID());
+  const sessionTokenRef = useRef(initialSessionToken);
 
   // Use the hook from @mapbox/search-js-react
   const searchBox = useSearchBoxCore({
@@ -73,7 +66,7 @@ export const useGeospatialSearch = ({
 
       try {
         const response = await searchBoxRef.current.suggest(value, {
-          sessionToken,
+          sessionToken: sessionTokenRef.current,
           proximity: proximityOption,
         });
         setSuggestions(response.suggestions);
@@ -85,9 +78,27 @@ export const useGeospatialSearch = ({
         setIsLoading(false);
       }
     }, 300);
-  }, [accessToken, proximityOption, sessionToken]);
+  }, [accessToken, proximityOption]);
 
-  // Cleanup on unmount
+  const fetchSuggestionsRef = useRef(fetchSuggestions);
+  fetchSuggestionsRef.current = fetchSuggestions;
+
+  const reset = useCallback(() => {
+    fetchSuggestionsRef.current?.cancel();
+    sessionTokenRef.current = crypto.randomUUID();
+    setQuery('');
+    setSuggestions([]);
+    setIsLoading(false);
+  }, []);
+
+  // Clear state when resetKey changes
+  useEffect(() => {
+    reset();
+  }, [resetKey, reset]);
+
+  // Cancel pending debounced fetch when fetchSuggestions changes (new instance
+  // created because accessToken/proximityOption changed) or on unmount.
+  // This prevents a stale debounce timer from updating state with old results.
   useEffect(() => {
     return () => {
       fetchSuggestions?.cancel();
@@ -116,7 +127,7 @@ export const useGeospatialSearch = ({
 
       try {
         const result = await searchBoxRef.current.retrieve(suggestion, {
-          sessionToken,
+          sessionToken: sessionTokenRef.current,
         });
         const feature = result.features[0];
         if (feature?.geometry.type === 'Point') {
@@ -127,16 +138,12 @@ export const useGeospatialSearch = ({
         // eslint-disable-next-line no-console
         console.error('Retrieve error:', error);
       }
-      setQuery('');
-      setSuggestions([]);
+      reset();
     },
-    [map, accessToken, sessionToken],
+    [map, accessToken, reset],
   );
 
-  const clear = useCallback(() => {
-    setQuery('');
-    setSuggestions([]);
-  }, []);
+  const clear = reset;
 
   return {
     query,

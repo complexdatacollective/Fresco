@@ -1,7 +1,7 @@
 import { z } from 'zod/mini';
 import { type Option } from '~/components/DataTable/types';
 
-export type RangePreset = {
+type RangePreset = {
   label: string;
   min: number;
   max: number;
@@ -57,9 +57,9 @@ export type DateFilterValue = {
   to: string;
 };
 
-export type BooleanFilterValue = boolean;
+type BooleanFilterValue = boolean;
 
-export type FacetedFilterValue = string[];
+type FacetedFilterValue = string[];
 
 export type OperatorCondition = {
   entityType: string;

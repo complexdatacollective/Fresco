@@ -310,7 +310,7 @@ const createSorter = <T extends Item = Item>(
     ) as T[];
 };
 
-export type SortType =
+type SortType =
   | 'string'
   | 'number'
   | 'date'
@@ -422,7 +422,7 @@ export const processProtocolSortRule =
     };
   };
 
-export type Direction = 'asc' | 'desc';
+type Direction = 'asc' | 'desc';
 
 export type ProcessedSortRule = {
   property: string | string[];

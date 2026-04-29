@@ -17,7 +17,7 @@ export type PartnerConnection = {
   isActive: boolean;
 };
 
-export type RelationCode = 1 | 2 | 3 | 4 | 5 | 6;
+type RelationCode = 1 | 2 | 3 | 4 | 5 | 6;
 // 1=MZ twin, 2=DZ twin, 3=unknown twin, 4=partner
 // 5=co-parent, 6=donor/surrogate relation
 
@@ -35,7 +35,7 @@ export type PedigreeInput = {
   hints?: Hints;
 };
 
-export type GroupHint = {
+type GroupHint = {
   members: number[]; // ordered list of node indices in the group
   anchor: number;
 };
@@ -70,7 +70,7 @@ export type LineSegment = {
   y2: number;
 };
 
-export type ArcPath = {
+type ArcPath = {
   type: 'arc';
   points: Point[];
   dashed: boolean;

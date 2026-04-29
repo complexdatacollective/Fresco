@@ -60,7 +60,7 @@ export type CustomDialog = BaseDialog & {
   footer?: React.ReactNode;
 };
 
-export type FormDialog = BaseDialog & {
+type FormDialog = BaseDialog & {
   type: 'form';
   submitLabel?: string;
   cancelLabel?: string;
@@ -123,7 +123,7 @@ type DialogState = AnyDialog & {
   error: string | null;
 };
 
-export type ConfirmOptions = {
+type ConfirmOptions = {
   onConfirm: (signal: AbortSignal) => void | Promise<void>;
   title?: string;
   description?: string;
