@@ -100,16 +100,33 @@ async function migrateOneProtocol(
   }
   const newHash = hash(migrated);
 
-  await prisma.protocol.update({
-    where: { id: row.id },
-    data: {
-      schemaVersion: 8,
-      stages: migrated.stages,
-      codebook: migrated.codebook,
-      experiments: migrated.experiments ?? Prisma.JsonNull,
-      hash: newHash,
-    },
-  });
+  try {
+    await prisma.protocol.update({
+      where: { id: row.id },
+      data: {
+        schemaVersion: 8,
+        stages: migrated.stages,
+        codebook: migrated.codebook,
+        experiments: migrated.experiments ?? Prisma.JsonNull,
+        hash: newHash,
+      },
+    });
+  } catch (err) {
+    if (
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === 'P2002'
+    ) {
+      const collider = await prisma.protocol.findFirst({
+        where: { hash: newHash },
+        select: { id: true, name: true },
+      });
+      throw new Error(
+        `Hash collision migrating "${row.name}" (id=${row.id}): ` +
+          `migrated hash ${newHash} already exists on protocol "${collider?.name ?? '?'}" (id=${collider?.id ?? '?'})`,
+      );
+    }
+    throw err;
+  }
 
   console.log(
     `Migrated "${row.name}" (id=${row.id})... ok (new hash: ${newHash.slice(0, 8)}...)`,

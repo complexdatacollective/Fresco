@@ -359,4 +359,46 @@ describe('migrateProtocolsToV8', () => {
       ),
     ).rejects.toThrow(/cm-broken/);
   });
+
+  it('wraps a P2002 hash collision with both protocol ids and names', async () => {
+    const v7 = makeV7Protocol();
+    const prisma = makeMockPrisma();
+    prisma.protocol.findMany.mockResolvedValue([
+      {
+        id: 'cm-collide',
+        name: 'Colliding.netcanvas',
+        schemaVersion: 7,
+        stages: v7.stages,
+        codebook: v7.codebook,
+        experiments: null,
+        description: v7.description,
+        lastModified: new Date(v7.lastModified),
+      },
+    ]);
+
+    // Simulate Prisma's P2002 unique-constraint error
+    const { Prisma } = await import('~/lib/db/generated/client');
+    const p2002 = new Prisma.PrismaClientKnownRequestError(
+      'Unique constraint failed on the fields: (`hash`)',
+      { code: 'P2002', clientVersion: 'test', meta: { target: ['hash'] } },
+    );
+    prisma.protocol.update.mockRejectedValue(p2002);
+
+    // The script will look up the colliding row by hash
+    prisma.protocol.findFirst.mockResolvedValue({
+      id: 'cm-existing',
+      name: 'Existing.netcanvas',
+    });
+
+    const error = await migrateProtocolsToV8(
+      prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
+    ).catch((e: unknown) => e);
+
+    expect(error).toBeInstanceOf(Error);
+    const message = (error as Error).message;
+    expect(message).toMatch(/cm-collide/);
+    expect(message).toMatch(/Colliding\.netcanvas/);
+    expect(message).toMatch(/cm-existing/);
+    expect(message).toMatch(/Existing\.netcanvas/);
+  });
 });
