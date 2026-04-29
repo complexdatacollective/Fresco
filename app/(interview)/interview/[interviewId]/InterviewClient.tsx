@@ -38,7 +38,10 @@ export default function InterviewClient({ payload, assetUrls }: Props) {
           return Promise.reject(new Error(`No URL for asset ${assetId}`));
         return Promise.resolve(url);
       }}
-      flags={{ isE2E: env.NEXT_PUBLIC_E2E_TEST }}
+      flags={{
+        isE2E: env.NEXT_PUBLIC_E2E_TEST,
+        isDevelopment: env.NODE_ENV === 'development',
+      }}
     />
   );
 }

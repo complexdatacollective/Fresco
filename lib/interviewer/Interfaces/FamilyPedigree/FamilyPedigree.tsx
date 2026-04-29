@@ -9,6 +9,7 @@ import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
 import useDialog from '~/lib/dialogs/useDialog';
 import Prompts from '~/lib/interviewer/components/Prompts/Prompts';
+import { useContractFlags } from '~/lib/interviewer/contract/context';
 import { toggleNodeAttributes } from '~/lib/interviewer/ducks/modules/session';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import PedigreeChecklist from '~/lib/interviewer/Interfaces/FamilyPedigree/components/PedigreeChecklist';
@@ -47,6 +48,7 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
 
   const dispatch = useAppDispatch();
   const { confirm, openDialog } = useDialog();
+  const { isDevelopment } = useContractFlags();
   const nodesMap = useFamilyPedigreeStore((s) => s.network.nodes);
   const edgesMap = useFamilyPedigreeStore((s) => s.network.edges);
   const addNode = useFamilyPedigreeStore((s) => s.addNode);
@@ -258,8 +260,7 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
           ref={containerRef}
           className="relative flex size-full grow items-center justify-center"
         >
-          {/* eslint-disable-next-line no-process-env */}
-          {process.env.NODE_ENV === 'development' && (
+          {isDevelopment && (
             <div className="absolute top-2 right-2 z-50 flex gap-1">
               <button
                 type="button"

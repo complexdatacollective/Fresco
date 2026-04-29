@@ -18,6 +18,7 @@ import useMediaQuery from '~/hooks/useMediaQuery';
 import { InterviewToastProvider } from '~/lib/interviewer/components/InterviewToast';
 import Navigation from '~/lib/interviewer/components/Navigation';
 import StageErrorBoundary from '~/lib/interviewer/components/StageErrorBoundary';
+import { isValidAssetType } from '~/lib/interviewer/contract/assets';
 import { ContractProvider } from '~/lib/interviewer/contract/context';
 import type {
   InterviewPayload,
@@ -256,22 +257,10 @@ function StoryInterview() {
   );
 }
 
-const validAssetTypes: readonly ResolvedAsset['type'][] = [
-  'image',
-  'video',
-  'audio',
-  'network',
-  'geojson',
-  'apikey',
-];
-
 function inferAssetType(asset: Record<string, unknown>): ResolvedAsset['type'] {
   const t = asset.type;
-  if (
-    typeof t === 'string' &&
-    (validAssetTypes as readonly string[]).includes(t)
-  ) {
-    return t as ResolvedAsset['type'];
+  if (typeof t === 'string' && isValidAssetType(t)) {
+    return t;
   }
   if (typeof asset.value === 'string') return 'apikey';
   if (typeof asset.url === 'string' && asset.url.endsWith('.geojson'))
@@ -408,6 +397,7 @@ const StoryInterviewShell = (props: {
       <ContractProvider
         onFinish={() => Promise.resolve()}
         onRequestAsset={onRequestAsset}
+        flags={{ isDevelopment: true }}
       >
         {/* Interview-scoped DialogProvider inside the Redux scope —
          * interview dialogs call useSelector and must render under the

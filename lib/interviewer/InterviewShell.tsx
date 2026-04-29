@@ -2,7 +2,7 @@
 'use no memo';
 
 import { AnimatePresence, motion } from 'motion/react';
-import { useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { Provider } from 'react-redux';
 import DialogProvider from '~/lib/dialogs/DialogProvider';
 import useMediaQuery from '~/hooks/useMediaQuery';
@@ -132,8 +132,28 @@ const InterviewShell = ({
   onRequestAsset,
   flags,
 }: InterviewShellProps) => {
+  // Anchor onSync in a ref so the store factory receives a stable callback
+  // (the sync middleware closes over it once at store creation). Hosts
+  // commonly pass an inline arrow, which would otherwise force the store to
+  // be recreated on every host re-render.
+  const onSyncRef = useRef(onSync);
+  onSyncRef.current = onSync;
+  const stableOnSync = useCallback<SyncHandler>(
+    (...args) => onSyncRef.current(...args),
+    [],
+  );
+
+  const reduxStore = useMemo(
+    () =>
+      store(payload, {
+        onSync: stableOnSync,
+        isDevelopment: flags?.isDevelopment,
+      }),
+    [payload, stableOnSync, flags?.isDevelopment],
+  );
+
   return (
-    <Provider store={store(payload, { onSync })}>
+    <Provider store={reduxStore}>
       <ContractProvider
         onFinish={onFinish}
         onRequestAsset={onRequestAsset}

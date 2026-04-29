@@ -1,7 +1,6 @@
 import {
+  type CurrentProtocol,
   CurrentProtocolSchema,
-  type VersionedProtocol,
-  VersionedProtocolSchema,
 } from '@codaco/protocol-validation';
 import { NcNetworkSchema } from '@codaco/shared-consts';
 import { PrismaNeon } from '@prisma/adapter-neon';
@@ -136,71 +135,98 @@ const createPrismaClient = () => {
           },
         },
       },
-      protocol: {
-        stages: {
-          needs: {
-            name: true,
-            schemaVersion: true,
-            stages: true,
-            codebook: true,
-          },
-          compute: ({ name, schemaVersion, stages, codebook }) => {
-            const parsed = safeParseField(
-              VersionedProtocolSchema,
-              { name, schemaVersion, stages, codebook, experiments: {} },
-              'protocol.stages',
-              null,
-            );
-            return parsed?.stages ?? [];
-          },
-        },
-        codebook: {
-          needs: {
-            name: true,
-            schemaVersion: true,
-            codebook: true,
-          },
-          compute: ({
-            name,
-            schemaVersion,
-            codebook,
-          }): VersionedProtocol['codebook'] => {
-            const parsed = safeParseField(
-              VersionedProtocolSchema,
-              { name, schemaVersion, stages: [], codebook, experiments: {} },
-              'protocol.codebook',
-              null,
-            );
-            return (
-              parsed?.codebook ??
-              ({ edge: {}, node: {} } as VersionedProtocol['codebook'])
-            );
-          },
-        },
-        experiments: {
-          needs: {
-            name: true,
-            schemaVersion: true,
-            experiments: true,
-          },
-          compute: ({ name, schemaVersion, experiments }) => {
-            if (schemaVersion < 8 || !experiments) {
-              return {};
-            }
-
-            const parsed = safeParseField(
-              CurrentProtocolSchema,
-              { name, schemaVersion, stages: [], codebook: {}, experiments },
-              'protocol.experiments',
-              null,
-            );
-            return parsed?.experiments ?? {};
-          },
-        },
-      },
+      protocol: protocolJsonExtensions('protocol'),
+      previewProtocol: protocolJsonExtensions('previewProtocol'),
     },
   });
 };
+
+/**
+ * Returns the result-extension config that parses a protocol model's JSON
+ * fields (stages, codebook, experiments) into structured types using
+ * CurrentProtocolSchema. Shared between Protocol and PreviewProtocol since
+ * both are stored as schema-8 (older protocols are migrated at import).
+ */
+function protocolJsonExtensions(modelName: 'protocol' | 'previewProtocol') {
+  return {
+    stages: {
+      needs: {
+        name: true,
+        schemaVersion: true,
+        stages: true,
+        codebook: true,
+      },
+      compute: ({
+        name,
+        schemaVersion,
+        stages,
+        codebook,
+      }: {
+        name: string;
+        schemaVersion: number;
+        stages: unknown;
+        codebook: unknown;
+      }): CurrentProtocol['stages'] => {
+        const parsed = safeParseField(
+          CurrentProtocolSchema,
+          { name, schemaVersion, stages, codebook, experiments: {} },
+          `${modelName}.stages`,
+          null,
+        );
+        return parsed?.stages ?? [];
+      },
+    },
+    codebook: {
+      needs: {
+        name: true,
+        schemaVersion: true,
+        codebook: true,
+      },
+      compute: ({
+        name,
+        schemaVersion,
+        codebook,
+      }: {
+        name: string;
+        schemaVersion: number;
+        codebook: unknown;
+      }): CurrentProtocol['codebook'] => {
+        const parsed = safeParseField(
+          CurrentProtocolSchema,
+          { name, schemaVersion, stages: [], codebook, experiments: {} },
+          `${modelName}.codebook`,
+          null,
+        );
+        return parsed?.codebook ?? { edge: {}, node: {} };
+      },
+    },
+    experiments: {
+      needs: {
+        name: true,
+        schemaVersion: true,
+        experiments: true,
+      },
+      compute: ({
+        name,
+        schemaVersion,
+        experiments,
+      }: {
+        name: string;
+        schemaVersion: number;
+        experiments: unknown;
+      }): CurrentProtocol['experiments'] => {
+        if (!experiments) return {};
+        const parsed = safeParseField(
+          CurrentProtocolSchema,
+          { name, schemaVersion, stages: [], codebook: {}, experiments },
+          `${modelName}.experiments`,
+          null,
+        );
+        return parsed?.experiments ?? {};
+      },
+    },
+  };
+}
 
 const globalForPrisma = globalThis as unknown as {
   prisma: ReturnType<typeof createPrismaClient> | undefined;

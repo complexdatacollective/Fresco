@@ -1,13 +1,5 @@
-import { type VersionedProtocol } from '@codaco/protocol-validation';
+import { type CurrentProtocol } from '@codaco/protocol-validation';
 import { type SessionState } from '~/lib/interviewer/ducks/modules/session';
-
-/**
- * VersionedProtocol is a discriminated union; standard Omit does not distribute
- * over union members. DistributiveOmit preserves each member's discriminant.
- */
-type DistributiveOmit<T, K extends PropertyKey> = T extends unknown
-  ? Omit<T, K>
-  : never;
 
 /**
  * Package-internal asset representation. Has only the fields the interviewer
@@ -23,12 +15,11 @@ export type ResolvedAsset = {
 
 /**
  * Protocol payload: the validated protocol plus per-interview metadata
- * (id, importedAt) the package carries in its store.
+ * (id, importedAt) the package carries in its store. Always schema 8 —
+ * older protocols are migrated to the current version at import time, so
+ * downstream code never sees a versioned union.
  */
-export type ProtocolPayload = DistributiveOmit<
-  VersionedProtocol,
-  'assetManifest'
-> & {
+export type ProtocolPayload = Omit<CurrentProtocol, 'assetManifest'> & {
   id: string;
   importedAt: string; // ISO
   assets: ResolvedAsset[];
@@ -59,4 +50,5 @@ export type AssetRequestHandler = (assetId: string) => Promise<string>;
 
 export type InterviewerFlags = {
   isE2E?: boolean;
+  isDevelopment?: boolean;
 };

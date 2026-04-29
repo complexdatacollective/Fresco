@@ -24,6 +24,7 @@ const rootReducer = combineReducers({
 
 type StoreOptions = {
   onSync: SyncHandler;
+  isDevelopment?: boolean;
   extraMiddleware?: Middleware[];
 };
 
@@ -41,8 +42,7 @@ export const store = (
           ignoredActions: ['dialogs/addDialog', 'dialogs/open/pending'],
         },
       }).concat(
-        // eslint-disable-next-line no-process-env
-        ...(process.env.NODE_ENV === 'development' ? [logger] : []),
+        ...(options.isDevelopment ? [logger] : []),
         syncMiddleware,
         ...(options.extraMiddleware ?? []),
       ),

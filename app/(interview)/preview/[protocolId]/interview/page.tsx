@@ -106,6 +106,8 @@ async function PreviewContent({
     },
     protocol: {
       ...protocol,
+      schemaVersion: 8,
+      description: protocol.description ?? undefined,
       importedAt: protocol.importedAt.toISOString(),
       assets,
     },

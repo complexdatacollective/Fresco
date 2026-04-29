@@ -62,9 +62,12 @@ export function ContractProvider({
         onFinish: stableOnFinish,
         onRequestAsset: stableOnRequestAsset,
       },
-      flags: { isE2E: flags?.isE2E ?? false },
+      flags: {
+        isE2E: flags?.isE2E ?? false,
+        isDevelopment: flags?.isDevelopment ?? false,
+      },
     }),
-    [stableOnFinish, stableOnRequestAsset, flags?.isE2E],
+    [stableOnFinish, stableOnRequestAsset, flags?.isE2E, flags?.isDevelopment],
   );
 
   return (

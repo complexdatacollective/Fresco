@@ -11,12 +11,11 @@ import type {
   InterviewerFlags,
 } from '~/lib/interviewer/contract/types';
 
-const wrap =
-  (value: {
-    onFinish: FinishHandler;
-    onRequestAsset: AssetRequestHandler;
-    flags?: InterviewerFlags;
-  }) =>
+const wrap = (value: {
+  onFinish: FinishHandler;
+  onRequestAsset: AssetRequestHandler;
+  flags?: InterviewerFlags;
+}) =>
   function Wrapper({ children }: { children: React.ReactNode }) {
     return <ContractProvider {...value}>{children}</ContractProvider>;
   };
@@ -40,12 +39,13 @@ describe('ContractProvider', () => {
     expect(onRequestAsset).toHaveBeenCalledWith('id-1');
   });
 
-  it('exposes flags via useContractFlags with default isE2E=false', () => {
+  it('exposes flags via useContractFlags with defaults isE2E=false and isDevelopment=false', () => {
     const { result } = renderHook(() => useContractFlags(), {
       wrapper: wrap({ onFinish: vi.fn(), onRequestAsset: vi.fn() }),
     });
 
     expect(result.current.isE2E).toBe(false);
+    expect(result.current.isDevelopment).toBe(false);
   });
 
   it('honours provided flags', () => {
@@ -53,11 +53,12 @@ describe('ContractProvider', () => {
       wrapper: wrap({
         onFinish: vi.fn(),
         onRequestAsset: vi.fn(),
-        flags: { isE2E: true },
+        flags: { isE2E: true, isDevelopment: true },
       }),
     });
 
     expect(result.current.isE2E).toBe(true);
+    expect(result.current.isDevelopment).toBe(true);
   });
 
   it('useContractHandlers throws outside provider', () => {
@@ -88,7 +89,9 @@ describe('ContractProvider', () => {
   });
 
   it('stable callback forwards to the latest handler', async () => {
-    let currentHandler = vi.fn<(id: string) => Promise<string>>().mockResolvedValue('a');
+    let currentHandler = vi
+      .fn<(id: string) => Promise<string>>()
+      .mockResolvedValue('a');
 
     function Wrapper({ children }: { children: React.ReactNode }) {
       return (
@@ -109,7 +112,9 @@ describe('ContractProvider', () => {
     expect(currentHandler).toHaveBeenCalledWith('test');
 
     // Swap the handler via closure; the stable callback should forward to it.
-    currentHandler = vi.fn<(id: string) => Promise<string>>().mockResolvedValue('b');
+    currentHandler = vi
+      .fn<(id: string) => Promise<string>>()
+      .mockResolvedValue('b');
     rerender();
 
     const updatedResult = await result.current.onRequestAsset('test-2');
