@@ -38,8 +38,8 @@ const buildXML = (...args: Parameters<typeof graphMLGenerator>) => {
 };
 
 describe('buildGraphML', () => {
-  const edgeType = mockCodebook.edge['mock-edge-type'].name;
-  const nodeType = mockCodebook.node['mock-node-type'].name;
+  const edgeType = mockCodebook.edge!['mock-edge-type']!.name;
+  const nodeType = mockCodebook.node!['mock-node-type']!.name;
   const codebook = mockCodebook as unknown as Codebook; // Codebook type mistakenly requires variables on all entities - fixed in schema 8
   let exportOptions: ExportOptions;
   let xml: Document;

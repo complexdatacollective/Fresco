@@ -1,3 +1,4 @@
+import type { Codebook } from '@codaco/protocol-validation';
 import {
   caseProperty,
   codebookHashProperty,
@@ -11,9 +12,14 @@ import {
   sessionStartTimeProperty,
 } from '@codaco/shared-consts';
 import { groupBy } from 'es-toolkit';
+import type { ExportOptions } from '~/lib/network-exporters/options';
+import type { FormattedSession } from '../../../input';
 import { insertEgoIntoSessionNetworks } from '../../../session/insertEgoIntoSessionNetworks';
 import { resequenceIds } from '../../../session/resequenceIds';
 
+// The mock uses simplified color values and variable types not present in the
+// strict Codebook schema (e.g. 'layout' type, bare 'color' string), so a cast
+// is required — the same approach used in createGraphML.test.ts.
 export const mockCodebook = {
   ego: {
     variables: {
@@ -57,9 +63,9 @@ export const mockCodebook = {
       color: 'color',
     },
   },
-};
+} as unknown as Codebook;
 
-export const mockExportOptions = {
+export const mockExportOptions: ExportOptions = {
   exportGraphML: true,
   exportCSV: true,
   globalOptions: {
@@ -195,9 +201,13 @@ export const mockNetwork2 = {
   },
 };
 
-// Function designed to mirror the flow in FileExportManager.exportSessions()
-export const processMockNetworks = (networkCollection) => {
-  const sessionsWithEgo = insertEgoIntoSessionNetworks(networkCollection);
+// Mirrors the flow in FileExportManager.exportSessions(). The parameter accepts
+// unknown[] because mock session variables use numeric timestamps rather than
+// the string timestamps that FormattedSession requires; callers need not cast.
+export const processMockNetworks = (networkCollection: unknown[]) => {
+  const sessionsWithEgo = insertEgoIntoSessionNetworks(
+    networkCollection as FormattedSession[],
+  );
   const sessionsByProtocol = groupBy(
     sessionsWithEgo,
     (s) => s.sessionVariables[protocolProperty],
