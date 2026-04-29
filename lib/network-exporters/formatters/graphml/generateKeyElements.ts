@@ -8,7 +8,7 @@ import {
 } from '@codaco/shared-consts';
 import { DOMImplementation, type DocumentFragment } from '@xmldom/xmldom';
 import { get } from 'es-toolkit/compat';
-import { getEntityAttributes } from '../../utils/general';
+import { getEntityAttributes } from '~/utils/networkEntities';
 import {
   type EdgeWithResequencedID,
   type ExportOptions,

@@ -5,7 +5,7 @@ import { memo } from 'react';
 import { RenderMarkdown } from '~/components/RenderMarkdown';
 import Heading from '~/components/typography/Heading';
 import useMediaQuery from '~/hooks/useMediaQuery';
-import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
+import { getEntityAttributes } from '~/utils/networkEntities';
 import { cx } from '~/utils/cva';
 import NodeList from '../../../components/NodeList';
 import { usePrompts } from '../../../components/Prompts/usePrompts';

@@ -17,7 +17,7 @@ import {
 } from '~/lib/interviewer/selectors/session';
 import { getNodeLabelAttribute } from '~/lib/interviewer/utils/getNodeLabelAttribute';
 import getParentKeyByNameValue from '~/lib/interviewer/utils/getParentKeyByNameValue';
-import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
+import { getEntityAttributes } from '~/utils/networkEntities';
 import { type NameGeneratorRosterProps } from './helpers';
 
 /**

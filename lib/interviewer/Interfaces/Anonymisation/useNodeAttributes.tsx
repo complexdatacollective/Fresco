@@ -6,7 +6,7 @@ import {
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 import { makeGetCodebookVariablesForNodeType } from '~/lib/interviewer/selectors/protocol';
-import { getEntityAttributes } from '~/lib/network-exporters/utils/general';
+import { getEntityAttributes } from '~/utils/networkEntities';
 import { usePassphrase } from './usePassphrase';
 import { decryptData, UnauthorizedError } from './utils';
 

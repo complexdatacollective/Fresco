@@ -1,15 +1,10 @@
 import {
   caseProperty,
-  entityAttributesProperty,
-  type NcEntity,
   sessionProperty,
 } from '@codaco/shared-consts';
 import { isNil } from 'es-toolkit';
 import sanitizeFilename from 'sanitize-filename';
 import type { ExportFormat, SessionWithResequencedIDs } from './types';
-
-export const getEntityAttributes = (entity: NcEntity) =>
-  entity?.[entityAttributesProperty] || {};
 
 const escapeFilePart = (part: string) => part.replace(/\W/g, '');
 

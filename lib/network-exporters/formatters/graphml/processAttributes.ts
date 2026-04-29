@@ -1,10 +1,8 @@
 import { type Codebook } from '@codaco/protocol-validation';
 import { type NcEgo } from '@codaco/shared-consts';
 import { type DocumentFragment } from '@xmldom/xmldom';
-import {
-  getEntityAttributes,
-  isCategoricalOptionSelected,
-} from '../../utils/general';
+import { getEntityAttributes } from '~/utils/networkEntities';
+import { isCategoricalOptionSelected } from '../../utils/general';
 import {
   type EdgeWithResequencedID,
   type ExportOptions,
