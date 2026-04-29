@@ -2,7 +2,7 @@ import { Effect, Layer, Queue } from 'effect';
 import { describe, expect, it } from 'vitest';
 import { DatabaseError } from '~/lib/network-exporters/errors';
 import type { ExportEvent } from '~/lib/network-exporters/events';
-import { NodeFileSystem } from '~/lib/network-exporters/layers/NodeFileSystem';
+import { NodeFileSystem } from '~/lib/exportLayers/NodeFileSystem';
 import { exportPipeline } from '~/lib/network-exporters/pipeline';
 import { FileStorage } from '~/lib/storage/services/FileStorage';
 import {

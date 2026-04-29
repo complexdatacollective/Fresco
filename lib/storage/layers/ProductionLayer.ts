@@ -1,6 +1,6 @@
 import { Layer } from 'effect';
-import { NodeFileSystem } from '~/lib/network-exporters/layers/NodeFileSystem';
-import { PrismaInterviewRepository } from '~/lib/network-exporters/layers/PrismaInterviewRepository';
+import { NodeFileSystem } from '~/lib/exportLayers/NodeFileSystem';
+import { PrismaInterviewRepository } from '~/lib/exportLayers/PrismaInterviewRepository';
 import { UploadThingAssetStorage } from '~/lib/storage/layers/UploadThingAssetStorage';
 import { UploadThingFileStorage } from '~/lib/storage/layers/UploadThingFileStorage';
 import { S3AssetStorage } from '~/lib/storage/layers/S3AssetStorage';
