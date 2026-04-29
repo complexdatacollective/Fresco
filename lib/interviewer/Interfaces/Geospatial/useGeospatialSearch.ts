@@ -35,7 +35,10 @@ export const useGeospatialSearch = ({
   // We rotate the token when a search is explicitly completed, cleared, or reset
   // to avoid unpredictable billing.
   // https://docs.mapbox.com/api/search/search-box/#session-billing
-  const sessionTokenRef = useRef(crypto.randomUUID());
+  // Use a state initializer so crypto.randomUUID() is only called once (on mount),
+  // not on every render.
+  const [initialSessionToken] = useState(() => crypto.randomUUID());
+  const sessionTokenRef = useRef(initialSessionToken);
 
   // Use the hook from @mapbox/search-js-react
   const searchBox = useSearchBoxCore({
@@ -93,12 +96,14 @@ export const useGeospatialSearch = ({
     reset();
   }, [resetKey, reset]);
 
-  // Cleanup on unmount
+  // Cancel pending debounced fetch when fetchSuggestions changes (new instance
+  // created because accessToken/proximityOption changed) or on unmount.
+  // This prevents a stale debounce timer from updating state with old results.
   useEffect(() => {
     return () => {
-      fetchSuggestionsRef.current?.cancel();
+      fetchSuggestions?.cancel();
     };
-  }, []);
+  }, [fetchSuggestions]);
 
   const handleQueryChange = useCallback(
     (value: string | undefined) => {
