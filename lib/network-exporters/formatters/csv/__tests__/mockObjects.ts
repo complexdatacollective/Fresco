@@ -13,9 +13,9 @@ import {
 } from '@codaco/shared-consts';
 import { groupBy } from 'es-toolkit';
 import type { ExportOptions } from '~/lib/network-exporters/options';
-import type { FormattedSession } from '../../../input';
-import { insertEgoIntoSessionNetworks } from '../../../session/insertEgoIntoSessionNetworks';
-import { resequenceIds } from '../../../session/resequenceIds';
+import type { FormattedSession } from '~/lib/network-exporters/input';
+import { insertEgoIntoSessionNetworks } from '~/lib/network-exporters/session/insertEgoIntoSessionNetworks';
+import { resequenceIds } from '~/lib/network-exporters/session/resequenceIds';
 
 // The mock uses simplified color values and variable types not present in the
 // strict Codebook schema (e.g. 'layout' type, bare 'color' string), so a cast
