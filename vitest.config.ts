@@ -23,7 +23,7 @@ export default defineConfig({
   //
   // - `fuse.js` is imported only from `lib/collection/filtering/search.worker.ts`;
   //   Vite's scanner doesn't crawl into web workers.
-  // - `d3-force` is imported lazily by `lib/pedigree-layout`, which only
+  // - `d3-force` is imported lazily by the FamilyPedigree pedigree-layout, which only
   //   mounts after a specific story runs.
   optimizeDeps: {
     include: ['d3-force', 'fuse.js'],

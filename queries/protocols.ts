@@ -5,6 +5,7 @@ import { prisma } from '~/lib/db';
 
 async function prisma_getProtocols() {
   return prisma.protocol.findMany({
+    where: { isPreview: false },
     include: {
       interviews: true,
     },
@@ -28,16 +29,10 @@ export type GetProtocolsReturnType = ReturnType<typeof getProtocols>;
 export const getExistingAssets = async (assetIds: string[]) => {
   return prisma.asset.findMany({
     where: {
-      assetId: {
-        in: assetIds,
-      },
-      // Asset is safe to reuse if it's associated with:
-      // - Any regular protocol, OR
-      // - A non-pending preview protocol (completed upload)
-      OR: [
-        { protocols: { some: {} } },
-        { previewProtocols: { some: { isPending: false } } },
-      ],
+      assetId: { in: assetIds },
+      // Asset is safe to reuse if it's attached to any non-pending protocol
+      // (a pending preview is still mid-upload — its assets aren't confirmed).
+      protocols: { some: { isPending: false } },
     },
     select: {
       assetId: true,
@@ -49,10 +44,12 @@ export const getExistingAssets = async (assetIds: string[]) => {
 };
 
 /**
- * Fetches the preview protocol with assets for preview mode.
+ * Fetches a protocol with assets for preview mode. Returns any protocol
+ * (preview or regular) — the preview API may route here when an uploaded
+ * preview's hash matches an installed protocol.
  */
 export async function getProtocolForPreview(protocolId: string) {
-  return prisma.previewProtocol.findUnique({
+  return prisma.protocol.findUnique({
     where: { id: protocolId },
     include: { assets: true },
     omit: {

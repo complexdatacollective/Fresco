@@ -43,7 +43,7 @@ const InformationStoryWrapper = (args: StoryArgs) => {
 
   return (
     <div className="flex h-dvh w-full">
-      <StoryInterviewShell rawPayload={rawPayload} disableSync />
+      <StoryInterviewShell rawPayload={rawPayload} />
     </div>
   );
 };

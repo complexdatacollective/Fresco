@@ -17,12 +17,6 @@ import { createSyncMiddleware } from '~/lib/interviewer/middleware/syncMiddlewar
 
 // --- Helpers ---
 
-type FetchInit = { body: string };
-
-function parseFetchBody(call: unknown[]): Record<string, unknown> {
-  return JSON.parse((call[1] as FetchInit).body) as Record<string, unknown>;
-}
-
 function makeSession(overrides: Partial<SessionState> = {}): SessionState {
   return {
     id: 'interview-1',
@@ -64,18 +58,16 @@ function createTestStore(
 
 // --- Test suite ---
 
-let fetchMock: Mock;
+let onSyncMock: Mock;
 let middleware: ReturnType<typeof createSyncMiddleware>;
 
 beforeEach(() => {
   vi.useFakeTimers();
-  fetchMock = vi.fn().mockResolvedValue({ ok: true });
-  vi.stubGlobal('fetch', fetchMock);
-  // Suppress console noise from syncFn
+  onSyncMock = vi.fn().mockResolvedValue(undefined);
   vi.spyOn(console, 'log').mockImplementation(vi.fn());
   vi.spyOn(console, 'error').mockImplementation(vi.fn());
 
-  middleware = createSyncMiddleware();
+  middleware = createSyncMiddleware({ onSync: onSyncMock });
 });
 
 afterEach(() => {
@@ -90,13 +82,15 @@ describe('syncMiddleware', () => {
     store.dispatch(mutateSession({ currentStep: 1 }));
 
     // Leading edge fires synchronously inside the debounce call, which
-    // triggers the async syncFn. Flush the microtask queue so the fetch
-    // mock is invoked.
+    // triggers the async onSync. Flush the microtask queue so the mock
+    // is invoked.
     await vi.advanceTimersByTimeAsync(0);
 
-    expect(fetchMock).toHaveBeenCalledTimes(1);
-    const body = parseFetchBody(fetchMock.mock.calls[0]!);
-    expect(body.currentStep).toBe(1);
+    expect(onSyncMock).toHaveBeenCalledTimes(1);
+    expect(onSyncMock).toHaveBeenCalledWith(
+      'interview-1',
+      expect.objectContaining({ currentStep: 1 }),
+    );
   });
 
   it('does not sync when only promptIndex changes', async () => {
@@ -105,7 +99,7 @@ describe('syncMiddleware', () => {
     store.dispatch(mutateSession({ promptIndex: 5 }));
     await vi.advanceTimersByTimeAsync(3000);
 
-    expect(fetchMock).not.toHaveBeenCalled();
+    expect(onSyncMock).not.toHaveBeenCalled();
   });
 
   it('batches rapid changes and sends latest state on trailing edge', async () => {
@@ -114,7 +108,7 @@ describe('syncMiddleware', () => {
     // First change → leading edge sync
     store.dispatch(mutateSession({ currentStep: 1 }));
     await vi.advanceTimersByTimeAsync(0);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(onSyncMock).toHaveBeenCalledTimes(1);
 
     // Rapid subsequent changes within the 3s debounce window
     store.dispatch(mutateSession({ currentStep: 2 }));
@@ -122,23 +116,25 @@ describe('syncMiddleware', () => {
     await vi.advanceTimersByTimeAsync(0);
 
     // Still only the initial sync — debounce absorbs these
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(onSyncMock).toHaveBeenCalledTimes(1);
 
     // Advance past the debounce window → trailing edge fires
     await vi.advanceTimersByTimeAsync(3000);
 
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-    const trailingBody = parseFetchBody(fetchMock.mock.calls[1]!);
-    expect(trailingBody.currentStep).toBe(3);
+    expect(onSyncMock).toHaveBeenCalledTimes(2);
+    expect(onSyncMock).toHaveBeenLastCalledWith(
+      'interview-1',
+      expect.objectContaining({ currentStep: 3 }),
+    );
   });
 
   it('does not lose changes made during an in-flight sync', async () => {
-    // Create a fetch that we can resolve manually to control timing
+    // Create an onSync that we can resolve manually to control timing
     let resolveSync!: () => void;
-    fetchMock.mockImplementation(
+    onSyncMock.mockImplementation(
       () =>
-        new Promise<Response>((resolve) => {
-          resolveSync = () => resolve(new Response('ok', { status: 200 }));
+        new Promise<void>((resolve) => {
+          resolveSync = resolve;
         }),
     );
 
@@ -147,7 +143,7 @@ describe('syncMiddleware', () => {
     // First change → leading edge sync starts (in-flight)
     store.dispatch(mutateSession({ currentStep: 1 }));
     await vi.advanceTimersByTimeAsync(0);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(onSyncMock).toHaveBeenCalledTimes(1);
 
     // Change state while sync is in-flight
     store.dispatch(mutateSession({ currentStep: 2 }));
@@ -160,18 +156,20 @@ describe('syncMiddleware', () => {
 
     // Advance past the debounce window so the trailing edge fires
     await vi.advanceTimersByTimeAsync(3000);
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-    const followUpBody = parseFetchBody(fetchMock.mock.calls[1]!);
-    expect(followUpBody.currentStep).toBe(2);
+    expect(onSyncMock).toHaveBeenCalledTimes(2);
+    expect(onSyncMock).toHaveBeenLastCalledWith(
+      'interview-1',
+      expect.objectContaining({ currentStep: 2 }),
+    );
   });
 
   it('reads current state at sync time, not at dispatch time', async () => {
-    // Slow fetch so we can observe the trailing edge behavior
-    fetchMock.mockImplementation(
+    // Slow onSync so we can observe the trailing edge behavior
+    onSyncMock.mockImplementation(
       () =>
-        new Promise<Response>((resolve) =>
+        new Promise<void>((resolve) =>
           // Resolve after a short delay
-          setTimeout(() => resolve(new Response('ok', { status: 200 })), 100),
+          setTimeout(resolve, 100),
         ),
     );
 
@@ -191,8 +189,10 @@ describe('syncMiddleware', () => {
     await vi.advanceTimersByTimeAsync(3000);
 
     // The trailing edge should have the latest state (currentStep: 5)
-    const body = parseFetchBody(fetchMock.mock.calls.at(-1)!);
-    expect(body.currentStep).toBe(5);
+    expect(onSyncMock).toHaveBeenLastCalledWith(
+      expect.any(String),
+      expect.objectContaining({ currentStep: 5 }),
+    );
   });
 
   it('resets state when a new store connects', async () => {
@@ -201,7 +201,7 @@ describe('syncMiddleware', () => {
     // Trigger a sync on store 1
     store1.dispatch(mutateSession({ currentStep: 1 }));
     await vi.advanceTimersByTimeAsync(0);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(onSyncMock).toHaveBeenCalledTimes(1);
 
     // Create a new store with the same middleware (simulates navigating
     // to a new interview). The middleware should reset its internal state.
@@ -215,9 +215,11 @@ describe('syncMiddleware', () => {
     store2.dispatch(mutateSession({ currentStep: 1 }));
     await vi.advanceTimersByTimeAsync(0);
 
-    expect(fetchMock).toHaveBeenCalledTimes(2);
-    const body = parseFetchBody(fetchMock.mock.calls[1]!);
-    expect(body.id).toBe('interview-2');
+    expect(onSyncMock).toHaveBeenCalledTimes(2);
+    expect(onSyncMock).toHaveBeenLastCalledWith(
+      'interview-2',
+      expect.objectContaining({ id: 'interview-2' }),
+    );
   });
 
   it('cancels pending debounce timers when a new store connects', async () => {
@@ -227,7 +229,7 @@ describe('syncMiddleware', () => {
     store1.dispatch(mutateSession({ currentStep: 1 }));
     store1.dispatch(mutateSession({ currentStep: 2 }));
     await vi.advanceTimersByTimeAsync(0);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(onSyncMock).toHaveBeenCalledTimes(1);
 
     // Connect a new store before the trailing edge fires
     createTestStore(
@@ -240,24 +242,24 @@ describe('syncMiddleware', () => {
 
     // The trailing edge from store 1 should NOT have fired — it was
     // cancelled when store 2 connected.
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(onSyncMock).toHaveBeenCalledTimes(1);
   });
 
   it('handles sync errors without breaking subsequent syncs', async () => {
-    fetchMock.mockRejectedValueOnce(new Error('Network error'));
+    onSyncMock.mockRejectedValueOnce(new Error('Network error'));
 
     const store = createTestStore(middleware);
 
     // First sync fails
     store.dispatch(mutateSession({ currentStep: 1 }));
     await vi.advanceTimersByTimeAsync(0);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(onSyncMock).toHaveBeenCalledTimes(1);
 
     // Second change should still trigger a sync
     store.dispatch(mutateSession({ currentStep: 2 }));
     await vi.advanceTimersByTimeAsync(3000);
 
-    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(onSyncMock).toHaveBeenCalledTimes(2);
   });
 
   it('does not sync when state is identical to last synced state', async () => {
@@ -265,7 +267,7 @@ describe('syncMiddleware', () => {
 
     store.dispatch(mutateSession({ currentStep: 1 }));
     await vi.advanceTimersByTimeAsync(0);
-    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(onSyncMock).toHaveBeenCalledTimes(1);
 
     // Advance past debounce to clear the timer
     await vi.advanceTimersByTimeAsync(3000);
@@ -280,21 +282,16 @@ describe('syncMiddleware', () => {
 
     // The trailing from the first cycle may fire, but the second dispatch
     // should not produce an additional sync because the values match.
-    const syncCallsWithStep1 = fetchMock.mock.calls.filter(
-      (call: unknown[]) => {
-        const body = parseFetchBody(call);
-        return body.currentStep === 1;
-      },
-    );
+    const callsWithStep1 = (
+      onSyncMock.mock.calls as [string, SessionState][]
+    ).filter((call) => call[1].currentStep === 1);
     // At most the leading + trailing of the first cycle
-    expect(syncCallsWithStep1.length).toBeLessThanOrEqual(2);
+    expect(callsWithStep1.length).toBeLessThanOrEqual(2);
 
     // No call should have been made for the second dispatch
-    const allBodies = fetchMock.mock.calls.map((call: unknown[]) =>
-      parseFetchBody(call),
+    const allSteps = (onSyncMock.mock.calls as [string, SessionState][]).map(
+      (call) => call[1].currentStep,
     );
-    expect(
-      allBodies.every((b: Record<string, unknown>) => b.currentStep === 1),
-    ).toBe(true);
+    expect(allSteps.every((step) => step === 1)).toBe(true);
   });
 });

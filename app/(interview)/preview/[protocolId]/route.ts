@@ -26,8 +26,9 @@ const handler = async (
     return NextResponse.redirect(url);
   }
 
-  // Verify that this is a preview protocol
-  const protocol = await prisma.previewProtocol.findUnique({
+  // Lookup any protocol (preview or regular) — initialize-preview can route
+  // here when the uploaded protocol's hash matches an installed one.
+  const protocol = await prisma.protocol.findUnique({
     where: { id: protocolId },
     select: { isPending: true, name: true },
   });
@@ -38,15 +39,13 @@ const handler = async (
   }
 
   if (protocol.isPending) {
-    // Protocol assets are still being uploaded
+    // Preview protocol assets are still being uploaded
     url.pathname = '/onboard/error';
     return NextResponse.redirect(url);
   }
 
   // eslint-disable-next-line no-console
-  console.log(
-    `🎨 Starting preview interview using preview protocol ${protocol.name}...`,
-  );
+  console.log(`🎨 Starting preview interview using protocol ${protocol.name}...`);
 
   after(async () => {
     await captureEvent('InterviewStarted', {

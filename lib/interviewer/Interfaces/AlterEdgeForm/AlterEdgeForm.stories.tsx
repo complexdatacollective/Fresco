@@ -103,7 +103,7 @@ const AlterEdgeFormStoryWrapper = (args: StoryArgs) => {
       <StoryInterviewShell
         key={configKey}
         rawPayload={rawPayload}
-        disableSync
+       
         onAction={onAction}
       />
     </div>
@@ -234,7 +234,7 @@ const WithValidationWrapper = () => {
     <div className="flex h-dvh w-full">
       <StoryInterviewShell
         rawPayload={rawPayload}
-        disableSync
+       
         onAction={onAction}
       />
     </div>

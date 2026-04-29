@@ -3,6 +3,7 @@ import { type NcNode } from '@codaco/shared-consts';
 import posthog from 'posthog-js';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
+import { useContractHandlers } from '~/lib/interviewer/contract/context';
 import { getVariableTypeReplacements } from '~/lib/interviewer/utils/externalData';
 import { ensureError } from '~/utils/ensureError';
 import { getAssetManifest, getCodebook } from '../ducks/modules/protocol';
@@ -16,6 +17,7 @@ const useExternalData = (
 ) => {
   const assetManifest = useSelector(getAssetManifest);
   const codebook = useSelector(getCodebook);
+  const { onRequestAsset } = useContractHandlers();
 
   const [externalData, setExternalData] = useState<NcNode[] | null>(null);
   const [status, setStatus] = useState<{
@@ -23,60 +25,65 @@ const useExternalData = (
     error: Error | null;
   }>({ isLoading: false, error: null });
 
-  const updateStatus = (newStatus: {
-    isLoading?: boolean;
-    error?: Error | null;
-  }) =>
-    setStatus((s: { isLoading: boolean; error: Error | null }) => ({
-      ...s,
-      ...newStatus,
-    }));
-
   useEffect(() => {
     if (
       !dataSource ||
       dataSource === 'existing' ||
       !subject ||
-      subject.entity === 'ego' // Only run this when the stage subject is a node or edge
+      subject.entity === 'ego'
     ) {
       return;
     }
-    // This is where we could set the loading state for URL assets
+
+    let cancelled = false;
+
     setExternalData(null);
-    updateStatus({ isLoading: true, error: null });
+    setStatus({ isLoading: true, error: null });
 
-    const { url, name } = assetManifest[dataSource]!;
+    const asset = assetManifest[dataSource];
+    if (!asset) {
+      setStatus({
+        isLoading: false,
+        error: new Error(`Unknown asset id: ${String(dataSource)}`),
+      });
+      return () => {
+        cancelled = true;
+      };
+    }
 
-    const variableUUIDReplacer = makeVariableUUIDReplacer(
-      codebook,
-      subject.type,
-    );
-
-    loadExternalData(name, url)
-      .then(({ nodes }) => nodes.map(variableUUIDReplacer))
-      .then((uuidData) =>
-        getVariableTypeReplacements(name, uuidData, codebook, subject),
-      )
-      .then((formattedData) => setExternalData(formattedData))
-      .then(() => updateStatus({ isLoading: false }))
-      .catch((e) => {
+    void (async () => {
+      try {
+        const url = await onRequestAsset(asset.assetId);
+        const { nodes } = await loadExternalData(asset.name, url);
+        const replacer = makeVariableUUIDReplacer(codebook, subject.type);
+        const uuidData = nodes.map(replacer);
+        const formatted = getVariableTypeReplacements(
+          asset.name,
+          uuidData,
+          codebook,
+          subject,
+        );
+        if (!cancelled) {
+          setExternalData(formatted);
+          setStatus({ isLoading: false, error: null });
+        }
+      } catch (e) {
         const error = ensureError(e);
         posthog.captureException(error, {
-          tags: {
-            feature: 'external-data',
-            dataSource,
-          },
+          tags: { feature: 'external-data', dataSource: String(dataSource) },
         });
         // eslint-disable-next-line no-console
-        console.error(e);
-        updateStatus({ isLoading: false, error: error });
-      });
-  }, [dataSource, assetManifest, codebook, subject]);
+        console.error(error);
+        if (!cancelled) setStatus({ isLoading: false, error });
+      }
+    })();
 
-  return {
-    externalData,
-    status,
-  };
+    return () => {
+      cancelled = true;
+    };
+  }, [dataSource, assetManifest, codebook, subject, onRequestAsset]);
+
+  return { externalData, status };
 };
 
 export default useExternalData;

@@ -12,9 +12,9 @@ import {
   createCanvasStore,
   useCanvasStore,
 } from '~/lib/interviewer/canvas/useCanvasStore';
+import { useAssetUrl } from '~/lib/interviewer/hooks/useAssetUrl';
 import ConcentricCircles from '~/lib/interviewer/components/ConcentricCircles';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
-import { getAssetUrlFromId } from '~/lib/interviewer/ducks/modules/protocol';
 import {
   toggleEdge,
   toggleNodeAttributes,
@@ -44,8 +44,6 @@ const Sociogram = (stageProps: SociogramProps) => {
 
   const interfaceRef = useRef<HTMLDivElement>(null);
 
-  const getAssetUrl = useSelector(getAssetUrlFromId);
-
   // Behaviour Configuration
   const allowHighlighting = get(prompt, 'highlight.allowHighlighting', false);
   const createEdge = get(prompt, 'edges.create', null);
@@ -60,8 +58,8 @@ const Sociogram = (stageProps: SociogramProps) => {
     : 'MANUAL';
 
   // Background Configuration
-  const bgImageId = get(stage, 'background.image', '');
-  const backgroundImage = bgImageId ? (getAssetUrl(bgImageId) ?? null) : null;
+  const bgImageId = get(stage, 'background.image', '') || undefined;
+  const { url: backgroundImage } = useAssetUrl(bgImageId);
   const concentricCircles = get(stage, 'background.concentricCircles');
   const skewedTowardCenter = get(stage, 'background.skewedTowardCenter');
 

@@ -3,52 +3,35 @@
 import { type Middleware } from '@reduxjs/toolkit';
 import { debounce, isEqual, omit } from 'es-toolkit';
 import posthog from 'posthog-js';
-import { type SessionState } from '~/lib/interviewer/ducks/modules/session';
+import type {
+  SessionPayload,
+  SyncHandler,
+} from '~/lib/interviewer/contract/types';
 import { ensureError } from '~/utils/ensureError';
 
-type SyncMiddlewareState = { session: SessionState };
+type SyncMiddlewareState = { session: SessionPayload };
 
-const syncFn = async (id: string, data: SessionState) => {
-  // eslint-disable-next-line no-console
-  console.log('🚀 Syncing data with server...');
-  const response = await fetch(`/interview/${id}/sync`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-
-  if (!response.ok) {
-    throw new Error('Network response was not ok');
-  }
-
-  // eslint-disable-next-line no-console
-  console.log('✅ Data synced successfully');
-};
-
-const sessionChanged = (a: SessionState, b: SessionState) =>
+const sessionChanged = (a: SessionPayload, b: SessionPayload) =>
   !isEqual(omit(a, ['promptIndex']), omit(b, ['promptIndex']));
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
-export const createSyncMiddleware = (): Middleware<{}, SyncMiddlewareState> => {
-  let lastSyncedState = {} as SessionState;
+export const createSyncMiddleware = ({
+  onSync,
+}: {
+  onSync: SyncHandler;
+}): Middleware<Record<string, never>, SyncMiddlewareState> => {
+  let lastSyncedState = {} as SessionPayload;
   let isSyncing = false;
   let storeRef: { getState: () => SyncMiddlewareState } | null = null;
 
   const doSync = () => {
     if (isSyncing || !storeRef) return;
-
     const session = storeRef.getState().session;
-
-    if (!sessionChanged(session, lastSyncedState)) {
-      return;
-    }
+    if (!sessionChanged(session, lastSyncedState)) return;
 
     isSyncing = true;
     lastSyncedState = session;
 
-    syncFn(session.id, session)
+    onSync(session.id, session)
       .catch((e) => {
         const error = ensureError(e);
         // eslint-disable-next-line no-console
@@ -57,9 +40,6 @@ export const createSyncMiddleware = (): Middleware<{}, SyncMiddlewareState> => {
       })
       .finally(() => {
         isSyncing = false;
-
-        // If state changed during sync, schedule a follow-up so changes
-        // that arrived while the request was in-flight are never lost.
         if (
           storeRef &&
           sessionChanged(storeRef.getState().session, lastSyncedState)
@@ -75,26 +55,15 @@ export const createSyncMiddleware = (): Middleware<{}, SyncMiddlewareState> => {
 
   return (store) => {
     storeRef = store;
-    // Reset per-store state so a previous interview's sync state doesn't
-    // leak into a new one.
     lastSyncedState = store.getState().session;
     isSyncing = false;
     debouncedSync.cancel();
 
     return (next) => (action: unknown) => {
       const result = next(action);
-
       const state = store.getState();
-
-      if (!sessionChanged(state.session, lastSyncedState)) {
-        return result;
-      }
-
-      // Let the debounce handle rate-limiting. doSync reads current state
-      // at execution time (not captured here), so the trailing edge always
-      // sends the latest state.
+      if (!sessionChanged(state.session, lastSyncedState)) return result;
       debouncedSync();
-
       return result;
     };
   };

@@ -1,0 +1,199 @@
+/* eslint-disable no-console */
+import { DeleteObjectsCommand, S3Client } from '@aws-sdk/client-s3';
+import { migrateProtocol } from '@codaco/protocol-validation';
+import { UTApi } from 'uploadthing/server';
+import { Prisma, type PrismaClient } from '~/lib/db/generated/client';
+import { type AppSetting } from '~/lib/db/generated/enums';
+import { hashProtocol } from '~/lib/protocol/hashProtocol';
+
+const STORAGE_SETTING_KEYS: AppSetting[] = [
+  'storageProvider',
+  'uploadThingToken',
+  's3Endpoint',
+  's3Region',
+  's3Bucket',
+  's3AccessKeyId',
+  's3SecretAccessKey',
+];
+
+// Inlined SDK construction rather than reusing lib/storage/* — those layers
+// depend on `'use cache'`, `'use server'`, and the serverless Prisma adapter,
+// none of which work in this tsx CLI context.
+async function deleteOrphanBlobs(
+  prisma: PrismaClient,
+  keys: string[],
+): Promise<void> {
+  if (keys.length === 0) return;
+
+  const settings = await prisma.appSettings.findMany({
+    where: { key: { in: STORAGE_SETTING_KEYS } },
+  });
+  const map = Object.fromEntries(settings.map((s) => [s.key, s.value]));
+  const provider = map.storageProvider ?? 'uploadthing';
+
+  try {
+    if (provider === 'uploadthing') {
+      if (!map.uploadThingToken) {
+        throw new Error('uploadThingToken is not configured');
+      }
+      const utapi = new UTApi({ token: map.uploadThingToken });
+      await utapi.deleteFiles(keys);
+    } else {
+      if (
+        !map.s3Endpoint ||
+        !map.s3Region ||
+        !map.s3Bucket ||
+        !map.s3AccessKeyId ||
+        !map.s3SecretAccessKey
+      ) {
+        throw new Error('S3 credentials are not configured');
+      }
+      const client = new S3Client({
+        endpoint: map.s3Endpoint,
+        region: map.s3Region,
+        credentials: {
+          accessKeyId: map.s3AccessKeyId,
+          secretAccessKey: map.s3SecretAccessKey,
+        },
+        forcePathStyle: true,
+      });
+      await client.send(
+        new DeleteObjectsCommand({
+          Bucket: map.s3Bucket,
+          Delete: { Objects: keys.map((Key) => ({ Key })) },
+        }),
+      );
+    }
+
+    console.log(`Deleted ${keys.length} orphan blobs from ${provider}`);
+  } catch (err) {
+    console.error('Blob cleanup failed (continuing):', err);
+  }
+}
+
+async function migrateOneProtocol(
+  prisma: PrismaClient,
+  row: {
+    id: string;
+    name: string;
+    schemaVersion: number;
+    stages: unknown;
+    codebook: unknown;
+  },
+): Promise<void> {
+  const cleanName = row.name.replace(/\.netcanvas$/i, '');
+
+  const reconstructed = {
+    name: cleanName,
+    schemaVersion: row.schemaVersion,
+    stages: row.stages,
+    codebook: row.codebook,
+  };
+
+  let migrated: ReturnType<typeof migrateProtocol>;
+  try {
+    migrated = migrateProtocol(reconstructed, 8, { name: cleanName });
+  } catch (err) {
+    const cause = err instanceof Error ? err.message : String(err);
+    throw new Error(
+      `Failed to migrate protocol "${row.name}" (id=${row.id}): ${cause}`,
+    );
+  }
+  const newHash = hashProtocol(migrated);
+
+  try {
+    await prisma.protocol.update({
+      where: { id: row.id },
+      data: {
+        schemaVersion: 8,
+        stages: migrated.stages,
+        codebook: migrated.codebook,
+        experiments: migrated.experiments ?? Prisma.JsonNull,
+        hash: newHash,
+      },
+    });
+  } catch (err) {
+    if (
+      err instanceof Prisma.PrismaClientKnownRequestError &&
+      err.code === 'P2002'
+    ) {
+      const collider = await prisma.protocol.findFirst({
+        where: { hash: newHash },
+        select: { id: true, name: true },
+      });
+      throw new Error(
+        `Hash collision migrating "${row.name}" (id=${row.id}): ` +
+          `migrated hash ${newHash} already exists on protocol "${collider?.name ?? '?'}" (id=${collider?.id ?? '?'})`,
+      );
+    }
+    throw err;
+  }
+
+  console.log(
+    `Migrated "${row.name}" (id=${row.id})... ok (new hash: ${newHash.slice(0, 8)}...)`,
+  );
+}
+
+/**
+ * Delete preview protocols (cleaning up orphan assets + blobs) and migrate
+ * any installed Protocol rows at schemaVersion < 8 up to v8.
+ *
+ * Idempotent. Hard-fails per protocol on migration errors. Best-effort on
+ * blob storage deletions.
+ */
+export async function migrateProtocolsToV8(
+  prisma: PrismaClient,
+): Promise<void> {
+  // Find Asset rows attached only to preview protocols (not shared with any
+  // installed protocol). These are about to become orphans.
+  const orphanAssets = await prisma.asset.findMany({
+    where: {
+      protocols: { some: { isPreview: true } },
+      AND: { protocols: { every: { isPreview: true } } },
+    },
+    select: { key: true },
+  });
+  const orphanKeys = orphanAssets.map((a) => a.key);
+
+  // Delete all preview protocols. Their join-table rows cascade, leaving the
+  // orphan Asset rows truly unreferenced.
+  const previewDeleteResult = await prisma.protocol.deleteMany({
+    where: { isPreview: true },
+  });
+  console.log(
+    `Deleted ${previewDeleteResult.count} preview Protocol rows, ${orphanKeys.length} orphan asset candidates`,
+  );
+
+  await deleteOrphanBlobs(prisma, orphanKeys);
+
+  if (orphanKeys.length > 0) {
+    await prisma.asset.deleteMany({ where: { key: { in: orphanKeys } } });
+    console.log(`Deleted ${orphanKeys.length} orphan Asset rows`);
+  }
+
+  const v7Protocols = await prisma.protocol.findMany({
+    where: { schemaVersion: { lt: 8 }, isPreview: false },
+    select: {
+      id: true,
+      name: true,
+      schemaVersion: true,
+      stages: true,
+      codebook: true,
+    },
+  });
+
+  if (v7Protocols.length === 0) {
+    console.log('No protocols at schemaVersion < 8 to migrate.');
+    return;
+  }
+
+  console.log(
+    `Found ${v7Protocols.length} protocols at schemaVersion < 8. Migrating to v8...`,
+  );
+
+  for (const row of v7Protocols) {
+    await migrateOneProtocol(prisma, row);
+  }
+
+  console.log(`Migrated ${v7Protocols.length} protocols.`);
+}

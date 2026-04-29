@@ -1,12 +1,12 @@
 'use server';
 
 import { Effect } from 'effect';
-import { hash } from 'ohash';
 import { type z } from 'zod';
 import { requireApiAuth } from '~/lib/auth/guards';
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { Prisma } from '~/lib/db/generated/client';
+import { hashProtocol } from '~/lib/protocol/hashProtocol';
 import { getStorageLayer } from '~/lib/storage/layers/StorageLayer';
 import { AssetStorage } from '~/lib/storage/services/AssetStorage';
 import { type protocolInsertSchema } from '~/schemas/protocol';
@@ -162,7 +162,7 @@ export async function insertProtocol(
   const { protocol, protocolName, newAssets, existingAssetIds } = input;
 
   try {
-    const protocolHash = hash(protocol);
+    const protocolHash = hashProtocol(protocol);
 
     await prisma.protocol.create({
       data: {
