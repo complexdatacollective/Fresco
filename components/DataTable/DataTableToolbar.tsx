@@ -8,7 +8,7 @@ import {
   type DataTableSearchableColumn,
 } from '~/components/DataTable/types';
 import { Button } from '~/components/ui/Button';
-import InputField from '~/lib/form/components/fields/InputField';
+import InputField from '~/components/ui/form/components/fields/InputField';
 import { DataTableFacetedFilter } from './DataTableFacetedFilter';
 
 type DataTableToolbarProps<TData> = {

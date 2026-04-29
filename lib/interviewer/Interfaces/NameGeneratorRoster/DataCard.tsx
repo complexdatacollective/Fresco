@@ -1,5 +1,5 @@
 import { type VariableValue } from '@codaco/shared-consts';
-import Heading from '~/components/typography/Heading';
+import Heading from '~/components/ui/typography/Heading';
 import { cx } from '~/utils/cva';
 
 type DataCardDetails = Record<string, VariableValue | undefined>;

@@ -1,8 +1,8 @@
 'use client';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import ProtocolImportDropzone from '~/components/ProtocolImport/ProtocolImportDropzone';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
 import { useProtocolImport } from '~/hooks/useProtocolImport';
 

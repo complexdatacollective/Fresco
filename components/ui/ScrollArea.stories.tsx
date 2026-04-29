@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import { cx } from '~/utils/cva';
 import { ScrollArea, type ScrollAreaProps } from './ScrollArea';
 

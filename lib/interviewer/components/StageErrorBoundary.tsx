@@ -1,9 +1,9 @@
 import posthog from 'posthog-js';
 import React, { Component, type ReactNode } from 'react';
 import CopyDebugInfoButton from '~/components/CopyDebugInfoButton';
-import Surface from '~/components/layout/Surface';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
+import Surface from '~/components/ui/layout/Surface';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import Icon from '~/components/ui/Icon';
 
 type StageErrorBoundaryProps = {

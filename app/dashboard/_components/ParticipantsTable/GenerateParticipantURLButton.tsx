@@ -2,7 +2,7 @@
 
 import { Copy } from 'lucide-react';
 import { memo, useState } from 'react';
-import Paragraph from '~/components/typography/Paragraph';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
 import {
   Popover,
@@ -11,7 +11,7 @@ import {
 } from '~/components/ui/popover';
 import { useToast } from '~/components/ui/Toast';
 import type { Participant, Protocol } from '~/lib/db/generated/client';
-import SelectField from '~/lib/form/components/fields/Select/Native';
+import SelectField from '~/components/ui/form/components/fields/Select/Native';
 import type { ProtocolWithInterviews } from '../ProtocolsTable/ProtocolsTableClient';
 
 export const GenerateParticipationURLButton = memo(

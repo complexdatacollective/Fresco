@@ -4,7 +4,7 @@ import { deleteInterviews } from '~/actions/interviews';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import { Button } from '~/components/ui/Button';
 import type { GetInterviewsQuery } from '~/queries/interviews';
-import Dialog from '~/lib/dialogs/Dialog';
+import Dialog from '~/components/ui/dialogs/Dialog';
 
 type DeleteInterviewsDialog = {
   open: boolean;

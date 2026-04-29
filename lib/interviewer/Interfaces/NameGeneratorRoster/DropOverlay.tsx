@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
-import UINode, { type NodeColorSequence } from '~/components/Node';
-import { useDndStore, type DndStore } from '~/lib/dnd';
+import UINode, { type NodeColorSequence } from '~/components/ui/Node';
+import { useDndStore, type DndStore } from '~/components/ui/dnd';
 
 const variants = {
   visible: { opacity: 1 },

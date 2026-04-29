@@ -13,7 +13,7 @@ import {
 } from 'react';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import SuperJSON from 'superjson';
-import DialogProvider from '~/lib/dialogs/DialogProvider';
+import DialogProvider from '~/components/ui/dialogs/DialogProvider';
 import useMediaQuery from '~/hooks/useMediaQuery';
 import { InterviewToastProvider } from '~/lib/interviewer/components/InterviewToast';
 import Navigation from '~/lib/interviewer/components/Navigation';

@@ -8,7 +8,7 @@ import {
 } from '~/lib/auth/totp';
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
-import { type FormSubmissionResult } from '~/lib/form/store/types';
+import { type FormSubmissionResult } from '~/components/ui/form/store/types';
 import { checkRateLimit, recordLoginAttempt } from '~/lib/rateLimit';
 import { getInstallationId } from '~/queries/appSettings';
 import { verifyTwoFactorSchema } from '~/schemas/totp';

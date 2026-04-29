@@ -4,7 +4,7 @@ import { Tooltip as BaseTooltip } from '@base-ui/react/tooltip';
 import { AnimatePresence } from 'motion/react';
 import * as React from 'react';
 import { cx } from '~/utils/cva';
-import { MotionSurface } from '../layout/Surface';
+import { MotionSurface } from '~/components/ui/layout/Surface';
 
 const TooltipProvider = BaseTooltip.Provider;
 

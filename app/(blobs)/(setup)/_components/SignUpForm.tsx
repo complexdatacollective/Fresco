@@ -12,17 +12,17 @@ import {
   generateSignupRegistrationOptions,
   signupWithPasskey,
 } from '~/actions/webauthn';
-import Field from '~/lib/form/components/Field/Field';
-import FieldGroup from '~/lib/form/components/FieldGroup';
-import InputField from '~/lib/form/components/fields/InputField';
-import PasswordField from '~/lib/form/components/fields/PasswordField';
-import RichSelectGroupField from '~/lib/form/components/fields/RichSelectGroup';
-import Form from '~/lib/form/components/Form';
-import SubmitButton from '~/lib/form/components/SubmitButton';
+import Field from '~/components/ui/form/components/Field/Field';
+import FieldGroup from '~/components/ui/form/components/FieldGroup';
+import InputField from '~/components/ui/form/components/fields/InputField';
+import PasswordField from '~/components/ui/form/components/fields/PasswordField';
+import RichSelectGroupField from '~/components/ui/form/components/fields/RichSelectGroup';
+import Form from '~/components/ui/form/components/Form';
+import SubmitButton from '~/components/ui/form/components/SubmitButton';
 import {
   type FormSubmissionResult,
   type FormSubmitHandler,
-} from '~/lib/form/store/types';
+} from '~/components/ui/form/store/types';
 import { createUserSchema } from '~/schemas/auth';
 
 type SignUpFormProps = {

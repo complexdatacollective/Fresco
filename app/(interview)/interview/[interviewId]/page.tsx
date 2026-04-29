@@ -4,15 +4,15 @@ import { after, connection } from 'next/server';
 import { Suspense } from 'react';
 import SuperJSON from 'superjson';
 import { type ActivityType } from '~/app/dashboard/_components/ActivityFeed/types';
-import Spinner from '~/components/Spinner';
+import Spinner from '~/components/ui/Spinner';
 import { getServerSession } from '~/lib/auth/guards';
 import { safeRevalidateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { captureEvent, shutdownPostHog } from '~/lib/posthog-server';
 import { getAppSetting } from '~/queries/appSettings';
 import {
-  getInterviewById,
-  type GetInterviewByIdQuery,
+    getInterviewById,
+    type GetInterviewByIdQuery,
 } from '~/queries/interviews';
 import InterviewClient from './InterviewClient';
 import { mapInterviewPayload } from './mapInterviewPayload';

@@ -1,26 +1,26 @@
 import {
-  entityAttributesProperty,
-  entityPrimaryKeyProperty,
+    entityAttributesProperty,
+    entityPrimaryKeyProperty,
 } from '@codaco/shared-consts';
 import { AnimatePresence } from 'motion/react';
 import { useCallback, useEffect, useId, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import Node from '~/components/Node';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
+import Node from '~/components/ui/Node';
 import { ResizableFlexPanel } from '~/components/ui/ResizableFlexPanel';
-import { Collection } from '~/lib/collection/components/Collection';
-import { CollectionFilterInput } from '~/lib/collection/components/CollectionFilterInput';
-import { CollectionSortButton } from '~/lib/collection/components/CollectionSortButton';
-import { useDragAndDrop } from '~/lib/collection/dnd/useDragAndDrop';
-import { ListLayout } from '~/lib/collection/layout/ListLayout';
+import { Collection } from '~/components/ui/collection/components/Collection';
+import { CollectionFilterInput } from '~/components/ui/collection/components/CollectionFilterInput';
+import { CollectionSortButton } from '~/components/ui/collection/components/CollectionSortButton';
+import { useDragAndDrop } from '~/components/ui/collection/dnd/useDragAndDrop';
+import { ListLayout } from '~/components/ui/collection/layout/ListLayout';
 import {
-  type SortType as CollectionSortType,
-  type SortableProperty,
-  type SortRule,
-} from '~/lib/collection/sorting/types';
-import { type ItemProps } from '~/lib/collection/types';
-import { useDndStore, type DndStore } from '~/lib/dnd';
+    type SortType as CollectionSortType,
+    type SortableProperty,
+    type SortRule,
+} from '~/components/ui/collection/sorting/types';
+import { type ItemProps } from '~/components/ui/collection/types';
+import { useDndStore, type DndStore } from '~/components/ui/dnd';
 import Loading from '~/lib/interviewer/components/Loading';
 import NodeList from '~/lib/interviewer/components/NodeList';
 import Panel from '~/lib/interviewer/components/Panel';
@@ -30,15 +30,15 @@ import { addNode, deleteNode } from '~/lib/interviewer/ducks/modules/session';
 import useNodeLimits from '~/lib/interviewer/hooks/useNodeLimits';
 import { getNodeVariables } from '~/lib/interviewer/selectors/interface';
 import {
-  getSearchOptions,
-  getSortOptions,
+    getSearchOptions,
+    getSortOptions,
 } from '~/lib/interviewer/selectors/name-generator';
 import { getCodebookVariablesForSubjectType } from '~/lib/interviewer/selectors/protocol';
 import {
-  getNetworkNodesForPrompt,
-  getNodeColorSelector,
-  getPromptAdditionalAttributes,
-  getStageNodeCount,
+    getNetworkNodesForPrompt,
+    getNodeColorSelector,
+    getPromptAdditionalAttributes,
+    getStageNodeCount,
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { mapNCType } from '~/lib/interviewer/utils/createSorter';

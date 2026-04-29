@@ -6,11 +6,11 @@ import {
 import { motion, animate as motionAnimate } from 'motion/react';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Collection } from '~/lib/collection/components/Collection';
-import { useDragAndDrop } from '~/lib/collection/dnd/useDragAndDrop';
-import { InlineGridLayout } from '~/lib/collection/layout/InlineGridLayout';
-import { type CollectionProps, type ItemProps } from '~/lib/collection/types';
-import { type DragMetadata, type DropCallback } from '~/lib/dnd/types';
+import { Collection } from '~/components/ui/collection/components/Collection';
+import { useDragAndDrop } from '~/components/ui/collection/dnd/useDragAndDrop';
+import { InlineGridLayout } from '~/components/ui/collection/layout/InlineGridLayout';
+import { type CollectionProps, type ItemProps } from '~/components/ui/collection/types';
+import { type DragMetadata, type DropCallback } from '~/components/ui/dnd/types';
 import Node from '~/lib/interviewer/components/ConnectedNode';
 import { makeGetCodebookVariablesForNodeType } from '~/lib/interviewer/selectors/protocol';
 import { getNodeLabelAttribute } from '~/lib/interviewer/utils/getNodeLabelAttribute';

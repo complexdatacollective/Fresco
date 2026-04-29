@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import { cx } from '~/utils/cva';
-import { headingVariants } from '../typography/Heading';
+import { headingVariants } from '~/components/ui/typography/Heading';
 
 const Label = React.forwardRef<
   React.ElementRef<'label'>,

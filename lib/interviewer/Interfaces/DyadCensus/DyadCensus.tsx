@@ -1,36 +1,36 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { MotionSurface } from '~/components/layout/Surface';
-import { RenderMarkdown } from '~/components/RenderMarkdown';
-import Heading from '~/components/typography/Heading';
-import BooleanField from '~/lib/form/components/fields/Boolean';
+import { MotionSurface } from '~/components/ui/layout/Surface';
+import Heading from '~/components/ui/typography/Heading';
+import { RenderMarkdown } from '~/components/ui/RenderMarkdown';
+import BooleanField from '~/components/ui/form/components/fields/Boolean';
 import Prompts from '~/lib/interviewer/components/Prompts';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import {
-  addEdge,
-  deleteEdge,
-  edgeExists,
-  updateStageMetadata,
-  type DyadCensusMetadataItem,
+    addEdge,
+    deleteEdge,
+    edgeExists,
+    updateStageMetadata,
+    type DyadCensusMetadataItem,
 } from '~/lib/interviewer/ducks/modules/session';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import useStageValidation from '~/lib/interviewer/hooks/useStageValidation';
 import {
-  getEdgeColorForType,
-  getNetworkEdges,
-  getNetworkNodesForType,
-  getStageMetadata,
+    getEdgeColorForType,
+    getNetworkEdges,
+    getNetworkNodesForType,
+    getStageMetadata,
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { type StageProps } from '~/lib/interviewer/types';
 import { getNodePairs } from '../../selectors/dyad-census';
 import Pair from './components/Pair';
 import {
-  getNodePair,
-  getStageMetadataResponse,
-  isDyadCensusMetadata,
-  matchEntry,
+    getNodePair,
+    getStageMetadataResponse,
+    isDyadCensusMetadata,
+    matchEntry,
 } from './helpers';
 
 const choiceVariants = {

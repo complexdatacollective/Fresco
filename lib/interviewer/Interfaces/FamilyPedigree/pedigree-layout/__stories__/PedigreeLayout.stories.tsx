@@ -1,17 +1,17 @@
+import { type NcEdge, type NcNode } from '@codaco/shared-consts';
 import { faker } from '@faker-js/faker';
 import type { Meta, StoryFn } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
-import Node from '~/components/Node';
+import Node from '~/components/ui/Node';
 import { useNodeMeasurement } from '~/hooks/useNodeMeasurement';
-import { type NcEdge, type NcNode } from '@codaco/shared-consts';
 import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 
-import {
-  AdoptionBrackets,
-  EgoIcon,
-} from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/components/PedigreeNode';
 import PedigreeKey from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/components/PedigreeKey';
 import PedigreeLayout from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/components/PedigreeLayout';
+import {
+    AdoptionBrackets,
+    EgoIcon,
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/components/PedigreeNode';
 
 const meta: Meta = {
   title: 'Systems/PedigreeLayout',

@@ -4,16 +4,16 @@ import { useCallback, useEffect, useState } from 'react';
 import { enableTotp, verifyTotpSetup } from '~/actions/totp';
 import RecoveryCodes from '~/components/RecoveryCodes';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import useDialog from '~/lib/dialogs/useDialog';
-import { useWizard } from '~/lib/dialogs/useWizard';
-import UnconnectedField from '~/lib/form/components/Field/UnconnectedField';
-import InputField from '~/lib/form/components/fields/InputField';
-import SegmentedCodeField from '~/lib/form/components/fields/SegmentedCodeField';
+import useDialog from '~/components/ui/dialogs/useDialog';
+import { useWizard } from '~/components/ui/dialogs/useWizard';
+import UnconnectedField from '~/components/ui/form/components/Field/UnconnectedField';
+import InputField from '~/components/ui/form/components/fields/InputField';
+import SegmentedCodeField from '~/components/ui/form/components/fields/SegmentedCodeField';
 import { cx } from '~/utils/cva';
-import { surfaceSpacingVariants } from './layout/Surface';
-import Spinner from './Spinner';
-import Paragraph from './typography/Paragraph';
+import { surfaceSpacingVariants } from '~/components/ui/layout/Surface';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import Button from './ui/Button';
+import Spinner from './ui/Spinner';
 
 type SetupData = {
   secret: string;

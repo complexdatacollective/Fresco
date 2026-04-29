@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useRef } from 'react';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import { Button } from './Button';
 import { useToast, type ToastVariant } from './Toast';
 

@@ -1,4 +1,4 @@
-import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
+import ResponsiveContainer from '~/components/ui/layout/ResponsiveContainer';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
 import Link from '~/components/ui/Link';
 import { getAppSetting } from '~/queries/appSettings';

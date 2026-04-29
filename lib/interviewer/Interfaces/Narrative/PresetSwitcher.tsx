@@ -7,19 +7,19 @@ import { createSelector } from '@reduxjs/toolkit';
 import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
 import {
-  type ReactNode,
-  type RefObject,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
+    type ReactNode,
+    type RefObject,
+    useCallback,
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
 } from 'react';
 import { useSelector } from 'react-redux';
-import { MotionSurface } from '~/components/layout/Surface';
-import { RenderMarkdown } from '~/components/RenderMarkdown';
-import Heading from '~/components/typography/Heading';
+import { MotionSurface } from '~/components/ui/layout/Surface';
+import Heading from '~/components/ui/typography/Heading';
 import { IconButton } from '~/components/ui/Button';
+import { RenderMarkdown } from '~/components/ui/RenderMarkdown';
 import { type VariableOption } from '~/lib/codebook';
 import { getCodebook } from '~/lib/interviewer/ducks/modules/protocol';
 import { getSubjectType } from '~/lib/interviewer/selectors/session';

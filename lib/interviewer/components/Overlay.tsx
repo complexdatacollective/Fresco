@@ -1,4 +1,4 @@
-import Dialog from '~/lib/dialogs/Dialog';
+import Dialog from '~/components/ui/dialogs/Dialog';
 
 type OverlayProps = {
   children: React.ReactNode;

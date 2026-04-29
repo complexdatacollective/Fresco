@@ -1,5 +1,5 @@
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import StorageProviderSelector from '../StorageProviderSelector';
 
 export default function ConfigureStorage() {

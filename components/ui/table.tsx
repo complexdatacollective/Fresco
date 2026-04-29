@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { cx } from '~/utils/cva';
-import Surface from '../layout/Surface';
+import Surface from '~/components/ui/layout/Surface';
 
 const Table = React.forwardRef<
   HTMLTableElement,

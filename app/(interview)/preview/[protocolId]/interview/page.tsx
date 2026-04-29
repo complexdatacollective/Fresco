@@ -1,17 +1,17 @@
 import {
-  entityAttributesProperty,
-  entityPrimaryKeyProperty,
+    entityAttributesProperty,
+    entityPrimaryKeyProperty,
 } from '@codaco/shared-consts';
 import { notFound } from 'next/navigation';
 import { connection } from 'next/server';
 import { Suspense } from 'react';
 import { v4 as uuid } from 'uuid';
-import Spinner from '~/components/Spinner';
+import Spinner from '~/components/ui/Spinner';
 import { prisma } from '~/lib/db';
 import { isValidAssetType } from '~/lib/interviewer/contract/assets';
 import type {
-  InterviewPayload,
-  ResolvedAsset,
+    InterviewPayload,
+    ResolvedAsset,
 } from '~/lib/interviewer/contract/types';
 import { getPreviewMode } from '~/queries/appSettings';
 import { getProtocolForPreview } from '~/queries/protocols';

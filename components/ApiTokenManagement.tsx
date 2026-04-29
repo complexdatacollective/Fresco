@@ -11,14 +11,14 @@ import {
 } from '~/actions/apiTokens';
 import { DataTable } from '~/components/DataTable/DataTable';
 import { useClientDataTable } from '~/hooks/useClientDataTable';
-import Dialog from '~/lib/dialogs/Dialog';
-import InputField from '~/lib/form/components/fields/InputField';
+import Dialog from '~/components/ui/dialogs/Dialog';
+import InputField from '~/components/ui/form/components/fields/InputField';
 import { type GetApiTokensReturnType } from '~/queries/apiTokens';
 import { DataTableColumnHeader } from './DataTable/ColumnHeader';
 import { Alert, AlertDescription, AlertTitle } from './ui/Alert';
 import { Button } from './ui/Button';
 import { Label } from './ui/Label';
-import ToggleField from '~/lib/form/components/fields/ToggleField';
+import ToggleField from '~/components/ui/form/components/fields/ToggleField';
 import TimeAgo from './ui/TimeAgo';
 import { useToast } from './ui/Toast';
 

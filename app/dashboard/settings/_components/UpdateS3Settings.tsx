@@ -4,7 +4,7 @@ import { useState } from 'react';
 import SettingsField from '~/components/settings/SettingsField';
 import { setAppSetting } from '~/actions/appSettings';
 import { Button } from '~/components/ui/Button';
-import InputField from '~/lib/form/components/fields/InputField';
+import InputField from '~/components/ui/form/components/fields/InputField';
 import { type AppSetting } from '~/schemas/appSettings';
 
 type S3Field = {

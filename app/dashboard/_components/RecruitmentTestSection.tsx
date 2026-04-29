@@ -5,7 +5,7 @@ import { use, useEffect, useState } from 'react';
 import { SuperJSON } from 'superjson';
 import { Button } from '~/components/ui/Button';
 import type { Participant, Protocol } from '~/lib/db/generated/client';
-import SelectField from '~/lib/form/components/fields/Select/Styled';
+import SelectField from '~/components/ui/form/components/fields/Select/Styled';
 import {
   type GetParticipantsQuery,
   type GetParticipantsReturnType,

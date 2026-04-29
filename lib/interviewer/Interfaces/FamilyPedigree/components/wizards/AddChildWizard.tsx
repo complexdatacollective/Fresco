@@ -1,5 +1,5 @@
-import Heading from '~/components/typography/Heading';
-import type useDialog from '~/lib/dialogs/useDialog';
+import Heading from '~/components/ui/typography/Heading';
+import type useDialog from '~/components/ui/dialogs/useDialog';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
 import BioTriadStep, {
   BioTriadConfigProvider,

@@ -8,8 +8,8 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import type { UrlObject } from 'url';
 import { logout } from '~/actions/auth';
-import Modal from '~/components/Modal/Modal';
-import ModalPopup from '~/components/Modal/ModalPopup';
+import Modal from '~/components/ui/Modal/Modal';
+import ModalPopup from '~/components/ui/Modal/ModalPopup';
 import SubmitButton from '~/components/ui/SubmitButton';
 import { cx } from '~/utils/cva';
 

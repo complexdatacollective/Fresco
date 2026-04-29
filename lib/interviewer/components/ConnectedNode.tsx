@@ -1,16 +1,16 @@
 import {
-  entityAttributesProperty,
-  entityPrimaryKeyProperty,
-  type NcNode,
+    entityAttributesProperty,
+    entityPrimaryKeyProperty,
+    type NcNode,
 } from '@codaco/shared-consts';
 import { createSelector } from '@reduxjs/toolkit';
 import { motion } from 'motion/react';
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import UINode from '~/components/Node';
+import UINode from '~/components/ui/Node';
 import {
-  getNetworkNodes,
-  resolveNodeShape,
+    getNetworkNodes,
+    resolveNodeShape,
 } from '~/lib/interviewer/selectors/session';
 import { getCodebook } from '../ducks/modules/protocol';
 import { useNodeLabel } from '../Interfaces/Anonymisation/useNodeLabel';

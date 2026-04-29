@@ -6,8 +6,8 @@ import {
   ChevronsRight,
 } from 'lucide-react';
 import { IconButton } from '~/components/ui/Button';
-import SelectField from '~/lib/form/components/fields/Select/Native';
-import Paragraph from '../typography/Paragraph';
+import SelectField from '~/components/ui/form/components/fields/Select/Native';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import { pageSizes } from './types';
 
 type DataTablePaginationProps<TData> = {

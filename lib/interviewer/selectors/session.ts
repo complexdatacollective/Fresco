@@ -1,18 +1,18 @@
 import type {
-  Codebook,
-  NodeDefinition,
-  StageSubject,
+    Codebook,
+    NodeDefinition,
+    StageSubject,
 } from '@codaco/protocol-validation';
 import {
-  entityAttributesProperty,
-  type EntityPrimaryKey,
-  entityPrimaryKeyProperty,
-  type NcNode,
+    entityAttributesProperty,
+    type EntityPrimaryKey,
+    entityPrimaryKeyProperty,
+    type NcNode,
 } from '@codaco/shared-consts';
 import { createSelector } from '@reduxjs/toolkit';
 import { intersection, invariant } from 'es-toolkit';
 import { filter, includes } from 'es-toolkit/compat';
-import { type NodeColorSequence, type NodeShape } from '~/components/Node';
+import { type NodeColorSequence, type NodeShape } from '~/components/ui/Node';
 import customFilter from '~/lib/network-query/filter';
 import { getCodebook, getStages } from '../ducks/modules/protocol';
 import { type RootState } from '../store';

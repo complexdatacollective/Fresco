@@ -2,8 +2,8 @@
 
 import { motion } from 'motion/react';
 import { Fragment } from 'react';
-import { RenderMarkdown } from '~/components/RenderMarkdown';
-import Heading from '~/components/typography/Heading';
+import Heading from '~/components/ui/typography/Heading';
+import { RenderMarkdown } from '~/components/ui/RenderMarkdown';
 import { cx } from '~/utils/cva';
 
 const variants = {

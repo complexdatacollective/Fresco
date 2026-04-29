@@ -7,8 +7,8 @@ import {
 } from '@base-ui/react/toast';
 import { AlertCircle, Info, PartyPopper, type LucideIcon } from 'lucide-react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
-import { surfaceVariants } from '../layout/Surface';
-import Heading from '../typography/Heading';
+import { surfaceVariants } from '~/components/ui/layout/Surface';
+import Heading from '~/components/ui/typography/Heading';
 import Button from './Button';
 import CloseButton from './CloseButton';
 

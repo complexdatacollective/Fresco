@@ -3,8 +3,8 @@
 import { Upload } from 'lucide-react';
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
 import { PROTOCOL_EXTENSION } from '~/fresco.config';
 import { cx } from '~/utils/cva';

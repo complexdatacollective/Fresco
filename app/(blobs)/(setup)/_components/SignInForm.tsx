@@ -13,16 +13,16 @@ import {
   generateAuthenticationOptions,
   verifyAuthentication,
 } from '~/actions/webauthn';
-import Paragraph from '~/components/typography/Paragraph';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
-import { DialogFooter } from '~/lib/dialogs/Dialog';
-import Field from '~/lib/form/components/Field/Field';
-import Form from '~/lib/form/components/Form';
-import SubmitButton from '~/lib/form/components/SubmitButton';
-import InputField from '~/lib/form/components/fields/InputField';
-import PasswordField from '~/lib/form/components/fields/PasswordField';
-import SegmentedCodeField from '~/lib/form/components/fields/SegmentedCodeField';
-import { type FormSubmitHandler } from '~/lib/form/store/types';
+import { DialogFooter } from '~/components/ui/dialogs/Dialog';
+import Field from '~/components/ui/form/components/Field/Field';
+import Form from '~/components/ui/form/components/Form';
+import SubmitButton from '~/components/ui/form/components/SubmitButton';
+import InputField from '~/components/ui/form/components/fields/InputField';
+import PasswordField from '~/components/ui/form/components/fields/PasswordField';
+import SegmentedCodeField from '~/components/ui/form/components/fields/SegmentedCodeField';
+import { type FormSubmitHandler } from '~/components/ui/form/store/types';
 import { loginSchema } from '~/schemas/auth';
 
 function isRateLimited(

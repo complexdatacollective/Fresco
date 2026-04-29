@@ -1,15 +1,15 @@
 'use client';
 
 import { useSelector } from 'react-redux';
-import Surface from '~/components/layout/Surface';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
-import Field from '~/lib/form/components/Field/Field';
-import FieldNamespace from '~/lib/form/components/FieldNamespace';
-import InputField from '~/lib/form/components/fields/InputField';
-import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
-import { useFormValue } from '~/lib/form/hooks/useFormValue';
-import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
+import Surface from '~/components/ui/layout/Surface';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
+import Field from '~/components/ui/form/components/Field/Field';
+import FieldNamespace from '~/components/ui/form/components/FieldNamespace';
+import InputField from '~/components/ui/form/components/fields/InputField';
+import RadioGroupField from '~/components/ui/form/components/fields/RadioGroup';
+import { useFormValue } from '~/components/ui/form/hooks/useFormValue';
+import useProtocolForm from '~/components/ui/form/hooks/useProtocolForm';
 import {
   getNodeForm,
   getNodeType,

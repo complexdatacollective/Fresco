@@ -2,9 +2,9 @@
 
 import { FileText } from 'lucide-react';
 import { completeSetup } from '~/actions/appSettings';
-import Surface from '~/components/layout/Surface';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
+import Surface from '~/components/ui/layout/Surface';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import Button from '~/components/ui/Button';
 
 export default function Documentation() {

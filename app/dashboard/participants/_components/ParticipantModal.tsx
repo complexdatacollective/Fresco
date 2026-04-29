@@ -7,16 +7,16 @@ import { useState, type Dispatch, type SetStateAction } from 'react';
 import { createParticipant, updateParticipant } from '~/actions/participants';
 import ActionError from '~/components/ActionError';
 import InfoTooltip from '~/components/InfoTooltip';
-import Paragraph from '~/components/typography/Paragraph';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
 import type { Participant } from '~/lib/db/generated/client';
-import Dialog from '~/lib/dialogs/Dialog';
-import Field from '~/lib/form/components/Field/Field';
-import { FormWithoutProvider } from '~/lib/form/components/Form';
-import SubmitButton from '~/lib/form/components/SubmitButton';
-import InputField from '~/lib/form/components/fields/InputField';
-import useFormStore from '~/lib/form/hooks/useFormStore';
-import FormStoreProvider from '~/lib/form/store/formStoreProvider';
+import Dialog from '~/components/ui/dialogs/Dialog';
+import Field from '~/components/ui/form/components/Field/Field';
+import { FormWithoutProvider } from '~/components/ui/form/components/Form';
+import SubmitButton from '~/components/ui/form/components/SubmitButton';
+import InputField from '~/components/ui/form/components/fields/InputField';
+import useFormStore from '~/components/ui/form/hooks/useFormStore';
+import FormStoreProvider from '~/components/ui/form/store/formStoreProvider';
 import { z } from 'zod/mini';
 import {
   participantIdentifierSchema,

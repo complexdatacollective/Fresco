@@ -6,8 +6,8 @@ import {
   CheckCircle,
   Info,
 } from 'lucide-react';
-import Heading from '~/components/typography/Heading';
-import { UnorderedList } from '~/components/typography/UnorderedList';
+import Heading from '~/components/ui/typography/Heading';
+import { UnorderedList } from '~/components/ui/typography/UnorderedList';
 import { Alert, AlertDescription, AlertTitle } from './Alert';
 
 const iconMap = {

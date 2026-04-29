@@ -12,7 +12,7 @@ import { captureException, shutdownPostHog } from '~/lib/posthog-server';
 import { ensureError } from '~/utils/ensureError';
 import { getSemverUpdateType, semverSchema } from '~/utils/semVer';
 import SettingsField from './settings/SettingsField';
-import Heading from './typography/Heading';
+import Heading from '~/components/ui/typography/Heading';
 import { Button } from './ui/Button';
 
 const GithubApiResponseSchema = z

@@ -3,7 +3,7 @@
 import { FileUp } from 'lucide-react';
 import { use, useEffect, useState } from 'react';
 import superjson from 'superjson';
-import Paragraph from '~/components/typography/Paragraph';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
 import {
   Popover,
@@ -11,7 +11,7 @@ import {
   PopoverTrigger,
 } from '~/components/ui/popover';
 import { Skeleton } from '~/components/ui/skeleton';
-import SelectField from '~/lib/form/components/fields/Select/Native';
+import SelectField from '~/components/ui/form/components/fields/Select/Native';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 import type {
   GetProtocolsQuery,

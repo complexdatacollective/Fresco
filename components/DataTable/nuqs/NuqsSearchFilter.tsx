@@ -4,7 +4,7 @@ import { debounce } from 'es-toolkit';
 import { Search } from 'lucide-react';
 import { parseAsString, useQueryState } from 'nuqs';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import InputField from '~/lib/form/components/fields/InputField';
+import InputField from '~/components/ui/form/components/fields/InputField';
 import { nuqsTableUrlKey, useNuqsTable } from './NuqsTableProvider';
 
 type NuqsSearchFilterProps = {

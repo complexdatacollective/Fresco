@@ -11,7 +11,7 @@ import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { type ThunkDispatch } from 'redux-thunk';
-import { MotionSurface } from '~/components/layout/Surface';
+import { MotionSurface } from '~/components/ui/layout/Surface';
 import Button, { IconButton } from '~/components/ui/Button';
 import Node from '~/lib/interviewer/components/ConnectedNode';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';

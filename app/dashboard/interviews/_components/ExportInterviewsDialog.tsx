@@ -2,7 +2,7 @@ import { useExportProgress } from '~/components/ExportProgressProvider';
 import { Button } from '~/components/ui/Button';
 import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
 import type { GetInterviewsQuery } from '~/queries/interviews';
-import Dialog from '~/lib/dialogs/Dialog';
+import Dialog from '~/components/ui/dialogs/Dialog';
 import { ExportOptionsSchema } from '~/lib/network-exporters/options';
 import ExportOptionsView from './ExportOptionsView';
 

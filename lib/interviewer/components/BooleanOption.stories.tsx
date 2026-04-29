@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
-import Paragraph from '~/components/typography/Paragraph';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import BooleanOption from './BooleanOption';
 
 const meta: Meta<typeof BooleanOption> = {

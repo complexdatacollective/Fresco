@@ -11,7 +11,7 @@ import {
   type ReactNode,
 } from 'react';
 import { cx } from '~/utils/cva';
-import { MotionSurface } from '../layout/Surface';
+import { MotionSurface } from '~/components/ui/layout/Surface';
 
 export function BaseUISharedPopoverContainer({
   className,

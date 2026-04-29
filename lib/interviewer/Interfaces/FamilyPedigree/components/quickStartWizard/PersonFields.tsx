@@ -1,11 +1,11 @@
 'use client';
 
 import { useSelector } from 'react-redux';
-import Field from '~/lib/form/components/Field/Field';
-import { type FieldValue } from '~/lib/form/components/Field/types';
-import FieldNamespace from '~/lib/form/components/FieldNamespace';
-import InputField from '~/lib/form/components/fields/InputField';
-import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
+import Field from '~/components/ui/form/components/Field/Field';
+import { type FieldValue } from '~/components/ui/form/components/Field/types';
+import FieldNamespace from '~/components/ui/form/components/FieldNamespace';
+import InputField from '~/components/ui/form/components/fields/InputField';
+import useProtocolForm from '~/components/ui/form/hooks/useProtocolForm';
 import {
   getNodeForm,
   getNodeType,

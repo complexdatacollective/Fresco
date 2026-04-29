@@ -1,10 +1,10 @@
 'use client';
 
 import { useMemo } from 'react';
-import Paragraph from '~/components/typography/Paragraph';
-import Field from '~/lib/form/components/Field/Field';
-import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
-import { useFormValue } from '~/lib/form/hooks/useFormValue';
+import Paragraph from '~/components/ui/typography/Paragraph';
+import Field from '~/components/ui/form/components/Field/Field';
+import RadioGroupField from '~/components/ui/form/components/fields/RadioGroup';
+import { useFormValue } from '~/components/ui/form/hooks/useFormValue';
 
 const partnershipOptions = [
   { value: 'current', label: 'Current partners' },

@@ -1,4 +1,4 @@
-import { type RichSelectOption } from '~/lib/form/components/fields/RichSelectGroup';
+import { type RichSelectOption } from '~/components/ui/form/components/fields/RichSelectGroup';
 
 export const PARENT_EDGE_TYPE_OPTIONS_ALTER: (RichSelectOption & {
   value: string;

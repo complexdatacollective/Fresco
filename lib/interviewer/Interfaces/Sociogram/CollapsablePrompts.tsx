@@ -1,5 +1,5 @@
 import { type ReactNode, type RefObject } from 'react';
-import { MotionSurface } from '~/components/layout/Surface';
+import { MotionSurface } from '~/components/ui/layout/Surface';
 import Prompts from '~/lib/interviewer/components/Prompts';
 import { cx } from '~/utils/cva';
 

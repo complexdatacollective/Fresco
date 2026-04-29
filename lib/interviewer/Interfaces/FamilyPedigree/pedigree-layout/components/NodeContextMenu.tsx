@@ -2,7 +2,7 @@
 
 import { Menu } from '@base-ui/react/menu';
 import { type ReactElement } from 'react';
-import { MotionSurface } from '~/components/layout/Surface';
+import { MotionSurface } from '~/components/ui/layout/Surface';
 import { ArrowSvg } from '~/components/ui/popover';
 import { cx } from '~/utils/cva';
 

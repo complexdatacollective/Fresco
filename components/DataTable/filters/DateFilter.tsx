@@ -6,7 +6,7 @@ import {
   type DateFilterValue,
 } from '~/components/DataTable/filters/types';
 import Button from '~/components/ui/Button';
-import InputField from '~/lib/form/components/fields/InputField';
+import InputField from '~/components/ui/form/components/fields/InputField';
 
 type DateFilterProps = {
   value: DateFilterValue | undefined;

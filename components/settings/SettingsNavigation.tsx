@@ -1,7 +1,7 @@
 'use client';
 
-import Surface from '~/components/layout/Surface';
-import Heading from '~/components/typography/Heading';
+import Surface from '~/components/ui/layout/Surface';
+import Heading from '~/components/ui/typography/Heading';
 import { cx } from '~/utils/cva';
 
 export type SettingsSection = {

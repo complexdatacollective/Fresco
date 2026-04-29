@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect } from 'react';
-import Surface from '~/components/layout/Surface';
-import { RenderMarkdown } from '~/components/RenderMarkdown';
-import Heading from '~/components/typography/Heading';
+import Surface from '~/components/ui/layout/Surface';
+import Heading from '~/components/ui/typography/Heading';
+import { RenderMarkdown } from '~/components/ui/RenderMarkdown';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
 import { type BeforeNextFunction } from '~/lib/interviewer/types';

@@ -1,8 +1,8 @@
 import { Popover as BasePopover } from '@base-ui/react/popover';
 import { InfoIcon } from 'lucide-react';
 import { type ComponentProps, type ReactElement } from 'react';
-import Heading from './typography/Heading';
-import Paragraph from './typography/Paragraph';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 
 type InfoTooltipProps = Omit<ComponentProps<typeof Popover>, 'children'> & {

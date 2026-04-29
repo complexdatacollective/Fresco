@@ -3,9 +3,9 @@
 import { ClipboardCopy } from 'lucide-react';
 import posthog from 'posthog-js';
 import { useEffect } from 'react';
-import Surface from '~/components/layout/Surface';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
+import Surface from '~/components/ui/layout/Surface';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
 import { useToast } from '~/components/ui/Toast';
 

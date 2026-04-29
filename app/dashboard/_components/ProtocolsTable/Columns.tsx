@@ -2,7 +2,7 @@
 
 import { type StrictColumnDef } from '~/components/DataTable/types';
 import Image from 'next/image';
-import Checkbox from '~/lib/form/components/fields/Checkbox';
+import Checkbox from '~/components/ui/form/components/fields/Checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import TimeAgo from '~/components/ui/TimeAgo';
 import { AnonymousRecruitmentURLButton } from './AnonymousRecruitmentURLButton';

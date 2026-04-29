@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
-import Surface, { surfaceSpacingVariants } from '~/components/layout/Surface';
-import Heading from '~/components/typography/Heading';
+import Surface, { surfaceSpacingVariants } from '~/components/ui/layout/Surface';
+import Heading from '~/components/ui/typography/Heading';
 import { compose, cva, cx } from '~/utils/cva';
 
 type PanelProps = React.HTMLAttributes<HTMLDivElement> & {

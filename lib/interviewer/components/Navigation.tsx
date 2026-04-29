@@ -6,7 +6,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { type ComponentProps, type Ref } from 'react';
-import { MotionSurface } from '~/components/layout/Surface';
+import { MotionSurface } from '~/components/ui/layout/Surface';
 import { IconButton } from '~/components/ui/Button';
 import ProgressBar from '~/components/ui/ProgressBar';
 import { cva, cx } from '~/utils/cva';

@@ -17,7 +17,7 @@ import {
   X,
 } from 'lucide-react';
 import { Fragment } from 'react';
-import Heading from '~/components/typography/Heading';
+import Heading from '~/components/ui/typography/Heading';
 import { IconButton } from './Button';
 import { BUTTON_VARIANTS, ICON_BUTTON_COLORS } from './button-constants';
 

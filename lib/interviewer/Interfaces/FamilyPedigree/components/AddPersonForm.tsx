@@ -2,10 +2,10 @@
 
 import { type NcEdge, type NcNode } from '@codaco/shared-consts';
 import { useSelector } from 'react-redux';
-import Field from '~/lib/form/components/Field/Field';
-import CheckboxGroupField from '~/lib/form/components/fields/CheckboxGroup';
-import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
-import RichSelectGroupField from '~/lib/form/components/fields/RichSelectGroup';
+import Field from '~/components/ui/form/components/Field/Field';
+import CheckboxGroupField from '~/components/ui/form/components/fields/CheckboxGroup';
+import RadioGroupField from '~/components/ui/form/components/fields/RadioGroup';
+import RichSelectGroupField from '~/components/ui/form/components/fields/RichSelectGroup';
 import { PARENT_EDGE_TYPE_OPTIONS_ALTER } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/fieldOptions';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
 import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';

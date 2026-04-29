@@ -1,16 +1,16 @@
 import { type NcEdge, type NcNode } from '@codaco/shared-consts';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import Node from '~/components/Node';
-import { useDragSource } from '~/lib/dnd';
+import Node from '~/components/ui/Node';
+import { useDragSource } from '~/components/ui/dnd';
+import { useClickUnlessDragged } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/useClickUnlessDragged';
+import { computeAllDisplayLabels } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/utils/getDisplayLabel';
 import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import { getNodeShapeDefinition } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 import {
-  getNodeColorSelector,
-  resolveNodeShape,
+    getNodeColorSelector,
+    resolveNodeShape,
 } from '~/lib/interviewer/selectors/session';
-import { useClickUnlessDragged } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/useClickUnlessDragged';
-import { computeAllDisplayLabels } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/utils/getDisplayLabel';
 
 export function AdoptionBrackets({ children }: { children: React.ReactNode }) {
   const bracketStyle =

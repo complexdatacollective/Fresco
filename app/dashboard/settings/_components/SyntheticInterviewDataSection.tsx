@@ -12,9 +12,9 @@ import SettingsField from '~/components/settings/SettingsField';
 import { Button } from '~/components/ui/Button';
 import ProgressBar from '~/components/ui/ProgressBar';
 import { useToast } from '~/components/ui/Toast';
-import InputField from '~/lib/form/components/fields/InputField';
-import SelectField from '~/lib/form/components/fields/Select/Native';
-import ToggleField from '~/lib/form/components/fields/ToggleField';
+import InputField from '~/components/ui/form/components/fields/InputField';
+import SelectField from '~/components/ui/form/components/fields/Select/Native';
+import ToggleField from '~/components/ui/form/components/fields/ToggleField';
 import {
   type GetProtocolsQuery,
   type GetProtocolsReturnType,

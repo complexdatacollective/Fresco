@@ -1,8 +1,8 @@
 import { resetAppSettings } from '~/actions/reset';
 import { containerClasses } from '~/components/ContainerClasses';
-import Surface from '~/components/layout/Surface';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
+import Surface from '~/components/ui/layout/Surface';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import SubmitButton from '~/components/ui/SubmitButton';
 import { env } from '~/env';
 import { cx } from '~/utils/cva';

@@ -7,10 +7,10 @@ import {
   type OperatorFilterConfig,
   type OperatorFilterValue,
 } from '~/components/DataTable/filters/types';
-import Paragraph from '~/components/typography/Paragraph';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import Button, { IconButton } from '~/components/ui/Button';
-import InputField from '~/lib/form/components/fields/InputField';
-import SelectField from '~/lib/form/components/fields/Select/Native';
+import InputField from '~/components/ui/form/components/fields/InputField';
+import SelectField from '~/components/ui/form/components/fields/Select/Native';
 
 type OperatorFilterProps = {
   value: OperatorFilterValue | undefined;

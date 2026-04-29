@@ -1,9 +1,9 @@
 'use client';
 
-import Field from '~/lib/form/components/Field/Field';
-import FieldGroup from '~/lib/form/components/FieldGroup';
-import BooleanField from '~/lib/form/components/fields/Boolean';
-import InputField from '~/lib/form/components/fields/InputField';
+import Field from '~/components/ui/form/components/Field/Field';
+import FieldGroup from '~/components/ui/form/components/FieldGroup';
+import BooleanField from '~/components/ui/form/components/fields/Boolean';
+import InputField from '~/components/ui/form/components/fields/InputField';
 
 export default function OtherParentsStep() {
   return (

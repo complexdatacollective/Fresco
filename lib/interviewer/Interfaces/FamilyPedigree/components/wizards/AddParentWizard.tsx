@@ -1,10 +1,10 @@
 'use client';
 
-import { type SkipContext } from '~/lib/dialogs/DialogProvider';
-import type useDialog from '~/lib/dialogs/useDialog';
-import Field from '~/lib/form/components/Field/Field';
-import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
-import RichSelectGroupField from '~/lib/form/components/fields/RichSelectGroup';
+import { type SkipContext } from '~/components/ui/dialogs/DialogProvider';
+import type useDialog from '~/components/ui/dialogs/useDialog';
+import Field from '~/components/ui/form/components/Field/Field';
+import RadioGroupField from '~/components/ui/form/components/fields/RadioGroup';
+import RichSelectGroupField from '~/components/ui/form/components/fields/RichSelectGroup';
 import { PARENT_EDGE_TYPE_OPTIONS_ALTER } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/fieldOptions';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
 import {

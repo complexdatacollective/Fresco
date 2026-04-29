@@ -1,4 +1,4 @@
-import Node, { type NodeColorSequence } from '~/components/Node';
+import Node, { type NodeColorSequence } from '~/components/ui/Node';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 import { cx } from '~/utils/cva';
 

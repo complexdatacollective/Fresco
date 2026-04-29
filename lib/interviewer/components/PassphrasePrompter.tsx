@@ -9,9 +9,9 @@ import {
 } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
 import Button from '~/components/ui/Button';
-import Field from '~/lib/form/components/Field/Field';
-import Form from '~/lib/form/components/Form';
-import InputField from '~/lib/form/components/fields/InputField';
+import Field from '~/components/ui/form/components/Field/Field';
+import Form from '~/components/ui/form/components/Form';
+import InputField from '~/components/ui/form/components/fields/InputField';
 import { usePassphrase } from '../Interfaces/Anonymisation/usePassphrase';
 import Overlay from './Overlay';
 

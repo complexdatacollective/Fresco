@@ -3,7 +3,7 @@ import ApiTokenManagement from '~/components/ApiTokenManagement';
 import InterviewDataApiSwitch from '~/components/InterviewDataApiSwitch';
 import SettingsCard from '~/components/settings/SettingsCard';
 import SettingsField from '~/components/settings/SettingsField';
-import { ToggleFieldSkeleton } from '~/lib/form/components/fields/ToggleFieldSkeleton';
+import { ToggleFieldSkeleton } from '~/components/ui/form/components/fields/ToggleFieldSkeleton';
 import { getApiTokens } from '~/queries/apiTokens';
 
 export default function ApiTokensSection() {

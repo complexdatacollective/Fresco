@@ -9,10 +9,10 @@ import { useTwoFactorSetup } from '~/components/TwoFactorSetup';
 import TwoFactorVerify from '~/components/TwoFactorVerify';
 import { Alert, AlertDescription } from '~/components/ui/Alert';
 import { Button } from '~/components/ui/Button';
-import ToggleField from '~/lib/form/components/fields/ToggleField';
-import Dialog from '~/lib/dialogs/Dialog';
-import SubmitButton from '~/lib/form/components/SubmitButton';
-import FormStoreProvider from '~/lib/form/store/formStoreProvider';
+import ToggleField from '~/components/ui/form/components/fields/ToggleField';
+import Dialog from '~/components/ui/dialogs/Dialog';
+import SubmitButton from '~/components/ui/form/components/SubmitButton';
+import FormStoreProvider from '~/components/ui/form/store/formStoreProvider';
 
 type TwoFactorSettingsProps = {
   hasTwoFactor: boolean;

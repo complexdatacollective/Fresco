@@ -3,7 +3,7 @@ import {
   entityPrimaryKeyProperty,
   type NcNode,
 } from '@codaco/shared-consts';
-import { useDragSource } from '~/lib/dnd';
+import { useDragSource } from '~/components/ui/dnd';
 import { ConnectedMotionNode } from '~/lib/interviewer/components/ConnectedNode';
 
 type DrawerNodeProps = {

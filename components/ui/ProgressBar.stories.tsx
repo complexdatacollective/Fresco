@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useEffect, useState } from 'react';
-import Heading from '~/components/typography/Heading';
+import Heading from '~/components/ui/typography/Heading';
 import ProgressBar from './ProgressBar';
 
 const meta: Meta<typeof ProgressBar> = {

@@ -9,9 +9,9 @@ import {
 } from 'lucide-react';
 import * as React from 'react';
 import { cva, cx, type VariantProps } from '~/utils/cva';
-import Surface from '../layout/Surface';
-import Heading from '../typography/Heading';
-import { paragraphVariants } from '../typography/Paragraph';
+import Surface from '~/components/ui/layout/Surface';
+import Heading from '~/components/ui/typography/Heading';
+import { paragraphVariants } from '~/components/ui/typography/Paragraph';
 
 const alertVariants = cva({
   base: 'text-contrast inset-surface my-6 flex w-full gap-3 rounded last:mb-0',

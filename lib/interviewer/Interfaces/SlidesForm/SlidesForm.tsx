@@ -18,20 +18,20 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import Surface from '~/components/layout/Surface';
+import Surface from '~/components/ui/layout/Surface';
 import { ScrollArea } from '~/components/ui/ScrollArea';
 import { useScrolledToBottom } from '~/hooks/useScrolledToBottom';
-import useDialog from '~/lib/dialogs/useDialog';
-import { type FieldValue } from '~/lib/form/components/Field/types';
-import { FormWithoutProvider } from '~/lib/form/components/Form';
-import { useFormMeta } from '~/lib/form/hooks/useFormState';
-import useFormStore from '~/lib/form/hooks/useFormStore';
-import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
+import useDialog from '~/components/ui/dialogs/useDialog';
+import { type FieldValue } from '~/components/ui/form/components/Field/types';
+import { FormWithoutProvider } from '~/components/ui/form/components/Form';
+import { useFormMeta } from '~/components/ui/form/hooks/useFormState';
+import useFormStore from '~/components/ui/form/hooks/useFormStore';
+import useProtocolForm from '~/components/ui/form/hooks/useProtocolForm';
 import FormStoreProvider, {
   FormStoreContext,
-} from '~/lib/form/store/formStoreProvider';
-import { type FormSubmitHandler } from '~/lib/form/store/types';
-import { focusFirstError } from '~/lib/form/utils/focusFirstError';
+} from '~/components/ui/form/store/formStoreProvider';
+import { type FormSubmitHandler } from '~/components/ui/form/store/types';
+import { focusFirstError } from '~/components/ui/form/utils/focusFirstError';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import {
   type BeforeNextFunction,

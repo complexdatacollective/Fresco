@@ -1,15 +1,15 @@
 import { type Item } from '@codaco/protocol-validation';
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-import Surface from '~/components/layout/Surface';
+import Surface from '~/components/ui/layout/Surface';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import {
-  ALLOWED_MARKDOWN_SECTION_TAGS,
-  RenderMarkdown,
-} from '~/components/RenderMarkdown';
-import Spinner from '~/components/Spinner';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
+    ALLOWED_MARKDOWN_SECTION_TAGS,
+    RenderMarkdown,
+} from '~/components/ui/RenderMarkdown';
 import { ScrollArea } from '~/components/ui/ScrollArea';
+import Spinner from '~/components/ui/Spinner';
 import { useContractFlags } from '~/lib/interviewer/contract/context';
 import { getAssetManifest } from '~/lib/interviewer/ducks/modules/protocol';
 import { useAssetUrl } from '~/lib/interviewer/hooks/useAssetUrl';

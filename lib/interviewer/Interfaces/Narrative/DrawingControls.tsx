@@ -1,6 +1,6 @@
 import { Toggle } from '@base-ui/react/toggle';
 import { Pencil, RotateCcw, Snowflake } from 'lucide-react';
-import { MotionSurface } from '~/components/layout/Surface';
+import { MotionSurface } from '~/components/ui/layout/Surface';
 import { IconButton } from '~/components/ui/Button';
 import { cx } from '~/utils/cva';
 

@@ -6,8 +6,8 @@ import { useMemo } from 'react';
 import { type FacetedFilterConfig } from '~/components/DataTable/filters/types';
 import Button from '~/components/ui/Button';
 import { ScrollArea } from '~/components/ui/ScrollArea';
-import { type ComboboxOption } from '~/lib/form/components/fields/Combobox/shared';
-import InputField from '~/lib/form/components/fields/InputField';
+import { type ComboboxOption } from '~/components/ui/form/components/fields/Combobox/shared';
+import InputField from '~/components/ui/form/components/fields/InputField';
 import { dropdownItemVariants } from '~/styles/shared/controlVariants';
 import { cx } from '~/utils/cva';
 

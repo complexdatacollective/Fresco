@@ -3,8 +3,8 @@
 import { type Column } from '@tanstack/react-table';
 import { useMemo } from 'react';
 import { type Option } from '~/components/DataTable/types';
-import ComboboxField from '~/lib/form/components/fields/Combobox/Combobox';
-import { type ComboboxOption } from '~/lib/form/components/fields/Combobox/shared';
+import ComboboxField from '~/components/ui/form/components/fields/Combobox/Combobox';
+import { type ComboboxOption } from '~/components/ui/form/components/fields/Combobox/shared';
 
 type DataTableFacetedFilterProps<TData, TValue> = {
   column?: Column<TData, TValue>;

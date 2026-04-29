@@ -2,14 +2,14 @@
 
 import { motion, useMotionValue, useTransform } from 'motion/react';
 import { memo, type ReactNode } from 'react';
-import { RenderMarkdown } from '~/components/RenderMarkdown';
+import { RenderMarkdown } from '~/components/ui/RenderMarkdown';
 import {
-  controlLabelVariants,
-  controlVariants,
-  groupSpacingVariants,
-  inputControlVariants,
-  smallSizeVariants,
-  stateVariants,
+    controlLabelVariants,
+    controlVariants,
+    groupSpacingVariants,
+    inputControlVariants,
+    smallSizeVariants,
+    stateVariants,
 } from '~/styles/shared/controlVariants';
 import { compose, cva, cx } from '~/utils/cva';
 

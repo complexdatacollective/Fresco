@@ -8,8 +8,8 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { motion } from 'motion/react';
 import { useState } from 'react';
 import { Provider } from 'react-redux';
-import Heading from '~/components/typography/Heading';
-import { type DragMetadata } from '~/lib/dnd';
+import Heading from '~/components/ui/typography/Heading';
+import { type DragMetadata } from '~/components/ui/dnd';
 import NodeList from './NodeList';
 
 const mockProtocol = {

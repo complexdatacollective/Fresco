@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { HelpCircle, Star } from 'lucide-react';
-import { FieldLabel } from '~/lib/form/components/FieldLabel';
+import { FieldLabel } from '~/components/ui/form/components/FieldLabel';
 import InfoTooltip from './InfoTooltip';
-import Heading from './typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
-import { UnorderedList } from '~/components/typography/UnorderedList';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
+import { UnorderedList } from '~/components/ui/typography/UnorderedList';
 import { Button, IconButton } from './ui/Button';
 
 const meta = {

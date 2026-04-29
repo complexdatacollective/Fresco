@@ -16,7 +16,7 @@ import { type Option } from '~/components/DataTable/types';
 import { Badge } from '~/components/ui/badge';
 import ProgressBar from '~/components/ui/ProgressBar';
 import TimeAgo from '~/components/ui/TimeAgo';
-import Checkbox from '~/lib/form/components/fields/Checkbox';
+import Checkbox from '~/components/ui/form/components/fields/Checkbox';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 import NetworkSummary from './NetworkSummary';
 

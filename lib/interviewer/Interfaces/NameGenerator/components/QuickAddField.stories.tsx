@@ -3,8 +3,8 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Provider } from 'react-redux';
 import { action } from 'storybook/actions';
 import { fn } from 'storybook/test';
-import Form from '~/lib/form/components/Form';
-import { type FormSubmitHandler } from '~/lib/form/store/types';
+import Form from '~/components/ui/form/components/Form';
+import { type FormSubmitHandler } from '~/components/ui/form/store/types';
 import QuickAddField from './QuickAddField';
 
 const mockProtocol = {

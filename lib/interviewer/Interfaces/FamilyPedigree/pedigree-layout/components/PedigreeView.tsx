@@ -1,45 +1,45 @@
 'use client';
 
+import {
+    type NcEdge,
+    type NcNode,
+    type VariableValue,
+} from '@codaco/shared-consts';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import Node from '~/components/Node';
+import Node from '~/components/ui/Node';
 import { useNodeMeasurement } from '~/hooks/useNodeMeasurement';
-import useDialog from '~/lib/dialogs/useDialog';
-import Field from '~/lib/form/components/Field/Field';
-import InputField from '~/lib/form/components/fields/InputField';
+import useDialog from '~/components/ui/dialogs/useDialog';
+import Field from '~/components/ui/form/components/Field/Field';
+import InputField from '~/components/ui/form/components/fields/InputField';
 import AddPersonFields, {
-  type AddPersonMode,
+    type AddPersonMode,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/AddPersonForm';
 import { openAddChildWizard } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/wizards/AddChildWizard';
 import { openAddParentWizard } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/wizards/AddParentWizard';
 import { openAddSiblingWizard } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/wizards/AddSiblingWizard';
 import { openDefineParentsWizard } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/wizards/DefineParentsWizard';
 import { useFamilyPedigreeStore } from '~/lib/interviewer/Interfaces/FamilyPedigree/FamilyPedigreeProvider';
-import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
-import {
-  getEdgeTypeKey,
-  getIsActiveVariable,
-  getIsGestationalCarrierVariable,
-  getRelationshipTypeVariable,
-} from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/edgeUtils';
-import {
-  getEgoVariable,
-  getNodeLabelVariable,
-  getNodeTypeKey,
-  getResolvedNodeFormFields,
-} from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 import NodeContextMenu, {
-  type NodeContextMenuAction,
+    type NodeContextMenuAction,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/components/NodeContextMenu';
 import PedigreeLayout from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/components/PedigreeLayout';
 import PedigreeNode, {
-  computeNodeDisplayLabels,
+    computeNodeDisplayLabels,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/components/PedigreeNode';
+import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 import {
-  type NcEdge,
-  type NcNode,
-  type VariableValue,
-} from '@codaco/shared-consts';
+    getEdgeTypeKey,
+    getIsActiveVariable,
+    getIsGestationalCarrierVariable,
+    getRelationshipTypeVariable,
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/edgeUtils';
+import {
+    getEgoVariable,
+    getNodeLabelVariable,
+    getNodeTypeKey,
+    getResolvedNodeFormFields,
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 import { type ParentEdge } from '~/schemas/familyPedigree';
 
 type PedigreeViewProps = {

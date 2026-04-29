@@ -3,23 +3,23 @@ import { Plus } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { MotionSurface } from '~/components/layout/Surface';
-import {
-  labelVariants,
-  truncateNodeLabel,
-  type NodeColorSequence,
-} from '~/components/Node';
-import Paragraph from '~/components/typography/Paragraph';
+import { MotionSurface } from '~/components/ui/layout/Surface';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import Icon, { type InterviewerIconName } from '~/components/ui/Icon';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
+    labelVariants,
+    truncateNodeLabel,
+    type NodeColorSequence,
+} from '~/components/ui/Node';
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipTrigger,
 } from '~/components/ui/tooltip';
-import { type ValidationPropsCatalogue } from '~/lib/form/components/Field/types';
-import InputField from '~/lib/form/components/fields/InputField';
-import { useField } from '~/lib/form/hooks/useField';
-import useFormStore from '~/lib/form/hooks/useFormStore';
+import { type ValidationPropsCatalogue } from '~/components/ui/form/components/Field/types';
+import InputField from '~/components/ui/form/components/fields/InputField';
+import { useField } from '~/components/ui/form/hooks/useField';
+import useFormStore from '~/components/ui/form/hooks/useFormStore';
 import { useCelebrate } from '~/lib/interviewer/hooks/useCelebrate';
 import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
 import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';

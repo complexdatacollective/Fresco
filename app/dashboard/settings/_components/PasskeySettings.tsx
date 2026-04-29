@@ -8,11 +8,11 @@ import {
   removePasskey,
   verifyRegistration,
 } from '~/actions/webauthn';
-import Surface from '~/components/layout/Surface';
+import Surface from '~/components/ui/layout/Surface';
 import SettingsField from '~/components/settings/SettingsField';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/Button';
-import useDialog from '~/lib/dialogs/useDialog';
+import useDialog from '~/components/ui/dialogs/useDialog';
 
 type Passkey = {
   id: string;

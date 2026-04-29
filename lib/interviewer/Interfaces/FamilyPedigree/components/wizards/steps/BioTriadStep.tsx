@@ -1,12 +1,12 @@
 'use client';
 
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
-import Heading from '~/components/typography/Heading';
-import Surface from '~/components/layout/Surface';
-import Field from '~/lib/form/components/Field/Field';
-import FieldGroup from '~/lib/form/components/FieldGroup';
-import BooleanField from '~/lib/form/components/fields/Boolean';
-import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
+import Heading from '~/components/ui/typography/Heading';
+import Surface from '~/components/ui/layout/Surface';
+import Field from '~/components/ui/form/components/Field/Field';
+import FieldGroup from '~/components/ui/form/components/FieldGroup';
+import BooleanField from '~/components/ui/form/components/fields/Boolean';
+import RadioGroupField from '~/components/ui/form/components/fields/RadioGroup';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
 
 type NodeOption = {

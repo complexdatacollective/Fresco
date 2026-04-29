@@ -1,6 +1,6 @@
 import { type NcNode } from '@codaco/shared-consts';
 import { motion } from 'motion/react';
-import { type DragMetadata, useDropTarget } from '~/lib/dnd';
+import { type DragMetadata, useDropTarget } from '~/components/ui/dnd';
 import { cx } from '~/utils/cva';
 
 type NodeBinProps = {

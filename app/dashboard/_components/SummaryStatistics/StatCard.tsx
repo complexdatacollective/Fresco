@@ -1,6 +1,6 @@
 import { use } from 'react';
-import Surface from '~/components/layout/Surface';
-import Heading from '~/components/typography/Heading';
+import Surface from '~/components/ui/layout/Surface';
+import Heading from '~/components/ui/typography/Heading';
 import { Skeleton } from '~/components/ui/skeleton';
 import { cx } from '~/utils/cva';
 

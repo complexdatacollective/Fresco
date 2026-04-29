@@ -10,8 +10,8 @@ import {
   X,
 } from 'lucide-react';
 import { Fragment } from 'react';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import { Button, ButtonSkeleton, MotionButton } from './Button';
 import { BUTTON_COLORS } from './button-constants';
 

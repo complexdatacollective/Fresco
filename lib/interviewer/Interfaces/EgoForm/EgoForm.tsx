@@ -2,33 +2,33 @@ import { type VariableValue } from '@codaco/shared-consts';
 import { ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
+    useCallback,
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useState,
 } from 'react';
 import { useSelector } from 'react-redux';
-import Surface, { MotionSurface } from '~/components/layout/Surface';
+import Surface, { MotionSurface } from '~/components/ui/layout/Surface';
+import Heading from '~/components/ui/typography/Heading';
 import {
-  ALLOWED_MARKDOWN_SECTION_TAGS,
-  RenderMarkdown,
-} from '~/components/RenderMarkdown';
-import Heading from '~/components/typography/Heading';
+    ALLOWED_MARKDOWN_SECTION_TAGS,
+    RenderMarkdown,
+} from '~/components/ui/RenderMarkdown';
 import { ScrollArea } from '~/components/ui/ScrollArea';
 import { useScrolledToBottom } from '~/hooks/useScrolledToBottom';
-import useDialog from '~/lib/dialogs/useDialog';
-import { FormWithoutProvider } from '~/lib/form/components/Form';
-import { useFormMeta } from '~/lib/form/hooks/useFormState';
-import useFormStore from '~/lib/form/hooks/useFormStore';
-import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
-import FormStoreProvider from '~/lib/form/store/formStoreProvider';
-import { type FieldValue, type FlattenedErrors } from '~/lib/form/store/types';
-import { focusFirstError } from '~/lib/form/utils/focusFirstError';
+import useDialog from '~/components/ui/dialogs/useDialog';
+import { FormWithoutProvider } from '~/components/ui/form/components/Form';
+import { useFormMeta } from '~/components/ui/form/hooks/useFormState';
+import useFormStore from '~/components/ui/form/hooks/useFormStore';
+import useProtocolForm from '~/components/ui/form/hooks/useProtocolForm';
+import FormStoreProvider from '~/components/ui/form/store/formStoreProvider';
+import { type FieldValue, type FlattenedErrors } from '~/components/ui/form/store/types';
+import { focusFirstError } from '~/components/ui/form/utils/focusFirstError';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import {
-  type BeforeNextFunction,
-  type StageProps,
+    type BeforeNextFunction,
+    type StageProps,
 } from '~/lib/interviewer/types';
 import { updateEgo } from '../../ducks/modules/session';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';

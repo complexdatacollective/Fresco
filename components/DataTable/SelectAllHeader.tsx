@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
-import Checkbox from '~/lib/form/components/fields/Checkbox';
+import Checkbox from '~/components/ui/form/components/fields/Checkbox';
 import { IconButton } from '../ui/Button';
 
 type SelectAllHeaderProps<TData> = {

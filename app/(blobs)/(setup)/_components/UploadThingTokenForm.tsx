@@ -3,10 +3,10 @@
 import { useRouter } from 'next/navigation';
 import { setUploadThingToken } from '~/actions/appSettings';
 import { setStorageProvider } from '~/actions/storageProvider';
-import Field from '~/lib/form/components/Field/Field';
-import Form from '~/lib/form/components/Form';
-import SubmitButton from '~/lib/form/components/SubmitButton';
-import InputField from '~/lib/form/components/fields/InputField';
+import Field from '~/components/ui/form/components/Field/Field';
+import Form from '~/components/ui/form/components/Form';
+import SubmitButton from '~/components/ui/form/components/SubmitButton';
+import InputField from '~/components/ui/form/components/fields/InputField';
 import { createUploadThingTokenSchema } from '~/schemas/appSettings';
 
 export const UploadThingTokenForm = () => {

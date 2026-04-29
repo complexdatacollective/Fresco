@@ -4,12 +4,12 @@ import { Toggle } from '@base-ui/react';
 import { Search, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useId, useMemo, useRef, useState } from 'react';
-import { MotionSurface } from '~/components/layout/Surface';
+import { MotionSurface } from '~/components/ui/layout/Surface';
 import { IconButton } from '~/components/ui/Button';
-import { Collection } from '~/lib/collection/components/Collection';
-import { ListLayout } from '~/lib/collection/layout/ListLayout';
-import { type ItemProps } from '~/lib/collection/types';
-import InputField from '~/lib/form/components/fields/InputField';
+import { Collection } from '~/components/ui/collection/components/Collection';
+import { ListLayout } from '~/components/ui/collection/layout/ListLayout';
+import { type ItemProps } from '~/components/ui/collection/types';
+import InputField from '~/components/ui/form/components/fields/InputField';
 import { cx } from '~/utils/cva';
 import {
   useGeospatialSearch,

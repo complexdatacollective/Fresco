@@ -1,7 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useState } from 'react';
-import Paragraph from '~/components/typography/Paragraph';
-import { UnorderedList } from '~/components/typography/UnorderedList';
+import Paragraph from '~/components/ui/typography/Paragraph';
+import { UnorderedList } from '~/components/ui/typography/UnorderedList';
 import { ResizableFlexPanel } from './ResizableFlexPanel';
 
 const meta = {

@@ -1,12 +1,12 @@
 'use client';
 
 import { useSelector } from 'react-redux';
-import Surface from '~/components/layout/Surface';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
+import Surface from '~/components/ui/layout/Surface';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
 import { default as Button } from '~/components/ui/Button';
 import { useContractHandlers } from '~/lib/interviewer/contract/context';
-import useDialog from '~/lib/dialogs/useDialog';
+import useDialog from '~/components/ui/dialogs/useDialog';
 import { getInterviewId } from '~/lib/interviewer/selectors/session';
 
 const FinishSession = () => {

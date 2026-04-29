@@ -1,9 +1,9 @@
 'use client';
 
-import Surface from '~/components/layout/Surface';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
-import { useFormValue } from '~/lib/form/hooks/useFormValue';
+import Surface from '~/components/ui/layout/Surface';
+import Heading from '~/components/ui/typography/Heading';
+import Paragraph from '~/components/ui/typography/Paragraph';
+import { useFormValue } from '~/components/ui/form/hooks/useFormValue';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
 
 export default function ChildrenDetailStep() {
