@@ -153,4 +153,34 @@ describe('migrateProtocolsToV8', () => {
       },
     });
   });
+
+  it('logs and continues when blob deletion fails', async () => {
+    const prisma = makeMockPrisma();
+    prisma.asset.findMany.mockResolvedValue([{ key: 'will-fail' }]);
+    prisma.appSettings.findMany.mockResolvedValue([
+      { key: 'storageProvider', value: 'uploadthing' },
+      { key: 'uploadThingToken', value: 'sk_test' },
+    ]);
+    mockDeleteFiles.mockRejectedValue(new Error('UploadThing is down'));
+
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(vi.fn());
+
+    await expect(
+      migrateProtocolsToV8(
+        prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
+      ),
+    ).resolves.toBeUndefined();
+
+    // The DB cleanup should still happen
+    expect(prisma.asset.deleteMany).toHaveBeenCalledWith({
+      where: { key: { in: ['will-fail'] } },
+    });
+
+    expect(errorSpy).toHaveBeenCalledWith(
+      'Blob cleanup failed (continuing):',
+      expect.any(Error),
+    );
+
+    errorSpy.mockRestore();
+  });
 });
