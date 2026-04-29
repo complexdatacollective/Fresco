@@ -8,13 +8,13 @@ import {
   S3Client,
 } from '@aws-sdk/client-s3';
 
-const IMAGE = 'luofuxiang/local-s3';
+const IMAGE = 'minio/minio:latest';
 const HOST_PORT = 9000;
-const CONTAINER_PORT = 80;
+const CONTAINER_PORT = 9000;
 const BUCKET = 'fresco-dev';
 const REGION = 'us-east-1';
-const ACCESS_KEY_ID = 'test';
-const SECRET_ACCESS_KEY = 'test';
+const ACCESS_KEY_ID = 'minioadmin';
+const SECRET_ACCESS_KEY = 'minioadmin';
 const READY_MAX_ATTEMPTS = 30;
 const READY_INTERVAL_MS = 1000;
 
@@ -28,8 +28,8 @@ const safeBranch = branch
   .replaceAll('/', '-')
   .replace(/[^a-z0-9-]/g, '');
 
-const containerName = `fresco-dev-s3-${safeBranch}`;
-const volumeName = `fresco-dev-local-s3-${safeBranch}`;
+const containerName = `fresco-dev-minio-${safeBranch}`;
+const volumeName = `fresco-dev-minio-${safeBranch}`;
 
 function docker(args: string[]): {
   status: number;
@@ -71,7 +71,7 @@ function removeContainer(): void {
 }
 
 function startContainer(): void {
-  console.log(`Starting local-s3 on port ${HOST_PORT} [branch: ${branch}]...`);
+  console.log(`Starting MinIO on port ${HOST_PORT} [branch: ${branch}]...`);
   const result = docker([
     'run',
     '-d',
@@ -82,7 +82,15 @@ function startContainer(): void {
     `${HOST_PORT}:${CONTAINER_PORT}`,
     '-v',
     `${volumeName}:/data`,
+    '-e',
+    `MINIO_ROOT_USER=${ACCESS_KEY_ID}`,
+    '-e',
+    `MINIO_ROOT_PASSWORD=${SECRET_ACCESS_KEY}`,
+    '-e',
+    'MINIO_API_CORS_ALLOW_ORIGIN=*',
     IMAGE,
+    'server',
+    '/data',
   ]);
   if (result.status !== 0) {
     throw new Error(`docker run failed: ${result.stderr}`);
@@ -113,7 +121,7 @@ async function waitForReady(client: S3Client): Promise<void> {
     }
   }
   throw new Error(
-    `local-s3 did not become ready after ${READY_MAX_ATTEMPTS} attempts: ${String(lastError)}`,
+    `MinIO did not become ready after ${READY_MAX_ATTEMPTS} attempts: ${String(lastError)}`,
   );
 }
 
@@ -135,7 +143,7 @@ async function ensureBucket(client: S3Client): Promise<void> {
 }
 
 function printBanner(): void {
-  console.log(`local-s3 ready — bucket '${BUCKET}' available`);
+  console.log(`MinIO ready — bucket '${BUCKET}' available`);
   console.log(`  Endpoint:          http://localhost:${HOST_PORT}`);
   console.log(`  Bucket:            ${BUCKET}`);
   console.log(`  Region:            ${REGION}`);
@@ -188,27 +196,28 @@ async function applyPublicReadPolicy(client: S3Client): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  if (containerExists()) {
-    if (containerIsRunning()) {
-      console.log(
-        `local-s3 already running (${containerName}) on port ${HOST_PORT}`,
-      );
-      followLogs();
-      return;
-    }
+  const alreadyRunning = containerExists() && containerIsRunning();
+
+  if (containerExists() && !alreadyRunning) {
     removeContainer();
   }
 
-  ensureVolume();
-  startContainer();
+  if (!alreadyRunning) {
+    ensureVolume();
+    startContainer();
+  } else {
+    console.log(
+      `MinIO already running (${containerName}) on port ${HOST_PORT}`,
+    );
+  }
 
   const s3 = createS3Client();
-  console.log('Waiting for local-s3 to become ready...');
+  console.log('Waiting for MinIO to become ready...');
   await waitForReady(s3);
   await ensureBucket(s3);
   await applyPublicReadPolicy(s3);
 
-  printBanner();
+  if (!alreadyRunning) printBanner();
   followLogs();
 }
 
