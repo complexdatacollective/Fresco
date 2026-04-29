@@ -223,9 +223,10 @@ export const useProtocolImport = () => {
         throw new Error('Error checking for existing assets');
       }
 
+      // Phase: Uploading assets (and the original .netcanvas source file)
+      updateToastPhase(toastId, 'uploading-assets');
+
       if (newAssets.length > 0) {
-        // Phase: Uploading assets
-        updateToastPhase(toastId, 'uploading-assets');
         const files = newAssets.map((asset) => asset.file);
 
         const uploadedFiles = await uploadAssets(files, (progress) => {
@@ -252,6 +253,11 @@ export const useProtocolImport = () => {
         });
       }
 
+      const [uploadedOriginalFile] = await uploadAssets([file]);
+      if (!uploadedOriginalFile) {
+        throw new Error('Original protocol file upload failed');
+      }
+
       // Phase: Saving
       updateToastPhase(toastId, 'saving');
       const result = await insertProtocol({
@@ -259,6 +265,10 @@ export const useProtocolImport = () => {
         protocolName: fileName,
         newAssets: [...newAssetsWithCombinedMetadata, ...newApikeyAssets],
         existingAssetIds: existingAssetIds,
+        originalFile: {
+          key: uploadedOriginalFile.key,
+          url: uploadedOriginalFile.url,
+        },
       });
 
       if (result.error) {

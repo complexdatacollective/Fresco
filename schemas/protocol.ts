@@ -19,4 +19,8 @@ export const protocolInsertSchema = z.object({
   protocolName: z.string(),
   newAssets: z.array(assetInsertSchema),
   existingAssetIds: z.array(z.string()),
+  originalFile: z.object({
+    key: z.string(),
+    url: z.string(),
+  }),
 });

@@ -121,6 +121,8 @@ describe('exportPipeline', () => {
         lastModified: new Date('2025-01-01'),
         isPreview: false,
         isPending: false,
+        originalFileKey: null,
+        originalFileUrl: null,
         stages: [],
         codebook: {
           node: {},
