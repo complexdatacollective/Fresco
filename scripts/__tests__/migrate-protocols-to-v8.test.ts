@@ -1,3 +1,5 @@
+import { migrateProtocol } from '@codaco/protocol-validation';
+import { hash } from 'ohash';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { migrateProtocolsToV8 } from '~/scripts/migrate-protocols-to-v8';
 
@@ -288,5 +290,43 @@ describe('migrateProtocolsToV8', () => {
     // Hash recomputed
     expect(typeof updateCall.data.hash).toBe('string');
     expect(updateCall.data.hash.length).toBeGreaterThan(0);
+  });
+
+  it('produces a hash identical to what the import flow would produce', async () => {
+    const v7 = makeV7Protocol();
+
+    // (a) Run it through our migration script
+    const prisma = makeMockPrisma();
+    prisma.protocol.findMany.mockResolvedValue([
+      {
+        id: 'cm-x',
+        name: 'My Protocol.netcanvas',
+        schemaVersion: 7,
+        stages: v7.stages,
+        codebook: v7.codebook,
+        experiments: null,
+        description: v7.description,
+        lastModified: new Date(v7.lastModified),
+      },
+    ]);
+
+    await migrateProtocolsToV8(
+      prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
+    );
+
+    type UpdateCallArg = { data: { hash: string } };
+    const dbCall = prisma.protocol.update.mock.calls[0]?.[0] as UpdateCallArg;
+    const dbHash = dbCall.data.hash;
+
+    // (b) Independently run the same v7 protocol through the same migration
+    // chain the import flow uses (useProtocolImport.tsx strips .netcanvas
+    // before passing as the `name` dependency).
+    const importName = 'My Protocol.netcanvas'.replace(/\.netcanvas$/i, '');
+    const importMigrated = migrateProtocol({ ...v7, name: importName }, 8, {
+      name: importName,
+    });
+    const importHash = hash(importMigrated);
+
+    expect(dbHash).toBe(importHash);
   });
 });
