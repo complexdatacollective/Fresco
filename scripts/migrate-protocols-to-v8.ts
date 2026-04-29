@@ -1,4 +1,8 @@
 /* eslint-disable no-console */
+import {
+  DeleteObjectsCommand,
+  S3Client,
+} from '@aws-sdk/client-s3';
 import { UTApi } from 'uploadthing/server';
 import { type PrismaClient } from '~/lib/db/generated/client';
 import { type AppSetting } from '~/lib/db/generated/enums';
@@ -30,8 +34,30 @@ async function deleteOrphanBlobs(
       const utapi = new UTApi({ token: map.uploadThingToken });
       await utapi.deleteFiles(keys);
     } else {
-      // S3 path — implemented in Task 4
-      throw new Error(`Storage provider "${provider}" not yet implemented`);
+      if (
+        !map.s3Endpoint ||
+        !map.s3Region ||
+        !map.s3Bucket ||
+        !map.s3AccessKeyId ||
+        !map.s3SecretAccessKey
+      ) {
+        throw new Error('S3 credentials are not configured');
+      }
+      const client = new S3Client({
+        endpoint: map.s3Endpoint,
+        region: map.s3Region,
+        credentials: {
+          accessKeyId: map.s3AccessKeyId,
+          secretAccessKey: map.s3SecretAccessKey,
+        },
+        forcePathStyle: true,
+      });
+      await client.send(
+        new DeleteObjectsCommand({
+          Bucket: map.s3Bucket,
+          Delete: { Objects: keys.map((Key) => ({ Key })) },
+        }),
+      );
     }
 
     console.log(`Deleted ${keys.length} orphan blobs from ${provider}`);

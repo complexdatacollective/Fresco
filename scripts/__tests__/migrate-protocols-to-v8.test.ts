@@ -122,4 +122,35 @@ describe('migrateProtocolsToV8', () => {
 
     expect(mockDeleteFiles).toHaveBeenCalledWith(['ut-orphan-1', 'ut-orphan-2']);
   });
+
+  it('deletes orphan blobs from S3 when provider is s3', async () => {
+    const prisma = makeMockPrisma();
+    prisma.asset.findMany.mockResolvedValue([
+      { key: 's3-orphan-1' },
+      { key: 's3-orphan-2' },
+    ]);
+    prisma.appSettings.findMany.mockResolvedValue([
+      { key: 'storageProvider', value: 's3' },
+      { key: 's3Endpoint', value: 'https://s3.example.com' },
+      { key: 's3Region', value: 'us-east-1' },
+      { key: 's3Bucket', value: 'fresco-bucket' },
+      { key: 's3AccessKeyId', value: 'AKIATEST' },
+      { key: 's3SecretAccessKey', value: 'secret' },
+    ]);
+
+    await migrateProtocolsToV8(
+      prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
+    );
+
+    expect(mockS3Send).toHaveBeenCalledTimes(1);
+
+    // The DeleteObjectsCommand was constructed with both keys
+    const { DeleteObjectsCommand } = await import('@aws-sdk/client-s3');
+    expect(DeleteObjectsCommand).toHaveBeenCalledWith({
+      Bucket: 'fresco-bucket',
+      Delete: {
+        Objects: [{ Key: 's3-orphan-1' }, { Key: 's3-orphan-2' }],
+      },
+    });
+  });
 });
