@@ -8,7 +8,7 @@ import {
   MIME_TYPE,
 } from '@xmldom/xmldom';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { type ExportOptions } from '~/lib/network-exporters/utils/types';
+import { type ExportOptions } from '~/lib/network-exporters/options';
 import {
   mockCodebook,
   mockExportOptions,

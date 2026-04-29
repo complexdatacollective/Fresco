@@ -3,7 +3,7 @@ import { EdgeListFormatter } from '../formatters/csv/edge-list';
 import { EgoListFormatter } from '../formatters/csv/ego-list';
 import { AdjacencyMatrixFormatter } from '../formatters/csv/matrix';
 import GraphMLFormatter from '../formatters/graphml/GraphMLFormatter';
-import type { ExportFormat } from './types';
+import type { ExportFormat } from '../options';
 
 /**
  * Formatter factory

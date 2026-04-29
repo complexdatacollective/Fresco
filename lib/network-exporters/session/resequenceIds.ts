@@ -13,7 +13,7 @@ import type {
   SessionWithNetworkEgo,
   SessionWithResequencedIDs,
   SessionsByProtocol,
-} from '../utils/types';
+} from '../input';
 
 const resequenceEntities = (
   target: SessionWithNetworkEgo[],

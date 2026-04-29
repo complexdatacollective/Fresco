@@ -16,11 +16,11 @@ import {
 } from '@codaco/shared-consts';
 import { type DocumentFragment, DOMImplementation } from '@xmldom/xmldom';
 import { getNodeLabelAttribute } from '~/lib/interviewer/utils/getNodeLabelAttribute';
+import { type ExportOptions } from '../../options';
 import {
   type EdgeWithResequencedID,
-  type ExportOptions,
   type NodeWithResequencedID,
-} from '../../utils/types';
+} from '../../input';
 import {
   createDataElement,
   createDocumentFragment,

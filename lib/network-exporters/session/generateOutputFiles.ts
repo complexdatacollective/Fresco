@@ -1,14 +1,14 @@
 import { Effect, Queue, Ref } from 'effect';
 import { invariant } from 'es-toolkit';
-import { ExportGenerationError, getUserMessage } from '~/lib/network-exporters/errors';
+import {
+  ExportGenerationError,
+  getUserMessage,
+} from '~/lib/network-exporters/errors';
 import type { ExportEvent } from '~/lib/network-exporters/events';
 import { type ExportedProtocol } from '~/lib/network-exporters/pipeline';
 import { getFilePrefix } from '../utils/general';
-import type {
-  ExportFormat,
-  ExportOptions,
-  SessionWithResequencedIDs,
-} from '../utils/types';
+import type { ExportFormat, ExportOptions } from '../options';
+import type { SessionWithResequencedIDs } from '../input';
 import exportFile from './exportFile';
 import { partitionByType } from './partitionByType';
 

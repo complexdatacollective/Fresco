@@ -1,9 +1,6 @@
 import { protocolProperty } from '@codaco/shared-consts';
 import { groupBy } from 'es-toolkit';
-import type {
-  SessionWithNetworkEgo,
-  SessionsByProtocol,
-} from '../utils/types';
+import type { SessionWithNetworkEgo, SessionsByProtocol } from '../input';
 
 export default function groupByProtocolProperty(
   s: SessionWithNetworkEgo[],

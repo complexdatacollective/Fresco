@@ -21,7 +21,7 @@ import { getEntityAttributes } from '~/utils/networkEntities';
 import {
   type EdgeWithResequencedID,
   type NodeWithResequencedID,
-} from '../../utils/types';
+} from '../../input';
 import { type ExportFileNetwork } from '../../session/exportFile';
 
 export function getCodebookVariablesForEntity(

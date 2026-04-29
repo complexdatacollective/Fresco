@@ -9,11 +9,11 @@ import {
 import { DOMImplementation, type DocumentFragment } from '@xmldom/xmldom';
 import { get } from 'es-toolkit/compat';
 import { getEntityAttributes } from '~/utils/networkEntities';
+import { type ExportOptions } from '../../options';
 import {
   type EdgeWithResequencedID,
-  type ExportOptions,
   type NodeWithResequencedID,
-} from '../../utils/types';
+} from '../../input';
 import { type VariableDefinition } from '../csv/processEntityVariables';
 import {
   createDocumentFragment,

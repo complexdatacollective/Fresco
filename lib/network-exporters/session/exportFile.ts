@@ -4,11 +4,8 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { getFileExtension, makeFilename } from '../utils/general';
 import getFormatterClass from '../utils/getFormatterClass';
-import type {
-  ExportFormat,
-  ExportOptions,
-  ExportResult,
-} from '../utils/types';
+import type { ExportFormat, ExportOptions } from '../options';
+import type { ExportResult } from '../output';
 import type { partitionByType } from './partitionByType';
 
 export type ExportFileNetwork = ReturnType<typeof partitionByType>[number];

@@ -1,5 +1,5 @@
 import { z } from 'zod/mini';
-import { ExportOptionsSchema } from '~/lib/network-exporters/utils/types';
+import { ExportOptionsSchema } from '~/lib/network-exporters/options';
 
 export const exportInterviewsSchema = z.object({
   interviewIds: z.array(z.string()).check(z.minLength(1)),

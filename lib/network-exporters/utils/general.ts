@@ -1,10 +1,8 @@
-import {
-  caseProperty,
-  sessionProperty,
-} from '@codaco/shared-consts';
+import { caseProperty, sessionProperty } from '@codaco/shared-consts';
 import { isNil } from 'es-toolkit';
 import sanitizeFilename from 'sanitize-filename';
-import type { ExportFormat, SessionWithResequencedIDs } from './types';
+import type { ExportFormat } from '../options';
+import type { SessionWithResequencedIDs } from '../input';
 
 const escapeFilePart = (part: string) => part.replace(/\W/g, '');
 

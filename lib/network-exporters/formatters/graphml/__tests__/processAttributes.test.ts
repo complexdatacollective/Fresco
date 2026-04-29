@@ -1,8 +1,12 @@
 import { type Codebook } from '@codaco/protocol-validation';
-import { entityAttributesProperty, entityPrimaryKeyProperty } from '@codaco/shared-consts';
+import {
+  entityAttributesProperty,
+  entityPrimaryKeyProperty,
+} from '@codaco/shared-consts';
 import { type DocumentFragment as XmlDomDocumentFragment } from '@xmldom/xmldom';
 import { describe, expect, it } from 'vitest';
-import { type ExportOptions, type NodeWithResequencedID } from '../../../utils/types';
+import { type ExportOptions } from '~/lib/network-exporters/options';
+import { type NodeWithResequencedID } from '~/lib/network-exporters/input';
 import processAttributes from '../processAttributes';
 
 const mockExportOptions: ExportOptions = {

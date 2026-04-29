@@ -12,7 +12,7 @@ import {
 import { hash } from 'ohash';
 import { env } from '~/env';
 import type { GetInterviewsForExportQuery } from '~/queries/interviews';
-import { type SessionVariables } from '../utils/types';
+import { type SessionVariables } from '../input';
 
 /**
  * Creates an object containing all required session metadata for export

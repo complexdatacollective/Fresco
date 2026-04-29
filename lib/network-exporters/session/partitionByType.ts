@@ -1,10 +1,10 @@
 import type { Codebook } from '@codaco/protocol-validation';
+import type { ExportFormat } from '../options';
 import type {
   EdgeWithResequencedID,
-  ExportFormat,
   NodeWithResequencedID,
   SessionWithResequencedIDs,
-} from '../utils/types';
+} from '../input';
 
 /**
  * Partition a network as needed for edge-list and adjacency-matrix formats.

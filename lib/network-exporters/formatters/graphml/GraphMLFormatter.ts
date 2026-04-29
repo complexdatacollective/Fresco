@@ -1,6 +1,6 @@
 import { type Codebook } from '@codaco/protocol-validation';
 import { type WriteStream } from 'node:fs';
-import { type ExportOptions } from '../../utils/types';
+import { type ExportOptions } from '../../options';
 import { type ExportFileNetwork } from '../../session/exportFile';
 import graphMLGenerator from './createGraphML';
 

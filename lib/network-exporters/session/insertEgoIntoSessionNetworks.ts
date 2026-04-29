@@ -5,7 +5,7 @@
  */
 
 import { egoProperty, entityPrimaryKeyProperty } from '@codaco/shared-consts';
-import type { FormattedSession } from '../utils/types';
+import type { FormattedSession } from '../input';
 
 const insertNetworkEgo = (session: FormattedSession) => ({
   ...session,
