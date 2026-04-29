@@ -23,7 +23,7 @@ export type LayoutOptions = {
  * - 'height-only': Measure height with constrained width (GridLayout, ListLayout)
  * - 'intrinsic': Measure full intrinsic size (InlineGridLayout)
  */
-export type MeasurementMode = 'none' | 'height-only' | 'intrinsic';
+type MeasurementMode = 'none' | 'height-only' | 'intrinsic';
 
 /**
  * Information about how items should be measured for virtualization.
