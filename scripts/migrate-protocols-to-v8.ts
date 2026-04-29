@@ -89,7 +89,15 @@ async function migrateOneProtocol(
     lastModified: row.lastModified.toISOString(),
   };
 
-  const migrated = migrateProtocol(reconstructed, 8, { name: cleanName });
+  let migrated: ReturnType<typeof migrateProtocol>;
+  try {
+    migrated = migrateProtocol(reconstructed, 8, { name: cleanName });
+  } catch (err) {
+    const cause = err instanceof Error ? err.message : String(err);
+    throw new Error(
+      `Failed to migrate protocol "${row.name}" (id=${row.id}): ${cause}`,
+    );
+  }
   const newHash = hash(migrated);
 
   await prisma.protocol.update({

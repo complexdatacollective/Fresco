@@ -329,4 +329,34 @@ describe('migrateProtocolsToV8', () => {
 
     expect(dbHash).toBe(importHash);
   });
+
+  it('hard-fails with id and name when a protocol fails to migrate', async () => {
+    const prisma = makeMockPrisma();
+    prisma.protocol.findMany.mockResolvedValue([
+      {
+        id: 'cm-broken',
+        name: 'Broken Protocol.netcanvas',
+        schemaVersion: 7,
+        // `stages` is required to be an array — passing a non-array makes
+        // VersionedProtocolSchema reject this protocol inside migrateProtocol.
+        stages: 'not-an-array',
+        codebook: { node: {}, edge: {}, ego: { variables: {} } },
+        experiments: null,
+        description: null,
+        lastModified: new Date('2024-01-01T00:00:00.000Z'),
+      },
+    ]);
+
+    await expect(
+      migrateProtocolsToV8(
+        prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
+      ),
+    ).rejects.toThrow(/Broken Protocol\.netcanvas/);
+
+    await expect(
+      migrateProtocolsToV8(
+        prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
+      ),
+    ).rejects.toThrow(/cm-broken/);
+  });
 });
