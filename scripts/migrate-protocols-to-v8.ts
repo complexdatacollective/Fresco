@@ -1,8 +1,9 @@
 /* eslint-disable no-console */
 import { UTApi } from 'uploadthing/server';
 import { type PrismaClient } from '~/lib/db/generated/client';
+import { type AppSetting } from '~/lib/db/generated/enums';
 
-const STORAGE_SETTING_KEYS = [
+const STORAGE_SETTING_KEYS: AppSetting[] = [
   'storageProvider',
   'uploadThingToken',
   's3Endpoint',
@@ -10,7 +11,7 @@ const STORAGE_SETTING_KEYS = [
   's3Bucket',
   's3AccessKeyId',
   's3SecretAccessKey',
-] as const;
+];
 
 async function deleteOrphanBlobs(
   prisma: PrismaClient,
@@ -20,7 +21,7 @@ async function deleteOrphanBlobs(
 
   try {
     const settings = await prisma.appSettings.findMany({
-      where: { key: { in: [...STORAGE_SETTING_KEYS] } },
+      where: { key: { in: STORAGE_SETTING_KEYS } },
     });
     const map = Object.fromEntries(settings.map((s) => [s.key, s.value]));
     const provider = map.storageProvider ?? 'uploadthing';
