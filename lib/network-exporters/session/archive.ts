@@ -2,60 +2,48 @@ import archiver from 'archiver';
 import { createWriteStream } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { basename, join } from 'node:path';
-import type { ArchiveResult, ExportResult } from '../output';
+import type {
+  ArchiveResult,
+  ExportFailure,
+  ExportResult,
+  ExportSuccess,
+} from '~/lib/network-exporters/output';
 
-/**
- * Write a zip from source files
- */
-const archive = async (exportResults: ExportResult[]) => {
-  const temporaryDirectory = tmpdir();
+const ARCHIVE_PREFIX = 'networkCanvasExport';
 
-  const filenameWithExtension = `networkCanvasExport-${Date.now()}.zip`;
-  const writePath = join(temporaryDirectory, filenameWithExtension);
+const archive = async (
+  exportResults: ExportResult[],
+): Promise<ArchiveResult> => {
+  const fileName = `${ARCHIVE_PREFIX}-${Date.now()}.zip`;
+  const writePath = join(tmpdir(), fileName);
 
-  const result = await new Promise(
-    (resolve: (value: ArchiveResult) => void, reject) => {
-      const completed: ExportResult[] = [];
-      const rejected: ExportResult[] = [];
+  return new Promise<ArchiveResult>((resolve, reject) => {
+    const completed: ExportSuccess[] = [];
+    const rejected: ExportFailure[] = [];
+    const writeStream = createWriteStream(writePath);
 
-      const writeStream = createWriteStream(writePath);
+    writeStream.on('close', () =>
+      resolve({ path: writePath, fileName, completed, rejected }),
+    );
+    writeStream.on('warning', reject);
+    writeStream.on('error', reject);
 
-      writeStream.on('close', () => {
-        resolve({
-          path: writePath,
-          completed,
-          rejected,
-        });
-      });
+    const zip = archiver('zip', { zlib: { level: 1 }, store: true });
+    zip.pipe(writeStream);
+    zip.on('warning', reject);
+    zip.on('error', reject);
 
-      writeStream.on('warning', reject);
-      writeStream.on('error', reject);
+    for (const result of exportResults) {
+      if (result.success) {
+        zip.file(result.filePath, { name: basename(result.filePath) });
+        completed.push(result);
+      } else {
+        rejected.push(result);
+      }
+    }
 
-      const zip = archiver('zip', {
-        zlib: { level: 1 }, // 1 = low 9 = high
-        store: true, // Seems to skip compression entirely?
-      });
-
-      zip.pipe(writeStream);
-
-      zip.on('warning', reject);
-      zip.on('error', reject);
-
-      exportResults.forEach((exportResult) => {
-        if (exportResult.success) {
-          const { filePath } = exportResult;
-          zip.file(filePath, { name: basename(filePath) });
-          completed.push(exportResult);
-        } else {
-          rejected.push(exportResult);
-        }
-      });
-
-      void zip.finalize(); // Will trigger writeStream close event
-    },
-  );
-
-  return result;
+    void zip.finalize();
+  });
 };
 
 export default archive;

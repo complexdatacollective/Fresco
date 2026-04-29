@@ -56,6 +56,7 @@ describe('exportPipeline', () => {
     }).pipe(Effect.provide(testLayer), Effect.runPromise);
 
     expect(result.status).toBe('error');
+    if (result.status !== 'error') throw new Error('Expected error status');
     expect(result.error).toMatch(
       /database connection failed.*fetching interviews/i,
     );
@@ -158,4 +159,10 @@ describe('exportPipeline', () => {
 
     expect(result.status).not.toBe('error');
   });
+
+  it.todo(
+    'returns status=partial when one file generation fails' +
+      ' — wire a mock formatter that throws for one format and verify' +
+      ' failedExports.length===1, successfulExports populated, zipUrl defined',
+  );
 });

@@ -1,12 +1,16 @@
+import { sessionProperty } from '@codaco/shared-consts';
 import { Effect, Queue, Ref } from 'effect';
 import { invariant } from 'es-toolkit';
-import { sessionProperty } from '@codaco/shared-consts';
-import { ExportGenerationError } from '~/lib/network-exporters/errors';
+import os from 'node:os';
 import type { ExportEvent } from '~/lib/network-exporters/events';
-import { type ExportedProtocol } from '~/lib/network-exporters/pipeline';
+import type { ExportedProtocol } from '~/lib/network-exporters/pipeline';
+import type {
+  ExportFormat,
+  ExportOptions,
+} from '~/lib/network-exporters/options';
+import type { ExportResult } from '~/lib/network-exporters/output';
+import type { SessionWithResequencedIDs } from '~/lib/network-exporters/input';
 import { getFilePrefix } from '../utils/general';
-import type { ExportFormat, ExportOptions } from '../options';
-import type { SessionWithResequencedIDs } from '../input';
 import exportFile from './exportFile';
 import { partitionByType } from './partitionByType';
 
@@ -16,6 +20,7 @@ type ExportItem = {
   network: ReturnType<typeof partitionByType>[number];
   codebook: Parameters<typeof exportFile>[0]['codebook'];
   exportOptions: ExportOptions;
+  sessionId: string;
 };
 
 function buildExportItems(
@@ -23,23 +28,22 @@ function buildExportItems(
   exportOptions: ExportOptions,
   unifiedSessions: Record<string, SessionWithResequencedIDs[]>,
 ): ExportItem[] {
-  const exportFormats = [
-    ...(exportOptions.exportGraphML ? ['graphml'] : []),
-    ...(exportOptions.exportCSV ? ['attributeList', 'edgeList', 'ego'] : []),
-  ] as ExportFormat[];
+  const exportFormats: ExportFormat[] = [
+    ...(exportOptions.exportGraphML ? (['graphml'] as const) : []),
+    ...(exportOptions.exportCSV
+      ? (['attributeList', 'edgeList', 'ego'] as const)
+      : []),
+  ];
 
   const items: ExportItem[] = [];
-
   Object.entries(unifiedSessions).forEach(([protocolKey, sessions]) => {
     const codebook = protocols[protocolKey]?.codebook;
     invariant(codebook, `No protocol found for key: ${protocolKey}`);
 
     sessions.forEach((session) => {
       const prefix = getFilePrefix(session);
-
       exportFormats.forEach((format) => {
         const partitionedNetworks = partitionByType(codebook, session, format);
-
         partitionedNetworks.forEach((partitionedNetwork) => {
           items.push({
             prefix,
@@ -47,12 +51,12 @@ function buildExportItems(
             network: partitionedNetwork,
             codebook,
             exportOptions,
+            sessionId: session.sessionVariables[sessionProperty],
           });
         });
       });
     });
   });
-
   return items;
 }
 
@@ -65,6 +69,7 @@ export const generateOutputFilesEffect = (
   Effect.gen(function* () {
     const items = buildExportItems(protocols, exportOptions, unifiedSessions);
     const total = items.length;
+    const concurrency = exportOptions.concurrency ?? os.cpus().length;
     const completedRef = yield* Ref.make(0);
 
     yield* Queue.offer(progressQueue, {
@@ -75,19 +80,10 @@ export const generateOutputFilesEffect = (
       total,
     });
 
-    const results = yield* Effect.forEach(
+    const results: ExportResult[] = yield* Effect.forEach(
       items,
       (item) =>
-        Effect.tryPromise({
-          try: () => exportFile(item),
-          catch: (error) =>
-            new ExportGenerationError({
-              cause: error,
-              format: item.exportFormat,
-              sessionId: item.network.sessionVariables[sessionProperty],
-              partitionEntity: item.network.partitionEntity,
-            }),
-        }).pipe(
+        exportFile(item).pipe(
           Effect.tap(() =>
             Ref.updateAndGet(completedRef, (n) => n + 1).pipe(
               Effect.tap((current) =>
@@ -101,7 +97,7 @@ export const generateOutputFilesEffect = (
             ),
           ),
         ),
-      { concurrency: 'unbounded' },
+      { concurrency },
     );
 
     return results;

@@ -8,6 +8,7 @@ export const ExportOptionsSchema = z.object({
     screenLayoutHeight: z.number(),
     screenLayoutWidth: z.number(),
   }),
+  concurrency: z.optional(z.number()),
 });
 
 export type ExportOptions = z.infer<typeof ExportOptionsSchema>;

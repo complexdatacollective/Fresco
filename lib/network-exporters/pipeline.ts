@@ -1,4 +1,3 @@
-import { basename } from 'node:path';
 import { Effect, Queue } from 'effect';
 import archive from '~/lib/network-exporters/session/archive';
 import { generateOutputFilesEffect } from '~/lib/network-exporters/session/generateOutputFiles';
@@ -6,27 +5,27 @@ import { formatExportableSessions } from '~/lib/network-exporters/formatters/for
 import groupByProtocolProperty from '~/lib/network-exporters/session/groupByProtocolProperty';
 import { insertEgoIntoSessionNetworks } from '~/lib/network-exporters/session/insertEgoIntoSessionNetworks';
 import { resequenceIds } from '~/lib/network-exporters/session/resequenceIds';
-import type { ExportOptions } from '~/lib/network-exporters/options';
-import type { ExportReturn } from '~/lib/network-exporters/output';
-import { ArchiveError, FileStorageError } from '~/lib/network-exporters/errors';
+import { ArchiveError } from '~/lib/network-exporters/errors';
 import {
   type ExportEvent,
   stageMessages,
 } from '~/lib/network-exporters/events';
-import { FileStorage } from '~/lib/network-exporters/services/FileStorage';
-import { FileSystem } from '~/lib/network-exporters/services/FileSystem';
-import { InterviewRepository } from '~/lib/network-exporters/services/InterviewRepository';
 import type {
   InterviewExportInput,
   ProtocolExportInput,
 } from '~/lib/network-exporters/input';
+import type { ExportOptions } from '~/lib/network-exporters/options';
+import type { ExportReturn } from '~/lib/network-exporters/output';
+import { FileStorage } from '~/lib/network-exporters/services/FileStorage';
+import { FileSystem } from '~/lib/network-exporters/services/FileSystem';
+import { InterviewRepository } from '~/lib/network-exporters/services/InterviewRepository';
 
 export type ExportedProtocol = ProtocolExportInput;
 
 function buildProtocolsMap(
   sessions: InterviewExportInput[],
-): Record<string, ExportedProtocol> {
-  const protocolsMap = new Map<string, ExportedProtocol>();
+): Record<string, ProtocolExportInput> {
+  const protocolsMap = new Map<string, ProtocolExportInput>();
   sessions.forEach((session) => {
     protocolsMap.set(session.protocol.hash, session.protocol);
   });
@@ -72,10 +71,6 @@ export const exportPipeline = (
       progressQueue,
     ).pipe(Effect.withSpan('export.generateFiles'));
 
-    const tempFilePaths = exportResults
-      .filter((r): r is Extract<typeof r, { success: true }> => r.success)
-      .map((r) => r.filePath);
-
     yield* Queue.offer(progressQueue, {
       type: 'stage',
       stage: 'archiving',
@@ -87,46 +82,43 @@ export const exportPipeline = (
       catch: (error) => new ArchiveError({ cause: error }),
     }).pipe(Effect.withSpan('export.archive'));
 
-    tempFilePaths.push(archiveResult.path);
+    const tempPaths = exportResults
+      .filter((r): r is Extract<typeof r, { success: true }> => r.success)
+      .map((r) => r.filePath);
+    tempPaths.push(archiveResult.path);
 
-    const fileName = basename(archiveResult.path);
-    if (!/^networkCanvasExport-\d+\.zip$/.test(fileName)) {
-      return yield* Effect.fail(
-        new FileStorageError({
-          cause: new Error(`Invalid archive filename: ${fileName}`),
-        }),
-      );
-    }
+    return yield* Effect.gen(function* () {
+      yield* Queue.offer(progressQueue, {
+        type: 'stage',
+        stage: 'uploading',
+        message: stageMessages.uploading,
+      });
 
-    yield* Queue.offer(progressQueue, {
-      type: 'stage',
-      stage: 'uploading',
-      message: stageMessages.uploading,
-    });
+      const archiveStream = yield* fs.readStream(archiveResult.path);
+      const { key } = yield* fileStorage
+        .upload(archiveStream, archiveResult.fileName)
+        .pipe(Effect.withSpan('export.upload'));
 
-    const archiveStream = yield* fs.readStream(archiveResult.path);
-    const { key } = yield* fileStorage
-      .upload(archiveStream, fileName)
-      .pipe(Effect.withSpan('export.upload'));
+      const downloadUrl = yield* fileStorage
+        .getDownloadUrl(key)
+        .pipe(Effect.withSpan('export.getDownloadUrl'));
 
-    const downloadUrl = yield* fileStorage
-      .getDownloadUrl(key)
-      .pipe(Effect.withSpan('export.getDownloadUrl'));
-
-    yield* Effect.forEach(
-      tempFilePaths,
-      (path) => fs.deleteFile(path).pipe(Effect.catchAll(() => Effect.void)),
-      { discard: true },
+      const result: ExportReturn = {
+        zipUrl: downloadUrl,
+        zipKey: key,
+        status: archiveResult.rejected.length ? 'partial' : 'success',
+        successfulExports: archiveResult.completed,
+        failedExports: archiveResult.rejected,
+      };
+      return result;
+    }).pipe(
+      Effect.ensuring(
+        Effect.forEach(
+          tempPaths,
+          (path) =>
+            fs.deleteFile(path).pipe(Effect.catchAll(() => Effect.void)),
+          { discard: true },
+        ),
+      ),
     );
-
-    return {
-      zipUrl: downloadUrl,
-      zipKey: key,
-      status: archiveResult.rejected.length
-        ? ('partial' as const)
-        : ('success' as const),
-      error: archiveResult.rejected.length ? 'Some exports failed' : null,
-      successfulExports: archiveResult.completed,
-      failedExports: archiveResult.rejected,
-    } satisfies ExportReturn;
   });
