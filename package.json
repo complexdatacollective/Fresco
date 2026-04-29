@@ -86,7 +86,7 @@
     "jszip": "^3.10.1",
     "lucide-react": "^1.8.0",
     "luxon": "^3.7.2",
-    "mapbox-gl": "^3.21.0",
+    "mapbox-gl": "^3.22.0",
     "motion": "^12.38.0",
     "nanoid": "^5.1.9",
     "next": "16.2.3",
