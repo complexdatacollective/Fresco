@@ -63,8 +63,8 @@ export async function POST(request: Request) {
           Effect.andThen(
             Queue.offer(queue, {
               type: 'complete',
-              zipUrl: result.zipUrl ?? '',
-              zipKey: result.zipKey ?? '',
+              zipUrl: result.zipUrl,
+              zipKey: result.zipKey,
             }),
           ),
         ),
