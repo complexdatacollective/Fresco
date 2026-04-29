@@ -15,15 +15,16 @@ import {
 } from '~/lib/network-exporters/events';
 import { FileStorage } from '~/lib/network-exporters/services/FileStorage';
 import { FileSystem } from '~/lib/network-exporters/services/FileSystem';
-import {
-  InterviewRepository,
-  type InterviewExportData,
-} from '~/lib/network-exporters/services/InterviewRepository';
+import { InterviewRepository } from '~/lib/network-exporters/services/InterviewRepository';
+import type {
+  InterviewExportInput,
+  ProtocolExportInput,
+} from '~/lib/network-exporters/input';
 
-export type ExportedProtocol = InterviewExportData['protocol'];
+export type ExportedProtocol = ProtocolExportInput;
 
 function buildProtocolsMap(
-  sessions: InterviewExportData[],
+  sessions: InterviewExportInput[],
 ): Record<string, ExportedProtocol> {
   const protocolsMap = new Map<string, ExportedProtocol>();
   sessions.forEach((session) => {

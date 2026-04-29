@@ -8,10 +8,8 @@ import type { ExportEvent } from '~/lib/network-exporters/events';
 import { NodeFileSystem } from '~/lib/exportLayers/NodeFileSystem';
 import { exportPipeline } from '~/lib/network-exporters/pipeline';
 import { FileStorage } from '~/lib/network-exporters/services/FileStorage';
-import {
-  InterviewRepository,
-  type InterviewExportData,
-} from '~/lib/network-exporters/services/InterviewRepository';
+import { InterviewRepository } from '~/lib/network-exporters/services/InterviewRepository';
+import type { InterviewExportInput } from '~/lib/network-exporters/input';
 
 const defaultExportOptions = {
   exportGraphML: true,
@@ -96,43 +94,20 @@ describe('exportPipeline', () => {
   });
 
   it('emits all stage events in order on successful export', async () => {
-    const mockInterview: InterviewExportData = {
+    const mockInterview: InterviewExportInput = {
       id: 'test-interview-1',
+      participantIdentifier: 'test-participant',
       startTime: new Date('2025-01-01'),
       finishTime: new Date('2025-01-01'),
-      exportTime: null,
-      lastUpdated: new Date('2025-01-01'),
-      participantId: 'participant-1',
-      protocolId: 'proto-1',
-      currentStep: 0,
-      stageMetadata: null,
-      isSynthetic: false,
       network: {
         nodes: [],
         edges: [],
         ego: { _uid: 'ego-1', attributes: {} },
       },
       protocol: {
-        id: 'proto-1',
         hash: 'testhash123',
         name: 'Test Protocol',
-        schemaVersion: 7,
-        description: null,
-        importedAt: new Date('2025-01-01'),
-        lastModified: new Date('2025-01-01'),
-        stages: [],
-        codebook: {
-          node: {},
-          edge: {},
-          ego: {},
-        },
-        experiments: {},
-      },
-      participant: {
-        id: 'participant-1',
-        identifier: 'test-participant',
-        label: 'Test Participant',
-        isSynthetic: false,
+        codebook: { node: {}, edge: {} },
       },
     };
 

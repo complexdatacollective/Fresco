@@ -1,3 +1,5 @@
+import type { Codebook } from '@codaco/protocol-validation';
+import { NcNetworkSchema } from '@codaco/shared-consts';
 import type {
   caseProperty,
   codebookHashProperty,
@@ -68,4 +70,23 @@ export type SessionWithResequencedIDs = Omit<
 > & {
   nodes: NodeWithResequencedID[];
   edges: EdgeWithResequencedID[];
+};
+
+export type ProtocolExportInput = {
+  hash: string;
+  name: string;
+  codebook: Codebook;
+};
+
+export type InterviewExportInput = {
+  id: string;
+  participantIdentifier: string;
+  startTime: Date;
+  finishTime: Date | null;
+  network: NcNetwork;
+  protocol: ProtocolExportInput;
+};
+
+export const parseNcNetwork = (raw: unknown): NcNetwork => {
+  return NcNetworkSchema.parse(raw);
 };
