@@ -74,12 +74,12 @@ describe('migrateProtocolsToV8', () => {
     });
 
     // PreviewProtocol must be truncated *before* the Asset rows are deleted,
-    // so the M2M join rows cascade and the Asset rows become unreferenced.
+    // so the M2M join rows are removed and the Asset rows become unreferenced.
     const previewCallOrder =
-      prisma.previewProtocol.deleteMany.mock.invocationCallOrder[0];
+      prisma.previewProtocol.deleteMany.mock.invocationCallOrder[0]!;
     const assetDeleteCallOrder =
-      prisma.asset.deleteMany.mock.invocationCallOrder[0];
-    expect(previewCallOrder).toBeLessThan(assetDeleteCallOrder!);
+      prisma.asset.deleteMany.mock.invocationCallOrder[0]!;
+    expect(previewCallOrder).toBeLessThan(assetDeleteCallOrder);
 
     expect(prisma.asset.deleteMany).toHaveBeenCalledWith({
       where: { key: { in: ['orphan-key-1', 'orphan-key-2'] } },
