@@ -6,7 +6,10 @@ import ProgressBar from '~/components/ui/ProgressBar';
 import InputField from '~/lib/form/components/fields/InputField';
 import { cx } from '~/utils/cva';
 
-type PasswordFieldProps = React.ComponentProps<typeof InputField> & {
+type PasswordFieldProps = Omit<
+  React.ComponentProps<typeof InputField>,
+  'type'
+> & {
   showStrengthMeter?: boolean;
 };
 
