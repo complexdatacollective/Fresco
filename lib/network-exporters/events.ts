@@ -13,7 +13,7 @@ export const stageMessages: Record<ExportStage, string> = {
   uploading: 'Uploading...',
 };
 
-type ExportStageEvent = {
+export type ExportStageEvent = {
   type: 'stage';
   stage: ExportStage;
   message: string;
@@ -21,30 +21,11 @@ type ExportStageEvent = {
   total?: number;
 };
 
-type ExportProgressEvent = {
+export type ExportProgressEvent = {
   type: 'progress';
   stage: 'generating';
   current: number;
   total: number;
 };
 
-type ExportCompleteEvent = {
-  type: 'complete';
-  zipUrl: string;
-  zipKey: string;
-};
-
-type ExportErrorEvent = {
-  type: 'error';
-  message: string;
-};
-
-export type ExportEvent =
-  | ExportStageEvent
-  | ExportProgressEvent
-  | ExportCompleteEvent
-  | ExportErrorEvent;
-
-export function formatSSE(event: ExportEvent): string {
-  return `data: ${JSON.stringify(event)}\n\n`;
-}
+export type ExportEvent = ExportStageEvent | ExportProgressEvent;

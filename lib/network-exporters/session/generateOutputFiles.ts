@@ -60,7 +60,7 @@ export const generateOutputFilesEffect = (
   protocols: Record<string, ExportedProtocol>,
   exportOptions: ExportOptions,
   unifiedSessions: Record<string, SessionWithResequencedIDs[]>,
-  progressQueue: Queue.Queue<ExportEvent>,
+  progressQueue: Queue.Enqueue<ExportEvent>,
 ) =>
   Effect.gen(function* () {
     const items = buildExportItems(protocols, exportOptions, unifiedSessions);

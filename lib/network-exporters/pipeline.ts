@@ -8,10 +8,7 @@ import { insertEgoIntoSessionNetworks } from '~/lib/network-exporters/session/in
 import { resequenceIds } from '~/lib/network-exporters/session/resequenceIds';
 import type { ExportOptions } from '~/lib/network-exporters/options';
 import type { ExportReturn } from '~/lib/network-exporters/output';
-import {
-  ArchiveError,
-  FileStorageError,
-} from '~/lib/network-exporters/errors';
+import { ArchiveError, FileStorageError } from '~/lib/network-exporters/errors';
 import {
   type ExportEvent,
   stageMessages,
@@ -38,7 +35,7 @@ function buildProtocolsMap(
 export const exportPipeline = (
   interviewIds: string[],
   exportOptions: ExportOptions,
-  progressQueue: Queue.Queue<ExportEvent>,
+  progressQueue: Queue.Enqueue<ExportEvent>,
 ) =>
   Effect.gen(function* () {
     const repo = yield* InterviewRepository;
