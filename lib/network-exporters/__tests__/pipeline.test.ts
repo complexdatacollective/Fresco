@@ -1,6 +1,9 @@
 import { Effect, Layer, Queue } from 'effect';
 import { describe, expect, it } from 'vitest';
-import { DatabaseError } from '~/lib/network-exporters/errors';
+import {
+  DatabaseError,
+  describeExportError,
+} from '~/lib/network-exporters/errors';
 import type { ExportEvent } from '~/lib/network-exporters/events';
 import { NodeFileSystem } from '~/lib/exportLayers/NodeFileSystem';
 import { exportPipeline } from '~/lib/network-exporters/pipeline';
@@ -27,7 +30,6 @@ describe('exportPipeline', () => {
         Effect.fail(
           new DatabaseError({
             cause: new Error('connection refused'),
-            userMessage: 'Database connection failed.',
           }),
         ),
     });
@@ -50,14 +52,16 @@ describe('exportPipeline', () => {
         Effect.catchAll((error) =>
           Effect.succeed({
             status: 'error' as const,
-            error: error.userMessage,
+            error: describeExportError(error, 'fetching interviews'),
           }),
         ),
       );
     }).pipe(Effect.provide(testLayer), Effect.runPromise);
 
     expect(result.status).toBe('error');
-    expect(result.error).toBe('Database connection failed.');
+    expect(result.error).toMatch(
+      /database connection failed.*fetching interviews/i,
+    );
   });
 
   it('emits stage events to the queue', async () => {
@@ -66,7 +70,6 @@ describe('exportPipeline', () => {
         Effect.fail(
           new DatabaseError({
             cause: new Error('test'),
-            userMessage: 'Test error.',
           }),
         ),
     });
@@ -162,7 +165,7 @@ describe('exportPipeline', () => {
         Effect.catchAll((error) =>
           Effect.succeed({
             status: 'error' as const,
-            error: 'userMessage' in error ? error.userMessage : 'Unknown',
+            error: describeExportError(error),
           }),
         ),
       );

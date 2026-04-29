@@ -11,7 +11,6 @@ import type { ExportReturn } from '~/lib/network-exporters/output';
 import {
   ArchiveError,
   FileStorageError,
-  getUserMessage,
 } from '~/lib/network-exporters/errors';
 import {
   type ExportEvent,
@@ -87,11 +86,7 @@ export const exportPipeline = (
 
     const archiveResult = yield* Effect.tryPromise({
       try: () => archive(exportResults),
-      catch: (error) =>
-        new ArchiveError({
-          cause: error,
-          userMessage: getUserMessage(error, 'creating zip archive'),
-        }),
+      catch: (error) => new ArchiveError({ cause: error }),
     }).pipe(Effect.withSpan('export.archive'));
 
     tempFilePaths.push(archiveResult.path);
@@ -101,7 +96,6 @@ export const exportPipeline = (
       return yield* Effect.fail(
         new FileStorageError({
           cause: new Error(`Invalid archive filename: ${fileName}`),
-          userMessage: 'Export failed due to an internal error.',
         }),
       );
     }

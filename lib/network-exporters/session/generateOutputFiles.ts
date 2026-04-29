@@ -1,9 +1,7 @@
 import { Effect, Queue, Ref } from 'effect';
 import { invariant } from 'es-toolkit';
-import {
-  ExportGenerationError,
-  getUserMessage,
-} from '~/lib/network-exporters/errors';
+import { sessionProperty } from '@codaco/shared-consts';
+import { ExportGenerationError } from '~/lib/network-exporters/errors';
 import type { ExportEvent } from '~/lib/network-exporters/events';
 import { type ExportedProtocol } from '~/lib/network-exporters/pipeline';
 import { getFilePrefix } from '../utils/general';
@@ -85,7 +83,9 @@ export const generateOutputFilesEffect = (
           catch: (error) =>
             new ExportGenerationError({
               cause: error,
-              userMessage: getUserMessage(error, 'generating export files'),
+              format: item.exportFormat,
+              sessionId: item.network.sessionVariables[sessionProperty],
+              partitionEntity: item.network.partitionEntity,
             }),
         }).pipe(
           Effect.tap(() =>
