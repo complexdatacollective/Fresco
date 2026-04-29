@@ -12,6 +12,7 @@ import {
 } from '@codaco/shared-consts';
 import { v4 as uuid } from 'uuid';
 import { type VariableOptions } from '~/lib/codebook';
+import { type DyadCensusMetadataItem } from '~/lib/interviewer/ducks/modules/session';
 import { ValueGenerator } from '~/lib/interviewer/utils/SyntheticInterview/ValueGenerator';
 import {
   type VariableEntry,
@@ -480,7 +481,9 @@ export function generateNetwork(
           respectSkipLogicAndFiltering,
         );
 
-        for (const prompt of prompts) {
+        const negativeResponses: DyadCensusMetadataItem[] = [];
+        for (let promptIndex = 0; promptIndex < prompts.length; promptIndex++) {
+          const prompt = prompts[promptIndex]!;
           const createEdgeType = prompt.createEdge as string | undefined;
           if (!createEdgeType) continue;
 
@@ -494,10 +497,18 @@ export function generateNetwork(
           );
           edges.push(...newEdges);
 
-          if (negativeIndices.length > 0) {
-            const promptId = (prompt.id as string) ?? stageId;
-            stageMetadata[promptId] = { negativeIndices };
+          for (const [a, b] of negativeIndices) {
+            negativeResponses.push([
+              promptIndex,
+              subjectNodes[a]![entityPrimaryKeyProperty],
+              subjectNodes[b]![entityPrimaryKeyProperty],
+              false,
+            ]);
           }
+        }
+
+        if (negativeResponses.length > 0) {
+          stageMetadata[i] = negativeResponses;
         }
         break;
       }
@@ -516,7 +527,9 @@ export function generateNetwork(
           respectSkipLogicAndFiltering,
         );
 
-        for (const prompt of prompts) {
+        const negativeResponses: DyadCensusMetadataItem[] = [];
+        for (let promptIndex = 0; promptIndex < prompts.length; promptIndex++) {
+          const prompt = prompts[promptIndex]!;
           const createEdgeType = prompt.createEdge as string | undefined;
           const edgeVariable = prompt.edgeVariable as string | undefined;
           if (!createEdgeType) continue;
@@ -542,10 +555,18 @@ export function generateNetwork(
 
           edges.push(...newEdges);
 
-          if (negativeIndices.length > 0) {
-            const promptId = (prompt.id as string) ?? stageId;
-            stageMetadata[promptId] = { negativeIndices };
+          for (const [a, b] of negativeIndices) {
+            negativeResponses.push([
+              promptIndex,
+              subjectNodes[a]![entityPrimaryKeyProperty],
+              subjectNodes[b]![entityPrimaryKeyProperty],
+              false,
+            ]);
           }
+        }
+
+        if (negativeResponses.length > 0) {
+          stageMetadata[i] = negativeResponses;
         }
         break;
       }
@@ -762,6 +783,8 @@ export function generateNetwork(
             } as NcEdge);
           }
         }
+
+        stageMetadata[i] = { isNetworkCommitted: true };
         break;
       }
 
