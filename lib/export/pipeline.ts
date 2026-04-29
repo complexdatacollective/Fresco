@@ -1,11 +1,11 @@
 import { basename } from 'node:path';
 import { Effect, Queue } from 'effect';
-import archive from '~/lib/network-exporters/formatters/session/archive';
-import { generateOutputFilesEffect } from '~/lib/network-exporters/formatters/session/generateOutputFiles';
+import archive from '~/lib/network-exporters/session/archive';
+import { generateOutputFilesEffect } from '~/lib/network-exporters/session/generateOutputFiles';
 import { formatExportableSessions } from '~/lib/network-exporters/formatters/formatExportableSessions';
-import groupByProtocolProperty from '~/lib/network-exporters/formatters/session/groupByProtocolProperty';
-import { insertEgoIntoSessionNetworks } from '~/lib/network-exporters/formatters/session/insertEgoIntoSessionNetworks';
-import { resequenceIds } from '~/lib/network-exporters/formatters/session/resequenceIds';
+import groupByProtocolProperty from '~/lib/network-exporters/session/groupByProtocolProperty';
+import { insertEgoIntoSessionNetworks } from '~/lib/network-exporters/session/insertEgoIntoSessionNetworks';
+import { resequenceIds } from '~/lib/network-exporters/session/resequenceIds';
 import type {
   ExportOptions,
   ExportReturn,

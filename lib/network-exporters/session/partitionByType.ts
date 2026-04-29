@@ -4,7 +4,7 @@ import type {
   ExportFormat,
   NodeWithResequencedID,
   SessionWithResequencedIDs,
-} from '../../utils/types';
+} from '../utils/types';
 
 /**
  * Partition a network as needed for edge-list and adjacency-matrix formats.

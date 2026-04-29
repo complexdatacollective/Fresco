@@ -22,7 +22,7 @@ import {
   type EdgeWithResequencedID,
   type NodeWithResequencedID,
 } from '../../utils/types';
-import { type ExportFileNetwork } from '../session/exportFile';
+import { type ExportFileNetwork } from '../../session/exportFile';
 
 export function getCodebookVariablesForEntity(
   entity: NodeWithResequencedID | EdgeWithResequencedID | NcEgo,

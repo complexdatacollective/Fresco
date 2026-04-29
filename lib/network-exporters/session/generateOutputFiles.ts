@@ -3,12 +3,12 @@ import { invariant } from 'es-toolkit';
 import { ExportGenerationError, getUserMessage } from '~/lib/export/errors';
 import type { ExportEvent } from '~/lib/export/exportEvents';
 import { type ExportedProtocol } from '~/lib/export/pipeline';
-import { getFilePrefix } from '../../utils/general';
+import { getFilePrefix } from '../utils/general';
 import type {
   ExportFormat,
   ExportOptions,
   SessionWithResequencedIDs,
-} from '../../utils/types';
+} from '../utils/types';
 import exportFile from './exportFile';
 import { partitionByType } from './partitionByType';
 

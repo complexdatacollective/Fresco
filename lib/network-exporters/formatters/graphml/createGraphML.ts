@@ -1,7 +1,7 @@
 import type { Codebook } from '@codaco/protocol-validation';
 import { XMLSerializer } from '@xmldom/xmldom';
 import { type ExportOptions } from '../../utils/types';
-import { type ExportFileNetwork } from '../session/exportFile';
+import { type ExportFileNetwork } from '../../session/exportFile';
 import getDataElementGenerator from './generateDataElements';
 import getKeyElementGenerator from './generateKeyElements';
 import { setUpXml } from './helpers';

@@ -3,7 +3,7 @@ import { groupBy } from 'es-toolkit';
 import type {
   SessionWithNetworkEgo,
   SessionsByProtocol,
-} from '../../utils/types';
+} from '../utils/types';
 
 export default function groupByProtocolProperty(
   s: SessionWithNetworkEgo[],

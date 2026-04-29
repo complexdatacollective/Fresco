@@ -2,13 +2,13 @@ import type { Codebook } from '@codaco/protocol-validation';
 import fs from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { getFileExtension, makeFilename } from '../../utils/general';
-import getFormatterClass from '../../utils/getFormatterClass';
+import { getFileExtension, makeFilename } from '../utils/general';
+import getFormatterClass from '../utils/getFormatterClass';
 import type {
   ExportFormat,
   ExportOptions,
   ExportResult,
-} from '../../utils/types';
+} from '../utils/types';
 import type { partitionByType } from './partitionByType';
 
 export type ExportFileNetwork = ReturnType<typeof partitionByType>[number];
