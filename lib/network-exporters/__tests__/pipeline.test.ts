@@ -1,14 +1,14 @@
 import { Effect, Layer, Queue } from 'effect';
 import { describe, expect, it } from 'vitest';
-import { DatabaseError } from '~/lib/export/errors';
-import type { ExportEvent } from '~/lib/export/exportEvents';
-import { NodeFileSystem } from '~/lib/export/layers/NodeFileSystem';
-import { exportPipeline } from '~/lib/export/pipeline';
+import { DatabaseError } from '~/lib/network-exporters/errors';
+import type { ExportEvent } from '~/lib/network-exporters/events';
+import { NodeFileSystem } from '~/lib/network-exporters/layers/NodeFileSystem';
+import { exportPipeline } from '~/lib/network-exporters/pipeline';
 import { FileStorage } from '~/lib/storage/services/FileStorage';
 import {
   InterviewRepository,
   type InterviewExportData,
-} from '~/lib/export/services/InterviewRepository';
+} from '~/lib/network-exporters/services/InterviewRepository';
 
 const defaultExportOptions = {
   exportGraphML: true,

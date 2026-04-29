@@ -2,8 +2,8 @@ import { Effect, Queue, Stream } from 'effect';
 import { addEvent } from '~/actions/activityFeed';
 import { requireApiAuth } from '~/lib/auth/guards';
 import { safeRevalidateTag } from '~/lib/cache';
-import { type ExportEvent, formatSSE } from '~/lib/export/exportEvents';
-import { exportPipeline } from '~/lib/export/pipeline';
+import { type ExportEvent, formatSSE } from '~/lib/network-exporters/events';
+import { exportPipeline } from '~/lib/network-exporters/pipeline';
 import {
   captureEvent,
   captureException,

@@ -1,5 +1,5 @@
 import { Context, type Effect } from 'effect';
-import type { FileSystemError } from '~/lib/export/errors';
+import type { FileSystemError } from '~/lib/network-exporters/errors';
 
 export class FileSystem extends Context.Tag('FileSystem')<
   FileSystem,

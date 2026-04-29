@@ -1,8 +1,8 @@
 import { Effect, Queue, Ref } from 'effect';
 import { invariant } from 'es-toolkit';
-import { ExportGenerationError, getUserMessage } from '~/lib/export/errors';
-import type { ExportEvent } from '~/lib/export/exportEvents';
-import { type ExportedProtocol } from '~/lib/export/pipeline';
+import { ExportGenerationError, getUserMessage } from '~/lib/network-exporters/errors';
+import type { ExportEvent } from '~/lib/network-exporters/events';
+import { type ExportedProtocol } from '~/lib/network-exporters/pipeline';
 import { getFilePrefix } from '../utils/general';
 import type {
   ExportFormat,

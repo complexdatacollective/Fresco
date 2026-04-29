@@ -14,14 +14,14 @@ import {
   ArchiveError,
   FileStorageError,
   getUserMessage,
-} from '~/lib/export/errors';
-import { type ExportEvent, stageMessages } from '~/lib/export/exportEvents';
+} from '~/lib/network-exporters/errors';
+import { type ExportEvent, stageMessages } from '~/lib/network-exporters/events';
 import { FileStorage } from '~/lib/storage/services/FileStorage';
-import { FileSystem } from '~/lib/export/services/FileSystem';
+import { FileSystem } from '~/lib/network-exporters/services/FileSystem';
 import {
   InterviewRepository,
   type InterviewExportData,
-} from '~/lib/export/services/InterviewRepository';
+} from '~/lib/network-exporters/services/InterviewRepository';
 
 export type ExportedProtocol = InterviewExportData['protocol'];
 

@@ -8,7 +8,7 @@ import { deleteZipFromStorage } from '~/actions/uploadThing';
 import ProgressBar from '~/components/ui/ProgressBar';
 import { useToast } from '~/components/ui/Toast';
 import { useDownload } from '~/hooks/useDownload';
-import type { ExportEvent } from '~/lib/export/exportEvents';
+import type { ExportEvent } from '~/lib/network-exporters/events';
 import type { ExportOptions } from '~/lib/network-exporters/utils/types';
 import { ensureError } from '~/utils/ensureError';
 import Spinner from './Spinner';

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatSSE, type ExportEvent } from '~/lib/export/exportEvents';
+import { formatSSE, type ExportEvent } from '~/lib/network-exporters/events';
 
 describe('formatSSE', () => {
   it('formats a stage event as SSE', () => {

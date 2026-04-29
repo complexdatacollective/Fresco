@@ -1,7 +1,7 @@
 import { Effect, Layer } from 'effect';
 import { readFile as nodeReadFile, unlink } from 'node:fs/promises';
-import { FileSystemError, getUserMessage } from '~/lib/export/errors';
-import { FileSystem } from '~/lib/export/services/FileSystem';
+import { FileSystemError, getUserMessage } from '~/lib/network-exporters/errors';
+import { FileSystem } from '~/lib/network-exporters/services/FileSystem';
 
 export const NodeFileSystem = Layer.succeed(FileSystem, {
   readFile: (path) =>

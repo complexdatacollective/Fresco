@@ -1,6 +1,6 @@
 import { Context, type Effect } from 'effect';
 import type { GetInterviewsForExportQuery } from '~/queries/interviews';
-import type { DatabaseError } from '~/lib/export/errors';
+import type { DatabaseError } from '~/lib/network-exporters/errors';
 
 export type InterviewExportData = GetInterviewsForExportQuery[number];
 
