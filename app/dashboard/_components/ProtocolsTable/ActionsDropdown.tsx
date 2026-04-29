@@ -14,6 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '~/components/ui/dropdown-menu';
 import { useToast } from '~/components/ui/Toast';
+import { useDownload } from '~/hooks/useDownload';
 import type { ProtocolWithInterviews } from './ProtocolsTableClient';
 
 export const ActionsDropdown = ({
@@ -25,6 +26,7 @@ export const ActionsDropdown = ({
   const [protocolToDelete, setProtocolToDelete] =
     useState<ProtocolWithInterviews[]>();
   const { promise } = useToast();
+  const download = useDownload();
 
   const handleDelete = (data: ProtocolWithInterviews) => {
     setProtocolToDelete([data]);
@@ -41,10 +43,7 @@ export const ActionsDropdown = ({
     }
     const blob = await response.blob();
     const blobUrl = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = blobUrl;
-    a.download = name;
-    a.click();
+    download(blobUrl, name);
     URL.revokeObjectURL(blobUrl);
   };
 
