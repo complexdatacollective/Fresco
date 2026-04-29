@@ -1,12 +1,13 @@
+import { createReadStream } from 'node:fs';
+import { unlink } from 'node:fs/promises';
 import { Effect, Layer } from 'effect';
-import { readFile as nodeReadFile, unlink } from 'node:fs/promises';
 import { FileSystemError } from '~/lib/network-exporters/errors';
 import { FileSystem } from '~/lib/network-exporters/services/FileSystem';
 
 export const NodeFileSystem = Layer.succeed(FileSystem, {
-  readFile: (path) =>
-    Effect.tryPromise({
-      try: () => nodeReadFile(path),
+  readStream: (path) =>
+    Effect.try({
+      try: () => createReadStream(path),
       catch: (error) => new FileSystemError({ cause: error }),
     }),
 

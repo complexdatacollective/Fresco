@@ -13,7 +13,7 @@ import {
   type ExportEvent,
   stageMessages,
 } from '~/lib/network-exporters/events';
-import { FileStorage } from '~/lib/storage/services/FileStorage';
+import { FileStorage } from '~/lib/network-exporters/services/FileStorage';
 import { FileSystem } from '~/lib/network-exporters/services/FileSystem';
 import {
   InterviewRepository,
@@ -103,9 +103,9 @@ export const exportPipeline = (
       message: stageMessages.uploading,
     });
 
-    const archiveBuffer = yield* fs.readFile(archiveResult.path);
+    const archiveStream = yield* fs.readStream(archiveResult.path);
     const { key } = yield* fileStorage
-      .upload(archiveBuffer, fileName)
+      .upload(archiveStream, fileName)
       .pipe(Effect.withSpan('export.upload'));
 
     const downloadUrl = yield* fileStorage

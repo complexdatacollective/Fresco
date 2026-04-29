@@ -7,7 +7,7 @@ import {
 import type { ExportEvent } from '~/lib/network-exporters/events';
 import { NodeFileSystem } from '~/lib/exportLayers/NodeFileSystem';
 import { exportPipeline } from '~/lib/network-exporters/pipeline';
-import { FileStorage } from '~/lib/storage/services/FileStorage';
+import { FileStorage } from '~/lib/network-exporters/services/FileStorage';
 import {
   InterviewRepository,
   type InterviewExportData,
@@ -35,8 +35,7 @@ describe('exportPipeline', () => {
     });
 
     const MockStorage = Layer.succeed(FileStorage, {
-      upload: () => Effect.succeed({ url: 'http://test/file.zip', key: 'k' }),
-      delete: () => Effect.void,
+      upload: () => Effect.succeed({ key: 'k' }),
       getDownloadUrl: (key) => Effect.succeed(`http://test/download/${key}`),
     });
 
@@ -75,8 +74,7 @@ describe('exportPipeline', () => {
     });
 
     const MockStorage = Layer.succeed(FileStorage, {
-      upload: () => Effect.succeed({ url: 'http://test/file.zip', key: 'k' }),
-      delete: () => Effect.void,
+      upload: () => Effect.succeed({ key: 'k' }),
       getDownloadUrl: (key) => Effect.succeed(`http://test/download/${key}`),
     });
 
@@ -143,12 +141,7 @@ describe('exportPipeline', () => {
     });
 
     const MockStorage = Layer.succeed(FileStorage, {
-      upload: () =>
-        Effect.succeed({
-          url: 'http://test/file.zip',
-          key: 'networkCanvasExport-123.zip',
-        }),
-      delete: () => Effect.void,
+      upload: () => Effect.succeed({ key: 'networkCanvasExport-123.zip' }),
       getDownloadUrl: (key) => Effect.succeed(`http://test/download/${key}`),
     });
 
