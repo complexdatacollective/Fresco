@@ -233,8 +233,8 @@ export const useProtocolImport = () => {
       });
 
       const uploadedOriginalFile = uploadedFiles.at(-1);
-      if (!uploadedOriginalFile) {
-        throw new Error('Original protocol file upload failed');
+      if (uploadedOriginalFile?.name !== file.name) {
+        throw new Error('Original protocol file upload result mismatch');
       }
 
       const uploadedAssetFiles = uploadedFiles.slice(0, newAssets.length);
