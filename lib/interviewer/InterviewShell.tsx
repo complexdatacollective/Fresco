@@ -2,24 +2,28 @@
 'use no memo';
 
 import { AnimatePresence, motion } from 'motion/react';
-import { useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { Provider } from 'react-redux';
-import SuperJSON from 'superjson';
 import DialogProvider from '~/lib/dialogs/DialogProvider';
 import useMediaQuery from '~/hooks/useMediaQuery';
 import { InterviewToastProvider } from '~/lib/interviewer/components/InterviewToast';
 import Navigation from '~/lib/interviewer/components/Navigation';
 import StageErrorBoundary from '~/lib/interviewer/components/StageErrorBoundary';
+import { ContractProvider } from '~/lib/interviewer/contract/context';
+import type {
+  AssetRequestHandler,
+  FinishHandler,
+  InterviewPayload,
+  InterviewerFlags,
+  SyncHandler,
+} from '~/lib/interviewer/contract/types';
 import { StageMetadataProvider } from '~/lib/interviewer/contexts/StageMetadataContext';
 import useInterviewNavigation from '~/lib/interviewer/hooks/useInterviewNavigation';
 import { store } from '~/lib/interviewer/store';
-import { type GetInterviewByIdQuery } from '~/queries/interviews';
 import { cx } from '~/utils/cva';
 
 const variants = {
-  initial: {
-    opacity: 0,
-  },
+  initial: { opacity: 0 },
   animate: {
     opacity: 1,
     transition: { when: 'beforeChildren', duration: 0.5 },
@@ -113,19 +117,60 @@ function Interview() {
   );
 }
 
-const InterviewShell = (props: {
-  rawPayload: string;
-  disableSync?: boolean;
-}) => {
-  const decodedPayload = SuperJSON.parse<NonNullable<GetInterviewByIdQuery>>(
-    props.rawPayload,
+type InterviewShellProps = {
+  payload: InterviewPayload;
+  onSync: SyncHandler;
+  onFinish: FinishHandler;
+  onRequestAsset: AssetRequestHandler;
+  flags?: InterviewerFlags;
+};
+
+const InterviewShell = ({
+  payload,
+  onSync,
+  onFinish,
+  onRequestAsset,
+  flags,
+}: InterviewShellProps) => {
+  // Anchor onSync in a ref so the store factory receives a stable callback
+  // (the sync middleware closes over it once at store creation). Hosts
+  // commonly pass an inline arrow, which would otherwise force the store to
+  // be recreated on every host re-render.
+  const onSyncRef = useRef(onSync);
+  onSyncRef.current = onSync;
+  const stableOnSync = useCallback<SyncHandler>(
+    (...args) => onSyncRef.current(...args),
+    [],
+  );
+
+  const reduxStore = useMemo(
+    () =>
+      store(payload, {
+        onSync: stableOnSync,
+        isDevelopment: flags?.isDevelopment,
+      }),
+    [payload, stableOnSync, flags?.isDevelopment],
   );
 
   return (
-    <Provider store={store(decodedPayload, { disableSync: props.disableSync })}>
-      <DialogProvider>
-        <Interview />
-      </DialogProvider>
+    <Provider store={reduxStore}>
+      <ContractProvider
+        onFinish={onFinish}
+        onRequestAsset={onRequestAsset}
+        flags={flags}
+      >
+        {/*
+         * Interview-scoped DialogProvider (nested below the app-root one in
+         * components/Providers). Required because dialogs opened from inside
+         * the interview render components that call useSelector, and
+         * DialogProvider renders its dialogs at its own location in the tree.
+         * Without this inner provider, dialog content would mount outside
+         * the Redux Provider and throw on the first useSelector call.
+         */}
+        <DialogProvider>
+          <Interview />
+        </DialogProvider>
+      </ContractProvider>
     </Provider>
   );
 };

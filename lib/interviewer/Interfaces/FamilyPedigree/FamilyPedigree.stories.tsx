@@ -117,7 +117,7 @@ function FamilyPedigreeStoryWrapper({
 
   return (
     <div className="h-screen">
-      <StoryInterviewShell rawPayload={rawPayload} disableSync />
+      <StoryInterviewShell rawPayload={rawPayload} />
     </div>
   );
 }

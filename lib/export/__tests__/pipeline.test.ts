@@ -119,6 +119,8 @@ describe('exportPipeline', () => {
         description: null,
         importedAt: new Date('2025-01-01'),
         lastModified: new Date('2025-01-01'),
+        isPreview: false,
+        isPending: false,
         stages: [],
         codebook: {
           node: {},

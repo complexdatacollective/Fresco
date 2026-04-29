@@ -30,8 +30,9 @@ export async function prunePreviewProtocols(): Promise<{
     // Find preview protocols to prune:
     // - Pending protocols older than 15 minutes (abandoned uploads)
     // - Completed protocols older than 24 hours
-    const oldProtocols = await prisma.previewProtocol.findMany({
+    const oldProtocols = await prisma.protocol.findMany({
       where: {
+        isPreview: true,
         OR: [
           { isPending: true, importedAt: { lt: pendingCutoff } },
           { isPending: false, importedAt: { lt: completedCutoff } },
@@ -50,15 +51,12 @@ export async function prunePreviewProtocols(): Promise<{
 
     const protocolIds = oldProtocols.map((p) => p.id);
 
-    // Select assets that are ONLY associated with the preview protocols to be deleted
-    // (not shared with any regular protocols or other preview protocols)
+    // Select assets that are ONLY associated with the preview protocols to be
+    // deleted (not shared with any other protocol).
     const assetKeysToDelete = await prisma.asset.findMany({
       where: {
-        AND: [
-          { previewProtocols: { some: { id: { in: protocolIds } } } },
-          { previewProtocols: { every: { id: { in: protocolIds } } } },
-          { protocols: { none: {} } },
-        ],
+        protocols: { some: { id: { in: protocolIds } } },
+        AND: { protocols: { every: { id: { in: protocolIds } } } },
       },
       select: { key: true },
     });
@@ -88,12 +86,9 @@ export async function prunePreviewProtocols(): Promise<{
       });
     }
 
-    // Delete the preview protocols
-    const result = await prisma.previewProtocol.deleteMany({
+    const result = await prisma.protocol.deleteMany({
       where: {
-        id: {
-          in: protocolIds,
-        },
+        id: { in: protocolIds },
       },
     });
 

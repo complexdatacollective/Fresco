@@ -28,7 +28,7 @@ const {
   mockValidateAndMigrateProtocol: vi.fn(),
   mockPrunePreviewProtocols: vi.fn(),
   mockPrisma: {
-    previewProtocol: {
+    protocol: {
       findFirst: vi.fn(),
       findUnique: vi.fn(),
       create: vi.fn(),
@@ -262,7 +262,7 @@ describe('Preview API v1 handler', () => {
         success: true,
         protocol: validProtocol,
       });
-      mockPrisma.previewProtocol.findFirst.mockResolvedValue({
+      mockPrisma.protocol.findUnique.mockResolvedValue({
         id: 'existing-id',
       });
 
@@ -285,8 +285,8 @@ describe('Preview API v1 handler', () => {
         success: true,
         protocol: validProtocol,
       });
-      mockPrisma.previewProtocol.findFirst.mockResolvedValue(null);
-      mockPrisma.previewProtocol.create.mockResolvedValue({
+      mockPrisma.protocol.findUnique.mockResolvedValue(null);
+      mockPrisma.protocol.create.mockResolvedValue({
         id: 'new-protocol-id',
       });
 
@@ -302,7 +302,7 @@ describe('Preview API v1 handler', () => {
       expect(response.status).toBe(200);
       expect(body.status).toBe('ready');
       expect(body.previewUrl).toContain('/preview/new-protocol-id');
-      expect(mockPrisma.previewProtocol.create).toHaveBeenCalled();
+      expect(mockPrisma.protocol.create).toHaveBeenCalled();
       expect(mockAddEvent).toHaveBeenCalledWith(
         'Preview Mode',
         'Preview protocol upload initiated',
@@ -314,8 +314,8 @@ describe('Preview API v1 handler', () => {
         success: true,
         protocol: validProtocol,
       });
-      mockPrisma.previewProtocol.findFirst.mockResolvedValue(null);
-      mockPrisma.previewProtocol.create.mockResolvedValue({
+      mockPrisma.protocol.findUnique.mockResolvedValue(null);
+      mockPrisma.protocol.create.mockResolvedValue({
         id: 'new-protocol-id',
       });
       mockGeneratePresignedUploadUrls.mockReturnValue([
@@ -350,8 +350,8 @@ describe('Preview API v1 handler', () => {
         success: true,
         protocol: validProtocol,
       });
-      mockPrisma.previewProtocol.findFirst.mockResolvedValue(null);
-      mockPrisma.previewProtocol.create.mockResolvedValue({
+      mockPrisma.protocol.findUnique.mockResolvedValue(null);
+      mockPrisma.protocol.create.mockResolvedValue({
         id: 'new-protocol-id',
       });
       mockGeneratePresignedUploadUrl.mockReturnValue({
@@ -402,7 +402,7 @@ describe('Preview API v1 handler', () => {
         success: true,
         protocol: validProtocol,
       });
-      mockPrisma.previewProtocol.findFirst.mockResolvedValue(null);
+      mockPrisma.protocol.findUnique.mockResolvedValue(null);
 
       const request = createPostRequest({
         type: 'initialize-preview',
@@ -418,7 +418,7 @@ describe('Preview API v1 handler', () => {
       expect(body.message).toBe('UploadThing is not configured');
       expect(mockGeneratePresignedUploadUrl).not.toHaveBeenCalled();
       expect(mockRegisterUploadWithUploadThing).not.toHaveBeenCalled();
-      expect(mockPrisma.previewProtocol.create).not.toHaveBeenCalled();
+      expect(mockPrisma.protocol.create).not.toHaveBeenCalled();
     });
 
     it('should prune old preview protocols before creating new ones', async () => {
@@ -426,8 +426,8 @@ describe('Preview API v1 handler', () => {
         success: true,
         protocol: validProtocol,
       });
-      mockPrisma.previewProtocol.findFirst.mockResolvedValue(null);
-      mockPrisma.previewProtocol.create.mockResolvedValue({
+      mockPrisma.protocol.findUnique.mockResolvedValue(null);
+      mockPrisma.protocol.create.mockResolvedValue({
         id: 'new-id',
       });
 
@@ -447,8 +447,8 @@ describe('Preview API v1 handler', () => {
         success: true,
         protocol: validProtocol,
       });
-      mockPrisma.previewProtocol.findFirst.mockResolvedValue(null);
-      mockPrisma.previewProtocol.create.mockResolvedValue({
+      mockPrisma.protocol.findUnique.mockResolvedValue(null);
+      mockPrisma.protocol.create.mockResolvedValue({
         id: 'new-id',
       });
       mockGetExistingAssets.mockResolvedValue([{ assetId: 'asset-1' }]);
@@ -470,11 +470,11 @@ describe('Preview API v1 handler', () => {
 
   describe('complete-preview', () => {
     it('should mark protocol as complete and return preview URL', async () => {
-      mockPrisma.previewProtocol.findUnique.mockResolvedValue({
+      mockPrisma.protocol.findFirst.mockResolvedValue({
         id: 'protocol-1',
         name: 'Test Protocol',
       });
-      mockPrisma.previewProtocol.update.mockResolvedValue({});
+      mockPrisma.protocol.update.mockResolvedValue({});
 
       const request = createPostRequest({
         type: 'complete-preview',
@@ -487,7 +487,7 @@ describe('Preview API v1 handler', () => {
       expect(response.status).toBe(200);
       expect(body.status).toBe('ready');
       expect(body.previewUrl).toContain('/preview/protocol-1');
-      expect(mockPrisma.previewProtocol.update).toHaveBeenCalledWith({
+      expect(mockPrisma.protocol.update).toHaveBeenCalledWith({
         where: { id: 'protocol-1' },
         data: { importedAt: expect.any(Date) as Date, isPending: false },
       });
@@ -498,7 +498,7 @@ describe('Preview API v1 handler', () => {
     });
 
     it('should return 404 when protocol not found', async () => {
-      mockPrisma.previewProtocol.findUnique.mockResolvedValue(null);
+      mockPrisma.protocol.findFirst.mockResolvedValue(null);
 
       const request = createPostRequest({
         type: 'complete-preview',
@@ -516,12 +516,12 @@ describe('Preview API v1 handler', () => {
 
   describe('abort-preview', () => {
     it('should delete protocol and return removed status', async () => {
-      mockPrisma.previewProtocol.findUnique.mockResolvedValue({
+      mockPrisma.protocol.findFirst.mockResolvedValue({
         id: 'protocol-1',
         name: 'Test Protocol',
       });
       mockPrisma.asset.findMany.mockResolvedValue([]);
-      mockPrisma.previewProtocol.delete.mockResolvedValue({});
+      mockPrisma.protocol.delete.mockResolvedValue({});
 
       const request = createPostRequest({
         type: 'abort-preview',
@@ -533,7 +533,7 @@ describe('Preview API v1 handler', () => {
 
       expect(response.status).toBe(200);
       expect(body.status).toBe('removed');
-      expect(mockPrisma.previewProtocol.delete).toHaveBeenCalledWith({
+      expect(mockPrisma.protocol.delete).toHaveBeenCalledWith({
         where: { id: 'protocol-1' },
       });
       expect(mockAddEvent).toHaveBeenCalledWith(
@@ -543,7 +543,7 @@ describe('Preview API v1 handler', () => {
     });
 
     it('should return 404 when protocol not found', async () => {
-      mockPrisma.previewProtocol.findUnique.mockResolvedValue(null);
+      mockPrisma.protocol.findFirst.mockResolvedValue(null);
 
       const request = createPostRequest({
         type: 'abort-preview',
@@ -558,7 +558,7 @@ describe('Preview API v1 handler', () => {
     });
 
     it('should delete assets from storage and database', async () => {
-      mockPrisma.previewProtocol.findUnique.mockResolvedValue({
+      mockPrisma.protocol.findFirst.mockResolvedValue({
         id: 'protocol-1',
         name: 'Test Protocol',
       });
@@ -567,7 +567,7 @@ describe('Preview API v1 handler', () => {
         { key: 'ut-key-2' },
       ]);
       mockPrisma.asset.deleteMany.mockResolvedValue({ count: 2 });
-      mockPrisma.previewProtocol.delete.mockResolvedValue({});
+      mockPrisma.protocol.delete.mockResolvedValue({});
 
       const request = createPostRequest({
         type: 'abort-preview',
@@ -589,7 +589,7 @@ describe('Preview API v1 handler', () => {
         success: true,
         protocol: validProtocol,
       });
-      mockPrisma.previewProtocol.findFirst.mockRejectedValue(
+      mockPrisma.protocol.findUnique.mockRejectedValue(
         new Error('Database connection lost'),
       );
 

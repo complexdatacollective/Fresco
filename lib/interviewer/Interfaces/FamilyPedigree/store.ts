@@ -13,7 +13,7 @@ import {
   updateStageMetadata,
 } from '~/lib/interviewer/ducks/modules/session';
 import { type useAppDispatch } from '~/lib/interviewer/store';
-import { computeAllDisplayLabels } from '~/lib/pedigree-layout/utils/getDisplayLabel';
+import { computeAllDisplayLabels } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/utils/getDisplayLabel';
 
 enableMapSet();
 

@@ -2,16 +2,20 @@ import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
 } from '@codaco/shared-consts';
-import { Loader2 } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import { connection } from 'next/server';
 import { Suspense } from 'react';
-import SuperJSON from 'superjson';
 import { v4 as uuid } from 'uuid';
-import InterviewShell from '~/lib/interviewer/InterviewShell';
+import Spinner from '~/components/Spinner';
 import { prisma } from '~/lib/db';
+import { isValidAssetType } from '~/lib/interviewer/contract/assets';
+import type {
+  InterviewPayload,
+  ResolvedAsset,
+} from '~/lib/interviewer/contract/types';
 import { getPreviewMode } from '~/queries/appSettings';
 import { getProtocolForPreview } from '~/queries/protocols';
+import PreviewInterviewClient from './PreviewInterviewClient';
 
 export default function PreviewInterviewPage(props: {
   params: Promise<{ protocolId: string }>;
@@ -20,7 +24,7 @@ export default function PreviewInterviewPage(props: {
     <Suspense
       fallback={
         <div className="flex h-screen items-center justify-center">
-          <Loader2 size={64} className="animate-spin" />
+          <Spinner size="lg" />
         </div>
       }
     >
@@ -57,33 +61,62 @@ async function PreviewContent({
     notFound();
   }
 
-  // Update timestamp to prevent premature pruning
-  await prisma.previewProtocol.update({
-    where: { id: protocolId },
-    data: { importedAt: new Date() },
-  });
+  // Bump importedAt on preview protocols so the periodic pruner doesn't
+  // remove them mid-interview. Regular protocols are not pruned, so skip.
+  if (protocol.isPreview) {
+    await prisma.protocol.update({
+      where: { id: protocolId },
+      data: { importedAt: new Date() },
+    });
+  }
 
   const now = new Date();
-  const previewInterview = {
-    id: `preview-${uuid()}`,
-    startTime: now,
-    finishTime: null,
-    exportTime: null,
-    lastUpdated: now,
-    currentStep: 0,
-    stageMetadata: null,
-    network: {
-      ego: {
-        [entityPrimaryKeyProperty]: uuid(),
-        [entityAttributesProperty]: {},
+
+  const previewAssetUrls: Record<string, string> = {};
+  for (const a of protocol.assets) {
+    if (a.url) previewAssetUrls[a.assetId] = a.url;
+  }
+
+  const assets: ResolvedAsset[] = protocol.assets.map((a) => {
+    if (!isValidAssetType(a.type)) {
+      throw new Error(`Unknown asset type: ${String(a.type)}`);
+    }
+    return {
+      assetId: a.assetId,
+      name: a.name,
+      type: a.type,
+      value: a.value ?? undefined,
+    };
+  });
+
+  const payload: InterviewPayload = {
+    session: {
+      id: `preview-${uuid()}`,
+      startTime: now.toISOString(),
+      finishTime: null,
+      exportTime: null,
+      lastUpdated: now.toISOString(),
+      currentStep: 0,
+      stageMetadata: undefined,
+      network: {
+        ego: {
+          [entityPrimaryKeyProperty]: uuid(),
+          [entityAttributesProperty]: {},
+        },
+        nodes: [],
+        edges: [],
       },
-      nodes: [],
-      edges: [],
     },
-    protocol,
+    protocol: {
+      ...protocol,
+      schemaVersion: 8,
+      description: protocol.description ?? undefined,
+      importedAt: protocol.importedAt.toISOString(),
+      assets,
+    },
   };
 
-  const rawPayload = SuperJSON.stringify(previewInterview);
-
-  return <InterviewShell rawPayload={rawPayload} disableSync />;
+  return (
+    <PreviewInterviewClient payload={payload} assetUrls={previewAssetUrls} />
+  );
 }

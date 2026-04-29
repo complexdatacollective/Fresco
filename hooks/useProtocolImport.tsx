@@ -5,7 +5,6 @@ import {
   getMigrationInfo,
 } from '@codaco/protocol-validation';
 import { queue } from 'async';
-import { hash } from 'ohash';
 import posthog from 'posthog-js';
 import { useCallback, useRef } from 'react';
 import {
@@ -20,6 +19,7 @@ import {
 import ImportToastContent from '~/components/ProtocolImport/ImportToastContent';
 import { useToast } from '~/components/ui/Toast';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
+import { hashProtocol } from '~/lib/protocol/hashProtocol';
 import {
   validateAndMigrateProtocol,
   type ProtocolValidationError,
@@ -170,7 +170,7 @@ export const useProtocolImport = () => {
 
       // Phase: Checking duplicates
       updateToastPhase(toastId, 'checking-duplicates');
-      const protocolHash = hash(validatedProtocol);
+      const protocolHash = hashProtocol(validatedProtocol);
       const exists = await getProtocolByHash(protocolHash);
       if (exists) {
         updateToastPhase(

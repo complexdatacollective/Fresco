@@ -8,7 +8,7 @@ export type ExtendedMapOptions = MapOptions & {
 import mapboxgl from 'mapbox-gl';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { env } from '~/env.js';
+import { useContractFlags } from '~/lib/interviewer/contract/context';
 import { makeGetApiKeyAssetValue } from '~/lib/interviewer/selectors/protocol';
 
 const MAP_CONSTS = {
@@ -90,7 +90,8 @@ const convertCssColorToHex = (() => {
 
 type UseMapboxProps = {
   mapOptions: ExtendedMapOptions;
-  getAssetUrl: (url: string) => string | undefined;
+  dataSourceAssetId: string | null | undefined;
+  dataSourceUrl: string | null;
   initialSelectionValue?: string;
   onSelectionChange: (value: string) => void;
 };
@@ -99,15 +100,16 @@ const TRANSIT_SOURCE_ID = 'mapbox-streets-v8';
 
 export const useMapbox = ({
   mapOptions,
-  getAssetUrl,
+  dataSourceAssetId,
+  dataSourceUrl,
   initialSelectionValue,
   onSelectionChange,
 }: UseMapboxProps) => {
+  const { isE2E } = useContractFlags();
   const {
     center,
     initialZoom,
     tokenAssetId,
-    dataSourceAssetId,
     color,
     targetFeatureProperty,
     style,
@@ -163,6 +165,7 @@ export const useMapbox = ({
 
   useEffect(() => {
     if (!mapContainerRef.current || !center || !accessToken) return;
+    if (dataSourceAssetId && !dataSourceUrl) return;
 
     // Reset readiness flags whenever the map is re-initialised, so a
     // prior stage's resolved state can't leak into a stage that hasn't
@@ -186,7 +189,7 @@ export const useMapbox = ({
     // "geojson layer is painted"; tests that need stronger stabilisation
     // can query the live map (isSourceLoaded, queryRenderedFeatures)
     // through this handle. Not written in production builds.
-    if (env.NEXT_PUBLIC_E2E_TEST === true && typeof window !== 'undefined') {
+    if (isE2E && typeof window !== 'undefined') {
       window.__e2eMap = mapRef.current;
     }
 
@@ -194,7 +197,7 @@ export const useMapbox = ({
       if (mapRef.current) {
         mapRef.current.addSource('geojson-data', {
           type: 'geojson',
-          data: getAssetUrl(dataSourceAssetId),
+          data: dataSourceUrl ?? undefined,
           promoteId: targetFeatureProperty,
         });
       }
@@ -396,13 +399,14 @@ export const useMapbox = ({
   }, [
     accessToken,
     center,
-    getAssetUrl,
+    dataSourceUrl,
     initialZoom,
     color,
     targetFeatureProperty,
     dataSourceAssetId,
     style,
     showTransit,
+    isE2E,
   ]);
 
   // handle selections

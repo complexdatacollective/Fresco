@@ -39,7 +39,6 @@ const mockPrisma = {
   user: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
   participant: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
   protocol: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
-  previewProtocol: { deleteMany: vi.fn().mockResolvedValue({ count: 0 }) },
   appSettings: {
     deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
     create: vi.fn().mockResolvedValue({ key: 'initializedAt', value: '' }),

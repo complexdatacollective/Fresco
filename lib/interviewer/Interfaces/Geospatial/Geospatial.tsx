@@ -9,14 +9,14 @@ import { type ExtendedMapOptions } from '~/lib/interviewer/Interfaces/Geospatial
 import { AnimatePresence, motion, type Variants } from 'motion/react';
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { type ThunkDispatch } from 'redux-thunk';
 import { MotionSurface } from '~/components/layout/Surface';
 import Button, { IconButton } from '~/components/ui/Button';
 import Node from '~/lib/interviewer/components/ConnectedNode';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
-import { getAssetUrlFromId } from '~/lib/interviewer/ducks/modules/protocol';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
+import { useAssetUrl } from '~/lib/interviewer/hooks/useAssetUrl';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
@@ -94,7 +94,7 @@ export default function GeospatialInterface({
     stage,
   });
 
-  const getAssetUrl = useSelector(getAssetUrlFromId);
+  const { url: dataSourceUrl } = useAssetUrl(mapOptions.dataSourceAssetId);
 
   const updateNode = useCallback(
     ({
@@ -138,7 +138,8 @@ export default function GeospatialInterface({
     handleResetSelection,
   } = useMapbox({
     mapOptions,
-    getAssetUrl,
+    dataSourceAssetId: mapOptions.dataSourceAssetId,
+    dataSourceUrl,
     initialSelectionValue,
     onSelectionChange: (value: string) => {
       if (currentPrompt && stageNodes[navState.activeIndex]) {

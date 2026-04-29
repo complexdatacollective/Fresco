@@ -10,7 +10,6 @@ import RichTextRenderer from '~/components/RichTextRenderer';
 import Heading from '~/components/typography/Heading';
 import Button, { IconButton, MotionButton } from '~/components/ui/Button';
 import Dialog from '~/lib/dialogs/Dialog';
-import DialogProvider from '~/lib/dialogs/DialogProvider';
 import Field from '~/lib/form/components/Field/Field';
 import Form, { FormWithoutProvider } from '~/lib/form/components/Form';
 import SubmitButton from '~/lib/form/components/SubmitButton';
@@ -402,13 +401,6 @@ const meta: Meta<typeof Form> = {
   parameters: {
     layout: 'centered',
   },
-  decorators: [
-    (Story) => (
-      <DialogProvider>
-        <Story />
-      </DialogProvider>
-    ),
-  ],
 };
 
 export default meta;

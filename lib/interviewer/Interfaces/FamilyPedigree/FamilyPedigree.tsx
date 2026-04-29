@@ -7,9 +7,9 @@ import { useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import Paragraph from '~/components/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
-import { env } from '~/env.js';
 import useDialog from '~/lib/dialogs/useDialog';
 import Prompts from '~/lib/interviewer/components/Prompts/Prompts';
+import { useContractFlags } from '~/lib/interviewer/contract/context';
 import { toggleNodeAttributes } from '~/lib/interviewer/ducks/modules/session';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import PedigreeChecklist from '~/lib/interviewer/Interfaces/FamilyPedigree/components/PedigreeChecklist';
@@ -38,8 +38,8 @@ import {
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { type StageProps } from '~/lib/interviewer/types';
-import FamilyPedigreePlaceholder from '~/lib/pedigree-layout/components/FamilyPedigreePlaceholder';
-import PedigreeView from '~/lib/pedigree-layout/components/PedigreeView';
+import FamilyPedigreePlaceholder from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/components/FamilyPedigreePlaceholder';
+import PedigreeView from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/components/PedigreeView';
 
 const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
   const {
@@ -48,6 +48,7 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
 
   const dispatch = useAppDispatch();
   const { confirm, openDialog } = useDialog();
+  const { isDevelopment } = useContractFlags();
   const nodesMap = useFamilyPedigreeStore((s) => s.network.nodes);
   const edgesMap = useFamilyPedigreeStore((s) => s.network.edges);
   const addNode = useFamilyPedigreeStore((s) => s.addNode);
@@ -259,7 +260,7 @@ const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
           ref={containerRef}
           className="relative flex size-full grow items-center justify-center"
         >
-          {env.NODE_ENV === 'development' && (
+          {isDevelopment && (
             <div className="absolute top-2 right-2 z-50 flex gap-1">
               <button
                 type="button"
