@@ -69,11 +69,11 @@ type MockPrisma = {
     findMany: ReturnType<typeof vi.fn>;
     deleteMany: ReturnType<typeof vi.fn>;
   };
-  previewProtocol: { deleteMany: ReturnType<typeof vi.fn> };
   protocol: {
     findMany: ReturnType<typeof vi.fn>;
     update: ReturnType<typeof vi.fn>;
     findFirst: ReturnType<typeof vi.fn>;
+    deleteMany: ReturnType<typeof vi.fn>;
   };
   appSettings: { findMany: ReturnType<typeof vi.fn> };
 };
@@ -84,13 +84,11 @@ function makeMockPrisma(): MockPrisma {
       findMany: vi.fn().mockResolvedValue([]),
       deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
     },
-    previewProtocol: {
-      deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
-    },
     protocol: {
       findMany: vi.fn().mockResolvedValue([]),
       update: vi.fn().mockResolvedValue({}),
       findFirst: vi.fn().mockResolvedValue(null),
+      deleteMany: vi.fn().mockResolvedValue({ count: 0 }),
     },
     appSettings: {
       findMany: vi.fn().mockResolvedValue([]),
@@ -112,12 +110,15 @@ describe('migrateProtocolsToV8', () => {
       prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
     );
 
-    expect(prisma.previewProtocol.deleteMany).toHaveBeenCalledWith({});
+    // Preview cleanup always runs (deleteMany on an empty set is a no-op).
+    expect(prisma.protocol.deleteMany).toHaveBeenCalledWith({
+      where: { isPreview: true },
+    });
     expect(prisma.asset.deleteMany).not.toHaveBeenCalled();
     expect(prisma.protocol.update).not.toHaveBeenCalled();
   });
 
-  it('deletes Asset rows that are attached only to PreviewProtocol', async () => {
+  it('deletes Asset rows that are attached only to preview protocols', async () => {
     const prisma = makeMockPrisma();
     prisma.asset.findMany.mockResolvedValue([
       { key: 'orphan-key-1' },
@@ -128,23 +129,23 @@ describe('migrateProtocolsToV8', () => {
       prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
     );
 
-    // The findMany filter must scope to assets attached to PreviewProtocol
-    // and not to any Protocol.
+    // The findMany filter must scope to assets attached to at least one
+    // preview protocol and not shared with any installed protocol.
     expect(prisma.asset.findMany).toHaveBeenCalledWith({
       where: {
-        previewProtocols: { some: {} },
-        protocols: { none: {} },
+        protocols: { some: { isPreview: true } },
+        AND: { protocols: { every: { isPreview: true } } },
       },
       select: { key: true },
     });
 
-    // PreviewProtocol must be truncated *before* the Asset rows are deleted,
-    // so the M2M join rows are removed and the Asset rows become unreferenced.
-    const previewCallOrder =
-      prisma.previewProtocol.deleteMany.mock.invocationCallOrder[0]!;
+    // Preview protocols must be deleted *before* the Asset rows so the join
+    // rows are removed and the Asset rows become unreferenced.
+    const previewDeleteCallOrder =
+      prisma.protocol.deleteMany.mock.invocationCallOrder[0]!;
     const assetDeleteCallOrder =
       prisma.asset.deleteMany.mock.invocationCallOrder[0]!;
-    expect(previewCallOrder).toBeLessThan(assetDeleteCallOrder);
+    expect(previewDeleteCallOrder).toBeLessThan(assetDeleteCallOrder);
 
     expect(prisma.asset.deleteMany).toHaveBeenCalledWith({
       where: { key: { in: ['orphan-key-1', 'orphan-key-2'] } },

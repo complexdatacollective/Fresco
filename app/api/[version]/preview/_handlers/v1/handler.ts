@@ -71,17 +71,16 @@ export async function v1(request: NextRequest) {
         // Ensures that we dont accumulate old preview protocols
         await prunePreviewProtocols();
 
-        // Check if this exact preview protocol already exists
-        const existingPreview = await prisma.previewProtocol.findFirst({
-          where: {
-            hash: protocolHash,
-          },
+        // If a protocol with this hash already exists (preview OR regular),
+        // skip the upload and route to its preview URL. Same content → same
+        // preview, regardless of how it got into the DB.
+        const existingProtocol = await prisma.protocol.findUnique({
+          where: { hash: protocolHash },
         });
 
-        // If protocol exists, return ready immediately
-        if (existingPreview) {
+        if (existingProtocol) {
           const url = new URL(env.PUBLIC_URL ?? request.nextUrl.clone());
-          url.pathname = `/preview/${existingPreview.id}`;
+          url.pathname = `/preview/${existingProtocol.id}`;
 
           const response: ReadyResponse = {
             status: 'ready',
@@ -171,7 +170,7 @@ export async function v1(request: NextRequest) {
           };
         });
 
-        const protocol = await prisma.previewProtocol.create({
+        const protocol = await prisma.protocol.create({
           data: {
             hash: protocolHash,
             name: `preview-${Date.now()}`,
@@ -183,6 +182,7 @@ export async function v1(request: NextRequest) {
             stages: protocolToValidate.stages,
             codebook: protocolToValidate.codebook,
             experiments: protocolToValidate.experiments ?? Prisma.JsonNull,
+            isPreview: true,
             isPending: newAssets.length > 0,
             assets: {
               create: [...assetsToCreate, ...newApikeyAssets],
@@ -229,9 +229,8 @@ export async function v1(request: NextRequest) {
       case 'complete-preview': {
         const { protocolId } = body;
 
-        // Find the preview protocol
-        const protocol = await prisma.previewProtocol.findUnique({
-          where: { id: protocolId },
+        const protocol = await prisma.protocol.findFirst({
+          where: { id: protocolId, isPreview: true },
         });
 
         if (!protocol) {
@@ -243,7 +242,7 @@ export async function v1(request: NextRequest) {
         }
 
         // Update timestamp and clear pending flag to mark completion
-        await prisma.previewProtocol.update({
+        await prisma.protocol.update({
           where: { id: protocol.id },
           data: { importedAt: new Date(), isPending: false },
         });
@@ -263,9 +262,8 @@ export async function v1(request: NextRequest) {
       case 'abort-preview': {
         const { protocolId } = body;
 
-        // Find the preview protocol
-        const protocol = await prisma.previewProtocol.findUnique({
-          where: { id: protocolId },
+        const protocol = await prisma.protocol.findFirst({
+          where: { id: protocolId, isPreview: true },
         });
 
         if (!protocol) {
@@ -276,15 +274,12 @@ export async function v1(request: NextRequest) {
           return jsonResponse(response, 404);
         }
 
-        // Find assets that are ONLY associated with this preview protocol
-        // (not shared with any regular protocols or other preview protocols)
+        // Find assets attached only to this preview (not shared with any
+        // other protocol).
         const assetsToDelete = await prisma.asset.findMany({
           where: {
-            AND: [
-              { previewProtocols: { some: { id: protocolId } } },
-              { previewProtocols: { every: { id: protocolId } } },
-              { protocols: { none: {} } },
-            ],
+            protocols: { some: { id: protocolId } },
+            AND: { protocols: { every: { id: protocolId } } },
           },
           select: { key: true },
         });
@@ -316,8 +311,7 @@ export async function v1(request: NextRequest) {
           });
         }
 
-        // Delete the preview protocol
-        await prisma.previewProtocol.delete({
+        await prisma.protocol.delete({
           where: { id: protocolId },
         });
 

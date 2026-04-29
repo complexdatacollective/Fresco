@@ -135,8 +135,8 @@ async function migrateOneProtocol(
 }
 
 /**
- * Truncate PreviewProtocol (cleaning up orphan assets + blobs) and migrate
- * any Protocol rows at schemaVersion < 8 up to v8.
+ * Delete preview protocols (cleaning up orphan assets + blobs) and migrate
+ * any installed Protocol rows at schemaVersion < 8 up to v8.
  *
  * Idempotent. Hard-fails per protocol on migration errors. Best-effort on
  * blob storage deletions.
@@ -144,18 +144,24 @@ async function migrateOneProtocol(
 export async function migrateProtocolsToV8(
   prisma: PrismaClient,
 ): Promise<void> {
+  // Find Asset rows attached only to preview protocols (not shared with any
+  // installed protocol). These are about to become orphans.
   const orphanAssets = await prisma.asset.findMany({
     where: {
-      previewProtocols: { some: {} },
-      protocols: { none: {} },
+      protocols: { some: { isPreview: true } },
+      AND: { protocols: { every: { isPreview: true } } },
     },
     select: { key: true },
   });
   const orphanKeys = orphanAssets.map((a) => a.key);
 
-  const previewDeleteResult = await prisma.previewProtocol.deleteMany({});
+  // Delete all preview protocols. Their join-table rows cascade, leaving the
+  // orphan Asset rows truly unreferenced.
+  const previewDeleteResult = await prisma.protocol.deleteMany({
+    where: { isPreview: true },
+  });
   console.log(
-    `Truncated PreviewProtocol: ${previewDeleteResult.count} rows, ${orphanKeys.length} orphan asset candidates`,
+    `Deleted ${previewDeleteResult.count} preview Protocol rows, ${orphanKeys.length} orphan asset candidates`,
   );
 
   await deleteOrphanBlobs(prisma, orphanKeys);
@@ -166,7 +172,7 @@ export async function migrateProtocolsToV8(
   }
 
   const v7Protocols = await prisma.protocol.findMany({
-    where: { schemaVersion: { lt: 8 } },
+    where: { schemaVersion: { lt: 8 }, isPreview: false },
     select: {
       id: true,
       name: true,

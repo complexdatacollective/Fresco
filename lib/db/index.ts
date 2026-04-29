@@ -135,19 +135,19 @@ const createPrismaClient = () => {
           },
         },
       },
-      protocol: protocolJsonExtensions('protocol'),
-      previewProtocol: protocolJsonExtensions('previewProtocol'),
+      protocol: protocolJsonExtensions(),
     },
   });
 };
 
 /**
- * Returns the result-extension config that parses a protocol model's JSON
- * fields (stages, codebook, experiments) into structured types using
- * CurrentProtocolSchema. Shared between Protocol and PreviewProtocol since
- * both are stored as schema-8 (older protocols are migrated at import).
+ * Returns the result-extension config that parses Protocol's JSON fields
+ * (stages, codebook, experiments) into structured types using
+ * CurrentProtocolSchema. Both regular and preview protocols live in this
+ * table (distinguished by isPreview) and are stored as schema-8.
  */
-function protocolJsonExtensions(modelName: 'protocol' | 'previewProtocol') {
+function protocolJsonExtensions() {
+  const modelName = 'protocol';
   return {
     stages: {
       needs: {

@@ -61,11 +61,14 @@ async function PreviewContent({
     notFound();
   }
 
-  // Update timestamp to prevent premature pruning
-  await prisma.previewProtocol.update({
-    where: { id: protocolId },
-    data: { importedAt: new Date() },
-  });
+  // Bump importedAt on preview protocols so the periodic pruner doesn't
+  // remove them mid-interview. Regular protocols are not pruned, so skip.
+  if (protocol.isPreview) {
+    await prisma.protocol.update({
+      where: { id: protocolId },
+      data: { importedAt: new Date() },
+    });
+  }
 
   const now = new Date();
 
