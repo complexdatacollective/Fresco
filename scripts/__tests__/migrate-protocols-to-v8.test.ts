@@ -243,6 +243,7 @@ describe('migrateProtocolsToV8', () => {
         codebook: v7.codebook,
         experiments: null,
         description: v7.description,
+        lastModified: new Date(v7.lastModified),
       },
     ]);
 

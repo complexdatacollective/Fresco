@@ -75,6 +75,7 @@ async function migrateOneProtocol(
     codebook: unknown;
     experiments: unknown;
     description: string | null;
+    lastModified: Date;
   },
 ): Promise<void> {
   const cleanName = row.name.replace(/\.netcanvas$/i, '');
@@ -85,6 +86,7 @@ async function migrateOneProtocol(
     stages: row.stages,
     codebook: row.codebook,
     description: row.description ?? undefined,
+    lastModified: row.lastModified.toISOString(),
   };
 
   const migrated = migrateProtocol(reconstructed, 8, { name: cleanName });
@@ -147,6 +149,7 @@ export async function migrateProtocolsToV8(
       codebook: true,
       experiments: true,
       description: true,
+      lastModified: true,
     },
   });
 
