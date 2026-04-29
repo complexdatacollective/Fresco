@@ -9,8 +9,8 @@ import {
   getNodeColorSelector,
   resolveNodeShape,
 } from '~/lib/interviewer/selectors/session';
-import { useClickUnlessDragged } from '~/lib/pedigree-layout/useClickUnlessDragged';
-import { computeAllDisplayLabels } from '~/lib/pedigree-layout/utils/getDisplayLabel';
+import { useClickUnlessDragged } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/useClickUnlessDragged';
+import { computeAllDisplayLabels } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/utils/getDisplayLabel';
 
 export function AdoptionBrackets({ children }: { children: React.ReactNode }) {
   const bracketStyle =

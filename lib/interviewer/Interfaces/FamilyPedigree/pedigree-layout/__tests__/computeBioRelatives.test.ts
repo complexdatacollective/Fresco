@@ -1,6 +1,6 @@
 import { type NcEdge } from '@codaco/shared-consts';
 import { describe, expect, it } from 'vitest';
-import { computeBioRelatives } from '~/lib/pedigree-layout/computeBioRelatives';
+import { computeBioRelatives } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/computeBioRelatives';
 import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 
 const variableConfig: VariableConfig = {

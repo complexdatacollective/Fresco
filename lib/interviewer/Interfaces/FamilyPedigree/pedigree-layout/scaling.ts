@@ -1,7 +1,7 @@
 import {
   type PedigreeLayout,
   type ScalingParams,
-} from '~/lib/pedigree-layout/types';
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/types';
 
 /**
  * Compute scaling parameters for pedigree rendering.

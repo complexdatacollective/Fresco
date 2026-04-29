@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { type ParentConnection } from '~/lib/pedigree-layout/types';
-import { kindepth } from '~/lib/pedigree-layout/kindepth';
+import { type ParentConnection } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/types';
+import { kindepth } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/kindepth';
 
 describe('kindepth', () => {
   it('returns [0] for a single person', () => {

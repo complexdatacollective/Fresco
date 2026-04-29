@@ -4,7 +4,7 @@ import {
   countCrossings,
   minimizeCrossings,
   sugiyamaLayout,
-} from '~/lib/pedigree-layout/sugiyamaLayout';
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/sugiyamaLayout';
 import {
   multipleMarriages,
   nuclearFamily,
@@ -12,7 +12,7 @@ import {
   surrogacyFamily,
   threeGeneration,
   twinFamily,
-} from '~/lib/pedigree-layout/__tests__/fixtures';
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/__tests__/fixtures';
 
 describe('buildPedigreeGraph', () => {
   it('nuclear family: 2 parents + 3 children', () => {

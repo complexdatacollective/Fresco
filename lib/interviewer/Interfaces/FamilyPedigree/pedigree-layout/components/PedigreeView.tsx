@@ -30,11 +30,11 @@ import {
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/nodeUtils';
 import NodeContextMenu, {
   type NodeContextMenuAction,
-} from '~/lib/pedigree-layout/components/NodeContextMenu';
-import PedigreeLayout from '~/lib/pedigree-layout/components/PedigreeLayout';
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/components/NodeContextMenu';
+import PedigreeLayout from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/components/PedigreeLayout';
 import PedigreeNode, {
   computeNodeDisplayLabels,
-} from '~/lib/pedigree-layout/components/PedigreeNode';
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/components/PedigreeNode';
 import {
   type NcEdge,
   type NcNode,

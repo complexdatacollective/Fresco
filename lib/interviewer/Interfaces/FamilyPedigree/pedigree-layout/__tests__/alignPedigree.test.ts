@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { alignPedigree } from '~/lib/pedigree-layout/alignPedigree';
-import { computeConnectors } from '~/lib/pedigree-layout/connectors';
+import { alignPedigree } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/alignPedigree';
+import { computeConnectors } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/connectors';
 import {
   type ParentConnection,
   type PedigreeInput,
   type ScalingParams,
-} from '~/lib/pedigree-layout/types';
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/types';
 import {
   blendedFamily,
   crossFamily,
@@ -18,7 +18,7 @@ import {
   threeGeneration,
   twinFamily,
   wideFamily,
-} from '~/lib/pedigree-layout/__tests__/fixtures';
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/__tests__/fixtures';
 
 describe('alignPedigree', () => {
   it('lays out a nuclear family', () => {

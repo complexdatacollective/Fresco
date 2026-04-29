@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { computeConnectors } from '~/lib/pedigree-layout/connectors';
+import { computeConnectors } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/connectors';
 import {
   type ParentConnection,
   type PedigreeLayout,
   type ScalingParams,
-} from '~/lib/pedigree-layout/types';
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/types';
 
 describe('computeConnectors', () => {
   const scaling: ScalingParams = {

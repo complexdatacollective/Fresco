@@ -2,7 +2,7 @@ import { type NcEdge, type NcNode } from '@codaco/shared-consts';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, test } from 'vitest';
 import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
-import PedigreeLayout from '~/lib/pedigree-layout/components/PedigreeLayout';
+import PedigreeLayout from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/components/PedigreeLayout';
 
 const variableConfig: VariableConfig = {
   nodeType: 'person',

@@ -9,9 +9,9 @@ import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree
 import {
   AdoptionBrackets,
   EgoIcon,
-} from '~/lib/pedigree-layout/components/PedigreeNode';
-import PedigreeKey from '~/lib/pedigree-layout/components/PedigreeKey';
-import PedigreeLayout from '~/lib/pedigree-layout/components/PedigreeLayout';
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/components/PedigreeNode';
+import PedigreeKey from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/components/PedigreeKey';
+import PedigreeLayout from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/components/PedigreeLayout';
 
 const meta: Meta = {
   title: 'Systems/PedigreeLayout',

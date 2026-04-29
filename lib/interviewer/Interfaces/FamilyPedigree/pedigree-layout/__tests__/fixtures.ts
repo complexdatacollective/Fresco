@@ -3,7 +3,7 @@ import {
   type PartnerConnection,
   type PedigreeInput,
   type Relation,
-} from '~/lib/pedigree-layout/types';
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/types';
 
 const sp = (parentIndex: number): ParentConnection => ({
   parentIndex,

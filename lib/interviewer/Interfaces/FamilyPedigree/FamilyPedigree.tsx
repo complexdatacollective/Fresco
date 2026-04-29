@@ -38,8 +38,8 @@ import {
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { type StageProps } from '~/lib/interviewer/types';
-import FamilyPedigreePlaceholder from '~/lib/pedigree-layout/components/FamilyPedigreePlaceholder';
-import PedigreeView from '~/lib/pedigree-layout/components/PedigreeView';
+import FamilyPedigreePlaceholder from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/components/FamilyPedigreePlaceholder';
+import PedigreeView from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/components/PedigreeView';
 
 const FamilyPedigree = (props: StageProps<'FamilyPedigree'>) => {
   const {

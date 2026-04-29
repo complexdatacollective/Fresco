@@ -3,9 +3,9 @@ import {
   type ParentEdgeType,
   type PedigreeInput,
   type PedigreeLayout,
-} from '~/lib/pedigree-layout/types';
-import { kindepth } from '~/lib/pedigree-layout/kindepth';
-import { ancestor } from '~/lib/pedigree-layout/utils';
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/types';
+import { kindepth } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/kindepth';
+import { ancestor } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/utils';
 
 type PartnerGroup = {
   members: number[];

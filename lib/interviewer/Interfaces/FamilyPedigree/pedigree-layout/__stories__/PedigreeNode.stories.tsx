@@ -3,7 +3,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Provider } from 'react-redux';
 import { type NcNode } from '@codaco/shared-consts';
-import PedigreeNode from '~/lib/pedigree-layout/components/PedigreeNode';
+import PedigreeNode from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/components/PedigreeNode';
 
 const mockProtocol = {
   id: 'test-protocol',

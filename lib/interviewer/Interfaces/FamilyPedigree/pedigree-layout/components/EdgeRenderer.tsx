@@ -1,11 +1,11 @@
 import { useMemo, type JSX } from 'react';
-import { type ConnectorRenderData } from '~/lib/pedigree-layout/pedigreeAdapter';
+import { type ConnectorRenderData } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/pedigreeAdapter';
 import {
   type AuxiliaryConnector,
   type LineSegment,
   type ParentChildConnector,
   type ParentGroupConnector,
-} from '~/lib/pedigree-layout/types';
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/types';
 
 export const EDGE_WIDTH = 5;
 export const DASHED_PATTERN = '8 8';

@@ -1,5 +1,5 @@
-import { type ParentConnection } from '~/lib/pedigree-layout/types';
-import { chaseup } from '~/lib/pedigree-layout/utils';
+import { type ParentConnection } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/types';
+import { chaseup } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/utils';
 
 /**
  * Compute the generational depth of each subject in a pedigree.

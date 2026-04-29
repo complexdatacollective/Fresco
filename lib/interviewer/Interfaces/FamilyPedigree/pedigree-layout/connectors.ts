@@ -11,7 +11,7 @@ import {
   type Point,
   type ScalingParams,
   type TwinIndicator,
-} from '~/lib/pedigree-layout/types';
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/types';
 
 const AUXILIARY_EDGE_TYPES = new Set<ParentEdgeType>(['donor', 'surrogate']);
 

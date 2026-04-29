@@ -2,7 +2,7 @@ import { describe, expect, test } from 'vitest';
 import {
   computeLayoutMetrics,
   type LayoutDimensions,
-} from '~/lib/pedigree-layout/layoutDimensions';
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/layoutDimensions';
 
 describe('computeLayoutMetrics', () => {
   const dims: LayoutDimensions = {

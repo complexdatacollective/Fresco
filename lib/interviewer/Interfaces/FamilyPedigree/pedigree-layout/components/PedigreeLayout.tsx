@@ -4,17 +4,17 @@ import { type NcEdge, type NcNode } from '@codaco/shared-consts';
 import { useMemo, type ReactNode } from 'react';
 import Spinner from '~/components/Spinner';
 import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
-import { alignPedigree } from '~/lib/pedigree-layout/alignPedigree';
-import { PedigreeEdgeSvg } from '~/lib/pedigree-layout/components/EdgeRenderer';
+import { alignPedigree } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/alignPedigree';
+import { PedigreeEdgeSvg } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/components/EdgeRenderer';
 import {
   computeLayoutMetrics,
   type LayoutDimensions,
-} from '~/lib/pedigree-layout/layoutDimensions';
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/layoutDimensions';
 import {
   buildConnectorData,
   pedigreeLayoutToPositions,
   storeToPedigreeInput,
-} from '~/lib/pedigree-layout/pedigreeAdapter';
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/pedigreeAdapter';
 
 type PedigreeLayoutNode = NcNode & { id: string };
 

@@ -3,7 +3,7 @@
 import {
   DASHED_PATTERN,
   EDGE_WIDTH,
-} from '~/lib/pedigree-layout/components/EdgeRenderer';
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/components/EdgeRenderer';
 
 type KeyEntry = {
   label: string;

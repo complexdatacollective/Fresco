@@ -2,9 +2,9 @@ import { type NcEdge, type NcNode } from '@codaco/shared-consts';
 import {
   computeLayoutMetrics,
   type LayoutDimensions,
-} from '~/lib/pedigree-layout/layoutDimensions';
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/layoutDimensions';
 import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
-import { computeConnectors } from '~/lib/pedigree-layout/connectors';
+import { computeConnectors } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/connectors';
 import {
   type ParentConnection,
   type ParentEdgeType,
@@ -14,7 +14,7 @@ import {
   type PedigreeLayout,
   type Relation,
   type ScalingParams,
-} from '~/lib/pedigree-layout/types';
+} from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/types';
 
 export type ConnectorRenderData = {
   connectors: PedigreeConnectors;
