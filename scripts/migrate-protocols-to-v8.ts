@@ -21,7 +21,7 @@ export async function migrateProtocolsToV8(
   });
   const orphanKeys = orphanAssets.map((a) => a.key);
 
-  // 2. Truncate PreviewProtocol (M2M join rows cascade)
+  // 2. Truncate PreviewProtocol (removes join records; Asset rows become orphaned)
   const previewDeleteResult = await prisma.previewProtocol.deleteMany({});
   console.log(
     `PreviewProtocol cleanup: deleted ${previewDeleteResult.count} rows, ${orphanKeys.length} orphan assets`,
