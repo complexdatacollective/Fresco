@@ -16,20 +16,26 @@ const STORAGE_SETTING_KEYS: AppSetting[] = [
   's3SecretAccessKey',
 ];
 
+// Inlined SDK construction rather than reusing lib/storage/* — those layers
+// depend on `'use cache'`, `'use server'`, and the serverless Prisma adapter,
+// none of which work in this tsx CLI context.
 async function deleteOrphanBlobs(
   prisma: PrismaClient,
   keys: string[],
 ): Promise<void> {
   if (keys.length === 0) return;
 
-  try {
-    const settings = await prisma.appSettings.findMany({
-      where: { key: { in: STORAGE_SETTING_KEYS } },
-    });
-    const map = Object.fromEntries(settings.map((s) => [s.key, s.value]));
-    const provider = map.storageProvider ?? 'uploadthing';
+  const settings = await prisma.appSettings.findMany({
+    where: { key: { in: STORAGE_SETTING_KEYS } },
+  });
+  const map = Object.fromEntries(settings.map((s) => [s.key, s.value]));
+  const provider = map.storageProvider ?? 'uploadthing';
 
+  try {
     if (provider === 'uploadthing') {
+      if (!map.uploadThingToken) {
+        throw new Error('uploadThingToken is not configured');
+      }
       const utapi = new UTApi({ token: map.uploadThingToken });
       await utapi.deleteFiles(keys);
     } else {
@@ -149,14 +155,14 @@ export async function migrateProtocolsToV8(
 
   const previewDeleteResult = await prisma.previewProtocol.deleteMany({});
   console.log(
-    `PreviewProtocol cleanup: deleted ${previewDeleteResult.count} rows, ${orphanKeys.length} orphan assets`,
+    `Truncated PreviewProtocol: ${previewDeleteResult.count} rows, ${orphanKeys.length} orphan asset candidates`,
   );
 
   await deleteOrphanBlobs(prisma, orphanKeys);
 
   if (orphanKeys.length > 0) {
     await prisma.asset.deleteMany({ where: { key: { in: orphanKeys } } });
-    console.log(`Deleted ${orphanKeys.length} orphan asset rows`);
+    console.log(`Deleted ${orphanKeys.length} orphan Asset rows`);
   }
 
   const v7Protocols = await prisma.protocol.findMany({
