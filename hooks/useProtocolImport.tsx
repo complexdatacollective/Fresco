@@ -223,40 +223,39 @@ export const useProtocolImport = () => {
         throw new Error('Error checking for existing assets');
       }
 
-      // Phase: Uploading assets (and the original .netcanvas source file)
+      // Phase: Uploading assets
       updateToastPhase(toastId, 'uploading-assets');
 
-      if (newAssets.length > 0) {
-        const files = newAssets.map((asset) => asset.file);
+      const filesToUpload = [...newAssets.map((asset) => asset.file), file];
 
-        const uploadedFiles = await uploadAssets(files, (progress) => {
-          updateToastPhase(toastId, 'uploading-assets', progress);
-        });
+      const uploadedFiles = await uploadAssets(filesToUpload, (progress) => {
+        updateToastPhase(toastId, 'uploading-assets', progress);
+      });
 
-        newAssetsWithCombinedMetadata = newAssets.map((asset) => {
-          const uploadedAsset = uploadedFiles.find(
-            (uploadedFile) => uploadedFile.name === asset.name,
-          );
-
-          if (!uploadedAsset) {
-            throw new Error('Asset upload failed');
-          }
-
-          return {
-            key: uploadedAsset.key,
-            assetId: asset.assetId,
-            name: asset.name,
-            type: asset.type,
-            url: uploadedAsset.url,
-            size: uploadedAsset.size,
-          };
-        });
-      }
-
-      const [uploadedOriginalFile] = await uploadAssets([file]);
+      const uploadedOriginalFile = uploadedFiles.at(-1);
       if (!uploadedOriginalFile) {
         throw new Error('Original protocol file upload failed');
       }
+
+      const uploadedAssetFiles = uploadedFiles.slice(0, newAssets.length);
+      newAssetsWithCombinedMetadata = newAssets.map((asset) => {
+        const uploadedAsset = uploadedAssetFiles.find(
+          (uploadedFile) => uploadedFile.name === asset.name,
+        );
+
+        if (!uploadedAsset) {
+          throw new Error('Asset upload failed');
+        }
+
+        return {
+          key: uploadedAsset.key,
+          assetId: asset.assetId,
+          name: asset.name,
+          type: asset.type,
+          url: uploadedAsset.url,
+          size: uploadedAsset.size,
+        };
+      });
 
       // Phase: Saving
       updateToastPhase(toastId, 'saving');
