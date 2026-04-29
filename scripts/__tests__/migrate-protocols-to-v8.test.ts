@@ -1,6 +1,23 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { migrateProtocolsToV8 } from '~/scripts/migrate-protocols-to-v8';
 
+const mockDeleteFiles = vi.fn().mockResolvedValue({ success: true });
+vi.mock('uploadthing/server', () => ({
+  UTApi: vi.fn(function () {
+    return { deleteFiles: mockDeleteFiles };
+  }),
+}));
+
+const mockS3Send = vi.fn().mockResolvedValue({});
+vi.mock('@aws-sdk/client-s3', () => ({
+  S3Client: vi.fn(function () {
+    return { send: mockS3Send };
+  }),
+  DeleteObjectsCommand: vi.fn(function (input: unknown) {
+    return { input };
+  }),
+}));
+
 type MockPrisma = {
   asset: {
     findMany: ReturnType<typeof vi.fn>;
@@ -38,6 +55,8 @@ function makeMockPrisma(): MockPrisma {
 describe('migrateProtocolsToV8', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockDeleteFiles.mockResolvedValue({ success: true });
+    mockS3Send.mockResolvedValue({});
   });
 
   it('is a no-op when there are no preview protocols and no v7 protocols', async () => {
@@ -84,5 +103,23 @@ describe('migrateProtocolsToV8', () => {
     expect(prisma.asset.deleteMany).toHaveBeenCalledWith({
       where: { key: { in: ['orphan-key-1', 'orphan-key-2'] } },
     });
+  });
+
+  it('deletes orphan blobs from UploadThing when provider is uploadthing', async () => {
+    const prisma = makeMockPrisma();
+    prisma.asset.findMany.mockResolvedValue([
+      { key: 'ut-orphan-1' },
+      { key: 'ut-orphan-2' },
+    ]);
+    prisma.appSettings.findMany.mockResolvedValue([
+      { key: 'storageProvider', value: 'uploadthing' },
+      { key: 'uploadThingToken', value: 'sk_test_token' },
+    ]);
+
+    await migrateProtocolsToV8(
+      prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
+    );
+
+    expect(mockDeleteFiles).toHaveBeenCalledWith(['ut-orphan-1', 'ut-orphan-2']);
   });
 });
