@@ -139,9 +139,6 @@ async function prisma_getInterviewsForExport(interviewIds: string[]) {
     },
   });
 }
-export type GetInterviewsForExportQuery = Awaited<
-  ReturnType<typeof prisma_getInterviewsForExport>
->;
 
 export const getInterviewsForExport = async (interviewIds: string[]) => {
   return prisma_getInterviewsForExport(interviewIds);

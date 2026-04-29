@@ -13,7 +13,7 @@ export const stageMessages: Record<ExportStage, string> = {
   uploading: 'Uploading...',
 };
 
-export type ExportStageEvent = {
+type ExportStageEvent = {
   type: 'stage';
   stage: ExportStage;
   message: string;
@@ -21,7 +21,7 @@ export type ExportStageEvent = {
   total?: number;
 };
 
-export type ExportProgressEvent = {
+type ExportProgressEvent = {
   type: 'progress';
   stage: 'generating';
   current: number;

@@ -34,7 +34,7 @@ export class FileStorageError extends Data.TaggedError(
   readonly cause: unknown;
 }> {}
 
-export type ExportError =
+type ExportError =
   | DatabaseError
   | FileSystemError
   | ArchiveError

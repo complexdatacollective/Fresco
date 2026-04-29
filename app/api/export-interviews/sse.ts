@@ -1,12 +1,12 @@
 import type { ExportEvent } from '~/lib/network-exporters/events';
 
-export type ExportCompleteEvent = {
+type ExportCompleteEvent = {
   type: 'complete';
   zipUrl: string;
   zipKey: string;
 };
 
-export type ExportErrorEvent = {
+type ExportErrorEvent = {
   type: 'error';
   message: string;
 };
