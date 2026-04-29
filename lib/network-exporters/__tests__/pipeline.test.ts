@@ -1,5 +1,5 @@
 import { Effect, Layer, Queue } from 'effect';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   DatabaseError,
   describeExportError,
@@ -10,6 +10,26 @@ import { exportPipeline } from '~/lib/network-exporters/pipeline';
 import { FileStorage } from '~/lib/network-exporters/services/FileStorage';
 import { InterviewRepository } from '~/lib/network-exporters/services/InterviewRepository';
 import type { InterviewExportInput } from '~/lib/network-exporters/input';
+import type * as GetFormatterModule from '~/lib/network-exporters/utils/getFormatter';
+
+// Force the attributeList formatter to throw so the partial-success test
+// produces exactly one ExportFailure alongside successes from the other
+// formats. Other tests in this file disable CSV export, so they are not
+// affected by this mock.
+vi.mock('~/lib/network-exporters/utils/getFormatter', async (importOriginal) => {
+  const original = await importOriginal<typeof GetFormatterModule>();
+  return {
+    ...original,
+    getFormatter: (format: Parameters<typeof original.getFormatter>[0]) => {
+      if (format === 'attributeList') {
+        return () => {
+          throw new Error('mock formatter failure');
+        };
+      }
+      return original.getFormatter(format);
+    },
+  };
+});
 
 const defaultExportOptions = {
   exportGraphML: true,
@@ -160,9 +180,59 @@ describe('exportPipeline', () => {
     expect(result.status).not.toBe('error');
   });
 
-  it.todo(
-    'returns status=partial when one file generation fails' +
-      ' — wire a mock formatter that throws for one format and verify' +
-      ' failedExports.length===1, successfulExports populated, zipUrl defined',
-  );
+  it('returns status=partial when one file generation fails', async () => {
+    const mockInterview: InterviewExportInput = {
+      id: 'test-interview-2',
+      participantIdentifier: 'test-participant',
+      startTime: new Date('2025-01-01'),
+      finishTime: new Date('2025-01-01'),
+      network: {
+        nodes: [],
+        edges: [],
+        ego: { _uid: 'ego-2', attributes: {} },
+      },
+      protocol: {
+        hash: 'testhash456',
+        name: 'Test Protocol',
+        codebook: { node: {}, edge: {} },
+      },
+    };
+
+    const MockRepo = Layer.succeed(InterviewRepository, {
+      getForExport: () => Effect.succeed([mockInterview]),
+    });
+
+    const MockStorage = Layer.succeed(FileStorage, {
+      upload: () => Effect.succeed({ key: 'networkCanvasExport-456.zip' }),
+      getDownloadUrl: (key) => Effect.succeed(`http://test/download/${key}`),
+    });
+
+    const testLayer = Layer.mergeAll(MockRepo, NodeFileSystem, MockStorage);
+
+    // Enable both formats so graphml + edgeList + ego succeed and only
+    // attributeList (mocked above to throw) fails.
+    const exportOptions = { ...defaultExportOptions, exportCSV: true };
+
+    const result = await Effect.gen(function* () {
+      const queue = yield* Queue.unbounded<ExportEvent>();
+      return yield* exportPipeline(
+        ['test-interview-2'],
+        exportOptions,
+        queue,
+      );
+    }).pipe(Effect.provide(testLayer), Effect.runPromise);
+
+    expect(result.status).toBe('partial');
+    expect(result.zipUrl).toBe(
+      'http://test/download/networkCanvasExport-456.zip',
+    );
+    expect(result.zipKey).toBe('networkCanvasExport-456.zip');
+    expect(result.failedExports).toHaveLength(1);
+    expect(result.failedExports[0]?.format).toBe('attributeList');
+    expect(result.failedExports[0]?.sessionId).toBe('test-interview-2');
+    expect(result.successfulExports.length).toBeGreaterThan(0);
+    expect(
+      result.successfulExports.every((r) => r.format !== 'attributeList'),
+    ).toBe(true);
+  });
 });
