@@ -1,4 +1,4 @@
-import { cx } from '~/utils/cva';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 
 type PanelsProps = {
   children: React.ReactNode;

@@ -3,7 +3,7 @@ import { SettingsCardSkeleton } from '~/components/settings/SettingsCard';
 import SettingsNavigation, {
   type SettingsSection,
 } from '~/components/settings/SettingsNavigation';
-import PageHeader from '~/components/ui/typography/PageHeader';
+import PageHeader from '@codaco/fresco-ui/typography/PageHeader';
 import { env } from '~/env';
 import { requirePageAuth } from '~/lib/auth/guards';
 import { requireAppNotExpired } from '~/queries/appSettings';

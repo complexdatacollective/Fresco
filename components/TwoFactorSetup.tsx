@@ -3,15 +3,15 @@
 import { useCallback, useEffect, useState } from 'react';
 import { enableTotp, verifyTotpSetup } from '~/actions/totp';
 import RecoveryCodes from '~/components/RecoveryCodes';
-import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import useDialog from '~/components/ui/dialogs/useDialog';
-import { useWizard } from '~/components/ui/dialogs/useWizard';
-import UnconnectedField from '~/components/ui/form/components/Field/UnconnectedField';
-import InputField from '~/components/ui/form/components/fields/InputField';
-import SegmentedCodeField from '~/components/ui/form/components/fields/SegmentedCodeField';
-import { cx } from '~/utils/cva';
-import { surfaceSpacingVariants } from '~/components/ui/layout/Surface';
-import Paragraph from '~/components/ui/typography/Paragraph';
+import { Alert, AlertDescription, AlertTitle } from '@codaco/fresco-ui/Alert';
+import useDialog from '@codaco/fresco-ui/dialogs/useDialog';
+import { useWizard } from '@codaco/fresco-ui/dialogs/useWizard';
+import UnconnectedField from '@codaco/fresco-ui/form/components/Field/UnconnectedField';
+import InputField from '@codaco/fresco-ui/form/components/fields/InputField';
+import SegmentedCodeField from '@codaco/fresco-ui/form/components/fields/SegmentedCodeField';
+import { cx } from '@codaco/fresco-ui/utils/cva';
+import { surfaceSpacingVariants } from '@codaco/fresco-ui/layout/Surface';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
 import Button from './ui/Button';
 import Spinner from './ui/Spinner';
 

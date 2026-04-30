@@ -3,11 +3,11 @@
 import { ClipboardCopy } from 'lucide-react';
 import posthog from 'posthog-js';
 import { useEffect } from 'react';
-import Surface from '~/components/ui/layout/Surface';
-import Heading from '~/components/ui/typography/Heading';
-import Paragraph from '~/components/ui/typography/Paragraph';
-import { Button } from '~/components/ui/Button';
-import { useToast } from '~/components/ui/Toast';
+import Surface from '@codaco/fresco-ui/layout/Surface';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import { Button } from '@codaco/fresco-ui/Button';
+import { useToast } from '@codaco/fresco-ui/Toast';
 
 export default function Error({
   error,

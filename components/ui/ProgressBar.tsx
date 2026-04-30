@@ -59,7 +59,7 @@ const ProgressBar = ({
               // Override Base UI's automatic width and use height instead
               'w-full!',
               // Height will be controlled by inline style below
-              'transition-[height] duration-[calc(var(--animation-duration-standard,200ms)*3)] ease-(--animation-easing,ease)',
+              'transition-[height] duration-[calc(var(--animation-duration-standard,0.2s)*3)] ease-(--animation-easing,ease)',
             ],
             orientation === 'horizontal' && [
               // Base UI automatically handles width, just set height and transition

@@ -5,7 +5,7 @@ import {
   type RangeFilterConfig,
   type RangeFilterValue,
 } from '~/components/DataTable/filters/types';
-import Button from '~/components/ui/Button';
+import Button from '@codaco/fresco-ui/Button';
 
 type RangeFilterProps = {
   value: RangeFilterValue | undefined;

@@ -12,7 +12,7 @@ import { hash as objectHash } from 'ohash';
 import { useState } from 'react';
 import { DeleteInterviewsDialog } from '~/app/dashboard/interviews/_components/DeleteInterviewsDialog';
 import { ExportInterviewsDialog } from '~/app/dashboard/interviews/_components/ExportInterviewsDialog';
-import { IconButton } from '~/components/ui/Button';
+import { IconButton } from '@codaco/fresco-ui/Button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -20,7 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
+} from '@codaco/fresco-ui/dropdown-menu';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 
 type InterviewRow = GetInterviewsQuery[number];

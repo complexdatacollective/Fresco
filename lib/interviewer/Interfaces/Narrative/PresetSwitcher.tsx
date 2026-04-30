@@ -16,10 +16,10 @@ import {
     useState,
 } from 'react';
 import { useSelector } from 'react-redux';
-import { MotionSurface } from '~/components/ui/layout/Surface';
-import Heading from '~/components/ui/typography/Heading';
-import { IconButton } from '~/components/ui/Button';
-import { RenderMarkdown } from '~/components/ui/RenderMarkdown';
+import { MotionSurface } from '@codaco/fresco-ui/layout/Surface';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import { IconButton } from '@codaco/fresco-ui/Button';
+import { RenderMarkdown } from '@codaco/fresco-ui/RenderMarkdown';
 import { type VariableOption } from '~/lib/codebook';
 import { getCodebook } from '~/lib/interviewer/ducks/modules/protocol';
 import { getSubjectType } from '~/lib/interviewer/selectors/session';

@@ -4,13 +4,13 @@ import { Toggle } from '@base-ui/react';
 import { Search, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useId, useMemo, useRef, useState } from 'react';
-import { MotionSurface } from '~/components/ui/layout/Surface';
-import { IconButton } from '~/components/ui/Button';
-import { Collection } from '~/components/ui/collection/components/Collection';
-import { ListLayout } from '~/components/ui/collection/layout/ListLayout';
-import { type ItemProps } from '~/components/ui/collection/types';
-import InputField from '~/components/ui/form/components/fields/InputField';
-import { cx } from '~/utils/cva';
+import { MotionSurface } from '@codaco/fresco-ui/layout/Surface';
+import { IconButton } from '@codaco/fresco-ui/Button';
+import { Collection } from '@codaco/fresco-ui/collection/components/Collection';
+import { ListLayout } from '@codaco/fresco-ui/collection/layout/ListLayout';
+import { type ItemProps } from '@codaco/fresco-ui/collection/types';
+import InputField from '@codaco/fresco-ui/form/components/fields/InputField';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 import {
   useGeospatialSearch,
   type Suggestion,

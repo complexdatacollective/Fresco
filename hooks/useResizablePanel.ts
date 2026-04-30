@@ -2,7 +2,7 @@
 
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { z } from 'zod/mini';
-import useSafeLocalStorage from '~/hooks/useSafeLocalStorage';
+import useSafeLocalStorage from '@codaco/fresco-ui/hooks/useSafeLocalStorage';
 
 type Breakpoint = {
   value: number;

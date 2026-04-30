@@ -12,13 +12,13 @@ import { GenerateInterviewURLs } from '~/app/dashboard/interviews/_components/Ge
 import { DataTable } from '~/components/DataTable/DataTable';
 import { DataTableFloatingBar } from '~/components/DataTable/DataTableFloatingBar';
 import { DataTableToolbar } from '~/components/DataTable/DataTableToolbar';
-import { Button } from '~/components/ui/Button';
+import { Button } from '@codaco/fresco-ui/Button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
+} from '@codaco/fresco-ui/dropdown-menu';
 import { useClientDataTable } from '~/hooks/useClientDataTable';
 import type {
   GetInterviewsQuery,

@@ -1,4 +1,4 @@
-import { useSafeAnimate } from '~/hooks/useSafeAnimate';
+import { useSafeAnimate } from '@codaco/fresco-ui/hooks/useSafeAnimate';
 import { useCallback, useState, type CSSProperties } from 'react';
 
 type UseNodeInteractionsOptions = {

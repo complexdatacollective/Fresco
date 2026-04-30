@@ -1,4 +1,4 @@
-import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
+import { Alert, AlertDescription, AlertTitle } from '@codaco/fresco-ui/Alert';
 import Link from '~/components/Link';
 import { getAppSetting } from '~/queries/appSettings';
 

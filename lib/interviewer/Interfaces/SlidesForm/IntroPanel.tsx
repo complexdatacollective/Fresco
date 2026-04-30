@@ -1,9 +1,9 @@
 'use client';
 
 import { useEffect } from 'react';
-import Surface from '~/components/ui/layout/Surface';
-import Heading from '~/components/ui/typography/Heading';
-import { RenderMarkdown } from '~/components/ui/RenderMarkdown';
+import Surface from '@codaco/fresco-ui/layout/Surface';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import { RenderMarkdown } from '@codaco/fresco-ui/RenderMarkdown';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
 import { type BeforeNextFunction } from '~/lib/interviewer/types';

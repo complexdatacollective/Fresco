@@ -1,8 +1,8 @@
 import { use } from 'react';
-import Surface from '~/components/ui/layout/Surface';
-import Heading from '~/components/ui/typography/Heading';
-import { Skeleton } from '~/components/ui/skeleton';
-import { cx } from '~/utils/cva';
+import Surface from '@codaco/fresco-ui/layout/Surface';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import { Skeleton } from '@codaco/fresco-ui/skeleton';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 
 const statCardClasses = cx(
   'flex flex-col gap-4 border transition-all',

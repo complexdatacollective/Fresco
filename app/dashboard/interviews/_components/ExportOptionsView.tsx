@@ -1,9 +1,9 @@
 import { type Dispatch, type SetStateAction } from 'react';
-import Heading from '~/components/ui/typography/Heading';
-import Paragraph from '~/components/ui/typography/Paragraph';
-import Switch from '~/components/ui/form/components/fields/ToggleField';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import Switch from '@codaco/fresco-ui/form/components/fields/ToggleField';
 import type { ExportOptions } from '~/lib/network-exporters/options';
-import { cx } from '~/utils/cva';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 
 const sectionClasses = cx(
   'flex gap-4 p-4',

@@ -1,4 +1,4 @@
-import { Skeleton } from '~/components/ui/skeleton';
+import { Skeleton } from '@codaco/fresco-ui/skeleton';
 import {
   Table,
   TableBody,
@@ -6,7 +6,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '~/components/ui/table';
+} from '@codaco/fresco-ui/table';
 
 type DataTableSkeletonProps = {
   columnCount: number;

@@ -7,12 +7,12 @@ import RecoveryCodes from '~/components/RecoveryCodes';
 import SettingsField from '~/components/settings/SettingsField';
 import { useTwoFactorSetup } from '~/components/TwoFactorSetup';
 import TwoFactorVerify from '~/components/TwoFactorVerify';
-import { Alert, AlertDescription } from '~/components/ui/Alert';
-import { Button } from '~/components/ui/Button';
-import ToggleField from '~/components/ui/form/components/fields/ToggleField';
-import Dialog from '~/components/ui/dialogs/Dialog';
-import SubmitButton from '~/components/ui/form/components/SubmitButton';
-import FormStoreProvider from '~/components/ui/form/store/formStoreProvider';
+import { Alert, AlertDescription } from '@codaco/fresco-ui/Alert';
+import { Button } from '@codaco/fresco-ui/Button';
+import ToggleField from '@codaco/fresco-ui/form/components/fields/ToggleField';
+import Dialog from '@codaco/fresco-ui/dialogs/Dialog';
+import SubmitButton from '@codaco/fresco-ui/form/components/SubmitButton';
+import FormStoreProvider from '@codaco/fresco-ui/form/store/formStoreProvider';
 
 type TwoFactorSettingsProps = {
   hasTwoFactor: boolean;

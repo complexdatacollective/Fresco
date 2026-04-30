@@ -4,7 +4,7 @@ import { after, connection } from 'next/server';
 import { Suspense } from 'react';
 import SuperJSON from 'superjson';
 import { type ActivityType } from '~/app/dashboard/_components/ActivityFeed/types';
-import Spinner from '~/components/ui/Spinner';
+import Spinner from '@codaco/fresco-ui/Spinner';
 import { getServerSession } from '~/lib/auth/guards';
 import { safeRevalidateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';

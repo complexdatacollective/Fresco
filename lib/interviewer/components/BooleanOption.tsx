@@ -2,7 +2,7 @@
 
 import { motion, useMotionValue, useTransform } from 'motion/react';
 import { memo, type ReactNode } from 'react';
-import { RenderMarkdown } from '~/components/ui/RenderMarkdown';
+import { RenderMarkdown } from '@codaco/fresco-ui/RenderMarkdown';
 import {
     controlLabelVariants,
     controlVariants,
@@ -10,8 +10,8 @@ import {
     inputControlVariants,
     smallSizeVariants,
     stateVariants,
-} from '~/styles/shared/controlVariants';
-import { compose, cva, cx } from '~/utils/cva';
+} from '@codaco/fresco-ui/styles/controlVariants';
+import { compose, cva, cx } from '@codaco/fresco-ui/utils/cva';
 
 const buttonVariants = compose(
   controlVariants,

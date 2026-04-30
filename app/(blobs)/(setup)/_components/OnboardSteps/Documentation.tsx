@@ -2,10 +2,10 @@
 
 import { FileText } from 'lucide-react';
 import { completeSetup } from '~/actions/appSettings';
-import Surface from '~/components/ui/layout/Surface';
-import Heading from '~/components/ui/typography/Heading';
-import Paragraph from '~/components/ui/typography/Paragraph';
-import Button from '~/components/ui/Button';
+import Surface from '@codaco/fresco-ui/layout/Surface';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import Button from '@codaco/fresco-ui/Button';
 
 export default function Documentation() {
   return (

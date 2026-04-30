@@ -6,7 +6,7 @@ import {
 import { hash as objectHash } from 'ohash';
 import { useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import usePrevious from '~/hooks/usePrevious';
+import usePrevious from '@codaco/fresco-ui/hooks/usePrevious';
 import { makeGetCodebookForNodeType } from '~/lib/interviewer/selectors/protocol';
 import { getNodeLabelAttribute } from '~/lib/interviewer/utils/getNodeLabelAttribute';
 import { useNodeAttributes } from './useNodeAttributes';

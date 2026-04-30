@@ -10,7 +10,7 @@ import {
   type NcNode,
 } from '@codaco/shared-consts';
 import { get, includes, toNumber } from 'es-toolkit/compat';
-import { type FieldValue } from '~/components/ui/form/store/types';
+import { type FieldValue } from '@codaco/fresco-ui/form/store/types';
 
 /**
  * Try to determine the type of an attribute based on data across all nodes

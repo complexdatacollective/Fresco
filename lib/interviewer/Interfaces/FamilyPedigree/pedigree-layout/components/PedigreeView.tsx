@@ -7,11 +7,11 @@ import {
 } from '@codaco/shared-consts';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import Node from '~/components/ui/Node';
+import Node from '@codaco/fresco-ui/Node';
 import { useNodeMeasurement } from '~/hooks/useNodeMeasurement';
-import useDialog from '~/components/ui/dialogs/useDialog';
-import Field from '~/components/ui/form/components/Field/Field';
-import InputField from '~/components/ui/form/components/fields/InputField';
+import useDialog from '@codaco/fresco-ui/dialogs/useDialog';
+import Field from '@codaco/fresco-ui/form/components/Field/Field';
+import InputField from '@codaco/fresco-ui/form/components/fields/InputField';
 import AddPersonFields, {
     type AddPersonMode,
 } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/AddPersonForm';

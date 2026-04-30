@@ -1,6 +1,6 @@
 import type { Decorator } from '@storybook/nextjs-vite';
 import { useLayoutEffect } from 'react';
-import { cx } from '~/utils/cva';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 
 const THEME_KEY = 'theme';
 const STORAGE_KEY = 'storybook-theme-preference';

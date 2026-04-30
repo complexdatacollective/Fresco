@@ -1,8 +1,8 @@
 import type { Meta, StoryFn } from '@storybook/nextjs-vite';
 import { User } from 'lucide-react';
-import Heading from '~/components/ui/typography/Heading';
-import Paragraph from '~/components/ui/typography/Paragraph';
-import { cx } from '~/utils/cva';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 
 const meta: Meta = {
   title: 'Design System/Inset Surface',

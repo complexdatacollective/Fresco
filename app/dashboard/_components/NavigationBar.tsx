@@ -6,10 +6,10 @@ import type { Route } from 'next';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import type { UrlObject } from 'url';
-import { MotionSurface } from '~/components/ui/layout/Surface';
-import Heading from '~/components/ui/typography/Heading';
-import Spinner from '~/components/ui/Spinner';
-import { cx } from '~/utils/cva';
+import { MotionSurface } from '@codaco/fresco-ui/layout/Surface';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import Spinner from '@codaco/fresco-ui/Spinner';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 import { MobileNavDrawer } from './MobileNavDrawer';
 import UserMenu from './UserMenu';
 

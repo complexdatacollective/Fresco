@@ -1,4 +1,4 @@
-import { compose, cva, cx } from '~/utils/cva';
+import { compose, cva, cx } from '@codaco/fresco-ui/utils/cva';
 
 // Small size variants for controls that should use a smaller scale, such as checkboxes
 export const smallSizeVariants = cva({

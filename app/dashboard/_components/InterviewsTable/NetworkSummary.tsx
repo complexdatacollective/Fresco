@@ -1,6 +1,6 @@
-import Node, { type NodeColorSequence } from '~/components/ui/Node';
+import Node, { type NodeColorSequence } from '@codaco/fresco-ui/Node';
 import type { GetInterviewsQuery } from '~/queries/interviews';
-import { cx } from '~/utils/cva';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 
 // TODO: Move to shared-consts or protocol-validation
 type EdgeColorSequence =

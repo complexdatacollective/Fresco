@@ -3,9 +3,9 @@ import PreviewModeAuthSwitch from '~/components/PreviewModeAuthSwitch';
 import PreviewModeSwitch from '~/components/PreviewModeSwitch';
 import SettingsCard from '~/components/settings/SettingsCard';
 import SettingsField from '~/components/settings/SettingsField';
-import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
+import { Alert, AlertDescription, AlertTitle } from '@codaco/fresco-ui/Alert';
 import { env } from '~/env';
-import { ToggleFieldSkeleton } from '~/components/ui/form/components/fields/ToggleFieldSkeleton';
+import { ToggleFieldSkeleton } from '@codaco/fresco-ui/form/components/fields/ToggleFieldSkeleton';
 import { getAppSetting, getPreviewMode } from '~/queries/appSettings';
 import ReadOnlyEnvAlert from '../ReadOnlyEnvAlert';
 

@@ -12,7 +12,7 @@ import {
   useEffect,
   useRef,
 } from 'react';
-import { useDropTarget } from '~/components/ui/dnd';
+import { useDropTarget } from '@codaco/fresco-ui/dnd/dnd';
 import CanvasNode from '~/lib/interviewer/canvas/CanvasNode';
 import EdgeLayer from '~/lib/interviewer/canvas/EdgeLayer';
 import { type CanvasStoreApi } from '~/lib/interviewer/canvas/useCanvasStore';

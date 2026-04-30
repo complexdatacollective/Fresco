@@ -1,7 +1,7 @@
 'use client';
 
 import { useOptimistic, useTransition } from 'react';
-import SwitchUI from '~/components/ui/form/components/fields/ToggleField';
+import SwitchUI from '@codaco/fresco-ui/form/components/fields/ToggleField';
 
 const SwitchWithOptimisticUpdate = ({
   initialValue,

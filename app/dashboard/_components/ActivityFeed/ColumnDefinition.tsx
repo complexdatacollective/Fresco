@@ -2,8 +2,8 @@
 
 import { type StrictColumnDef } from '~/components/DataTable/types';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
-import { Badge } from '~/components/ui/badge';
-import TimeAgo from '~/components/ui/TimeAgo';
+import { Badge } from '@codaco/fresco-ui/badge';
+import TimeAgo from '@codaco/fresco-ui/TimeAgo';
 import type { Events } from '~/lib/db/generated/client';
 import { type ActivityType } from './types';
 import { getBadgeColorsForActivityType } from './utils';

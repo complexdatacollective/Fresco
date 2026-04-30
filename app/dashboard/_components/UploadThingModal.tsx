@@ -3,9 +3,9 @@
 import Image from 'next/image';
 import { useState } from 'react';
 import { UploadThingTokenForm } from '~/app/(blobs)/(setup)/_components/UploadThingTokenForm';
-import Paragraph from '~/components/ui/typography/Paragraph';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
 import Link from '~/components/Link';
-import Dialog from '~/components/ui/dialogs/Dialog';
+import Dialog from '@codaco/fresco-ui/dialogs/Dialog';
 
 function UploadThingModal() {
   const [open, setOpen] = useState(true);

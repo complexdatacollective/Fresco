@@ -1,7 +1,7 @@
 import { type ReactNode, type RefObject } from 'react';
-import { MotionSurface } from '~/components/ui/layout/Surface';
+import { MotionSurface } from '@codaco/fresco-ui/layout/Surface';
 import Prompts from '~/lib/interviewer/components/Prompts';
-import { cx } from '~/utils/cva';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 
 const CollapsablePrompts = (props: {
   dragConstraints: RefObject<HTMLElement | null>;

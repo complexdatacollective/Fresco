@@ -2,7 +2,7 @@
 
 import { type NcEdge, type NcNode } from '@codaco/shared-consts';
 import { useMemo, type ReactNode } from 'react';
-import Spinner from '~/components/ui/Spinner';
+import Spinner from '@codaco/fresco-ui/Spinner';
 import { alignPedigree } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/alignPedigree';
 import { PedigreeEdgeSvg } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/components/EdgeRenderer';
 import {

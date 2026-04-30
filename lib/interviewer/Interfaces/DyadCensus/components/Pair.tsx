@@ -3,7 +3,7 @@ import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { motion } from 'motion/react';
 import Node from '~/lib/interviewer/components/ConnectedNode';
 import { edgeColorMap } from '~/lib/interviewer/utils/edgeColorMap';
-import { cx } from '~/utils/cva';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 
 const pairVariants = {
   initial: (isForwards: boolean) => ({

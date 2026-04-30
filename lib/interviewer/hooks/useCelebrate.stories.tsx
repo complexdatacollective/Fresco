@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { useRef } from 'react';
-import Button from '~/components/ui/Button';
+import Button from '@codaco/fresco-ui/Button';
 import { useCelebrate } from './useCelebrate';
 
 const meta = {

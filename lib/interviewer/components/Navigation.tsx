@@ -6,10 +6,10 @@ import {
 } from 'lucide-react';
 import { motion } from 'motion/react';
 import { type ComponentProps, type Ref } from 'react';
-import { MotionSurface } from '~/components/ui/layout/Surface';
-import { IconButton } from '~/components/ui/Button';
-import ProgressBar from '~/components/ui/ProgressBar';
-import { cva, cx } from '~/utils/cva';
+import { MotionSurface } from '@codaco/fresco-ui/layout/Surface';
+import { IconButton } from '@codaco/fresco-ui/Button';
+import ProgressBar from '@codaco/fresco-ui/ProgressBar';
+import { cva, cx } from '@codaco/fresco-ui/utils/cva';
 import PassphrasePrompter from './PassphrasePrompter';
 
 const variants = {

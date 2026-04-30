@@ -8,10 +8,10 @@ import {
   useWillChange,
 } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
-import Button from '~/components/ui/Button';
-import Field from '~/components/ui/form/components/Field/Field';
-import Form from '~/components/ui/form/components/Form';
-import InputField from '~/components/ui/form/components/fields/InputField';
+import Button from '@codaco/fresco-ui/Button';
+import Field from '@codaco/fresco-ui/form/components/Field/Field';
+import Form from '@codaco/fresco-ui/form/components/Form';
+import InputField from '@codaco/fresco-ui/form/components/fields/InputField';
 import { usePassphrase } from '../Interfaces/Anonymisation/usePassphrase';
 import Overlay from './Overlay';
 
@@ -67,7 +67,7 @@ export default function PassphrasePrompter() {
                   <motion.button
                     key="lock"
                     layout
-                    className="bg-platinum group flex h-[4.8rem] w-[4.8rem] cursor-pointer items-center justify-center rounded-full"
+                    className="bg-platinum group flex size-[4.8rem] cursor-pointer items-center justify-center rounded-full"
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{
                       scale: 1,

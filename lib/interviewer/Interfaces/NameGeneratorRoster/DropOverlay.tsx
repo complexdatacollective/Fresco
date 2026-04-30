@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
-import UINode, { type NodeColorSequence } from '~/components/ui/Node';
-import { useDndStore, type DndStore } from '~/components/ui/dnd';
+import UINode, { type NodeColorSequence } from '@codaco/fresco-ui/Node';
+import { useDndStore, type DndStore } from '@codaco/fresco-ui/dnd/dnd';
 
 const variants = {
   visible: { opacity: 1 },

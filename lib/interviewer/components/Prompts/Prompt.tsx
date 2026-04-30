@@ -2,9 +2,9 @@
 
 import { motion } from 'motion/react';
 import { Fragment } from 'react';
-import Heading from '~/components/ui/typography/Heading';
-import { RenderMarkdown } from '~/components/ui/RenderMarkdown';
-import { cx } from '~/utils/cva';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import { RenderMarkdown } from '@codaco/fresco-ui/RenderMarkdown';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 
 const variants = {
   enter: (backwards: boolean) => ({

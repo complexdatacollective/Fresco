@@ -20,7 +20,7 @@ import {
   type FilterConfig,
   type FilterValue,
 } from '~/components/DataTable/filters/types';
-import Button, { buttonVariants } from '~/components/ui/Button';
+import Button, { buttonVariants } from '@codaco/fresco-ui/Button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -29,9 +29,9 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
-import { Popover, PopoverContent } from '~/components/ui/popover';
-import { cx } from '~/utils/cva';
+} from '@codaco/fresco-ui/dropdown-menu';
+import { Popover, PopoverContent } from '@codaco/fresco-ui/popover';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 
 const stringSortFns = new Set(['text', 'textCaseSensitive']);
 

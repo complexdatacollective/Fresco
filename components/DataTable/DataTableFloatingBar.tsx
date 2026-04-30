@@ -3,9 +3,9 @@
 import { type Table } from '@tanstack/react-table';
 import { AnimatePresence } from 'motion/react';
 import { type ComponentProps } from 'react';
-import { cx } from '~/utils/cva';
-import { MotionSurface } from '~/components/ui/layout/Surface';
-import Paragraph from '~/components/ui/typography/Paragraph';
+import { cx } from '@codaco/fresco-ui/utils/cva';
+import { MotionSurface } from '@codaco/fresco-ui/layout/Surface';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
 import CloseButton from '../ui/CloseButton';
 
 type DataTableFloatingBarProps<TData> = {

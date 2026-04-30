@@ -1,8 +1,8 @@
 'use client';
 
-import Surface from '~/components/ui/layout/Surface';
-import Heading from '~/components/ui/typography/Heading';
-import { cx } from '~/utils/cva';
+import Surface from '@codaco/fresco-ui/layout/Surface';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 
 export type SettingsSection = {
   id: string;

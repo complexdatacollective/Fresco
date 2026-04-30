@@ -1,6 +1,6 @@
 import type { Row } from '@tanstack/react-table';
 import { DeleteIcon, MoreHorizontal, PencilIcon } from 'lucide-react';
-import { IconButton } from '~/components/ui/Button';
+import { IconButton } from '@codaco/fresco-ui/Button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
+} from '@codaco/fresco-ui/dropdown-menu';
 import type { ParticipantWithInterviews } from './ParticipantsTableClient';
 
 export function ActionsDropdown({

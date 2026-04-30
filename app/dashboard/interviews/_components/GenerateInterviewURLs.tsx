@@ -3,15 +3,15 @@
 import { FileUp } from 'lucide-react';
 import { use, useEffect, useState } from 'react';
 import superjson from 'superjson';
-import Paragraph from '~/components/ui/typography/Paragraph';
-import { Button } from '~/components/ui/Button';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import { Button } from '@codaco/fresco-ui/Button';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '~/components/ui/popover';
-import { Skeleton } from '~/components/ui/skeleton';
-import SelectField from '~/components/ui/form/components/fields/Select/Native';
+} from '@codaco/fresco-ui/popover';
+import { Skeleton } from '@codaco/fresco-ui/skeleton';
+import SelectField from '@codaco/fresco-ui/form/components/fields/Select/Native';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 import type {
   GetProtocolsQuery,

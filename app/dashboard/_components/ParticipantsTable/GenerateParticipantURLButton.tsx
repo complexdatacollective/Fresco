@@ -2,16 +2,16 @@
 
 import { Copy } from 'lucide-react';
 import { memo, useState } from 'react';
-import Paragraph from '~/components/ui/typography/Paragraph';
-import { Button } from '~/components/ui/Button';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import { Button } from '@codaco/fresco-ui/Button';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '~/components/ui/popover';
-import { useToast } from '~/components/ui/Toast';
+} from '@codaco/fresco-ui/popover';
+import { useToast } from '@codaco/fresco-ui/Toast';
 import type { Participant, Protocol } from '~/lib/db/generated/client';
-import SelectField from '~/components/ui/form/components/fields/Select/Native';
+import SelectField from '@codaco/fresco-ui/form/components/fields/Select/Native';
 import type { ProtocolWithInterviews } from '../ProtocolsTable/ProtocolsTableClient';
 
 export const GenerateParticipationURLButton = memo(

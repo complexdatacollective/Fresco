@@ -1,4 +1,4 @@
-import { cx } from '~/utils/cva';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 
 export const containerClasses = cx(
   'relative m-6! overflow-visible',

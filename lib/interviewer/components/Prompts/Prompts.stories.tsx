@@ -3,8 +3,8 @@ import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { motion } from 'motion/react';
 import { useState } from 'react';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { Button } from '~/components/ui/Button';
-import { cx } from '~/utils/cva';
+import { Button } from '@codaco/fresco-ui/Button';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 import Prompts from './Prompts';
 
 const containerClasses =

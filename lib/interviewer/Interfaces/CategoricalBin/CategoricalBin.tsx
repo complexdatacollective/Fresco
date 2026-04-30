@@ -7,10 +7,10 @@ import {
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import UINode from '~/components/ui/Node';
-import useDialog from '~/components/ui/dialogs/useDialog';
-import Field from '~/components/ui/form/components/Field/Field';
-import InputField from '~/components/ui/form/components/fields/InputField';
+import UINode from '@codaco/fresco-ui/Node';
+import useDialog from '@codaco/fresco-ui/dialogs/useDialog';
+import Field from '@codaco/fresco-ui/form/components/Field/Field';
+import InputField from '@codaco/fresco-ui/form/components/fields/InputField';
 import { type StageProps } from '~/lib/interviewer/types';
 import NodeDrawer from '../../components/NodeDrawer';
 import Prompts from '../../components/Prompts';

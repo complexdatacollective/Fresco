@@ -2,9 +2,9 @@
 
 import { Menu } from '@base-ui/react/menu';
 import { type ReactElement } from 'react';
-import { MotionSurface } from '~/components/ui/layout/Surface';
-import { ArrowSvg } from '~/components/ui/popover';
-import { cx } from '~/utils/cva';
+import { MotionSurface } from '@codaco/fresco-ui/layout/Surface';
+import { ArrowSvg } from '@codaco/fresco-ui/popover';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 
 export type NodeContextMenuAction =
   | 'parent'

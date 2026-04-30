@@ -2,10 +2,10 @@
 
 import { useRouter } from 'next/navigation';
 import { saveS3Config } from '~/actions/storageProvider';
-import Field from '~/components/ui/form/components/Field/Field';
-import Form from '~/components/ui/form/components/Form';
-import SubmitButton from '~/components/ui/form/components/SubmitButton';
-import InputField from '~/components/ui/form/components/fields/InputField';
+import Field from '@codaco/fresco-ui/form/components/Field/Field';
+import Form from '@codaco/fresco-ui/form/components/Form';
+import SubmitButton from '@codaco/fresco-ui/form/components/SubmitButton';
+import InputField from '@codaco/fresco-ui/form/components/fields/InputField';
 import { s3ConfigSchema } from '~/schemas/s3Settings';
 
 export const S3ConfigForm = () => {

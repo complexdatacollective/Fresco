@@ -12,17 +12,17 @@ import {
   generateSignupRegistrationOptions,
   signupWithPasskey,
 } from '~/actions/webauthn';
-import Field from '~/components/ui/form/components/Field/Field';
-import FieldGroup from '~/components/ui/form/components/FieldGroup';
-import InputField from '~/components/ui/form/components/fields/InputField';
-import PasswordField from '~/components/ui/form/components/fields/PasswordField';
-import RichSelectGroupField from '~/components/ui/form/components/fields/RichSelectGroup';
-import Form from '~/components/ui/form/components/Form';
-import SubmitButton from '~/components/ui/form/components/SubmitButton';
+import Field from '@codaco/fresco-ui/form/components/Field/Field';
+import FieldGroup from '@codaco/fresco-ui/form/components/FieldGroup';
+import InputField from '@codaco/fresco-ui/form/components/fields/InputField';
+import PasswordField from '@codaco/fresco-ui/form/components/fields/PasswordField';
+import RichSelectGroupField from '@codaco/fresco-ui/form/components/fields/RichSelectGroup';
+import Form from '@codaco/fresco-ui/form/components/Form';
+import SubmitButton from '@codaco/fresco-ui/form/components/SubmitButton';
 import {
   type FormSubmissionResult,
   type FormSubmitHandler,
-} from '~/components/ui/form/store/types';
+} from '@codaco/fresco-ui/form/store/types';
 import { createUserSchema } from '~/schemas/auth';
 
 type SignUpFormProps = {

@@ -1,8 +1,8 @@
 import { Trash2 } from 'lucide-react';
 import { useMemo, useState } from 'react';
-import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import { Button } from '~/components/ui/Button';
-import Dialog from '~/components/ui/dialogs/Dialog';
+import { Alert, AlertDescription, AlertTitle } from '@codaco/fresco-ui/Alert';
+import { Button } from '@codaco/fresco-ui/Button';
+import Dialog from '@codaco/fresco-ui/dialogs/Dialog';
 
 type DeleteParticipantsDialog = {
   open: boolean;

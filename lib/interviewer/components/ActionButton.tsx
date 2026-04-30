@@ -1,6 +1,6 @@
 import { PlusIcon } from 'lucide-react';
 import { forwardRef } from 'react';
-import { cva, cx, type VariantProps } from '~/utils/cva';
+import { cva, cx, type VariantProps } from '@codaco/fresco-ui/utils/cva';
 import Icon, { type InterviewerIconName } from '../../../components/ui/Icon';
 
 const actionButtonVariants = cva({

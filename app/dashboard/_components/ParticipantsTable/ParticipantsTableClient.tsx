@@ -17,7 +17,7 @@ import ParticipantModal from '~/app/dashboard/participants/_components/Participa
 import { DataTable } from '~/components/DataTable/DataTable';
 import { DataTableFloatingBar } from '~/components/DataTable/DataTableFloatingBar';
 import { DataTableToolbar } from '~/components/DataTable/DataTableToolbar';
-import { Button } from '~/components/ui/Button';
+import { Button } from '@codaco/fresco-ui/Button';
 import { useClientDataTable } from '~/hooks/useClientDataTable';
 import type { Participant } from '~/lib/db/generated/client';
 import type {

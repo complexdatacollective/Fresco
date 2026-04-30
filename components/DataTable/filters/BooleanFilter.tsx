@@ -1,7 +1,7 @@
 'use client';
 
 import { type BooleanFilterConfig } from '~/components/DataTable/filters/types';
-import CheckboxGroupField from '~/components/ui/form/components/fields/CheckboxGroup';
+import CheckboxGroupField from '@codaco/fresco-ui/form/components/fields/CheckboxGroup';
 
 type BooleanFilterProps = {
   value: boolean | undefined;

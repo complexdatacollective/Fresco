@@ -2,7 +2,7 @@ import { type NcEdge, type NcNode } from '@codaco/shared-consts';
 import { faker } from '@faker-js/faker';
 import type { Meta, StoryFn } from '@storybook/nextjs-vite';
 import { useMemo } from 'react';
-import Node from '~/components/ui/Node';
+import Node from '@codaco/fresco-ui/Node';
 import { useNodeMeasurement } from '~/hooks/useNodeMeasurement';
 import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';
 

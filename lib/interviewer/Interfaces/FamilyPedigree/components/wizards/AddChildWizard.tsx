@@ -1,5 +1,5 @@
-import Heading from '~/components/ui/typography/Heading';
-import type useDialog from '~/components/ui/dialogs/useDialog';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import type useDialog from '@codaco/fresco-ui/dialogs/useDialog';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
 import BioTriadStep, {
   BioTriadConfigProvider,

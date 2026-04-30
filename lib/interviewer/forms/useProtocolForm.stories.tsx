@@ -78,8 +78,8 @@ import { configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Provider } from 'react-redux';
 import { action } from 'storybook/actions';
-import Form from '~/components/ui/form/components/Form';
-import SubmitButton from '~/components/ui/form/components/SubmitButton';
+import Form from '@codaco/fresco-ui/form/components/Form';
+import SubmitButton from '@codaco/fresco-ui/form/components/SubmitButton';
 import useProtocolForm from '~/lib/interviewer/forms/useProtocolForm';
 import { type FieldValue } from '../components/Field/types';
 

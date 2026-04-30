@@ -1,4 +1,4 @@
-import type useDialog from '~/components/ui/dialogs/useDialog';
+import type useDialog from '@codaco/fresco-ui/dialogs/useDialog';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
 import BioTriadStep, {
   BioTriadConfigProvider,

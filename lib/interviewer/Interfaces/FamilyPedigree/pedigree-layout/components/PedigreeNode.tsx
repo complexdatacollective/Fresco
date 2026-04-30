@@ -1,8 +1,8 @@
 import { type NcEdge, type NcNode } from '@codaco/shared-consts';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import Node from '~/components/ui/Node';
-import { useDragSource } from '~/components/ui/dnd';
+import Node from '@codaco/fresco-ui/Node';
+import { useDragSource } from '@codaco/fresco-ui/dnd/dnd';
 import { useClickUnlessDragged } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/useClickUnlessDragged';
 import { computeAllDisplayLabels } from '~/lib/interviewer/Interfaces/FamilyPedigree/pedigree-layout/utils/getDisplayLabel';
 import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';

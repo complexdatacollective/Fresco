@@ -3,7 +3,7 @@
 import { X } from 'lucide-react';
 import { parseAsString, useQueryStates } from 'nuqs';
 import { useMemo } from 'react';
-import { Button } from '~/components/ui/Button';
+import { Button } from '@codaco/fresco-ui/Button';
 import { nuqsTableUrlKey, useNuqsTable } from './NuqsTableProvider';
 
 type NuqsClearFiltersProps = {

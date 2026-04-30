@@ -13,7 +13,7 @@ import { has } from 'es-toolkit/compat';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useSelector } from 'react-redux';
-import { ResizableFlexPanel } from '~/components/ui/ResizableFlexPanel';
+import { ResizableFlexPanel } from '@codaco/fresco-ui/ResizableFlexPanel';
 import useMediaQuery from '~/hooks/useMediaQuery';
 import usePortalTarget from '~/hooks/usePortalTarget';
 import NodeBin from '~/lib/interviewer/components/NodeBin';

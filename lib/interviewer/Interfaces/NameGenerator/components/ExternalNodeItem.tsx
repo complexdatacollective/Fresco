@@ -1,8 +1,8 @@
 import { entityAttributesProperty, type NcNode } from '@codaco/shared-consts';
 import { useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import UINode from '~/components/ui/Node';
-import { type ItemProps } from '~/components/ui/collection/types';
+import UINode from '@codaco/fresco-ui/Node';
+import { type ItemProps } from '@codaco/fresco-ui/collection/types';
 import { getCodebook } from '~/lib/interviewer/ducks/modules/protocol';
 import { useNodeLabel } from '~/lib/interviewer/Interfaces/Anonymisation/useNodeLabel';
 import { resolveNodeShape } from '~/lib/interviewer/selectors/session';

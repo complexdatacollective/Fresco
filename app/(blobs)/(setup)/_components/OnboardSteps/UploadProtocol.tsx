@@ -1,9 +1,9 @@
 'use client';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import ProtocolImportDropzone from '~/components/ProtocolImport/ProtocolImportDropzone';
-import Heading from '~/components/ui/typography/Heading';
-import Paragraph from '~/components/ui/typography/Paragraph';
-import { Button } from '~/components/ui/Button';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import { Button } from '@codaco/fresco-ui/Button';
 import { useProtocolImport } from '~/hooks/useProtocolImport';
 
 function ConfigureStudy() {

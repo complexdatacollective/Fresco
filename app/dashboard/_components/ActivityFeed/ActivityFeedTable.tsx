@@ -7,7 +7,7 @@ import {
   useNuqsTable,
 } from '~/components/DataTable/nuqs/NuqsTableProvider';
 import type { ActivitiesFeed } from '~/queries/activityFeed';
-import { cx } from '~/utils/cva';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 import ActivityFeedRows from './ActivityFeedRows';
 import ActivityFeedToolbar from './ActivityFeedToolbar';
 import { ACTIVITY_FEED_PREFIX } from './SearchParams';

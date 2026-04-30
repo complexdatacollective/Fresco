@@ -8,11 +8,11 @@ import {
   removePasskey,
   verifyRegistration,
 } from '~/actions/webauthn';
-import Surface from '~/components/ui/layout/Surface';
+import Surface from '@codaco/fresco-ui/layout/Surface';
 import SettingsField from '~/components/settings/SettingsField';
-import { Badge } from '~/components/ui/badge';
-import { Button } from '~/components/ui/Button';
-import useDialog from '~/components/ui/dialogs/useDialog';
+import { Badge } from '@codaco/fresco-ui/badge';
+import { Button } from '@codaco/fresco-ui/Button';
+import useDialog from '@codaco/fresco-ui/dialogs/useDialog';
 
 type Passkey = {
   id: string;

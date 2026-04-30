@@ -1,7 +1,7 @@
 'use client';
 
 import { ClipboardCopy } from 'lucide-react';
-import { cx } from '~/utils/cva';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 import { Button } from './ui/Button';
 import { useToast } from './ui/Toast';
 

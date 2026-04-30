@@ -132,7 +132,7 @@ function ComboboxField(props: ComboboxFieldProps) {
           </Combobox.Value>
         </span>
         <Combobox.Icon className="shrink-0">
-          <ChevronsUpDown className="h-[1.2em] w-[1.2em]" />
+          <ChevronsUpDown className="size-[1.2em]" />
         </Combobox.Icon>
       </Combobox.Trigger>
       <Combobox.Portal>

@@ -7,7 +7,7 @@ import { createSelector } from '@reduxjs/toolkit';
 import { motion } from 'motion/react';
 import React, { useMemo } from 'react';
 import { useSelector } from 'react-redux';
-import UINode from '~/components/ui/Node';
+import UINode from '@codaco/fresco-ui/Node';
 import {
     getNetworkNodes,
     resolveNodeShape,

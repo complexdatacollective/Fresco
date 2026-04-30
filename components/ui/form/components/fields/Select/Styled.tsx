@@ -84,7 +84,7 @@ function SelectField(props: SelectProps) {
           }}
         </Select.Value>
         <Select.Icon className="shrink-0">
-          <ChevronDown className="h-[1.2em] w-[1.2em]" />
+          <ChevronDown className="size-[1.2em]" />
         </Select.Icon>
       </Select.Trigger>
       <Select.Portal>
@@ -108,7 +108,7 @@ function SelectField(props: SelectProps) {
                     {option.label}
                   </Select.ItemText>
                   <Select.ItemIndicator>
-                    <Check className="h-[1.2em] w-[1.2em]" />
+                    <Check className="size-[1.2em]" />
                   </Select.ItemIndicator>
                 </Select.Item>
               ))}

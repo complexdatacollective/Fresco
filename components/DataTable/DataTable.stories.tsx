@@ -9,8 +9,8 @@ import {
   facetedFilterFn,
   rangeFilterFn,
 } from '~/components/DataTable/filters/filterFns';
-import { Badge } from '~/components/ui/badge';
-import { Button } from '~/components/ui/Button';
+import { Badge } from '@codaco/fresco-ui/badge';
+import { Button } from '@codaco/fresco-ui/Button';
 import { useClientDataTable } from '~/hooks/useClientDataTable';
 import { DataTable } from './DataTable';
 import { DataTableFloatingBar } from './DataTableFloatingBar';

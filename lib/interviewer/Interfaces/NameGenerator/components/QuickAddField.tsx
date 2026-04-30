@@ -3,27 +3,27 @@ import { Plus } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { MotionSurface } from '~/components/ui/layout/Surface';
-import Paragraph from '~/components/ui/typography/Paragraph';
-import Icon, { type InterviewerIconName } from '~/components/ui/Icon';
+import { MotionSurface } from '@codaco/fresco-ui/layout/Surface';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import Icon, { type InterviewerIconName } from '@codaco/fresco-ui/Icon';
 import {
     labelVariants,
     truncateNodeLabel,
     type NodeColorSequence,
-} from '~/components/ui/Node';
+} from '@codaco/fresco-ui/Node';
 import {
     Tooltip,
     TooltipContent,
     TooltipTrigger,
-} from '~/components/ui/tooltip';
-import { type ValidationPropsCatalogue } from '~/components/ui/form/components/Field/types';
-import InputField from '~/components/ui/form/components/fields/InputField';
-import { useField } from '~/components/ui/form/hooks/useField';
-import useFormStore from '~/components/ui/form/hooks/useFormStore';
+} from '@codaco/fresco-ui/tooltip';
+import { type ValidationPropsCatalogue } from '@codaco/fresco-ui/form/components/Field/types';
+import InputField from '@codaco/fresco-ui/form/components/fields/InputField';
+import { useField } from '@codaco/fresco-ui/form/hooks/useField';
+import useFormStore from '@codaco/fresco-ui/form/hooks/useFormStore';
 import { useCelebrate } from '~/lib/interviewer/hooks/useCelebrate';
 import { getNodeIconName } from '~/lib/interviewer/selectors/name-generator';
 import { getNodeColorSelector } from '~/lib/interviewer/selectors/session';
-import { cx } from '~/utils/cva';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 
 function convertToNodeColor(color: NodeColorSequence): string {
   switch (color) {

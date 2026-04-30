@@ -6,9 +6,9 @@
 // "initial" variant and skipped their enter animation entirely.
 /* eslint-disable react/display-name */
 import { type StageType } from '@codaco/protocol-validation';
-import Surface from '~/components/ui/layout/Surface';
-import Heading from '~/components/ui/typography/Heading';
-import Icon from '~/components/ui/Icon';
+import Surface from '@codaco/fresco-ui/layout/Surface';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import Icon from '@codaco/fresco-ui/Icon';
 import AlterEdgeForm from './AlterEdgeForm/AlterEdgeForm';
 import AlterForm from './AlterForm/AlterForm';
 import Anonymisation from './Anonymisation/Anonymisation';

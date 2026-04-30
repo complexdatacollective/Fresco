@@ -2,11 +2,11 @@
 
 import { useState } from 'react';
 import { verifyCurrentUserTotp } from '~/actions/totp';
-import Field from '~/components/ui/form/components/Field/Field';
-import { FormWithoutProvider } from '~/components/ui/form/components/Form';
-import InputField from '~/components/ui/form/components/fields/InputField';
-import SegmentedCodeField from '~/components/ui/form/components/fields/SegmentedCodeField';
-import { type FormSubmitHandler } from '~/components/ui/form/store/types';
+import Field from '@codaco/fresco-ui/form/components/Field/Field';
+import { FormWithoutProvider } from '@codaco/fresco-ui/form/components/Form';
+import InputField from '@codaco/fresco-ui/form/components/fields/InputField';
+import SegmentedCodeField from '@codaco/fresco-ui/form/components/fields/SegmentedCodeField';
+import { type FormSubmitHandler } from '@codaco/fresco-ui/form/store/types';
 import { Button } from './ui/Button';
 
 type TwoFactorVerifyProps = {

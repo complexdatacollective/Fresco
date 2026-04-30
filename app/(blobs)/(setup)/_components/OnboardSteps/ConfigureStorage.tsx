@@ -1,5 +1,5 @@
-import Heading from '~/components/ui/typography/Heading';
-import Paragraph from '~/components/ui/typography/Paragraph';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
 import StorageProviderSelector from '../StorageProviderSelector';
 
 export default function ConfigureStorage() {

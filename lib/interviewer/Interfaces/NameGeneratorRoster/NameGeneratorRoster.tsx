@@ -5,22 +5,22 @@ import {
 import { AnimatePresence } from 'motion/react';
 import { useCallback, useEffect, useId, useMemo, useRef } from 'react';
 import { useSelector } from 'react-redux';
-import Heading from '~/components/ui/typography/Heading';
-import Paragraph from '~/components/ui/typography/Paragraph';
-import Node from '~/components/ui/Node';
-import { ResizableFlexPanel } from '~/components/ui/ResizableFlexPanel';
-import { Collection } from '~/components/ui/collection/components/Collection';
-import { CollectionFilterInput } from '~/components/ui/collection/components/CollectionFilterInput';
-import { CollectionSortButton } from '~/components/ui/collection/components/CollectionSortButton';
-import { useDragAndDrop } from '~/components/ui/collection/dnd/useDragAndDrop';
-import { ListLayout } from '~/components/ui/collection/layout/ListLayout';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import Node from '@codaco/fresco-ui/Node';
+import { ResizableFlexPanel } from '@codaco/fresco-ui/ResizableFlexPanel';
+import { Collection } from '@codaco/fresco-ui/collection/components/Collection';
+import { CollectionFilterInput } from '@codaco/fresco-ui/collection/components/CollectionFilterInput';
+import { CollectionSortButton } from '@codaco/fresco-ui/collection/components/CollectionSortButton';
+import { useDragAndDrop } from '@codaco/fresco-ui/collection/dnd/useDragAndDrop';
+import { ListLayout } from '@codaco/fresco-ui/collection/layout/ListLayout';
 import {
     type SortType as CollectionSortType,
     type SortableProperty,
     type SortRule,
-} from '~/components/ui/collection/sorting/types';
-import { type ItemProps } from '~/components/ui/collection/types';
-import { useDndStore, type DndStore } from '~/components/ui/dnd';
+} from '@codaco/fresco-ui/collection/sorting/types';
+import { type ItemProps } from '@codaco/fresco-ui/collection/types';
+import { useDndStore, type DndStore } from '@codaco/fresco-ui/dnd/dnd';
 import Loading from '~/lib/interviewer/components/Loading';
 import NodeList from '~/lib/interviewer/components/NodeList';
 import Panel from '~/lib/interviewer/components/Panel';

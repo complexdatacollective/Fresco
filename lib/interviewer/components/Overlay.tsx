@@ -1,4 +1,4 @@
-import Dialog from '~/components/ui/dialogs/Dialog';
+import Dialog from '@codaco/fresco-ui/dialogs/Dialog';
 
 type OverlayProps = {
   children: React.ReactNode;

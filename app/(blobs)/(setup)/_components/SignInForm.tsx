@@ -13,16 +13,16 @@ import {
   generateAuthenticationOptions,
   verifyAuthentication,
 } from '~/actions/webauthn';
-import Paragraph from '~/components/ui/typography/Paragraph';
-import { Button } from '~/components/ui/Button';
-import { DialogFooter } from '~/components/ui/dialogs/Dialog';
-import Field from '~/components/ui/form/components/Field/Field';
-import Form from '~/components/ui/form/components/Form';
-import SubmitButton from '~/components/ui/form/components/SubmitButton';
-import InputField from '~/components/ui/form/components/fields/InputField';
-import PasswordField from '~/components/ui/form/components/fields/PasswordField';
-import SegmentedCodeField from '~/components/ui/form/components/fields/SegmentedCodeField';
-import { type FormSubmitHandler } from '~/components/ui/form/store/types';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import { Button } from '@codaco/fresco-ui/Button';
+import { DialogFooter } from '@codaco/fresco-ui/dialogs/Dialog';
+import Field from '@codaco/fresco-ui/form/components/Field/Field';
+import Form from '@codaco/fresco-ui/form/components/Form';
+import SubmitButton from '@codaco/fresco-ui/form/components/SubmitButton';
+import InputField from '@codaco/fresco-ui/form/components/fields/InputField';
+import PasswordField from '@codaco/fresco-ui/form/components/fields/PasswordField';
+import SegmentedCodeField from '@codaco/fresco-ui/form/components/fields/SegmentedCodeField';
+import { type FormSubmitHandler } from '@codaco/fresco-ui/form/store/types';
 import { loginSchema } from '~/schemas/auth';
 
 function isRateLimited(

@@ -17,7 +17,7 @@ import {
   type ImportPhase,
 } from '~/components/ProtocolImport/calculateImportProgress';
 import ImportToastContent from '~/components/ProtocolImport/ImportToastContent';
-import { useToast } from '~/components/ui/Toast';
+import { useToast } from '@codaco/fresco-ui/Toast';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
 import { hashProtocol } from '~/lib/protocol/hashProtocol';
 import {

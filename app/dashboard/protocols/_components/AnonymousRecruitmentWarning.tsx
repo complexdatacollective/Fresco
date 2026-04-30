@@ -1,5 +1,5 @@
-import ResponsiveContainer from '~/components/ui/layout/ResponsiveContainer';
-import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
+import ResponsiveContainer from '@codaco/fresco-ui/layout/ResponsiveContainer';
+import { Alert, AlertDescription, AlertTitle } from '@codaco/fresco-ui/Alert';
 import Link from '~/components/Link';
 import { getAppSetting } from '~/queries/appSettings';
 

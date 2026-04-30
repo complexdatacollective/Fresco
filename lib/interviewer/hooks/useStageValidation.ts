@@ -7,7 +7,7 @@ import {
   useEffect,
   useRef,
 } from 'react';
-import { type ToastVariant } from '~/components/ui/Toast';
+import { type ToastVariant } from '@codaco/fresco-ui/Toast';
 import { useInterviewToastContext } from '~/lib/interviewer/components/InterviewToast';
 import { interviewToastManager } from '~/lib/interviewer/components/interviewToastManager';
 import { StageMetadataContext } from '~/lib/interviewer/contexts/StageMetadataContext';

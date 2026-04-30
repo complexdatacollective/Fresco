@@ -1,9 +1,9 @@
 'use client';
 
-import Field from '~/components/ui/form/components/Field/Field';
-import FieldGroup from '~/components/ui/form/components/FieldGroup';
-import BooleanField from '~/components/ui/form/components/fields/Boolean';
-import InputField from '~/components/ui/form/components/fields/InputField';
+import Field from '@codaco/fresco-ui/form/components/Field/Field';
+import FieldGroup from '@codaco/fresco-ui/form/components/FieldGroup';
+import BooleanField from '@codaco/fresco-ui/form/components/fields/Boolean';
+import InputField from '@codaco/fresco-ui/form/components/fields/InputField';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
 
 export default function PartnerAndChildrenStep() {

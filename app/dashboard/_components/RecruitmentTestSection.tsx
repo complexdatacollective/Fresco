@@ -3,9 +3,9 @@ import { type Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { use, useEffect, useState } from 'react';
 import { SuperJSON } from 'superjson';
-import { Button } from '~/components/ui/Button';
+import { Button } from '@codaco/fresco-ui/Button';
 import type { Participant, Protocol } from '~/lib/db/generated/client';
-import SelectField from '~/components/ui/form/components/fields/Select/Styled';
+import SelectField from '@codaco/fresco-ui/form/components/fields/Select/Styled';
 import {
   type GetParticipantsQuery,
   type GetParticipantsReturnType,

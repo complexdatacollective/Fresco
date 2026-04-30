@@ -13,7 +13,7 @@ import {
 } from 'react';
 import { Provider, useDispatch, useSelector } from 'react-redux';
 import SuperJSON from 'superjson';
-import DialogProvider from '~/components/ui/dialogs/DialogProvider';
+import DialogProvider from '@codaco/fresco-ui/dialogs/DialogProvider';
 import useMediaQuery from '~/hooks/useMediaQuery';
 import { InterviewToastProvider } from '~/lib/interviewer/components/InterviewToast';
 import Navigation from '~/lib/interviewer/components/Navigation';
@@ -46,7 +46,7 @@ import {
   type RegisterBeforeNext,
   type StageProps,
 } from '~/lib/interviewer/types';
-import { cx } from '~/utils/cva';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 
 const variants = {
   initial: { opacity: 0 },
