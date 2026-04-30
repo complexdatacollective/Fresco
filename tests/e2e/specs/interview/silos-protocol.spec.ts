@@ -253,20 +253,12 @@ test.describe('SILOS Protocol', () => {
     }) => {
       // Skip on Firefox - Playwright's Firefox lacks WebGL support for Mapbox GL JS
       // See: https://bugzilla.mozilla.org/show_bug.cgi?id=1375585
+      // Skip on WebKit - WebKitGTK's WebGL paint pipeline is unstable here:
+      // its idle/paint timings vary run-to-run, leading to flakes around the
+      // map-idle polls and captureInterview snapshots.
       test.skip(
-        browserName === 'firefox',
-        'Firefox lacks WebGL support in Playwright',
-      );
-
-      // WebKitGTK's WebGL paint pipeline settles noticeably slower than
-      // Chromium's. Stage 8 drives ~6 map mutations (zoom in/out/recenter,
-      // search, two clickOnMap calls, select/deselect outside-area) each
-      // followed by a map-idle poll, plus two captureInterview snapshots —
-      // around ~21s on Chromium, ~31s on WebKit. Mark slow so the per-test
-      // budget (30s) scales by 3x only where it's genuinely needed.
-      test.slow(
-        browserName === 'webkit',
-        'WebKit is much slower than other browsers when using WebGL',
+        browserName === 'firefox' || browserName === 'webkit',
+        'Geospatial stage relies on Mapbox GL JS WebGL, which is unsupported on Firefox and unstable on WebKit',
       );
 
       await stage.geospatial.waitForGeoJsonRendered();

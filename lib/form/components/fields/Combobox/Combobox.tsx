@@ -63,6 +63,10 @@ function ComboboxField(props: ComboboxFieldProps) {
     ...rest
   } = props;
 
+  // Workaround until base-ui ships `keepFilterText` (mui/base-ui#4360).
+  // The recommended pattern from mui/base-ui#3977 is to control `inputValue`
+  // and only honour `input-change`, so base-ui's internal `input-clear` on
+  // item press doesn't wipe the user's search query.
   const [inputValue, setInputValue] = useState('');
 
   const handleValueChange = (
@@ -81,10 +85,11 @@ function ComboboxField(props: ComboboxFieldProps) {
     next: string | string[] | number | undefined,
     details: Combobox.Root.ChangeEventDetails,
   ) => {
-    // Only update from typing/clearing on the input itself; ignore
-    // item-press, list-navigation, etc. so the search query is preserved
-    // across selections.
-    if (details.reason !== 'input-change' && details.reason !== 'input-clear') {
+    // Only react to user typing. base-ui fires `input-clear` itself when an
+    // item is pressed in multi-select mode with the input inside the popup
+    // (see AriaCombobox `handleSelection`), which would otherwise wipe the
+    // search query the moment a user picks a result.
+    if (details.reason !== 'input-change') {
       return;
     }
     setInputValue(typeof next === 'string' ? next : '');
@@ -127,6 +132,9 @@ function ComboboxField(props: ComboboxFieldProps) {
       onValueChange={handleValueChange}
       inputValue={inputValue}
       onInputValueChange={handleInputValueChange}
+      onOpenChange={(open) => {
+        if (!open) setInputValue('');
+      }}
       disabled={disabled ?? readOnly}
       name={name}
     >
