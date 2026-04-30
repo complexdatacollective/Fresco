@@ -25,6 +25,9 @@ importers:
       '@base-ui/react':
         specifier: 1.4.0
         version: 1.4.0(@date-fns/tz@1.4.1)(@types/react@19.2.14)(date-fns@4.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@codaco/fresco-ui':
+        specifier: 0.1.0-next.0
+        version: 0.1.0-next.0(@codaco/protocol-validation@11.4.0-alpha.0)(@codaco/shared-consts@5.0.0)(@date-fns/tz@1.4.1)(@floating-ui/dom@1.7.6)(@tiptap/extension-list@3.22.3(@tiptap/core@3.22.3(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4))(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(date-fns@4.1.0)(immer@11.1.4)(motion@12.38.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(tailwindcss@4.2.2)(typescript@6.0.2)(zod@4.3.6)(zustand@5.0.12(@types/react@19.2.14)(immer@11.1.4)(react@19.2.5)(use-sync-external-store@1.6.0(react@19.2.5)))
       '@codaco/protocol-validation':
         specifier: 11.4.0-alpha.0
         version: 11.4.0-alpha.0
@@ -833,6 +836,19 @@ packages:
     engines: {node: '>=20.0.0', yarn: '>=1.22.18'}
     peerDependencies:
       storybook: ^0.0.0-0 || ^10.1.0 || ^10.1.0-0 || ^10.2.0-0 || ^10.3.0-0 || ^10.4.0-0
+
+  '@codaco/fresco-ui@0.1.0-next.0':
+    resolution: {integrity: sha512-s7yFhCGsWAQznbwse58A7/HwfUkVFXR/IkVjd2A6AXxOw1F7fJxGbd9sZlFLrGRkiMwGhdws+s/ETgBzLWfY8g==}
+    peerDependencies:
+      '@codaco/protocol-validation': 11.4.0-alpha.0
+      '@codaco/shared-consts': 5.0.0
+      immer: ^11.1.4
+      motion: ^12.38.0
+      react: ^19.2.5
+      react-dom: ^19.2.5
+      tailwindcss: ^4.2.4
+      zod: ^4.3.6
+      zustand: ^5.0.12
 
   '@codaco/protocol-validation@11.4.0-alpha.0':
     resolution: {integrity: sha512-/58nFJxRjW2TV9iopfqPQM6utMVSZCYRcV0o8b5Rlk/oLSRN97KkqHUTI5j7QJcJYT8N/yNmw8aGq+tdlNseSg==}
@@ -5303,6 +5319,9 @@ packages:
   es-toolkit@1.45.1:
     resolution: {integrity: sha512-/jhoOj/Fx+A+IIyDNOvO3TItGmlMKhtX8ISAHKE90c4b/k1tqaqEZ+uUqfpU8DMnW5cgNJv606zS55jGvza0Xw==}
 
+  es-toolkit@1.46.1:
+    resolution: {integrity: sha512-5eNtXOs3tbfxXOj04tjjseeWkRWaoCjdEI+96DgwzZoe6c9juL49pXlzAFTI72aWC9Y8p7168g6XIKjh7k6pyQ==}
+
   esbuild@0.27.7:
     resolution: {integrity: sha512-IxpibTjyVnmrIQo5aqNpCgoACA/dTKLTlhMHihVHhdkxKyPO1uBBthumT0rdHmcsk9uMonIWS0m4FljWzILh3w==}
     engines: {node: '>=18'}
@@ -6313,6 +6332,11 @@ packages:
   lru.min@1.1.4:
     resolution: {integrity: sha512-DqC6n3QQ77zdFpCMASA1a3Jlb64Hv2N2DciFGkO/4L9+q/IpIAuRlKOvCXabtRW6cQf8usbmM6BE/TOPysCdIA==}
     engines: {bun: '>=1.0.0', deno: '>=1.30.0', node: '>=8.0.0'}
+
+  lucide-react@1.14.0:
+    resolution: {integrity: sha512-+1mdWcfSJVUsaTIjN9zoezmUhfXo5l0vP7ekBMPo3jcS/aIkxHnXqAPsByszMZx/Y8oQBRJxJx5xg+RH3urzxA==}
+    peerDependencies:
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
   lucide-react@1.8.0:
     resolution: {integrity: sha512-WuvlsjngSk7TnTBJ1hsCy3ql9V9VOdcPkd3PKcSmM34vJD8KG6molxz7m7zbYFgICwsanQWmJ13JlYs4Zp7Arw==}
@@ -9221,6 +9245,51 @@ snapshots:
     transitivePeerDependencies:
       - '@chromatic-com/cypress'
       - '@chromatic-com/playwright'
+
+  '@codaco/fresco-ui@0.1.0-next.0(@codaco/protocol-validation@11.4.0-alpha.0)(@codaco/shared-consts@5.0.0)(@date-fns/tz@1.4.1)(@floating-ui/dom@1.7.6)(@tiptap/extension-list@3.22.3(@tiptap/core@3.22.3(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4))(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(date-fns@4.1.0)(immer@11.1.4)(motion@12.38.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(tailwindcss@4.2.2)(typescript@6.0.2)(zod@4.3.6)(zustand@5.0.12(@types/react@19.2.14)(immer@11.1.4)(react@19.2.5)(use-sync-external-store@1.6.0(react@19.2.5)))':
+    dependencies:
+      '@base-ui/react': 1.4.0(@date-fns/tz@1.4.1)(@types/react@19.2.14)(date-fns@4.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@codaco/protocol-validation': 11.4.0-alpha.0
+      '@codaco/shared-consts': 5.0.0
+      '@radix-ui/react-slot': 1.2.4(@types/react@19.2.14)(react@19.2.5)
+      '@tiptap/core': 3.22.3(@tiptap/pm@3.22.4)
+      '@tiptap/extension-bullet-list': 3.22.3(@tiptap/extension-list@3.22.3(@tiptap/core@3.22.3(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4))
+      '@tiptap/extension-heading': 3.22.3(@tiptap/core@3.22.3(@tiptap/pm@3.22.4))
+      '@tiptap/extension-ordered-list': 3.22.3(@tiptap/extension-list@3.22.3(@tiptap/core@3.22.3(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4))
+      '@tiptap/extension-paragraph': 3.22.3(@tiptap/core@3.22.3(@tiptap/pm@3.22.4))
+      '@tiptap/pm': 3.22.4
+      '@tiptap/react': 3.22.3(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.3(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@tiptap/starter-kit': 3.22.3
+      comlink: 4.4.2
+      cva: 1.0.0-beta.4(typescript@6.0.2)
+      es-toolkit: 1.46.1
+      fuse.js: 7.3.0
+      immer: 11.1.4
+      lucide-react: 1.14.0(react@19.2.5)
+      motion: 12.38.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      nanoid: 5.1.9
+      react: 19.2.5
+      react-aria-components: 1.16.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      react-best-merge-refs: 1.0.2(patch_hash=469dfbaa03c158d70d3588a72c8d8cd96e54c22d37f6fe62535c0b33fd21adc8)(react@19.2.5)
+      react-dom: 19.2.5(react@19.2.5)
+      react-markdown: 10.1.0(@types/react@19.2.14)(react@19.2.5)
+      rehype-raw: 7.0.0
+      rehype-sanitize: 6.0.0
+      remark-gemoji: 8.0.0
+      tailwind-merge: 3.5.0
+      tailwindcss: 4.2.2
+      usehooks-ts: 3.1.1(react@19.2.5)
+      zod: 4.3.6
+      zustand: 5.0.12(@types/react@19.2.14)(immer@11.1.4)(react@19.2.5)(use-sync-external-store@1.6.0(react@19.2.5))
+    transitivePeerDependencies:
+      - '@date-fns/tz'
+      - '@floating-ui/dom'
+      - '@tiptap/extension-list'
+      - '@types/react'
+      - '@types/react-dom'
+      - date-fns
+      - supports-color
+      - typescript
 
   '@codaco/protocol-validation@11.4.0-alpha.0':
     dependencies:
@@ -14040,6 +14109,8 @@ snapshots:
 
   es-toolkit@1.45.1: {}
 
+  es-toolkit@1.46.1: {}
+
   esbuild@0.27.7:
     optionalDependencies:
       '@esbuild/aix-ppc64': 0.27.7
@@ -15175,6 +15246,10 @@ snapshots:
       yallist: 3.1.1
 
   lru.min@1.1.4: {}
+
+  lucide-react@1.14.0(react@19.2.5):
+    dependencies:
+      react: 19.2.5
 
   lucide-react@1.8.0(react@19.2.5):
     dependencies:
