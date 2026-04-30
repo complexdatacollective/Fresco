@@ -1,6 +1,6 @@
 import ResponsiveContainer from '~/components/ui/layout/ResponsiveContainer';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import Link from '~/components/ui/Link';
+import Link from '~/components/Link';
 import { getAppSetting } from '~/queries/appSettings';
 
 export default async function AnonymousRecruitmentWarning() {

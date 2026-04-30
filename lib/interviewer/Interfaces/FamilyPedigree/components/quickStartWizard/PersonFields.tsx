@@ -5,7 +5,7 @@ import Field from '~/components/ui/form/components/Field/Field';
 import { type FieldValue } from '~/components/ui/form/components/Field/types';
 import FieldNamespace from '~/components/ui/form/components/FieldNamespace';
 import InputField from '~/components/ui/form/components/fields/InputField';
-import useProtocolForm from '~/components/ui/form/hooks/useProtocolForm';
+import useProtocolForm from '~/lib/interviewer/forms/useProtocolForm';
 import {
   getNodeForm,
   getNodeType,

@@ -80,7 +80,7 @@ import { Provider } from 'react-redux';
 import { action } from 'storybook/actions';
 import Form from '~/components/ui/form/components/Form';
 import SubmitButton from '~/components/ui/form/components/SubmitButton';
-import useProtocolForm from '~/components/ui/form/hooks/useProtocolForm';
+import useProtocolForm from '~/lib/interviewer/forms/useProtocolForm';
 import { type FieldValue } from '../components/Field/types';
 
 // Mock protocol data

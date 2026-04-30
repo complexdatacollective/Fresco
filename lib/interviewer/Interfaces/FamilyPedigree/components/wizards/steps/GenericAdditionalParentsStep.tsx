@@ -9,7 +9,7 @@ import FieldNamespace from '~/components/ui/form/components/FieldNamespace';
 import InputField from '~/components/ui/form/components/fields/InputField';
 import RadioGroupField from '~/components/ui/form/components/fields/RadioGroup';
 import { useFormValue } from '~/components/ui/form/hooks/useFormValue';
-import useProtocolForm from '~/components/ui/form/hooks/useProtocolForm';
+import useProtocolForm from '~/lib/interviewer/forms/useProtocolForm';
 import {
   getNodeForm,
   getNodeType,

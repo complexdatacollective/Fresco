@@ -15,7 +15,7 @@ import Button from '~/components/ui/Button';
 import Icon, { type InterviewerIconName } from '~/components/ui/Icon';
 import Dialog from '~/components/ui/dialogs/Dialog';
 import Form from '~/components/ui/form/components/Form';
-import useProtocolForm from '~/components/ui/form/hooks/useProtocolForm';
+import useProtocolForm from '~/lib/interviewer/forms/useProtocolForm';
 import { type FormSubmitHandler } from '~/components/ui/form/store/types';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
 import { useCelebrate } from '~/lib/interviewer/hooks/useCelebrate';

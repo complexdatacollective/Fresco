@@ -1,7 +1,7 @@
 import { Alert, AlertDescription } from '~/components/ui/Alert';
 import SettingsCard from '~/components/settings/SettingsCard';
 import SettingsField from '~/components/settings/SettingsField';
-import Link from '~/components/ui/Link';
+import Link from '~/components/Link';
 import { getAppSetting } from '~/queries/appSettings';
 import { hasProtocols } from '~/queries/storageProvider';
 import UpdateUploadThingToken from './UpdateUploadThingToken';

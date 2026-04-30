@@ -8,7 +8,7 @@ import Surface from '~/components/ui/layout/Surface';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
 import { Button } from '~/components/ui/Button';
-import Link from '~/components/ui/Link';
+import Link from '~/components/Link';
 
 export default function Error({
   error,

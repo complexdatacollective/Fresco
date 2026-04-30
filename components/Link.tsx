@@ -16,11 +16,3 @@ export default function Link({
     </NextLink>
   );
 }
-
-export function NativeLink({ className, ...props }: React.ComponentProps<'a'>) {
-  return (
-    <a className={cx(groupClasses, className)} {...props}>
-      <span className={spanClasses}>{props.children}</span>
-    </a>
-  );
-}

@@ -21,7 +21,7 @@ import useDialog from '~/components/ui/dialogs/useDialog';
 import { FormWithoutProvider } from '~/components/ui/form/components/Form';
 import { useFormMeta } from '~/components/ui/form/hooks/useFormState';
 import useFormStore from '~/components/ui/form/hooks/useFormStore';
-import useProtocolForm from '~/components/ui/form/hooks/useProtocolForm';
+import useProtocolForm from '~/lib/interviewer/forms/useProtocolForm';
 import FormStoreProvider from '~/components/ui/form/store/formStoreProvider';
 import { type FieldValue, type FlattenedErrors } from '~/components/ui/form/store/types';
 import { focusFirstError } from '~/components/ui/form/utils/focusFirstError';

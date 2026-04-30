@@ -6,7 +6,7 @@ import Markdown from 'react-markdown';
 // eslint-disable-next-line no-restricted-imports -- server-only file (uses 'server-only' import)
 import { z } from 'zod';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import Link from '~/components/ui/Link';
+import Link from '~/components/Link';
 import { env } from '~/env';
 import { captureException, shutdownPostHog } from '~/lib/posthog-server';
 import { ensureError } from '~/utils/ensureError';

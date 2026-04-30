@@ -3,7 +3,7 @@ import { containerClasses } from '~/components/ContainerClasses';
 import Surface from '~/components/ui/layout/Surface';
 import Heading from '~/components/ui/typography/Heading';
 import Paragraph from '~/components/ui/typography/Paragraph';
-import SubmitButton from '~/components/ui/SubmitButton';
+import SubmitButton from '~/components/SubmitButton';
 import { env } from '~/env';
 import { cx } from '~/utils/cva';
 
