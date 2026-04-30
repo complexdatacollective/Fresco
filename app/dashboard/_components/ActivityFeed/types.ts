@@ -21,6 +21,7 @@ export const activityTypes = [
   'Two-Factor Enabled',
   'Two-Factor Disabled',
   'Two-Factor Reset',
+  'Recovery Code Used',
   'Recovery Codes Regenerated',
   'Passkey Registered',
   'Passkey Removed',

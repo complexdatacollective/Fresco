@@ -110,7 +110,10 @@ export async function verifyTwoFactor(
 
     await createSessionCookie(userId);
 
-    void addEvent('User Login', `User ${user.username} logged in`);
+    void addEvent(
+      'Recovery Code Used',
+      `User ${user.username} logged in with a recovery code`,
+    );
     safeUpdateTag('activityFeed');
 
     return { success: true };

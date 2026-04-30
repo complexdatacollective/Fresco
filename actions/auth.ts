@@ -229,7 +229,10 @@ export async function recoveryCodeLogin(data: {
   await recordLoginAttempt(data.username, ipAddress, true);
   await createSessionCookie(user.id);
 
-  void addEvent('User Login', `User ${user.username} logged in`);
+  void addEvent(
+    'Recovery Code Used',
+    `User ${user.username} logged in with a recovery code`,
+  );
 
   return { success: true };
 }

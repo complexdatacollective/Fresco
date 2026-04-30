@@ -42,6 +42,8 @@ export const getBadgeColorsForActivityType = (type: ActivityType) => {
       return 'bg-neon-carrot hover:bg-neon-carrot-dark';
     case 'Two-Factor Reset':
       return 'bg-mustard hover:bg-mustard-dark';
+    case 'Recovery Code Used':
+      return 'bg-purple-pizazz hover:bg-purple-pizazz-dark';
     case 'Recovery Codes Regenerated':
       return 'bg-cerulean-blue hover:bg-cerulean-blue-dark';
     case 'Passkey Registered':
