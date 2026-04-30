@@ -2,7 +2,7 @@
 
 import { Combobox } from '@base-ui/react/combobox';
 import { Check, ChevronsUpDown, SearchIcon } from 'lucide-react';
-import { useMemo, type ComponentPropsWithoutRef } from 'react';
+import { useMemo, useState, type ComponentPropsWithoutRef } from 'react';
 import Surface from '~/components/layout/Surface';
 import Button from '~/components/ui/Button';
 import { ScrollArea } from '~/components/ui/ScrollArea';
@@ -63,6 +63,8 @@ function ComboboxField(props: ComboboxFieldProps) {
     ...rest
   } = props;
 
+  const [inputValue, setInputValue] = useState('');
+
   const handleValueChange = (
     newValue: unknown[] | null,
     _event: Combobox.Root.ChangeEventDetails,
@@ -73,6 +75,19 @@ function ComboboxField(props: ComboboxFieldProps) {
       const typedValue = newValue as ComboboxOption[];
       onChange?.(typedValue.map((opt) => opt.value));
     }
+  };
+
+  const handleInputValueChange = (
+    next: string | string[] | number | undefined,
+    details: Combobox.Root.ChangeEventDetails,
+  ) => {
+    // Only update from typing/clearing on the input itself; ignore
+    // item-press, list-navigation, etc. so the search query is preserved
+    // across selections.
+    if (details.reason !== 'input-change' && details.reason !== 'input-clear') {
+      return;
+    }
+    setInputValue(typeof next === 'string' ? next : '');
   };
 
   const handleSelectAll = () => {
@@ -110,6 +125,8 @@ function ComboboxField(props: ComboboxFieldProps) {
       items={options}
       value={selectedOptions}
       onValueChange={handleValueChange}
+      inputValue={inputValue}
+      onInputValueChange={handleInputValueChange}
       disabled={disabled ?? readOnly}
       name={name}
     >
