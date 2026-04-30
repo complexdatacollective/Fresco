@@ -63,6 +63,10 @@ function ComboboxField(props: ComboboxFieldProps) {
     ...rest
   } = props;
 
+  // Workaround until base-ui ships `keepFilterText` (mui/base-ui#4360).
+  // The recommended pattern from mui/base-ui#3977 is to control `inputValue`
+  // and only honour `input-change`, so base-ui's internal `input-clear` on
+  // item press doesn't wipe the user's search query.
   const [inputValue, setInputValue] = useState('');
 
   const handleValueChange = (
