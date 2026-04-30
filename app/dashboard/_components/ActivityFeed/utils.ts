@@ -1,6 +1,4 @@
-import { type ActivityType } from './types';
-
-export const getBadgeColorsForActivityType = (type: ActivityType) => {
+export const getBadgeColorsForActivityType = (type: string) => {
   switch (type) {
     case 'Protocol Installed':
       return 'bg-slate-blue hover:bg-slate-blue-dark';
@@ -66,5 +64,14 @@ export const getBadgeColorsForActivityType = (type: ActivityType) => {
       return 'bg-sea-green hover:bg-sea-green';
     case 'Synthetic Data Deleted':
       return 'bg-neon-carrot hover:bg-neon-carrot-dark';
+    // Legacy event types kept for backward compatibility with existing DB rows
+    case 'Two-Factor Login':
+      return 'bg-neon-coral hover:bg-neon-coral-dark';
+    case 'Passkey Login':
+      return 'bg-neon-coral hover:bg-neon-coral-dark';
+    case 'Recovery Code Login':
+      return 'bg-purple-pizazz hover:bg-purple-pizazz-dark';
+    default:
+      return 'bg-slate hover:bg-slate-dark';
   }
 };
