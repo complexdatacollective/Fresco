@@ -223,34 +223,39 @@ export const useProtocolImport = () => {
         throw new Error('Error checking for existing assets');
       }
 
-      if (newAssets.length > 0) {
-        // Phase: Uploading assets
-        updateToastPhase(toastId, 'uploading-assets');
-        const files = newAssets.map((asset) => asset.file);
+      // Phase: Uploading assets
+      updateToastPhase(toastId, 'uploading-assets');
 
-        const uploadedFiles = await uploadAssets(files, (progress) => {
-          updateToastPhase(toastId, 'uploading-assets', progress);
-        });
+      const filesToUpload = [...newAssets.map((asset) => asset.file), file];
 
-        newAssetsWithCombinedMetadata = newAssets.map((asset) => {
-          const uploadedAsset = uploadedFiles.find(
-            (uploadedFile) => uploadedFile.name === asset.name,
-          );
+      const uploadedFiles = await uploadAssets(filesToUpload, (progress) => {
+        updateToastPhase(toastId, 'uploading-assets', progress);
+      });
 
-          if (!uploadedAsset) {
-            throw new Error('Asset upload failed');
-          }
-
-          return {
-            key: uploadedAsset.key,
-            assetId: asset.assetId,
-            name: asset.name,
-            type: asset.type,
-            url: uploadedAsset.url,
-            size: uploadedAsset.size,
-          };
-        });
+      const uploadedOriginalFile = uploadedFiles.at(-1);
+      if (uploadedOriginalFile?.name !== file.name) {
+        throw new Error('Original protocol file upload result mismatch');
       }
+
+      const uploadedAssetFiles = uploadedFiles.slice(0, newAssets.length);
+      newAssetsWithCombinedMetadata = newAssets.map((asset) => {
+        const uploadedAsset = uploadedAssetFiles.find(
+          (uploadedFile) => uploadedFile.name === asset.name,
+        );
+
+        if (!uploadedAsset) {
+          throw new Error('Asset upload failed');
+        }
+
+        return {
+          key: uploadedAsset.key,
+          assetId: asset.assetId,
+          name: asset.name,
+          type: asset.type,
+          url: uploadedAsset.url,
+          size: uploadedAsset.size,
+        };
+      });
 
       // Phase: Saving
       updateToastPhase(toastId, 'saving');
@@ -259,6 +264,10 @@ export const useProtocolImport = () => {
         protocolName: fileName,
         newAssets: [...newAssetsWithCombinedMetadata, ...newApikeyAssets],
         existingAssetIds: existingAssetIds,
+        originalFile: {
+          key: uploadedOriginalFile.key,
+          url: uploadedOriginalFile.url,
+        },
       });
 
       if (result.error) {

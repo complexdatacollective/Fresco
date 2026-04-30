@@ -54,7 +54,7 @@ export async function deleteProtocols(hashes: string[]) {
 
   const protocolsToBeDeleted = await prisma.protocol.findMany({
     where: { hash: { in: hashes } },
-    select: { id: true, name: true },
+    select: { id: true, name: true, originalFileKey: true },
   });
 
   // Select assets that are ONLY associated with the protocols to be deleted
@@ -71,13 +71,20 @@ export async function deleteProtocols(hashes: string[]) {
     select: { key: true },
   });
 
-  // We put asset deletion in a separate try/catch because if it fails, we still
+  const originalFileKeysToDelete = protocolsToBeDeleted
+    .map((p) => p.originalFileKey)
+    .filter((k): k is string => !!k);
+
+  // We put file deletion in a separate try/catch because if it fails, we still
   // want to delete the protocol.
   try {
     // eslint-disable-next-line no-console
-    console.log('deleting protocol assets...');
+    console.log('deleting protocol assets and original files...');
 
-    await deleteFilesFromStorage(assetKeysToDelete.map((a) => a.key));
+    await deleteFilesFromStorage([
+      ...assetKeysToDelete.map((a) => a.key),
+      ...originalFileKeysToDelete,
+    ]);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log('Error deleting protocol assets!', error);
@@ -159,7 +166,8 @@ export async function insertProtocol(
 ) {
   await requireApiAuth();
 
-  const { protocol, protocolName, newAssets, existingAssetIds } = input;
+  const { protocol, protocolName, newAssets, existingAssetIds, originalFile } =
+    input;
 
   try {
     const protocolHash = hashProtocol(protocol);
@@ -173,6 +181,8 @@ export async function insertProtocol(
         stages: protocol.stages,
         codebook: protocol.codebook,
         description: protocol.description,
+        originalFileKey: originalFile.key,
+        originalFileUrl: originalFile.url,
         assets: {
           create: newAssets,
           connect: existingAssetIds.map((assetId: string) => ({ assetId })),
@@ -189,10 +199,12 @@ export async function insertProtocol(
 
     return { error: null, success: true };
   } catch (e) {
-    // Attempt to delete any assets we uploaded to storage
-    if (newAssets.length > 0) {
-      void deleteFilesFromStorage(newAssets.map((a: { key: string }) => a.key));
-    }
+    // Attempt to delete any files we uploaded to storage (assets + original)
+    const keysToCleanUp = [
+      ...newAssets.map((a: { key: string }) => a.key),
+      originalFile.key,
+    ];
+    void deleteFilesFromStorage(keysToCleanUp);
     // Check for protocol already existing
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       if (e.code === 'P2002') {
