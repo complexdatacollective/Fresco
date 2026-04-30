@@ -55,9 +55,6 @@ importers:
       '@prisma/client':
         specifier: ^7.7.0
         version: 7.7.0(prisma@7.7.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.2))(typescript@6.0.2)
-      '@radix-ui/react-slot':
-        specifier: ^1.2.4
-        version: 1.2.4(@types/react@19.2.14)(react@19.2.5)
       '@reduxjs/toolkit':
         specifier: ^2.11.0
         version: 2.11.2(react-redux@9.2.0(@types/react@19.2.14)(react@19.2.5)(redux@5.0.1))(react@19.2.5)
@@ -70,30 +67,6 @@ importers:
       '@tanstack/react-table':
         specifier: ^8.21.3
         version: 8.21.3(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      '@tiptap/core':
-        specifier: ^3.22.3
-        version: 3.22.3(@tiptap/pm@3.22.4)
-      '@tiptap/extension-bullet-list':
-        specifier: ^3.22.3
-        version: 3.22.3(@tiptap/extension-list@3.22.3(@tiptap/core@3.22.3(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4))
-      '@tiptap/extension-heading':
-        specifier: ^3.22.3
-        version: 3.22.3(@tiptap/core@3.22.3(@tiptap/pm@3.22.4))
-      '@tiptap/extension-ordered-list':
-        specifier: ^3.22.3
-        version: 3.22.3(@tiptap/extension-list@3.22.3(@tiptap/core@3.22.3(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4))
-      '@tiptap/extension-paragraph':
-        specifier: ^3.22.3
-        version: 3.22.3(@tiptap/core@3.22.3(@tiptap/pm@3.22.4))
-      '@tiptap/pm':
-        specifier: ^3.22.4
-        version: 3.22.4
-      '@tiptap/react':
-        specifier: ^3.22.3
-        version: 3.22.3(@floating-ui/dom@1.7.6)(@tiptap/core@3.22.3(@tiptap/pm@3.22.4))(@tiptap/pm@3.22.4)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      '@tiptap/starter-kit':
-        specifier: ^3.22.3
-        version: 3.22.3
       '@xmldom/xmldom':
         specifier: ^0.9.9
         version: 0.9.9
@@ -109,18 +82,12 @@ importers:
       classnames:
         specifier: ^2.5.1
         version: 2.5.1
-      comlink:
-        specifier: ^4.4.2
-        version: 4.4.2
       concaveman:
         specifier: ^2.0.0
         version: 2.0.0
       csvtojson:
         specifier: ^2.0.14
         version: 2.0.14
-      cva:
-        specifier: 1.0.0-beta.4
-        version: 1.0.0-beta.4(typescript@6.0.2)
       d3-force:
         specifier: ^3.0.0
         version: 3.0.0
@@ -136,9 +103,6 @@ importers:
       es-toolkit:
         specifier: ^1.45.1
         version: 1.45.1
-      fuse.js:
-        specifier: ^7.3.0
-        version: 7.3.0
       immer:
         specifier: ^11.1.4
         version: 11.1.4
@@ -157,9 +121,6 @@ importers:
       motion:
         specifier: ^12.38.0
         version: 12.38.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      nanoid:
-        specifier: ^5.1.9
-        version: 5.1.9
       next:
         specifier: 16.2.3
         version: 16.2.3(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.59.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.99.0)
@@ -193,12 +154,6 @@ importers:
       react:
         specifier: 19.2.5
         version: 19.2.5
-      react-aria-components:
-        specifier: ^1.16.0
-        version: 1.16.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      react-best-merge-refs:
-        specifier: ^1.0.2
-        version: 1.0.2(patch_hash=469dfbaa03c158d70d3588a72c8d8cd96e54c22d37f6fe62535c0b33fd21adc8)(react@19.2.5)
       react-dom:
         specifier: 19.2.5
         version: 19.2.5(react@19.2.5)
@@ -217,15 +172,6 @@ importers:
       redux-thunk:
         specifier: ^3.1.0
         version: 3.1.0(redux@5.0.1)
-      rehype-raw:
-        specifier: ^7.0.0
-        version: 7.0.0
-      rehype-sanitize:
-        specifier: ^6.0.0
-        version: 6.0.0
-      remark-gemoji:
-        specifier: ^8.0.0
-        version: 8.0.0
       sanitize-filename:
         specifier: ^1.6.4
         version: 1.6.4
@@ -241,9 +187,6 @@ importers:
       superjson:
         specifier: ^2.2.5
         version: 2.2.6
-      tailwind-merge:
-        specifier: ^3.5.0
-        version: 3.5.0
       uploadthing:
         specifier: ^7.7.4
         version: 7.7.4(next@16.2.3(@babel/core@7.28.5)(@opentelemetry/api@1.9.1)(@playwright/test@1.59.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(sass@1.99.0))(tailwindcss@4.2.4)
@@ -305,9 +248,6 @@ importers:
       '@testing-library/react':
         specifier: ^16.3.0
         version: 16.3.2(@testing-library/dom@10.4.1)(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      '@testing-library/user-event':
-        specifier: ^14.6.1
-        version: 14.6.1(@testing-library/dom@10.4.1)
       '@total-typescript/ts-reset':
         specifier: ^0.6.1
         version: 0.6.1

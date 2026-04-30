@@ -5,7 +5,7 @@ import InfoTooltip from './InfoTooltip';
 import Heading from '@codaco/fresco-ui/typography/Heading';
 import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
 import { UnorderedList } from '@codaco/fresco-ui/typography/UnorderedList';
-import { Button, IconButton } from './ui/Button';
+import { Button, IconButton } from '@codaco/fresco-ui/Button';
 
 const meta = {
   title: 'Components/InfoTooltip',

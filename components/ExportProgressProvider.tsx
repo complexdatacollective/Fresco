@@ -11,7 +11,7 @@ import { useToast } from '@codaco/fresco-ui/Toast';
 import { useDownload } from '~/hooks/useDownload';
 import type { ExportOptions } from '~/lib/network-exporters/options';
 import { ensureError } from '~/utils/ensureError';
-import Spinner from './ui/Spinner';
+import Spinner from '@codaco/fresco-ui/Spinner';
 
 type ExportContextValue = {
   startExport: (interviewIds: string[], exportOptions: ExportOptions) => void;

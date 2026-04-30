@@ -7,7 +7,7 @@ import { FormWithoutProvider } from '@codaco/fresco-ui/form/components/Form';
 import InputField from '@codaco/fresco-ui/form/components/fields/InputField';
 import SegmentedCodeField from '@codaco/fresco-ui/form/components/fields/SegmentedCodeField';
 import { type FormSubmitHandler } from '@codaco/fresco-ui/form/store/types';
-import { Button } from './ui/Button';
+import { Button } from '@codaco/fresco-ui/Button';
 
 type TwoFactorVerifyProps = {
   formId: string;

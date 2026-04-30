@@ -9,7 +9,7 @@ import {
   DropdownMenuTrigger,
 } from '@codaco/fresco-ui/dropdown-menu';
 import Checkbox from '@codaco/fresco-ui/form/components/fields/Checkbox';
-import { IconButton } from '../ui/Button';
+import { IconButton } from '@codaco/fresco-ui/Button';
 
 type SelectAllHeaderProps<TData> = {
   table: Table<TData>;

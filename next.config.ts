@@ -45,14 +45,7 @@ const config: NextConfig = {
   turbopack: {},
   transpilePackages: ['@codaco/shared-consts'],
   experimental: {
-    optimizePackageImports: [
-      'lucide-react',
-      'es-toolkit',
-      '@tiptap/core',
-      '@tiptap/react',
-      '@tiptap/starter-kit',
-      'react-aria-components',
-    ],
+    optimizePackageImports: ['lucide-react', 'es-toolkit'],
   },
   serverExternalPackages: [
     'posthog-node',

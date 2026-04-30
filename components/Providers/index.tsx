@@ -9,8 +9,8 @@ import DialogProvider from '@codaco/fresco-ui/dialogs/DialogProvider';
 import { DndStoreProvider } from '@codaco/fresco-ui/dnd/dnd';
 import { InterviewToastViewport } from '~/lib/interviewer/components/InterviewToast';
 import { interviewToastManager } from '~/lib/interviewer/components/interviewToastManager';
-import { Toaster } from '../ui/Toast';
-import { TooltipProvider } from '../ui/tooltip';
+import { Toaster } from '@codaco/fresco-ui/Toast';
+import { TooltipProvider } from '@codaco/fresco-ui/tooltip';
 
 export default function Providers({
   children,

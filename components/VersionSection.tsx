@@ -13,7 +13,7 @@ import { ensureError } from '~/utils/ensureError';
 import { getSemverUpdateType, semverSchema } from '~/utils/semVer';
 import SettingsField from './settings/SettingsField';
 import Heading from '@codaco/fresco-ui/typography/Heading';
-import { Button } from './ui/Button';
+import { Button } from '@codaco/fresco-ui/Button';
 
 const GithubApiResponseSchema = z
   .object({

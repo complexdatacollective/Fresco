@@ -12,8 +12,8 @@ import SegmentedCodeField from '@codaco/fresco-ui/form/components/fields/Segment
 import { cx } from '@codaco/fresco-ui/utils/cva';
 import { surfaceSpacingVariants } from '@codaco/fresco-ui/layout/Surface';
 import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
-import Button from './ui/Button';
-import Spinner from './ui/Spinner';
+import Button from '@codaco/fresco-ui/Button';
+import Spinner from '@codaco/fresco-ui/Spinner';
 
 type SetupData = {
   secret: string;
