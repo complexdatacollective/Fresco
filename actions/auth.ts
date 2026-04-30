@@ -230,7 +230,7 @@ export async function recoveryCodeLogin(data: {
   await createSessionCookie(user.id);
 
   void addEvent(
-    'Recovery Code Login',
+    'Recovery Code Used',
     `User ${user.username} logged in with a recovery code`,
   );
 
