@@ -5,6 +5,7 @@ import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import { Badge } from '~/components/ui/badge';
 import TimeAgo from '~/components/ui/TimeAgo';
 import type { Events } from '~/lib/db/generated/client';
+import { type ActivityType } from './types';
 import { getBadgeColorsForActivityType } from './utils';
 
 export function fetchActivityFeedTableColumnDefs(): StrictColumnDef<Events>[] {
@@ -27,7 +28,7 @@ export function fetchActivityFeedTableColumnDefs(): StrictColumnDef<Events>[] {
         <DataTableColumnHeader column={column} title="Type" />
       ),
       cell: ({ row }) => {
-        const activityType: string = row.getValue('type');
+        const activityType: ActivityType = row.getValue('type');
         const color = getBadgeColorsForActivityType(activityType);
         return <Badge className={color}>{activityType}</Badge>;
       },

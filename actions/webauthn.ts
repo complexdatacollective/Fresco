@@ -402,8 +402,8 @@ export async function verifyAuthentication(data: {
   await createSessionCookie(storedCredential.user.id);
 
   void addEvent(
-    'User Login',
-    `User ${storedCredential.user.username} logged in`,
+    'Passkey Login',
+    `User ${storedCredential.user.username} logged in with a passkey`,
   );
 
   return { error: null, data: { success: true } };
