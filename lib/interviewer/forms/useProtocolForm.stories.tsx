@@ -81,7 +81,7 @@ import { action } from 'storybook/actions';
 import Form from '@codaco/fresco-ui/form/components/Form';
 import SubmitButton from '@codaco/fresco-ui/form/components/SubmitButton';
 import useProtocolForm from '~/lib/interviewer/forms/useProtocolForm';
-import { type FieldValue } from '../components/Field/types';
+import { type FieldValue } from '@codaco/fresco-ui/form/components/Field/types';
 
 // Mock protocol data
 const mockProtocol = {
