@@ -953,13 +953,8 @@ test.describe('SILOS Protocol', () => {
       browserName,
     }) => {
       test.skip(
-        browserName === 'firefox',
-        'Firefox lacks WebGL support in Playwright',
-      );
-
-      test.slow(
-        browserName === 'webkit',
-        'WebKit is much slower than other browsers when using WebGL',
+        browserName === 'firefox' || browserName === 'webkit',
+        'Geospatial stage relies on Mapbox GL JS WebGL, which is unsupported on Firefox and unstable on WebKit',
       );
 
       await stage.geospatial.waitForGeoJsonRendered();
@@ -1465,13 +1460,8 @@ test.describe('SILOS Protocol', () => {
       browserName,
     }) => {
       test.skip(
-        browserName === 'firefox',
-        'Firefox lacks WebGL support in Playwright',
-      );
-
-      test.slow(
-        browserName === 'webkit',
-        'WebKit is much slower than other browsers when using WebGL',
+        browserName === 'firefox' || browserName === 'webkit',
+        'Geospatial stage relies on Mapbox GL JS WebGL, which is unsupported on Firefox and unstable on WebKit',
       );
 
       await stage.geospatial.waitForGeoJsonRendered();
@@ -1682,13 +1672,8 @@ test.describe('SILOS Protocol', () => {
       browserName,
     }) => {
       test.skip(
-        browserName === 'firefox',
-        'Firefox lacks WebGL support in Playwright',
-      );
-
-      test.slow(
-        browserName === 'webkit',
-        'WebKit is much slower than other browsers when using WebGL',
+        browserName === 'firefox' || browserName === 'webkit',
+        'Geospatial stage relies on Mapbox GL JS WebGL, which is unsupported on Firefox and unstable on WebKit',
       );
 
       await stage.geospatial.waitForGeoJsonRendered();
