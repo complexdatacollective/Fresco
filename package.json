@@ -46,7 +46,7 @@
     "@aws-sdk/lib-storage": "^3.1038.0",
     "@aws-sdk/s3-request-presigner": "^3.1037.0",
     "@base-ui/react": "1.4.0",
-    "@codaco/fresco-ui": "0.1.1",
+    "@codaco/fresco-ui": "^0.2.1",
     "@codaco/protocol-validation": "11.4.0-alpha.0",
     "@codaco/shared-consts": "5.0.0",
     "@faker-js/faker": "^10.4.0",
