@@ -1,9 +1,7 @@
-@import 'tailwindcss';
-
 /*
- * Design tokens, semantic theme defaults, and the three custom Tailwind plugins
- * (elevation, inset-surface, motion-spring) come from the @codaco/fresco-ui
- * package. The package's styles.css also imports the NC palette colors.css.
+ * Tailwind v4 entry, design tokens, NC palette, custom plugins
+ * (elevation, inset-surface, motion-spring), and the `interview:` /
+ * `dashboard:` variants all come from @codaco/fresco-ui.
  *
  * Theme overrides come from @codaco/tailwind-config/fresco/{default-theme,interview-theme}.css,
  * imported in the appropriate route layouts (default in app/layout.tsx,
@@ -225,13 +223,6 @@ This custom variant lets you target only elements with the readonly attribute.
 
 /* Custom variant for :focus-within + :focus-visible */
 @variant focus-visible-within (&:has(:focus-visible));
-
-/*
-  Interview mode variant - matches the theme selector :root:has([data-interview]).
-  The interview layout's <main data-interview> activates this via CSS :has() selector.
-*/
-@custom-variant interview (:root:has([data-interview]) &);
-@custom-variant dashboard (:root:not(:has([data-interview])) &);
 
 /* Storybook docs story canvas background */
 .sbdocs-preview {
