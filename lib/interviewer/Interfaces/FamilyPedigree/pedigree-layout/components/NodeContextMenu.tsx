@@ -3,7 +3,7 @@
 import { Menu } from '@base-ui/react/menu';
 import { type ReactElement } from 'react';
 import { MotionSurface } from '@codaco/fresco-ui/layout/Surface';
-import { ArrowSvg } from '@codaco/fresco-ui/popover';
+import { ArrowSvg } from '@codaco/fresco-ui/Popover';
 import { cx } from '@codaco/fresco-ui/utils/cva';
 
 export type NodeContextMenuAction =

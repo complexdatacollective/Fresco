@@ -3,7 +3,7 @@ import { InfoIcon } from 'lucide-react';
 import { type ComponentProps, type ReactElement } from 'react';
 import Heading from '@codaco/fresco-ui/typography/Heading';
 import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
-import { Popover, PopoverContent, PopoverTrigger } from '@codaco/fresco-ui/popover';
+import { Popover, PopoverContent, PopoverTrigger } from '@codaco/fresco-ui/Popover';
 
 type InfoTooltipProps = Omit<ComponentProps<typeof Popover>, 'children'> & {
   title: string;

@@ -18,7 +18,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@codaco/fresco-ui/dropdown-menu';
+} from '@codaco/fresco-ui/DropdownMenu';
 import { useClientDataTable } from '~/hooks/useClientDataTable';
 import type {
   GetInterviewsQuery,

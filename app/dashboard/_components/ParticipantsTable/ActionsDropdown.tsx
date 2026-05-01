@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from '@codaco/fresco-ui/dropdown-menu';
+} from '@codaco/fresco-ui/DropdownMenu';
 import type { ParticipantWithInterviews } from './ParticipantsTableClient';
 
 export function ActionsDropdown({

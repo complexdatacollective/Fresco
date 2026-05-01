@@ -7,7 +7,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@codaco/fresco-ui/dropdown-menu';
+} from '@codaco/fresco-ui/DropdownMenu';
 import Checkbox from '@codaco/fresco-ui/form/fields/Checkbox';
 import { IconButton } from '@codaco/fresco-ui/Button';
 

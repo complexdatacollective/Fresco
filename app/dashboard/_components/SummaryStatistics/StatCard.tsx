@@ -1,7 +1,7 @@
 import { use } from 'react';
 import Surface from '@codaco/fresco-ui/layout/Surface';
 import Heading from '@codaco/fresco-ui/typography/Heading';
-import { Skeleton } from '@codaco/fresco-ui/skeleton';
+import { Skeleton } from '@codaco/fresco-ui/Skeleton';
 import { cx } from '@codaco/fresco-ui/utils/cva';
 
 const statCardClasses = cx(

@@ -15,7 +15,7 @@ import {
     Tooltip,
     TooltipContent,
     TooltipTrigger,
-} from '@codaco/fresco-ui/tooltip';
+} from '@codaco/fresco-ui/Tooltip';
 import { type ValidationPropsCatalogue } from '@codaco/fresco-ui/form/Field/types';
 import InputField from '@codaco/fresco-ui/form/fields/InputField';
 import { useField } from '@codaco/fresco-ui/form/hooks/useField';

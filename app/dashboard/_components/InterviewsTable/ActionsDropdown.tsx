@@ -20,7 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from '@codaco/fresco-ui/dropdown-menu';
+} from '@codaco/fresco-ui/DropdownMenu';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 
 type InterviewRow = GetInterviewsQuery[number];

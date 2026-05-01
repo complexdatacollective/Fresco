@@ -13,7 +13,7 @@ import {
 } from '~/components/DataTable/filters/filterFns';
 import { SelectAllHeader } from '~/components/DataTable/SelectAllHeader';
 import { type Option } from '~/components/DataTable/types';
-import { Badge } from '@codaco/fresco-ui/badge';
+import { Badge } from '@codaco/fresco-ui/Badge';
 import ProgressBar from '@codaco/fresco-ui/ProgressBar';
 import TimeAgo from '@codaco/fresco-ui/TimeAgo';
 import Checkbox from '@codaco/fresco-ui/form/fields/Checkbox';

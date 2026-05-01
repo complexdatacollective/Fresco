@@ -14,7 +14,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@codaco/fresco-ui/table';
+} from '@codaco/fresco-ui/Table';
 import { cx } from '@codaco/fresco-ui/utils/cva';
 import { DataTablePagination } from './DataTablePagination';
 

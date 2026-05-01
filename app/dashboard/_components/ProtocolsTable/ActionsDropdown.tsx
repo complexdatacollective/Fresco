@@ -12,7 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from '@codaco/fresco-ui/dropdown-menu';
+} from '@codaco/fresco-ui/DropdownMenu';
 import { useToast } from '@codaco/fresco-ui/Toast';
 import { useDownload } from '~/hooks/useDownload';
 import type { ProtocolWithInterviews } from './ProtocolsTableClient';

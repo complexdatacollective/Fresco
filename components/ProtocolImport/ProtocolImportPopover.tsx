@@ -7,7 +7,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@codaco/fresco-ui/popover';
+} from '@codaco/fresco-ui/Popover';
 import ProtocolImportDropzone from './ProtocolImportDropzone';
 
 type ProtocolImportPopoverProps = {

@@ -8,7 +8,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@codaco/fresco-ui/popover';
+} from '@codaco/fresco-ui/Popover';
 import { useToast } from '@codaco/fresco-ui/Toast';
 import type { Participant, Protocol } from '~/lib/db/generated/client';
 import SelectField from '@codaco/fresco-ui/form/fields/Select/Native';

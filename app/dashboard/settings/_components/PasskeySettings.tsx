@@ -10,7 +10,7 @@ import {
 } from '~/actions/webauthn';
 import Surface from '@codaco/fresco-ui/layout/Surface';
 import SettingsField from '~/components/settings/SettingsField';
-import { Badge } from '@codaco/fresco-ui/badge';
+import { Badge } from '@codaco/fresco-ui/Badge';
 import { Button } from '@codaco/fresco-ui/Button';
 import useDialog from '@codaco/fresco-ui/dialogs/useDialog';
 

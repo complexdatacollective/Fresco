@@ -2,7 +2,7 @@
 
 import { type StrictColumnDef } from '~/components/DataTable/types';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
-import { Badge } from '@codaco/fresco-ui/badge';
+import { Badge } from '@codaco/fresco-ui/Badge';
 import TimeAgo from '@codaco/fresco-ui/TimeAgo';
 import type { Events } from '~/lib/db/generated/client';
 import { getBadgeColorsForActivityType } from './utils';

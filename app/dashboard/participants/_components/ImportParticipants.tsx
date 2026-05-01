@@ -11,7 +11,7 @@ import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@codaco/fresco-ui/popover';
+} from '@codaco/fresco-ui/Popover';
 import { useToast } from '@codaco/fresco-ui/Toast';
 import { csvDataSchema } from '~/schemas/participant';
 import { cx } from '@codaco/fresco-ui/utils/cva';

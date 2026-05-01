@@ -29,8 +29,8 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@codaco/fresco-ui/dropdown-menu';
-import { Popover, PopoverContent } from '@codaco/fresco-ui/popover';
+} from '@codaco/fresco-ui/DropdownMenu';
+import { Popover, PopoverContent } from '@codaco/fresco-ui/Popover';
 import { cx } from '@codaco/fresco-ui/utils/cva';
 
 const stringSortFns = new Set(['text', 'textCaseSensitive']);
