@@ -16,12 +16,12 @@ import {
 import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
 import { Button } from '@codaco/fresco-ui/Button';
 import { DialogFooter } from '@codaco/fresco-ui/dialogs/Dialog';
-import Field from '@codaco/fresco-ui/form/components/Field/Field';
-import Form from '@codaco/fresco-ui/form/components/Form';
-import SubmitButton from '@codaco/fresco-ui/form/components/SubmitButton';
-import InputField from '@codaco/fresco-ui/form/components/fields/InputField';
-import PasswordField from '@codaco/fresco-ui/form/components/fields/PasswordField';
-import SegmentedCodeField from '@codaco/fresco-ui/form/components/fields/SegmentedCodeField';
+import Field from '@codaco/fresco-ui/form/Field/Field';
+import Form from '@codaco/fresco-ui/form/Form';
+import SubmitButton from '@codaco/fresco-ui/form/SubmitButton';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
+import PasswordField from '@codaco/fresco-ui/form/fields/PasswordField';
+import SegmentedCodeField from '@codaco/fresco-ui/form/fields/SegmentedCodeField';
 import { type FormSubmitHandler } from '@codaco/fresco-ui/form/store/types';
 import { loginSchema } from '~/schemas/auth';
 

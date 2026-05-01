@@ -18,7 +18,7 @@ import {
 import { ScrollArea } from '@codaco/fresco-ui/ScrollArea';
 import { useScrolledToBottom } from '~/hooks/useScrolledToBottom';
 import useDialog from '@codaco/fresco-ui/dialogs/useDialog';
-import { FormWithoutProvider } from '@codaco/fresco-ui/form/components/Form';
+import { FormWithoutProvider } from '@codaco/fresco-ui/form/Form';
 import { useFormMeta } from '@codaco/fresco-ui/form/hooks/useFormState';
 import useFormStore from '@codaco/fresco-ui/form/hooks/useFormStore';
 import useProtocolForm from '~/lib/interviewer/forms/useProtocolForm';

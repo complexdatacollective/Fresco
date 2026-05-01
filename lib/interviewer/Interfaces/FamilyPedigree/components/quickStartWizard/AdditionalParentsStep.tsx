@@ -4,10 +4,10 @@ import { useSelector } from 'react-redux';
 import Surface from '@codaco/fresco-ui/layout/Surface';
 import Heading from '@codaco/fresco-ui/typography/Heading';
 import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
-import Field from '@codaco/fresco-ui/form/components/Field/Field';
-import FieldNamespace from '@codaco/fresco-ui/form/components/FieldNamespace';
-import InputField from '@codaco/fresco-ui/form/components/fields/InputField';
-import RadioGroupField from '@codaco/fresco-ui/form/components/fields/RadioGroup';
+import Field from '@codaco/fresco-ui/form/Field/Field';
+import FieldNamespace from '@codaco/fresco-ui/form/FieldNamespace';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
+import RadioGroupField from '@codaco/fresco-ui/form/fields/RadioGroup';
 import { useFormValue } from '@codaco/fresco-ui/form/hooks/useFormValue';
 import useProtocolForm from '~/lib/interviewer/forms/useProtocolForm';
 import {

@@ -2,9 +2,9 @@
 
 import { type SkipContext } from '@codaco/fresco-ui/dialogs/DialogProvider';
 import type useDialog from '@codaco/fresco-ui/dialogs/useDialog';
-import Field from '@codaco/fresco-ui/form/components/Field/Field';
-import RadioGroupField from '@codaco/fresco-ui/form/components/fields/RadioGroup';
-import RichSelectGroupField from '@codaco/fresco-ui/form/components/fields/RichSelectGroup';
+import Field from '@codaco/fresco-ui/form/Field/Field';
+import RadioGroupField from '@codaco/fresco-ui/form/fields/RadioGroup';
+import RichSelectGroupField from '@codaco/fresco-ui/form/fields/RichSelectGroup';
 import { PARENT_EDGE_TYPE_OPTIONS_ALTER } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/fieldOptions';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
 import {

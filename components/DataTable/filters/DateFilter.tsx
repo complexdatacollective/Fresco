@@ -6,7 +6,7 @@ import {
   type DateFilterValue,
 } from '~/components/DataTable/filters/types';
 import Button from '@codaco/fresco-ui/Button';
-import InputField from '@codaco/fresco-ui/form/components/fields/InputField';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
 
 type DateFilterProps = {
   value: DateFilterValue | undefined;

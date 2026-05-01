@@ -14,7 +14,7 @@ import { useSelector } from 'react-redux';
 import Button from '@codaco/fresco-ui/Button';
 import Icon, { type InterviewerIconName } from '@codaco/fresco-ui/Icon';
 import Dialog from '@codaco/fresco-ui/dialogs/Dialog';
-import Form from '@codaco/fresco-ui/form/components/Form';
+import Form from '@codaco/fresco-ui/form/Form';
 import useProtocolForm from '~/lib/interviewer/forms/useProtocolForm';
 import { type FormSubmitHandler } from '@codaco/fresco-ui/form/store/types';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';

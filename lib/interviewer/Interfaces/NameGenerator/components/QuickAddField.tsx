@@ -16,8 +16,8 @@ import {
     TooltipContent,
     TooltipTrigger,
 } from '@codaco/fresco-ui/tooltip';
-import { type ValidationPropsCatalogue } from '@codaco/fresco-ui/form/components/Field/types';
-import InputField from '@codaco/fresco-ui/form/components/fields/InputField';
+import { type ValidationPropsCatalogue } from '@codaco/fresco-ui/form/Field/types';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
 import { useField } from '@codaco/fresco-ui/form/hooks/useField';
 import useFormStore from '@codaco/fresco-ui/form/hooks/useFormStore';
 import { useCelebrate } from '~/lib/interviewer/hooks/useCelebrate';

@@ -5,11 +5,11 @@ import Surface from '@codaco/fresco-ui/layout/Surface';
 import Heading from '@codaco/fresco-ui/typography/Heading';
 import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
 import { Alert, AlertDescription } from '@codaco/fresco-ui/Alert';
-import Field from '@codaco/fresco-ui/form/components/Field/Field';
-import FieldGroup from '@codaco/fresco-ui/form/components/FieldGroup';
-import FieldNamespace from '@codaco/fresco-ui/form/components/FieldNamespace';
-import BooleanField from '@codaco/fresco-ui/form/components/fields/Boolean';
-import InputField from '@codaco/fresco-ui/form/components/fields/InputField';
+import Field from '@codaco/fresco-ui/form/Field/Field';
+import FieldGroup from '@codaco/fresco-ui/form/FieldGroup';
+import FieldNamespace from '@codaco/fresco-ui/form/FieldNamespace';
+import BooleanField from '@codaco/fresco-ui/form/fields/Boolean';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
 import useProtocolForm from '~/lib/interviewer/forms/useProtocolForm';
 import {
   getNodeForm,

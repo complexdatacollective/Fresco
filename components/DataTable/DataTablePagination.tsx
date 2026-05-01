@@ -6,7 +6,7 @@ import {
   ChevronsRight,
 } from 'lucide-react';
 import { IconButton } from '@codaco/fresco-ui/Button';
-import SelectField from '@codaco/fresco-ui/form/components/fields/Select/Native';
+import SelectField from '@codaco/fresco-ui/form/fields/Select/Native';
 import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
 import { pageSizes } from './types';
 

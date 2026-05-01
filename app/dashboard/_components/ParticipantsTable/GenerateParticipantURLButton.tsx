@@ -11,7 +11,7 @@ import {
 } from '@codaco/fresco-ui/popover';
 import { useToast } from '@codaco/fresco-ui/Toast';
 import type { Participant, Protocol } from '~/lib/db/generated/client';
-import SelectField from '@codaco/fresco-ui/form/components/fields/Select/Native';
+import SelectField from '@codaco/fresco-ui/form/fields/Select/Native';
 import type { ProtocolWithInterviews } from '../ProtocolsTable/ProtocolsTableClient';
 
 export const GenerateParticipationURLButton = memo(

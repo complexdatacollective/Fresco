@@ -10,23 +10,23 @@ import {
   selectFieldMetadataWithSubject,
   type Subject,
 } from '~/lib/interviewer/selectors/forms';
-import Field from '@codaco/fresco-ui/form/components/Field/Field';
+import Field from '@codaco/fresco-ui/form/Field/Field';
 import {
   type FieldValue,
   type ValidationPropsCatalogue,
-} from '@codaco/fresco-ui/form/components/Field/types';
-import FieldNamespace from '@codaco/fresco-ui/form/components/FieldNamespace';
-import BooleanField from '@codaco/fresco-ui/form/components/fields/Boolean';
-import CheckboxGroupField from '@codaco/fresco-ui/form/components/fields/CheckboxGroup';
-import DatePickerField from '@codaco/fresco-ui/form/components/fields/DatePicker';
-import InputField from '@codaco/fresco-ui/form/components/fields/InputField';
-import LikertScaleField from '@codaco/fresco-ui/form/components/fields/LikertScale';
-import RadioGroupField from '@codaco/fresco-ui/form/components/fields/RadioGroup';
-import RelativeDatePickerField from '@codaco/fresco-ui/form/components/fields/RelativeDatePicker';
-import TextAreaField from '@codaco/fresco-ui/form/components/fields/TextArea';
-import ToggleButtonGroupField from '@codaco/fresco-ui/form/components/fields/ToggleButtonGroup';
-import ToggleField from '@codaco/fresco-ui/form/components/fields/ToggleField';
-import VisualAnalogScaleField from '@codaco/fresco-ui/form/components/fields/VisualAnalogScale';
+} from '@codaco/fresco-ui/form/Field/types';
+import FieldNamespace from '@codaco/fresco-ui/form/FieldNamespace';
+import BooleanField from '@codaco/fresco-ui/form/fields/Boolean';
+import CheckboxGroupField from '@codaco/fresco-ui/form/fields/CheckboxGroup';
+import DatePickerField from '@codaco/fresco-ui/form/fields/DatePicker';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
+import LikertScaleField from '@codaco/fresco-ui/form/fields/LikertScale';
+import RadioGroupField from '@codaco/fresco-ui/form/fields/RadioGroup';
+import RelativeDatePickerField from '@codaco/fresco-ui/form/fields/RelativeDatePicker';
+import TextAreaField from '@codaco/fresco-ui/form/fields/TextArea';
+import ToggleButtonGroupField from '@codaco/fresco-ui/form/fields/ToggleButtonGroup';
+import ToggleField from '@codaco/fresco-ui/form/fields/ToggleField';
+import VisualAnalogScaleField from '@codaco/fresco-ui/form/fields/VisualAnalogScale';
 import { type ValidationContext } from '@codaco/fresco-ui/form/store/types';
 import { addDays, todayYmd } from '@codaco/fresco-ui/form/utils/ymd';
 

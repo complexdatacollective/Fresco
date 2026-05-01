@@ -1,7 +1,7 @@
 import { type Dispatch, type SetStateAction } from 'react';
 import Heading from '@codaco/fresco-ui/typography/Heading';
 import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
-import Switch from '@codaco/fresco-ui/form/components/fields/ToggleField';
+import Switch from '@codaco/fresco-ui/form/fields/ToggleField';
 import type { ExportOptions } from '~/lib/network-exporters/options';
 import { cx } from '@codaco/fresco-ui/utils/cva';
 

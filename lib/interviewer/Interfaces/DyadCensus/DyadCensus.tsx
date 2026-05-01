@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 import { MotionSurface } from '@codaco/fresco-ui/layout/Surface';
 import Heading from '@codaco/fresco-ui/typography/Heading';
 import { RenderMarkdown } from '@codaco/fresco-ui/RenderMarkdown';
-import BooleanField from '@codaco/fresco-ui/form/components/fields/Boolean';
+import BooleanField from '@codaco/fresco-ui/form/fields/Boolean';
 import Prompts from '~/lib/interviewer/components/Prompts';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import {

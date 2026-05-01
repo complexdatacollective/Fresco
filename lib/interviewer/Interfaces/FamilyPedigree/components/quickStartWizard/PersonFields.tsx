@@ -1,10 +1,10 @@
 'use client';
 
 import { useSelector } from 'react-redux';
-import Field from '@codaco/fresco-ui/form/components/Field/Field';
-import { type FieldValue } from '@codaco/fresco-ui/form/components/Field/types';
-import FieldNamespace from '@codaco/fresco-ui/form/components/FieldNamespace';
-import InputField from '@codaco/fresco-ui/form/components/fields/InputField';
+import Field from '@codaco/fresco-ui/form/Field/Field';
+import { type FieldValue } from '@codaco/fresco-ui/form/Field/types';
+import FieldNamespace from '@codaco/fresco-ui/form/FieldNamespace';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
 import useProtocolForm from '~/lib/interviewer/forms/useProtocolForm';
 import {
   getNodeForm,

@@ -78,10 +78,10 @@ import { configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { Provider } from 'react-redux';
 import { action } from 'storybook/actions';
-import Form from '@codaco/fresco-ui/form/components/Form';
-import SubmitButton from '@codaco/fresco-ui/form/components/SubmitButton';
+import Form from '@codaco/fresco-ui/form/Form';
+import SubmitButton from '@codaco/fresco-ui/form/SubmitButton';
 import useProtocolForm from '~/lib/interviewer/forms/useProtocolForm';
-import { type FieldValue } from '@codaco/fresco-ui/form/components/Field/types';
+import { type FieldValue } from '@codaco/fresco-ui/form/Field/types';
 
 // Mock protocol data
 const mockProtocol = {

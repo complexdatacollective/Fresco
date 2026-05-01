@@ -9,9 +9,9 @@ import {
 } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
 import Button from '@codaco/fresco-ui/Button';
-import Field from '@codaco/fresco-ui/form/components/Field/Field';
-import Form from '@codaco/fresco-ui/form/components/Form';
-import InputField from '@codaco/fresco-ui/form/components/fields/InputField';
+import Field from '@codaco/fresco-ui/form/Field/Field';
+import Form from '@codaco/fresco-ui/form/Form';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
 import { usePassphrase } from '../Interfaces/Anonymisation/usePassphrase';
 import Overlay from './Overlay';
 

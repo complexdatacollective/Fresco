@@ -11,7 +11,7 @@ import {
   PopoverTrigger,
 } from '@codaco/fresco-ui/popover';
 import { Skeleton } from '@codaco/fresco-ui/skeleton';
-import SelectField from '@codaco/fresco-ui/form/components/fields/Select/Native';
+import SelectField from '@codaco/fresco-ui/form/fields/Select/Native';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 import type {
   GetProtocolsQuery,

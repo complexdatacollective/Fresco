@@ -2,10 +2,10 @@
 
 import { type NcEdge, type NcNode } from '@codaco/shared-consts';
 import { useSelector } from 'react-redux';
-import Field from '@codaco/fresco-ui/form/components/Field/Field';
-import CheckboxGroupField from '@codaco/fresco-ui/form/components/fields/CheckboxGroup';
-import RadioGroupField from '@codaco/fresco-ui/form/components/fields/RadioGroup';
-import RichSelectGroupField from '@codaco/fresco-ui/form/components/fields/RichSelectGroup';
+import Field from '@codaco/fresco-ui/form/Field/Field';
+import CheckboxGroupField from '@codaco/fresco-ui/form/fields/CheckboxGroup';
+import RadioGroupField from '@codaco/fresco-ui/form/fields/RadioGroup';
+import RichSelectGroupField from '@codaco/fresco-ui/form/fields/RichSelectGroup';
 import { PARENT_EDGE_TYPE_OPTIONS_ALTER } from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/fieldOptions';
 import PersonFields from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/PersonFields';
 import { type VariableConfig } from '~/lib/interviewer/Interfaces/FamilyPedigree/store';

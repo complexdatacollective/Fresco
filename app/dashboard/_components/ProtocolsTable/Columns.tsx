@@ -2,7 +2,7 @@
 
 import { type StrictColumnDef } from '~/components/DataTable/types';
 import Image from 'next/image';
-import Checkbox from '@codaco/fresco-ui/form/components/fields/Checkbox';
+import Checkbox from '@codaco/fresco-ui/form/fields/Checkbox';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import TimeAgo from '@codaco/fresco-ui/TimeAgo';
 import { AnonymousRecruitmentURLButton } from './AnonymousRecruitmentURLButton';

@@ -12,13 +12,13 @@ import {
   generateSignupRegistrationOptions,
   signupWithPasskey,
 } from '~/actions/webauthn';
-import Field from '@codaco/fresco-ui/form/components/Field/Field';
-import FieldGroup from '@codaco/fresco-ui/form/components/FieldGroup';
-import InputField from '@codaco/fresco-ui/form/components/fields/InputField';
-import PasswordField from '@codaco/fresco-ui/form/components/fields/PasswordField';
-import RichSelectGroupField from '@codaco/fresco-ui/form/components/fields/RichSelectGroup';
-import Form from '@codaco/fresco-ui/form/components/Form';
-import SubmitButton from '@codaco/fresco-ui/form/components/SubmitButton';
+import Field from '@codaco/fresco-ui/form/Field/Field';
+import FieldGroup from '@codaco/fresco-ui/form/FieldGroup';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
+import PasswordField from '@codaco/fresco-ui/form/fields/PasswordField';
+import RichSelectGroupField from '@codaco/fresco-ui/form/fields/RichSelectGroup';
+import Form from '@codaco/fresco-ui/form/Form';
+import SubmitButton from '@codaco/fresco-ui/form/SubmitButton';
 import {
   type FormSubmissionResult,
   type FormSubmitHandler,

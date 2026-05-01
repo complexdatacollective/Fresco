@@ -9,7 +9,7 @@ import { IconButton } from '@codaco/fresco-ui/Button';
 import { Collection } from '@codaco/fresco-ui/collection/components/Collection';
 import { ListLayout } from '@codaco/fresco-ui/collection/layout/ListLayout';
 import { type ItemProps } from '@codaco/fresco-ui/collection/types';
-import InputField from '@codaco/fresco-ui/form/components/fields/InputField';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
 import { cx } from '@codaco/fresco-ui/utils/cva';
 import {
   useGeospatialSearch,

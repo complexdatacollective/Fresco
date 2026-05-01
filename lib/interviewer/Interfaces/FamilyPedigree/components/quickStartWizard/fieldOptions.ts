@@ -1,4 +1,4 @@
-import { type RichSelectOption } from '@codaco/fresco-ui/form/components/fields/RichSelectGroup';
+import { type RichSelectOption } from '@codaco/fresco-ui/form/fields/RichSelectGroup';
 
 export const PARENT_EDGE_TYPE_OPTIONS_ALTER: (RichSelectOption & {
   value: string;

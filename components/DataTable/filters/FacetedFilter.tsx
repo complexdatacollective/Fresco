@@ -6,8 +6,8 @@ import { useMemo } from 'react';
 import { type FacetedFilterConfig } from '~/components/DataTable/filters/types';
 import Button from '@codaco/fresco-ui/Button';
 import { ScrollArea } from '@codaco/fresco-ui/ScrollArea';
-import { type ComboboxOption } from '@codaco/fresco-ui/form/components/fields/Combobox/shared';
-import InputField from '@codaco/fresco-ui/form/components/fields/InputField';
+import { type ComboboxOption } from '@codaco/fresco-ui/form/fields/Combobox/shared';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
 import { dropdownItemVariants } from '@codaco/fresco-ui/styles/controlVariants';
 import { cx } from '@codaco/fresco-ui/utils/cva';
 

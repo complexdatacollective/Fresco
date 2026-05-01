@@ -16,7 +16,7 @@ import { type Option } from '~/components/DataTable/types';
 import { Badge } from '@codaco/fresco-ui/badge';
 import ProgressBar from '@codaco/fresco-ui/ProgressBar';
 import TimeAgo from '@codaco/fresco-ui/TimeAgo';
-import Checkbox from '@codaco/fresco-ui/form/components/fields/Checkbox';
+import Checkbox from '@codaco/fresco-ui/form/fields/Checkbox';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 import NetworkSummary from './NetworkSummary';
 
