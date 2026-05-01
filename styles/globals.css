@@ -5,8 +5,9 @@
  * (elevation, inset-surface, motion-spring) come from the @codaco/fresco-ui
  * package. The package's styles.css also imports the NC palette colors.css.
  *
- * Fresco's own theme overrides live in styles/themes/default.css and
- * styles/themes/interview.css, which are layered over this on a per-route basis.
+ * Theme overrides come from @codaco/tailwind-config/fresco/{default-theme,interview-theme}.css,
+ * imported in the appropriate route layouts (default in app/layout.tsx,
+ * interview in app/(interview)/layout.tsx).
  */
 @import '@codaco/fresco-ui/styles.css';
 
