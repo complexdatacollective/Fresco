@@ -32,6 +32,21 @@ jobs:
       - name: Install Netlify CLI
         run: pnpm add -g netlify-cli
 
+      - name: Set Netlify runtime environment variables
+        # Set the database URLs on Netlify *before* anything else so that the
+        # deploy preview Netlify auto-triggers from the same push has them
+        # available when its build container starts. If we set them after the
+        # migrations, the auto-deploy races ahead with stale env and the
+        # functions are baked with `connectionString: undefined`, which makes
+        # `node-postgres` fall back to PGHOST=localhost (127.0.0.1).
+        env:
+          BRANCH: ${{ steps.branch-name.outputs.current_branch }}
+          DB_URL_POOLED: ${{ steps.create-branch.outputs.db_url_pooled }}
+          DB_URL: ${{ steps.create-branch.outputs.db_url }}
+        run: |
+          netlify env:set DATABASE_URL "$DB_URL_POOLED" --context "branch:$BRANCH"
+          netlify env:set DATABASE_URL_UNPOOLED "$DB_URL" --context "branch:$BRANCH"
+
       - name: Get branch preview URL
         id: branch-preview
         env:
@@ -43,30 +58,41 @@ jobs:
           echo "url=https://${BRANCH_SLUG}--${SUBDOMAIN}.netlify.app" >> "$GITHUB_OUTPUT"
 
       - name: Write .env file
-        env:
-          NEON_DB_URL: ${{ steps.create-branch.outputs.db_url }}
-          NEON_DB_URL_POOLED: ${{ steps.create-branch.outputs.db_url_pooled }}
-        run: |
-          # Pull down the environment variables for the deploy-preview context
-          netlify env:list --context deploy-preview --plain >> .env
-          # Add the database connection URLs to the .env file
-          echo "DATABASE_URL_UNPOOLED=$NEON_DB_URL" >> .env
-          echo "DATABASE_URL=$NEON_DB_URL_POOLED" >> .env
+        # Only used by the local migration/initialization scripts below to
+        # surface non-DB Netlify env vars (UploadThing keys, etc.). The DB URLs
+        # are passed to those steps directly via `env:` so the scripts don't
+        # depend on dotenv parsing this file correctly — `netlify env:list
+        # --plain` is not guaranteed to terminate with a newline, which would
+        # otherwise glue an appended `DATABASE_URL=...` line onto the previous
+        # variable's value.
+        run: netlify env:list --context deploy-preview --plain >> .env
 
       - name: Run Migrations
+        env:
+          DATABASE_URL: ${{ steps.create-branch.outputs.db_url_pooled }}
+          DATABASE_URL_UNPOOLED: ${{ steps.create-branch.outputs.db_url }}
         run: npx tsx scripts/setup-database.ts
 
       - name: Run Initialization
+        env:
+          DATABASE_URL: ${{ steps.create-branch.outputs.db_url_pooled }}
+          DATABASE_URL_UNPOOLED: ${{ steps.create-branch.outputs.db_url }}
         run: npx tsx scripts/initialize.ts
 
-      - name: Set Netlify runtime environment variables
+      - name: Trigger Netlify rebuild
+        # Now that the branch-scoped DATABASE_URL is set and migrations have
+        # run, force a fresh deploy that's guaranteed to see the env vars.
+        # The build Netlify auto-triggered on the same push will have skipped
+        # cheaply via `scripts/netlify-should-build.sh` (no branch DB env yet),
+        # so this is the only build that actually runs.
         env:
           BRANCH: ${{ steps.branch-name.outputs.current_branch }}
-          DB_URL_POOLED: ${{ steps.create-branch.outputs.db_url_pooled }}
-          DB_URL: ${{ steps.create-branch.outputs.db_url }}
         run: |
-          netlify env:set DATABASE_URL "$DB_URL_POOLED" --context "branch:$BRANCH"
-          netlify env:set DATABASE_URL_UNPOOLED "$DB_URL" --context "branch:$BRANCH"
+          curl -fsS -X POST \
+            -H "Authorization: Bearer $NETLIFY_AUTH_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d "{\"branch\": \"$BRANCH\", \"clear_cache\": false}" \
+            "https://api.netlify.com/api/v1/sites/$NETLIFY_SITE_ID/builds"
 
       - name: Check for existing deploy comment
         id: find-comment

@@ -74,6 +74,8 @@ model Protocol {
   experiments   Json?
   isPreview     Boolean     @default(false)
   isPending     Boolean     @default(false)
+  originalFileKey String?
+  originalFileUrl String?
 
   @@index([isPreview, importedAt])
 }

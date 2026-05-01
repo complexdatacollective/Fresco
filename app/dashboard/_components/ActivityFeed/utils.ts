@@ -1,6 +1,4 @@
-import { type ActivityType } from './types';
-
-export const getBadgeColorsForActivityType = (type: ActivityType) => {
+export const getBadgeColorsForActivityType = (type: string) => {
   switch (type) {
     case 'Protocol Installed':
       return 'bg-slate-blue hover:bg-slate-blue-dark';
@@ -42,8 +40,6 @@ export const getBadgeColorsForActivityType = (type: ActivityType) => {
       return 'bg-neon-carrot hover:bg-neon-carrot-dark';
     case 'Two-Factor Reset':
       return 'bg-mustard hover:bg-mustard-dark';
-    case 'Two-Factor Login':
-      return 'bg-neon-coral hover:bg-neon-coral-dark';
     case 'Recovery Code Used':
       return 'bg-purple-pizazz hover:bg-purple-pizazz-dark';
     case 'Recovery Codes Regenerated':
@@ -52,16 +48,12 @@ export const getBadgeColorsForActivityType = (type: ActivityType) => {
       return 'bg-sea-green hover:bg-sea-green-dark';
     case 'Passkey Removed':
       return 'bg-neon-carrot hover:bg-neon-carrot-dark';
-    case 'Passkey Login':
-      return 'bg-neon-coral hover:bg-neon-coral-dark';
     case 'Password Removed':
       return 'bg-mustard hover:bg-mustard-dark';
     case 'Password Set':
       return 'bg-sea-green hover:bg-sea-green-dark';
     case 'Auth Reset':
       return 'bg-tomato hover:bg-tomato-dark';
-    case 'Recovery Code Login':
-      return 'bg-purple-pizazz hover:bg-purple-pizazz-dark';
     case 'Switched to Passkey Mode':
       return 'bg-sea-green hover:bg-sea-green-dark';
     case 'Switched to Password Mode':
@@ -72,5 +64,14 @@ export const getBadgeColorsForActivityType = (type: ActivityType) => {
       return 'bg-sea-green hover:bg-sea-green';
     case 'Synthetic Data Deleted':
       return 'bg-neon-carrot hover:bg-neon-carrot-dark';
+    // Legacy event types kept for backward compatibility with existing DB rows
+    case 'Two-Factor Login':
+      return 'bg-neon-coral hover:bg-neon-coral-dark';
+    case 'Passkey Login':
+      return 'bg-neon-coral hover:bg-neon-coral-dark';
+    case 'Recovery Code Login':
+      return 'bg-purple-pizazz hover:bg-purple-pizazz-dark';
+    default:
+      return 'bg-slate hover:bg-slate-dark';
   }
 };
