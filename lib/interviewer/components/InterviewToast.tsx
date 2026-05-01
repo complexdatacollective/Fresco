@@ -10,15 +10,15 @@ import {
   type ReactNode,
   type RefObject,
 } from 'react';
-import Paragraph from '~/components/typography/Paragraph';
-import CloseButton from '~/components/ui/CloseButton';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import CloseButton from '@codaco/fresco-ui/CloseButton';
 import {
   toastVariants,
   variantIcons,
   type ToastVariant,
-} from '~/components/ui/Toast';
+} from '@codaco/fresco-ui/Toast';
 import { interviewToastManager } from '~/lib/interviewer/components/interviewToastManager';
-import { cva, cx } from '~/utils/cva';
+import { cva, cx } from '@codaco/fresco-ui/utils/cva';
 
 type InterviewToastContextValue = {
   forwardButtonRef: RefObject<HTMLButtonElement | null>;

@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import { Button } from '~/components/ui/Button';
+import { Alert, AlertDescription, AlertTitle } from '@codaco/fresco-ui/Alert';
+import { Button } from '@codaco/fresco-ui/Button';
 
 type RecoveryCodesProps = {
   codes: string[];

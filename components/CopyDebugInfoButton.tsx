@@ -1,9 +1,9 @@
 'use client';
 
 import { ClipboardCopy } from 'lucide-react';
-import { cx } from '~/utils/cva';
-import { Button } from './ui/Button';
-import { useToast } from './ui/Toast';
+import { cx } from '@codaco/fresco-ui/utils/cva';
+import { Button } from '@codaco/fresco-ui/Button';
+import { useToast } from '@codaco/fresco-ui/Toast';
 
 export default function CopyDebugInfoButton({
   debugInfo,

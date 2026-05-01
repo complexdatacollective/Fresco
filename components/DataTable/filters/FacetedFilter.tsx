@@ -4,12 +4,12 @@ import { Combobox } from '@base-ui/react/combobox';
 import { Check, SearchIcon } from 'lucide-react';
 import { useMemo } from 'react';
 import { type FacetedFilterConfig } from '~/components/DataTable/filters/types';
-import Button from '~/components/ui/Button';
-import { ScrollArea } from '~/components/ui/ScrollArea';
-import { type ComboboxOption } from '~/lib/form/components/fields/Combobox/shared';
-import InputField from '~/lib/form/components/fields/InputField';
-import { dropdownItemVariants } from '~/styles/shared/controlVariants';
-import { cx } from '~/utils/cva';
+import Button from '@codaco/fresco-ui/Button';
+import { ScrollArea } from '@codaco/fresco-ui/ScrollArea';
+import { type ComboboxOption } from '@codaco/fresco-ui/form/fields/Combobox/shared';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
+import { dropdownItemVariants } from '@codaco/fresco-ui/styles/controlVariants';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 
 type FacetedFilterProps = {
   value: string[] | undefined;
@@ -108,7 +108,7 @@ export default function FacetedFilter({
               className={dropdownItemVariants()}
             >
               <Combobox.ItemIndicator className="flex size-4 items-center justify-center">
-                <Check className="h-[1em] w-[1em]" />
+                <Check className="size-[1em]" />
               </Combobox.ItemIndicator>
               <span
                 className={cx(

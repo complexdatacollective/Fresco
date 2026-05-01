@@ -13,10 +13,10 @@ import {
 } from '~/components/DataTable/filters/filterFns';
 import { SelectAllHeader } from '~/components/DataTable/SelectAllHeader';
 import { type Option } from '~/components/DataTable/types';
-import { Badge } from '~/components/ui/badge';
-import ProgressBar from '~/components/ui/ProgressBar';
-import TimeAgo from '~/components/ui/TimeAgo';
-import Checkbox from '~/lib/form/components/fields/Checkbox';
+import { Badge } from '@codaco/fresco-ui/Badge';
+import ProgressBar from '@codaco/fresco-ui/ProgressBar';
+import TimeAgo from '@codaco/fresco-ui/TimeAgo';
+import Checkbox from '@codaco/fresco-ui/form/fields/Checkbox';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 import NetworkSummary from './NetworkSummary';
 
@@ -52,7 +52,7 @@ export const InterviewColumns = (): StrictColumnDef<InterviewRow>[] => [
               <Image
                 src="/images/participant.svg"
                 alt="Participant icon"
-                className="h-[24px] w-[24px]"
+                className="size-[24px]"
                 width={24}
                 height={24}
               />
@@ -104,7 +104,7 @@ export const InterviewColumns = (): StrictColumnDef<InterviewRow>[] => [
               <Image
                 src="/images/protocol-icon.png"
                 alt="Protocol icon"
-                className="h-[24px] w-[24px]"
+                className="size-[24px]"
                 width={24}
                 height={24}
               />

@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import SettingsField from '~/components/settings/SettingsField';
 import { setAppSetting } from '~/actions/appSettings';
-import { Button } from '~/components/ui/Button';
-import InputField from '~/lib/form/components/fields/InputField';
+import { Button } from '@codaco/fresco-ui/Button';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
 import { type AppSetting } from '~/schemas/appSettings';
 
 type S3Field = {

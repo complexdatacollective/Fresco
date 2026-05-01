@@ -4,7 +4,7 @@ import { Loader2, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 import { z } from 'zod/mini';
 import { regenerateInstallationId } from '~/actions/appSettings';
-import { Button } from '~/components/ui/Button';
+import { Button } from '@codaco/fresco-ui/Button';
 import UpdateSettingsValue from '../../_components/UpdateSettingsValue';
 
 export default function UpdateInstallationId({

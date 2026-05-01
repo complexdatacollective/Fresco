@@ -8,10 +8,10 @@ import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 import type { UrlObject } from 'url';
 import { logout } from '~/actions/auth';
-import Modal from '~/components/Modal/Modal';
-import ModalPopup from '~/components/Modal/ModalPopup';
-import SubmitButton from '~/components/ui/SubmitButton';
-import { cx } from '~/utils/cva';
+import Modal from '@codaco/fresco-ui/Modal';
+import ModalPopup from '@codaco/fresco-ui/Modal/ModalPopup';
+import SubmitButton from '~/components/SubmitButton';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 
 type NavItem = {
   label: string;

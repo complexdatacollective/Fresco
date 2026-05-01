@@ -18,7 +18,7 @@ import {
 } from '~/lib/interviewer/selectors/session';
 import { useAppDispatch } from '~/lib/interviewer/store';
 import { type StageProps } from '~/lib/interviewer/types';
-import { cx } from '~/utils/cva';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 import { edgeColorMap } from '../../utils/edgeColorMap';
 import IntroPanel from '../SlidesForm/IntroPanel';
 import SlidesForm from '../SlidesForm/SlidesForm';

@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { HelpCircle, Star } from 'lucide-react';
-import { FieldLabel } from '~/lib/form/components/FieldLabel';
+import { FieldLabel } from '@codaco/fresco-ui/form/FieldLabel';
 import InfoTooltip from './InfoTooltip';
-import Heading from './typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
-import { UnorderedList } from '~/components/typography/UnorderedList';
-import { Button, IconButton } from './ui/Button';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import { UnorderedList } from '@codaco/fresco-ui/typography/UnorderedList';
+import { Button, IconButton } from '@codaco/fresco-ui/Button';
 
 const meta = {
   title: 'Components/InfoTooltip',

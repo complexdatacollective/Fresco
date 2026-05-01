@@ -5,9 +5,9 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from 'lucide-react';
-import { IconButton } from '~/components/ui/Button';
-import SelectField from '~/lib/form/components/fields/Select/Native';
-import Paragraph from '../typography/Paragraph';
+import { IconButton } from '@codaco/fresco-ui/Button';
+import SelectField from '@codaco/fresco-ui/form/fields/Select/Native';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
 import { pageSizes } from './types';
 
 type DataTablePaginationProps<TData> = {

@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
 import { icons } from 'lucide-react';
-import Heading from '~/components/typography/Heading';
+import Heading from '@codaco/fresco-ui/typography/Heading';
 import ActionButton from '~/lib/interviewer/components/ActionButton';
 
 const meta: Meta<typeof ActionButton> = {

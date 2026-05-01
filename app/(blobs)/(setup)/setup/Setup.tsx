@@ -3,8 +3,8 @@
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { useEffect } from 'react';
 import { containerClasses } from '~/components/ContainerClasses';
-import Surface from '~/components/layout/Surface';
-import { cx } from '~/utils/cva';
+import Surface from '@codaco/fresco-ui/layout/Surface';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 import ConfigureStorage from '../_components/OnboardSteps/ConfigureStorage';
 import CreateAccount from '../_components/OnboardSteps/CreateAccount';
 import Documentation from '../_components/OnboardSteps/Documentation';

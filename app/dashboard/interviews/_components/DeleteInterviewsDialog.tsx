@@ -1,10 +1,10 @@
 import { Loader2, Trash2 } from 'lucide-react';
 import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
 import { deleteInterviews } from '~/actions/interviews';
-import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import { Button } from '~/components/ui/Button';
+import { Alert, AlertDescription, AlertTitle } from '@codaco/fresco-ui/Alert';
+import { Button } from '@codaco/fresco-ui/Button';
 import type { GetInterviewsQuery } from '~/queries/interviews';
-import Dialog from '~/lib/dialogs/Dialog';
+import Dialog from '@codaco/fresco-ui/dialogs/Dialog';
 
 type DeleteInterviewsDialog = {
   open: boolean;

@@ -12,17 +12,17 @@ import {
   generateSignupRegistrationOptions,
   signupWithPasskey,
 } from '~/actions/webauthn';
-import Field from '~/lib/form/components/Field/Field';
-import FieldGroup from '~/lib/form/components/FieldGroup';
-import InputField from '~/lib/form/components/fields/InputField';
-import PasswordField from '~/lib/form/components/fields/PasswordField';
-import RichSelectGroupField from '~/lib/form/components/fields/RichSelectGroup';
-import Form from '~/lib/form/components/Form';
-import SubmitButton from '~/lib/form/components/SubmitButton';
+import Field from '@codaco/fresco-ui/form/Field/Field';
+import FieldGroup from '@codaco/fresco-ui/form/FieldGroup';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
+import PasswordField from '@codaco/fresco-ui/form/fields/PasswordField';
+import RichSelectGroupField from '@codaco/fresco-ui/form/fields/RichSelectGroup';
+import Form from '@codaco/fresco-ui/form/Form';
+import SubmitButton from '@codaco/fresco-ui/form/SubmitButton';
 import {
   type FormSubmissionResult,
   type FormSubmitHandler,
-} from '~/lib/form/store/types';
+} from '@codaco/fresco-ui/form/store/types';
 import { createUserSchema } from '~/schemas/auth';
 
 type SignUpFormProps = {

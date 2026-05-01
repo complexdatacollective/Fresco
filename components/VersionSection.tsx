@@ -5,15 +5,15 @@ import Markdown from 'react-markdown';
 
 // eslint-disable-next-line no-restricted-imports -- server-only file (uses 'server-only' import)
 import { z } from 'zod';
-import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import Link from '~/components/ui/Link';
+import { Alert, AlertDescription, AlertTitle } from '@codaco/fresco-ui/Alert';
+import Link from '~/components/Link';
 import { env } from '~/env';
 import { captureException, shutdownPostHog } from '~/lib/posthog-server';
 import { ensureError } from '~/utils/ensureError';
 import { getSemverUpdateType, semverSchema } from '~/utils/semVer';
 import SettingsField from './settings/SettingsField';
-import Heading from './typography/Heading';
-import { Button } from './ui/Button';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import { Button } from '@codaco/fresco-ui/Button';
 
 const GithubApiResponseSchema = z
   .object({

@@ -2,8 +2,8 @@
 
 import { Copy } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { Button } from '~/components/ui/Button';
-import { useToast } from '~/components/ui/Toast';
+import { Button } from '@codaco/fresco-ui/Button';
+import { useToast } from '@codaco/fresco-ui/Toast';
 
 export const AnonymousRecruitmentURLButton = ({
   protocolId,

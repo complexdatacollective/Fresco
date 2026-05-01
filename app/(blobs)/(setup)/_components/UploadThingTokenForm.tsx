@@ -3,10 +3,10 @@
 import { useRouter } from 'next/navigation';
 import { setUploadThingToken } from '~/actions/appSettings';
 import { setStorageProvider } from '~/actions/storageProvider';
-import Field from '~/lib/form/components/Field/Field';
-import Form from '~/lib/form/components/Form';
-import SubmitButton from '~/lib/form/components/SubmitButton';
-import InputField from '~/lib/form/components/fields/InputField';
+import Field from '@codaco/fresco-ui/form/Field/Field';
+import Form from '@codaco/fresco-ui/form/Form';
+import SubmitButton from '@codaco/fresco-ui/form/SubmitButton';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
 import { createUploadThingTokenSchema } from '~/schemas/appSettings';
 
 export const UploadThingTokenForm = () => {

@@ -14,8 +14,8 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '~/components/ui/table';
-import { cx } from '~/utils/cva';
+} from '@codaco/fresco-ui/Table';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 import { DataTablePagination } from './DataTablePagination';
 
 function getColumnHighlight<TData>(column: Column<TData, unknown>) {

@@ -1,6 +1,6 @@
-import ResponsiveContainer from '~/components/layout/ResponsiveContainer';
-import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
-import Link from '~/components/ui/Link';
+import ResponsiveContainer from '@codaco/fresco-ui/layout/ResponsiveContainer';
+import { Alert, AlertDescription, AlertTitle } from '@codaco/fresco-ui/Alert';
+import Link from '~/components/Link';
 import { getAppSetting } from '~/queries/appSettings';
 
 export default async function AnonymousRecruitmentWarning() {

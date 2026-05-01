@@ -1,15 +1,15 @@
 'use client';
 
 import { useSelector } from 'react-redux';
-import Surface from '~/components/layout/Surface';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
-import Field from '~/lib/form/components/Field/Field';
-import FieldNamespace from '~/lib/form/components/FieldNamespace';
-import InputField from '~/lib/form/components/fields/InputField';
-import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
-import { useFormValue } from '~/lib/form/hooks/useFormValue';
-import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
+import Surface from '@codaco/fresco-ui/layout/Surface';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import Field from '@codaco/fresco-ui/form/Field/Field';
+import FieldNamespace from '@codaco/fresco-ui/form/FieldNamespace';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
+import RadioGroupField from '@codaco/fresco-ui/form/fields/RadioGroup';
+import { useFormValue } from '@codaco/fresco-ui/form/hooks/useFormValue';
+import useProtocolForm from '~/lib/interviewer/forms/useProtocolForm';
 import {
   getNodeForm,
   getNodeType,

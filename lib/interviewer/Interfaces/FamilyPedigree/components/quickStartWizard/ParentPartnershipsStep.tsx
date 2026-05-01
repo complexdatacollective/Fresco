@@ -1,10 +1,10 @@
 'use client';
 
 import { useMemo } from 'react';
-import Paragraph from '~/components/typography/Paragraph';
-import Field from '~/lib/form/components/Field/Field';
-import RadioGroupField from '~/lib/form/components/fields/RadioGroup';
-import { useFormValue } from '~/lib/form/hooks/useFormValue';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import Field from '@codaco/fresco-ui/form/Field/Field';
+import RadioGroupField from '@codaco/fresco-ui/form/fields/RadioGroup';
+import { useFormValue } from '@codaco/fresco-ui/form/hooks/useFormValue';
 
 const partnershipOptions = [
   { value: 'current', label: 'Current partners' },

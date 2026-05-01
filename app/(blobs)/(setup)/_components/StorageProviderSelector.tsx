@@ -1,8 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import type { RichSelectOption } from '~/lib/form/components/fields/RichSelectGroup';
-import RichSelectGroupField from '~/lib/form/components/fields/RichSelectGroup';
+import type { RichSelectOption } from '@codaco/fresco-ui/form/fields/RichSelectGroup';
+import RichSelectGroupField from '@codaco/fresco-ui/form/fields/RichSelectGroup';
 import { S3ConfigForm } from './S3ConfigForm';
 import { UploadThingTokenForm } from './UploadThingTokenForm';
 

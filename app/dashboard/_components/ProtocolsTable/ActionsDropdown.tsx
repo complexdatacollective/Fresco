@@ -4,7 +4,7 @@ import type { Row } from '@tanstack/react-table';
 import { Download, MoreHorizontal, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { DeleteProtocolsDialog } from '~/app/dashboard/protocols/_components/DeleteProtocolsDialog';
-import { IconButton } from '~/components/ui/Button';
+import { IconButton } from '@codaco/fresco-ui/Button';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,8 +12,8 @@ import {
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
-import { useToast } from '~/components/ui/Toast';
+} from '@codaco/fresco-ui/DropdownMenu';
+import { useToast } from '@codaco/fresco-ui/Toast';
 import { useDownload } from '~/hooks/useDownload';
 import type { ProtocolWithInterviews } from './ProtocolsTableClient';
 

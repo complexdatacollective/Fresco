@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
-import Surface, { surfaceSpacingVariants } from '~/components/layout/Surface';
-import Heading from '~/components/typography/Heading';
-import { compose, cva, cx } from '~/utils/cva';
+import Surface, { surfaceSpacingVariants } from '@codaco/fresco-ui/layout/Surface';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import { compose, cva, cx } from '@codaco/fresco-ui/utils/cva';
 
 type PanelProps = React.HTMLAttributes<HTMLDivElement> & {
   title: string;

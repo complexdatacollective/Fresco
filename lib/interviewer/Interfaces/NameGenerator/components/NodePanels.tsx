@@ -4,7 +4,7 @@ import { invariant } from 'es-toolkit';
 import { get } from 'es-toolkit/compat';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { useDndStore, type DndStore } from '~/lib/dnd';
+import { useDndStore, type DndStore } from '@codaco/fresco-ui/dnd/dnd';
 import Panels from '../../../components/Panels';
 import {
   deleteNode as deleteNodeAction,

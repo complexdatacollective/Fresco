@@ -1,4 +1,4 @@
-import { Alert, AlertDescription } from '~/components/ui/Alert';
+import { Alert, AlertDescription } from '@codaco/fresco-ui/Alert';
 
 export default function ReadOnlyEnvAlert() {
   return (

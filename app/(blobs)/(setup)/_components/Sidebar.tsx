@@ -2,9 +2,9 @@
 
 import { Check } from 'lucide-react';
 import { parseAsInteger, useQueryState } from 'nuqs';
-import Surface from '~/components/layout/Surface';
-import Heading from '~/components/typography/Heading';
-import { cx } from '~/utils/cva';
+import Surface from '@codaco/fresco-ui/layout/Surface';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 
 function OnboardSteps({ steps }: { steps: string[] }) {
   const [currentStep, setCurrentStep] = useQueryState(

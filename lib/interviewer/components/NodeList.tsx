@@ -6,15 +6,15 @@ import {
 import { motion, animate as motionAnimate } from 'motion/react';
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { Collection } from '~/lib/collection/components/Collection';
-import { useDragAndDrop } from '~/lib/collection/dnd/useDragAndDrop';
-import { InlineGridLayout } from '~/lib/collection/layout/InlineGridLayout';
-import { type CollectionProps, type ItemProps } from '~/lib/collection/types';
-import { type DragMetadata, type DropCallback } from '~/lib/dnd/types';
+import { Collection } from '@codaco/fresco-ui/collection/components/Collection';
+import { useDragAndDrop } from '@codaco/fresco-ui/collection/dnd/useDragAndDrop';
+import { InlineGridLayout } from '@codaco/fresco-ui/collection/layout/InlineGridLayout';
+import { type CollectionProps, type ItemProps } from '@codaco/fresco-ui/collection/types';
+import { type DragMetadata, type DropCallback } from '@codaco/fresco-ui/dnd/types';
 import Node from '~/lib/interviewer/components/ConnectedNode';
 import { makeGetCodebookVariablesForNodeType } from '~/lib/interviewer/selectors/protocol';
 import { getNodeLabelAttribute } from '~/lib/interviewer/utils/getNodeLabelAttribute';
-import { cx } from '~/utils/cva';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 
 // Props that NodeList always provides internally — consumers can't override these
 type InternalCollectionProps =

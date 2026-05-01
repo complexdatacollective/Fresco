@@ -1,16 +1,16 @@
 import { type Stage } from '@codaco/protocol-validation';
 import {
-  entityAttributesProperty,
-  entityPrimaryKeyProperty,
-  type NcNode,
+    entityAttributesProperty,
+    entityPrimaryKeyProperty,
+    type NcNode,
 } from '@codaco/shared-consts';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
-import UINode from '~/components/Node';
-import useDialog from '~/lib/dialogs/useDialog';
-import Field from '~/lib/form/components/Field/Field';
-import InputField from '~/lib/form/components/fields/InputField';
+import UINode from '@codaco/fresco-ui/Node';
+import useDialog from '@codaco/fresco-ui/dialogs/useDialog';
+import Field from '@codaco/fresco-ui/form/Field/Field';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
 import { type StageProps } from '~/lib/interviewer/types';
 import NodeDrawer from '../../components/NodeDrawer';
 import Prompts from '../../components/Prompts';

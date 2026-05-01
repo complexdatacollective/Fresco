@@ -7,8 +7,8 @@ import {
   type DataTableFilterableColumn,
   type DataTableSearchableColumn,
 } from '~/components/DataTable/types';
-import { Button } from '~/components/ui/Button';
-import InputField from '~/lib/form/components/fields/InputField';
+import { Button } from '@codaco/fresco-ui/Button';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
 import { DataTableFacetedFilter } from './DataTableFacetedFilter';
 
 type DataTableToolbarProps<TData> = {

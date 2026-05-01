@@ -1,4 +1,4 @@
-import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
+import { Alert, AlertDescription, AlertTitle } from '@codaco/fresco-ui/Alert';
 
 const ActionError = ({
   errorTitle,

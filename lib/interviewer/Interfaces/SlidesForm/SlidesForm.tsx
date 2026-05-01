@@ -18,20 +18,20 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import Surface from '~/components/layout/Surface';
-import { ScrollArea } from '~/components/ui/ScrollArea';
+import Surface from '@codaco/fresco-ui/layout/Surface';
+import { ScrollArea } from '@codaco/fresco-ui/ScrollArea';
 import { useScrolledToBottom } from '~/hooks/useScrolledToBottom';
-import useDialog from '~/lib/dialogs/useDialog';
-import { type FieldValue } from '~/lib/form/components/Field/types';
-import { FormWithoutProvider } from '~/lib/form/components/Form';
-import { useFormMeta } from '~/lib/form/hooks/useFormState';
-import useFormStore from '~/lib/form/hooks/useFormStore';
-import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
+import useDialog from '@codaco/fresco-ui/dialogs/useDialog';
+import { type FieldValue } from '@codaco/fresco-ui/form/Field/types';
+import { FormWithoutProvider } from '@codaco/fresco-ui/form/Form';
+import { useFormMeta } from '@codaco/fresco-ui/form/hooks/useFormState';
+import useFormStore from '@codaco/fresco-ui/form/hooks/useFormStore';
+import useProtocolForm from '~/lib/interviewer/forms/useProtocolForm';
 import FormStoreProvider, {
   FormStoreContext,
-} from '~/lib/form/store/formStoreProvider';
-import { type FormSubmitHandler } from '~/lib/form/store/types';
-import { focusFirstError } from '~/lib/form/utils/focusFirstError';
+} from '@codaco/fresco-ui/form/store/formStoreProvider';
+import { type FormSubmitHandler } from '@codaco/fresco-ui/form/store/types';
+import { focusFirstError } from '@codaco/fresco-ui/form/utils/focusFirstError';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import {
   type BeforeNextFunction,

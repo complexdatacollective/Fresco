@@ -4,17 +4,17 @@ import { FileDown, Upload } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import { importParticipants } from '~/actions/participants';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
-import { Button } from '~/components/ui/Button';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import { Button } from '@codaco/fresco-ui/Button';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '~/components/ui/popover';
-import { useToast } from '~/components/ui/Toast';
+} from '@codaco/fresco-ui/Popover';
+import { useToast } from '@codaco/fresco-ui/Toast';
 import { csvDataSchema } from '~/schemas/participant';
-import { cx } from '~/utils/cva';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 import parseCSV from '~/utils/parseCSV';
 
 export default function ImportParticipants() {

@@ -12,12 +12,6 @@ import type { KnipConfig } from 'knip';
 
 const config: KnipConfig = {
   project: ['**/*.{js,jsx,ts,tsx}'],
-  ignore: [
-    // Tailwind plugins loaded via @plugin in CSS cannot be detected by knip
-    'styles/plugins/tailwind-motion-spring.ts',
-    'styles/plugins/tailwind-elevation/index.ts',
-    'styles/plugins/tailwind-inset-surface/index.ts',
-  ],
   ignoreDependencies: [
     'sharp', // Used by next/image but not directly imported
     '@tailwindcss/forms', // Used in globals.css but not detected as used

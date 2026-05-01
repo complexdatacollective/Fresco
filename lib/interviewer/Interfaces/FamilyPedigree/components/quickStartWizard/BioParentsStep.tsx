@@ -1,16 +1,16 @@
 'use client';
 
 import { useSelector } from 'react-redux';
-import Surface from '~/components/layout/Surface';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
-import { Alert, AlertDescription } from '~/components/ui/Alert';
-import Field from '~/lib/form/components/Field/Field';
-import FieldGroup from '~/lib/form/components/FieldGroup';
-import FieldNamespace from '~/lib/form/components/FieldNamespace';
-import BooleanField from '~/lib/form/components/fields/Boolean';
-import InputField from '~/lib/form/components/fields/InputField';
-import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
+import Surface from '@codaco/fresco-ui/layout/Surface';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import { Alert, AlertDescription } from '@codaco/fresco-ui/Alert';
+import Field from '@codaco/fresco-ui/form/Field/Field';
+import FieldGroup from '@codaco/fresco-ui/form/FieldGroup';
+import FieldNamespace from '@codaco/fresco-ui/form/FieldNamespace';
+import BooleanField from '@codaco/fresco-ui/form/fields/Boolean';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
+import useProtocolForm from '~/lib/interviewer/forms/useProtocolForm';
 import {
   getNodeForm,
   getNodeType,

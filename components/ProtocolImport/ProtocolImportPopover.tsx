@@ -2,12 +2,12 @@
 
 import { FileDown } from 'lucide-react';
 import { useCallback, useState } from 'react';
-import { Button, type ButtonProps } from '~/components/ui/Button';
+import { Button, type ButtonProps } from '@codaco/fresco-ui/Button';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '~/components/ui/popover';
+} from '@codaco/fresco-ui/Popover';
 import ProtocolImportDropzone from './ProtocolImportDropzone';
 
 type ProtocolImportPopoverProps = {

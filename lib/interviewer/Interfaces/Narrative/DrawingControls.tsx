@@ -1,8 +1,8 @@
 import { Toggle } from '@base-ui/react/toggle';
 import { Pencil, RotateCcw, Snowflake } from 'lucide-react';
-import { MotionSurface } from '~/components/layout/Surface';
-import { IconButton } from '~/components/ui/Button';
-import { cx } from '~/utils/cva';
+import { MotionSurface } from '@codaco/fresco-ui/layout/Surface';
+import { IconButton } from '@codaco/fresco-ui/Button';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 
 type DrawingControlsProps = {
   isDrawingEnabled: boolean;

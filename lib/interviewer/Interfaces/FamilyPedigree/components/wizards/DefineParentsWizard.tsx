@@ -1,4 +1,4 @@
-import type useDialog from '~/lib/dialogs/useDialog';
+import type useDialog from '@codaco/fresco-ui/dialogs/useDialog';
 import ParentPartnershipsStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/quickStartWizard/ParentPartnershipsStep';
 import GenericAdditionalParentsStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/wizards/steps/GenericAdditionalParentsStep';
 import GenericBioParentsStep from '~/lib/interviewer/Interfaces/FamilyPedigree/components/wizards/steps/GenericBioParentsStep';

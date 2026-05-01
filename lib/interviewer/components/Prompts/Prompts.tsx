@@ -4,8 +4,8 @@ import { type Prompt as TPrompt } from '@codaco/protocol-validation';
 import { findIndex } from 'es-toolkit/compat';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useMemo, useRef } from 'react';
-import { cx } from '~/utils/cva';
-import Pips from '~/components/ui/Pips';
+import { cx } from '@codaco/fresco-ui/utils/cva';
+import Pips from '@codaco/fresco-ui/Pips';
 import Prompt from './Prompt';
 
 const containerVariants = {

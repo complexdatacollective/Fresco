@@ -8,11 +8,11 @@ import {
 } from 'motion/react';
 import { type RefObject, useCallback, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import { MotionSurface } from '~/components/layout/Surface';
-import Heading from '~/components/typography/Heading';
-import { Button } from '~/components/ui/Button';
-import CloseButton from '~/components/ui/CloseButton';
-import Checkbox from '~/lib/form/components/fields/Checkbox';
+import { MotionSurface } from '@codaco/fresco-ui/layout/Surface';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import { Button } from '@codaco/fresco-ui/Button';
+import CloseButton from '@codaco/fresco-ui/CloseButton';
+import Checkbox from '@codaco/fresco-ui/form/fields/Checkbox';
 import { useFamilyPedigreeStore } from '~/lib/interviewer/Interfaces/FamilyPedigree/FamilyPedigreeProvider';
 import { getRelationshipTypeVariable } from '~/lib/interviewer/Interfaces/FamilyPedigree/utils/edgeUtils';
 import {

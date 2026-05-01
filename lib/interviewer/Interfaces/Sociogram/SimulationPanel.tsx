@@ -1,5 +1,5 @@
 import { Pause as PauseIcon, Play as PlayIcon } from 'lucide-react';
-import Button from '~/components/ui/Button';
+import Button from '@codaco/fresco-ui/Button';
 
 type SimulationPanelProps = {
   simulationEnabled: boolean;

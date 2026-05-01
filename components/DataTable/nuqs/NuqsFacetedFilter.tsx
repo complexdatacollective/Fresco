@@ -6,7 +6,7 @@ import {
   useQueryState,
 } from 'nuqs';
 import { useMemo } from 'react';
-import ComboboxField from '~/lib/form/components/fields/Combobox/Combobox';
+import ComboboxField from '@codaco/fresco-ui/form/fields/Combobox/Combobox';
 import { nuqsTableUrlKey, useNuqsTable } from './NuqsTableProvider';
 
 type NuqsFacetedFilterProps<T extends string> = {

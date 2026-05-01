@@ -1,5 +1,5 @@
 import { logout } from '~/actions/auth';
-import SubmitButton from '~/components/ui/SubmitButton';
+import SubmitButton from '~/components/SubmitButton';
 
 const UserMenu = () => {
   return (

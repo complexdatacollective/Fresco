@@ -6,8 +6,8 @@ import { motion, type Variants } from 'motion/react';
 import { useCallback } from 'react';
 import { useSelector } from 'react-redux';
 
-import Form from '~/lib/form/components/Form';
-import { type FormSubmitHandler } from '~/lib/form/store/types';
+import Form from '@codaco/fresco-ui/form/Form';
+import { type FormSubmitHandler } from '@codaco/fresco-ui/form/store/types';
 import { getPromptAdditionalAttributes } from '~/lib/interviewer/selectors/session';
 import QuickAddField from './QuickAddField';
 

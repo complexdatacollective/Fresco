@@ -11,16 +11,16 @@ import {
 } from '~/actions/apiTokens';
 import { DataTable } from '~/components/DataTable/DataTable';
 import { useClientDataTable } from '~/hooks/useClientDataTable';
-import Dialog from '~/lib/dialogs/Dialog';
-import InputField from '~/lib/form/components/fields/InputField';
+import Dialog from '@codaco/fresco-ui/dialogs/Dialog';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
 import { type GetApiTokensReturnType } from '~/queries/apiTokens';
 import { DataTableColumnHeader } from './DataTable/ColumnHeader';
-import { Alert, AlertDescription, AlertTitle } from './ui/Alert';
-import { Button } from './ui/Button';
-import { Label } from './ui/Label';
-import ToggleField from '~/lib/form/components/fields/ToggleField';
-import TimeAgo from './ui/TimeAgo';
-import { useToast } from './ui/Toast';
+import { Alert, AlertDescription, AlertTitle } from '@codaco/fresco-ui/Alert';
+import { Button } from '@codaco/fresco-ui/Button';
+import { Label } from '@codaco/fresco-ui/Label';
+import ToggleField from '@codaco/fresco-ui/form/fields/ToggleField';
+import TimeAgo from '@codaco/fresco-ui/TimeAgo';
+import { useToast } from '@codaco/fresco-ui/Toast';
 
 type ApiToken = GetApiTokensReturnType[number];
 

@@ -1,9 +1,9 @@
 'use client';
 
-import Field from '~/lib/form/components/Field/Field';
-import FieldGroup from '~/lib/form/components/FieldGroup';
-import BooleanField from '~/lib/form/components/fields/Boolean';
-import InputField from '~/lib/form/components/fields/InputField';
+import Field from '@codaco/fresco-ui/form/Field/Field';
+import FieldGroup from '@codaco/fresco-ui/form/FieldGroup';
+import BooleanField from '@codaco/fresco-ui/form/fields/Boolean';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
 
 export default function GenericOtherParentsStep() {
   return (

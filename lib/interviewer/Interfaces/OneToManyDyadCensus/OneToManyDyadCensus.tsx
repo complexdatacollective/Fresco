@@ -6,11 +6,11 @@ import {
 import { AnimatePresence } from 'motion/react';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
-import Surface from '~/components/layout/Surface';
-import Heading from '~/components/typography/Heading';
-import { Collection } from '~/lib/collection/components/Collection';
-import { InlineGridLayout } from '~/lib/collection/layout/InlineGridLayout';
-import { type ItemProps } from '~/lib/collection/types';
+import Surface from '@codaco/fresco-ui/layout/Surface';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import { Collection } from '@codaco/fresco-ui/collection/components/Collection';
+import { InlineGridLayout } from '@codaco/fresco-ui/collection/layout/InlineGridLayout';
+import { type ItemProps } from '@codaco/fresco-ui/collection/types';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import { type StageProps } from '~/lib/interviewer/types';

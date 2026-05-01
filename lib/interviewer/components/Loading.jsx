@@ -1,8 +1,8 @@
 import cx from 'classnames';
 import { motion } from 'motion/react';
 import PropTypes from 'prop-types';
-import Spinner from '~/components/Spinner';
-import Heading from '~/components/typography/Heading';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import Spinner from '@codaco/fresco-ui/Spinner';
 
 const Loading = ({ message, className = '', small = false }) => (
   <motion.div

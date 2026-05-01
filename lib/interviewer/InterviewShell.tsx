@@ -4,7 +4,7 @@
 import { AnimatePresence, motion } from 'motion/react';
 import { useCallback, useMemo, useRef } from 'react';
 import { Provider } from 'react-redux';
-import DialogProvider from '~/lib/dialogs/DialogProvider';
+import DialogProvider from '@codaco/fresco-ui/dialogs/DialogProvider';
 import useMediaQuery from '~/hooks/useMediaQuery';
 import { InterviewToastProvider } from '~/lib/interviewer/components/InterviewToast';
 import Navigation from '~/lib/interviewer/components/Navigation';
@@ -20,7 +20,7 @@ import type {
 import { StageMetadataProvider } from '~/lib/interviewer/contexts/StageMetadataContext';
 import useInterviewNavigation from '~/lib/interviewer/hooks/useInterviewNavigation';
 import { store } from '~/lib/interviewer/store';
-import { cx } from '~/utils/cva';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 
 const variants = {
   initial: { opacity: 0 },

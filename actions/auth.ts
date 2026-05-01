@@ -9,7 +9,7 @@ import { createSessionCookie, SESSION_COOKIE_NAME } from '~/lib/auth/session';
 import { createTwoFactorToken, hashRecoveryCode } from '~/lib/auth/totp';
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
-import { type FormSubmissionResult } from '~/lib/form/store/types';
+import { type FormSubmissionResult } from '@codaco/fresco-ui/form/store/types';
 import { checkRateLimit, recordLoginAttempt } from '~/lib/rateLimit';
 import { getInstallationId } from '~/queries/appSettings';
 import { createUserSchema, loginSchema } from '~/schemas/auth';

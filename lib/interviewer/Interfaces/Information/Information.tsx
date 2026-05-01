@@ -1,20 +1,20 @@
 import { type Item } from '@codaco/protocol-validation';
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-import Surface from '~/components/layout/Surface';
+import Surface from '@codaco/fresco-ui/layout/Surface';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
 import {
-  ALLOWED_MARKDOWN_SECTION_TAGS,
-  RenderMarkdown,
-} from '~/components/RenderMarkdown';
-import Spinner from '~/components/Spinner';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
-import { ScrollArea } from '~/components/ui/ScrollArea';
+    ALLOWED_MARKDOWN_SECTION_TAGS,
+    RenderMarkdown,
+} from '@codaco/fresco-ui/RenderMarkdown';
+import { ScrollArea } from '@codaco/fresco-ui/ScrollArea';
+import Spinner from '@codaco/fresco-ui/Spinner';
 import { useContractFlags } from '~/lib/interviewer/contract/context';
 import { getAssetManifest } from '~/lib/interviewer/ducks/modules/protocol';
 import { useAssetUrl } from '~/lib/interviewer/hooks/useAssetUrl';
 import { type StageProps } from '~/lib/interviewer/types';
-import { cx } from '~/utils/cva';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 
 // UploadThing's CDN serves files uploaded via the `blob` router with an invalid
 // Content-Type (e.g. `video` instead of `video/mp4`). Safari strictly requires

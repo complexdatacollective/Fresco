@@ -1,6 +1,6 @@
 import { FileWarning } from 'lucide-react';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
 
 export default function NotFound() {
   return (

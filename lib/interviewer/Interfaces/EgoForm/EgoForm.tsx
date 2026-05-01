@@ -2,33 +2,33 @@ import { type VariableValue } from '@codaco/shared-consts';
 import { ChevronDown } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import {
-  useCallback,
-  useEffect,
-  useLayoutEffect,
-  useRef,
-  useState,
+    useCallback,
+    useEffect,
+    useLayoutEffect,
+    useRef,
+    useState,
 } from 'react';
 import { useSelector } from 'react-redux';
-import Surface, { MotionSurface } from '~/components/layout/Surface';
+import Surface, { MotionSurface } from '@codaco/fresco-ui/layout/Surface';
+import Heading from '@codaco/fresco-ui/typography/Heading';
 import {
-  ALLOWED_MARKDOWN_SECTION_TAGS,
-  RenderMarkdown,
-} from '~/components/RenderMarkdown';
-import Heading from '~/components/typography/Heading';
-import { ScrollArea } from '~/components/ui/ScrollArea';
+    ALLOWED_MARKDOWN_SECTION_TAGS,
+    RenderMarkdown,
+} from '@codaco/fresco-ui/RenderMarkdown';
+import { ScrollArea } from '@codaco/fresco-ui/ScrollArea';
 import { useScrolledToBottom } from '~/hooks/useScrolledToBottom';
-import useDialog from '~/lib/dialogs/useDialog';
-import { FormWithoutProvider } from '~/lib/form/components/Form';
-import { useFormMeta } from '~/lib/form/hooks/useFormState';
-import useFormStore from '~/lib/form/hooks/useFormStore';
-import useProtocolForm from '~/lib/form/hooks/useProtocolForm';
-import FormStoreProvider from '~/lib/form/store/formStoreProvider';
-import { type FieldValue, type FlattenedErrors } from '~/lib/form/store/types';
-import { focusFirstError } from '~/lib/form/utils/focusFirstError';
+import useDialog from '@codaco/fresco-ui/dialogs/useDialog';
+import { FormWithoutProvider } from '@codaco/fresco-ui/form/Form';
+import { useFormMeta } from '@codaco/fresco-ui/form/hooks/useFormState';
+import useFormStore from '@codaco/fresco-ui/form/hooks/useFormStore';
+import useProtocolForm from '~/lib/interviewer/forms/useProtocolForm';
+import FormStoreProvider from '@codaco/fresco-ui/form/store/formStoreProvider';
+import { type FieldValue, type FlattenedErrors } from '@codaco/fresco-ui/form/store/types';
+import { focusFirstError } from '@codaco/fresco-ui/form/utils/focusFirstError';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import {
-  type BeforeNextFunction,
-  type StageProps,
+    type BeforeNextFunction,
+    type StageProps,
 } from '~/lib/interviewer/types';
 import { updateEgo } from '../../ducks/modules/session';
 import useReadyForNextStage from '../../hooks/useReadyForNextStage';

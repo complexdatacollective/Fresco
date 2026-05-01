@@ -7,10 +7,10 @@ import {
   type OperatorFilterConfig,
   type OperatorFilterValue,
 } from '~/components/DataTable/filters/types';
-import Paragraph from '~/components/typography/Paragraph';
-import Button, { IconButton } from '~/components/ui/Button';
-import InputField from '~/lib/form/components/fields/InputField';
-import SelectField from '~/lib/form/components/fields/Select/Native';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import Button, { IconButton } from '@codaco/fresco-ui/Button';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
+import SelectField from '@codaco/fresco-ui/form/fields/Select/Native';
 
 type OperatorFilterProps = {
   value: OperatorFilterValue | undefined;

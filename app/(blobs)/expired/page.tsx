@@ -1,11 +1,11 @@
 import { resetAppSettings } from '~/actions/reset';
 import { containerClasses } from '~/components/ContainerClasses';
-import Surface from '~/components/layout/Surface';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
-import SubmitButton from '~/components/ui/SubmitButton';
+import Surface from '@codaco/fresco-ui/layout/Surface';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import SubmitButton from '~/components/SubmitButton';
 import { env } from '~/env';
-import { cx } from '~/utils/cva';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 
 export default function Page() {
   return (

@@ -3,8 +3,8 @@
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { resetAppSettings } from '~/actions/reset';
-import { Button } from '~/components/ui/Button';
-import Dialog from '~/lib/dialogs/Dialog';
+import { Button } from '@codaco/fresco-ui/Button';
+import Dialog from '@codaco/fresco-ui/dialogs/Dialog';
 
 const ResetButton = () => {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);

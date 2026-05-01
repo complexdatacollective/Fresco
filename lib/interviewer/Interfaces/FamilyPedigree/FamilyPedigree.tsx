@@ -5,9 +5,9 @@ import {
 } from '@codaco/shared-consts';
 import { useMemo, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
-import Paragraph from '~/components/typography/Paragraph';
-import { Button } from '~/components/ui/Button';
-import useDialog from '~/lib/dialogs/useDialog';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import { Button } from '@codaco/fresco-ui/Button';
+import useDialog from '@codaco/fresco-ui/dialogs/useDialog';
 import Prompts from '~/lib/interviewer/components/Prompts/Prompts';
 import { useContractFlags } from '~/lib/interviewer/contract/context';
 import { toggleNodeAttributes } from '~/lib/interviewer/ducks/modules/session';

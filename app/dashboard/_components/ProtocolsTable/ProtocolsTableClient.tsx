@@ -7,7 +7,7 @@ import { SuperJSON } from 'superjson';
 import { DataTable } from '~/components/DataTable/DataTable';
 import { DataTableFloatingBar } from '~/components/DataTable/DataTableFloatingBar';
 import { DataTableToolbar } from '~/components/DataTable/DataTableToolbar';
-import { Button } from '~/components/ui/Button';
+import { Button } from '@codaco/fresco-ui/Button';
 import { useClientDataTable } from '~/hooks/useClientDataTable';
 import type { GetProtocolsQuery } from '~/queries/protocols';
 import { DeleteProtocolsDialog } from '../../protocols/_components/DeleteProtocolsDialog';

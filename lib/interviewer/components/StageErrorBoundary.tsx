@@ -1,10 +1,10 @@
 import posthog from 'posthog-js';
 import React, { Component, type ReactNode } from 'react';
 import CopyDebugInfoButton from '~/components/CopyDebugInfoButton';
-import Surface from '~/components/layout/Surface';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
-import Icon from '~/components/ui/Icon';
+import Surface from '@codaco/fresco-ui/layout/Surface';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import Icon from '@codaco/fresco-ui/Icon';
 
 type StageErrorBoundaryProps = {
   children: ReactNode;

@@ -1,7 +1,7 @@
 import { type NcNode } from '@codaco/shared-consts';
 import { motion } from 'motion/react';
-import { type DragMetadata, useDropTarget } from '~/lib/dnd';
-import { cx } from '~/utils/cva';
+import { type DragMetadata, useDropTarget } from '@codaco/fresco-ui/dnd/dnd';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 
 type NodeBinProps = {
   accepts: (node: NcNode) => boolean;

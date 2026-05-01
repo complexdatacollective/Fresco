@@ -2,10 +2,10 @@ import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { ChevronDown } from 'lucide-react';
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react';
 import { useCallback, useEffect, useState } from 'react';
-import { headingVariants } from '~/components/typography/Heading';
-import { ScrollArea } from '~/components/ui/ScrollArea';
-import usePrevious from '~/hooks/usePrevious';
-import { cx } from '~/utils/cva';
+import { headingVariants } from '@codaco/fresco-ui/typography/Heading';
+import { ScrollArea } from '@codaco/fresco-ui/ScrollArea';
+import usePrevious from '@codaco/fresco-ui/hooks/usePrevious';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 import DrawerNode from '../Interfaces/Sociogram/DrawerNode';
 
 type NodeDrawerProps = {

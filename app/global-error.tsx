@@ -4,11 +4,11 @@ import { ClipboardCopy } from 'lucide-react';
 import Image from 'next/image';
 import posthog from 'posthog-js';
 import { useEffect, useState } from 'react';
-import Surface from '~/components/layout/Surface';
-import Heading from '~/components/typography/Heading';
-import Paragraph from '~/components/typography/Paragraph';
-import { Button } from '~/components/ui/Button';
-import Link from '~/components/ui/Link';
+import Surface from '@codaco/fresco-ui/layout/Surface';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import { Button } from '@codaco/fresco-ui/Button';
+import Link from '~/components/Link';
 
 export default function Error({
   error,
