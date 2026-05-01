@@ -5,7 +5,7 @@ import {
 import { type Action } from '@reduxjs/toolkit';
 import { LocateFixed, ZoomIn, ZoomOut } from 'lucide-react';
 import { type ExtendedMapOptions } from '~/lib/interviewer/Interfaces/Geospatial/useMapbox';
-// import 'mapbox-gl/dist/mapbox-gl.css';
+import 'mapbox-gl/dist/mapbox-gl.css';
 import { AnimatePresence, motion, type Variants } from 'motion/react';
 import dynamic from 'next/dynamic';
 import { useCallback, useEffect, useRef, useState } from 'react';
