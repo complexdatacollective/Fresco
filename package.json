@@ -48,6 +48,7 @@
     "@base-ui/react": "1.4.0",
     "@codaco/fresco-ui": "^0.2.1",
     "@codaco/protocol-validation": "11.4.0-alpha.0",
+    "@codaco/tailwind-config": "^0.2.0",
     "@codaco/shared-consts": "5.0.0",
     "@faker-js/faker": "^10.4.0",
     "@mapbox/search-js-react": "^1.5.1",

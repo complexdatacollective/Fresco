@@ -34,6 +34,9 @@ importers:
       '@codaco/shared-consts':
         specifier: 5.0.0
         version: 5.0.0
+      '@codaco/tailwind-config':
+        specifier: ^0.2.0
+        version: 0.2.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@faker-js/faker':
         specifier: ^10.4.0
         version: 10.4.0
