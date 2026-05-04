@@ -10,7 +10,7 @@ type CauseKind = 'oom' | 'disk-full' | 'timeout' | 'connection' | 'unknown';
 
 function classifyCause(cause: unknown): CauseKind {
   if (cause && typeof cause === 'object' && 'code' in cause) {
-    const code = (cause as { code?: unknown }).code;
+    const { code } = cause;
     if (code === 'ENOSPC') return 'disk-full';
     if (code === 'ETIMEDOUT' || code === 'ESOCKETTIMEDOUT') return 'timeout';
     if (code === 'ECONNREFUSED' || code === 'ECONNRESET') return 'connection';
