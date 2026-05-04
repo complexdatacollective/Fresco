@@ -74,13 +74,22 @@ const nodeAnimationVariants: Variants = {
   }),
 };
 
-type GeospatialInterfaceProps = StageProps<'Geospatial'>;
+function isUnknownRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null;
+}
 
-type GeoJsonFeatureCollection = {
-  features: {
-    properties?: Record<string, unknown> | null;
-  }[];
-};
+function readFirstFeatureProperty(json: unknown, property: string): unknown {
+  if (!isUnknownRecord(json)) return null;
+  const features = json.features;
+  if (!Array.isArray(features)) return null;
+  const first = features[0];
+  if (!isUnknownRecord(first)) return null;
+  const properties = first.properties;
+  if (!isUnknownRecord(properties)) return null;
+  return properties[property];
+}
+
+type GeospatialInterfaceProps = StageProps<'Geospatial'>;
 
 export default function GeospatialInterface({
   stage,
@@ -184,11 +193,12 @@ export default function GeospatialInterface({
     void (async () => {
       try {
         const response = await fetch(dataSourceUrl);
-        const json = (await response.json()) as GeoJsonFeatureCollection;
+        const json: unknown = await response.json();
         if (cancelled) return;
-        const firstFeature = json.features?.[0];
-        const value =
-          firstFeature?.properties?.[mapOptions.targetFeatureProperty];
+        const value = readFirstFeatureProperty(
+          json,
+          mapOptions.targetFeatureProperty,
+        );
         setStubFeatureId(typeof value === 'string' ? value : 'stub-feature');
         setStubReady(true);
       } catch {
@@ -269,20 +279,16 @@ export default function GeospatialInterface({
       activeIndex: getNodeIndex(),
       direction: 'backwards',
     });
-    if (!useStub) {
-      handleResetSelection();
-    }
-  }, [getNodeIndex, handleResetSelection, useStub]);
+    handleResetSelection();
+  }, [getNodeIndex, handleResetSelection]);
 
   const nextNode = useCallback(() => {
     setNavState({
       activeIndex: navState.activeIndex + 1,
       direction: 'forwards',
     });
-    if (!useStub) {
-      handleResetSelection();
-    }
-  }, [handleResetSelection, navState.activeIndex, useStub]);
+    handleResetSelection();
+  }, [handleResetSelection, navState.activeIndex]);
 
   const beforeNext = (direction: Direction) => {
     // Leave the stage if there are no nodes
@@ -303,9 +309,7 @@ export default function GeospatialInterface({
 
     // We are moving forwards.
     if (isLastNode()) {
-      if (!useStub) {
-        handleResetSelection();
-      }
+      handleResetSelection();
       return true;
     }
     nextNode();
