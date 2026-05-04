@@ -21,7 +21,6 @@ import { useAssetUrl } from '~/lib/interviewer/hooks/useAssetUrl';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
-import GeospatialStubSearch from '~/lib/interviewer/Interfaces/Geospatial/GeospatialStubSearch';
 import { isMapboxStubBrowser } from '~/lib/interviewer/Interfaces/Geospatial/isMapboxStubBrowser';
 import { useMapbox } from '~/lib/interviewer/Interfaces/Geospatial/useMapbox';
 import CollapsablePrompts from '~/lib/interviewer/Interfaces/Sociogram/CollapsablePrompts';
@@ -32,6 +31,13 @@ import { type Direction, type StageProps } from '~/lib/interviewer/types';
 // Dynamic import with ssr:false - @mapbox/search-js-web accesses document at module load
 const GeospatialSearch = dynamic(
   () => import('~/lib/interviewer/Interfaces/Geospatial/GeospatialSearch'),
+  { ssr: false },
+);
+
+// Dynamic import keeps the stub out of production bundles. The stub is only
+// reachable when isE2E && isMapboxStubBrowser() — gated at the JSX level.
+const GeospatialStubSearch = dynamic(
+  () => import('~/lib/interviewer/Interfaces/Geospatial/GeospatialStubSearch'),
   { ssr: false },
 );
 
