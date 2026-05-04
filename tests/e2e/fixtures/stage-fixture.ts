@@ -726,8 +726,22 @@ class GeospatialFixture {
    * Wait for the map to reach idle state — all tiles rendered and all
    * animations/transitions completed. Use this before taking snapshots
    * or after any map interaction (zoom, fly-to, search selection).
+   *
+   * In E2E stub mode (webkit/firefox), the container exposes
+   * `data-geospatial-stub="true"` and there is no Mapbox canvas. The
+   * stub sets `data-map-idle="true"` once the GeoJSON is fetched, so
+   * we just wait on that attribute.
    */
   async waitForMapIdle(): Promise<void> {
+    const isStub =
+      (await this.mapContainer.getAttribute('data-geospatial-stub')) === 'true';
+    if (isStub) {
+      await expect(this.mapContainer).toHaveAttribute('data-map-idle', 'true', {
+        timeout: 30000,
+      });
+      return;
+    }
+
     const canvas = this.mapContainer.locator('canvas.mapboxgl-canvas');
     await expect(canvas).toBeVisible({ timeout: 30000 });
     await expect(this.mapContainer).toHaveAttribute('data-map-idle', 'true', {
@@ -748,8 +762,18 @@ class GeospatialFixture {
    * check passes we explicitly force a paint cycle (resize +
    * triggerRepaint) and wait for the next idle event, which on webkit
    * reliably flushes the stale frame.
+   *
+   * In E2E stub mode the stub component fetches the GeoJSON itself
+   * before flipping data-map-idle, so waitForMapIdle is sufficient.
    */
   async waitForGeoJsonRendered(): Promise<void> {
+    const isStub =
+      (await this.mapContainer.getAttribute('data-geospatial-stub')) === 'true';
+    if (isStub) {
+      await this.waitForMapIdle();
+      return;
+    }
+
     await this.waitForMapIdle();
     await this.page.waitForFunction(
       () => {
