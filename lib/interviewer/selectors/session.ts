@@ -13,7 +13,7 @@ import { createSelector } from '@reduxjs/toolkit';
 import { intersection, invariant } from 'es-toolkit';
 import { filter, includes } from 'es-toolkit/compat';
 import { type NodeColorSequence, type NodeShape } from '@codaco/fresco-ui/Node';
-import customFilter from '~/lib/network-query/filter';
+import { filter as customFilter } from '@codaco/network-query';
 import { getCodebook, getStages } from '../ducks/modules/protocol';
 import { type RootState } from '../store';
 import { calculateProgress } from './utils';

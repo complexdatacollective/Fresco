@@ -1,7 +1,7 @@
 import { type Panel } from '@codaco/protocol-validation';
 import { entityPrimaryKeyProperty, type NcNode } from '@codaco/shared-consts';
 import { createSelector } from '@reduxjs/toolkit';
-import customFilter from '~/lib/network-query/filter';
+import { filter as customFilter } from '@codaco/network-query';
 import { getCodebook } from '../ducks/modules/protocol';
 import {
   getCurrentStage,

@@ -1,5 +1,5 @@
 import { createSelector } from '@reduxjs/toolkit';
-import getQuery from '~/lib/network-query/query';
+import { getQuery } from '@codaco/network-query';
 import { getStages } from '../ducks/modules/protocol';
 import { getNetwork, getStageIndex } from './session';
 

@@ -18,8 +18,7 @@ import {
   type VariableEntry,
   type VariableOption,
 } from '~/lib/interviewer/utils/SyntheticInterview/types';
-import getFilter from '~/lib/network-query/filter';
-import getQuery from '~/lib/network-query/query';
+import { filter as getFilter, getQuery } from '@codaco/network-query';
 
 type NcAttributeValue =
   | string

@@ -28,6 +28,9 @@ importers:
       '@codaco/fresco-ui':
         specifier: ^2.0.1
         version: 2.0.1(@codaco/protocol-validation@11.4.0-alpha.0)(@codaco/shared-consts@5.0.0)(@codaco/tailwind-config@0.4.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@date-fns/tz@1.4.1)(@floating-ui/dom@1.7.6)(@tiptap/extension-list@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(date-fns@4.1.0)(immer@11.1.4)(motion@12.38.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(tailwindcss@4.2.4)(typescript@6.0.2)(zod@4.3.6)(zustand@5.0.12(@types/react@19.2.14)(immer@11.1.4)(react@19.2.5)(use-sync-external-store@1.6.0(react@19.2.5)))
+      '@codaco/network-query':
+        specifier: ^1.0.1
+        version: 1.0.1
       '@codaco/protocol-validation':
         specifier: 11.4.0-alpha.0
         version: 11.4.0-alpha.0
@@ -793,6 +796,13 @@ packages:
       tailwindcss: ^4.2.4
       zod: ^4.3.6
       zustand: ^5.0.12
+
+  '@codaco/network-query@1.0.1':
+    resolution: {integrity: sha512-v93+t6ZM3HykaN9MjsFQc4abUlQPJ5gEgGxpa5XAaE6ZCKoJG95EKBI1llBTvwid25FfTSWAZYgHYY036i2CUA==}
+
+  '@codaco/protocol-validation@11.4.0':
+    resolution: {integrity: sha512-mfoZqpPc9YW+qk9rPULrkyrUNlgJnaOgDBCb9gPzklpgV6NQDazala9DUvneBHTuBFlGq0hIfrIKBwkkyxNC2A==}
+    hasBin: true
 
   '@codaco/protocol-validation@11.4.0-alpha.0':
     resolution: {integrity: sha512-/58nFJxRjW2TV9iopfqPQM6utMVSZCYRcV0o8b5Rlk/oLSRN97KkqHUTI5j7QJcJYT8N/yNmw8aGq+tdlNseSg==}
@@ -8640,6 +8650,18 @@ snapshots:
       - date-fns
       - supports-color
       - typescript
+
+  '@codaco/network-query@1.0.1':
+    dependencies:
+      '@codaco/protocol-validation': 11.4.0
+      '@codaco/shared-consts': 5.0.0
+      es-toolkit: 1.46.1
+
+  '@codaco/protocol-validation@11.4.0':
+    dependencies:
+      '@codaco/shared-consts': 5.0.0
+      '@faker-js/faker': 10.4.0
+      zod: 4.3.6
 
   '@codaco/protocol-validation@11.4.0-alpha.0':
     dependencies:
