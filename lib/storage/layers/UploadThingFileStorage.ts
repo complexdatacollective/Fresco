@@ -1,5 +1,9 @@
+import { OutputError } from '@codaco/network-exporters/errors';
+import type { OutputResult } from '@codaco/network-exporters/output';
 import { Effect, Layer } from 'effect';
 import { File } from 'node:buffer';
+import { Readable } from 'node:stream';
+import { buffer as streamToBuffer } from 'node:stream/consumers';
 import { FileStorageError, getUserMessage } from '~/lib/storage/errors';
 import { FileStorage } from '~/lib/storage/services/FileStorage';
 import { getUTApi } from '~/lib/uploadthing/server-helpers';
@@ -107,3 +111,36 @@ export const UploadThingFileStorage = Layer.succeed(FileStorage, {
       return `https://${tokenData.appId}.ufs.sh/f/${key}`;
     }),
 });
+
+export const makeUploadThingSink = (
+  zipStream: AsyncIterable<Uint8Array>,
+  fileName: string,
+): Effect.Effect<OutputResult, OutputError> =>
+  Effect.gen(function* () {
+    const utapi = yield* Effect.tryPromise({
+      try: () => getUTApi(),
+      catch: (error) => new OutputError({ cause: error }),
+    });
+
+    const buf = yield* Effect.tryPromise({
+      try: () => streamToBuffer(Readable.from(zipStream)),
+      catch: (error) => new OutputError({ cause: error }),
+    });
+
+    const file = new File([buf], fileName, { type: 'application/zip' });
+
+    const { data, error } = yield* Effect.tryPromise({
+      try: () => utapi.uploadFiles(file),
+      catch: (error) => new OutputError({ cause: error }),
+    });
+
+    if (!data) {
+      return yield* Effect.fail(
+        new OutputError({
+          cause: error ?? new Error('Upload returned no data'),
+        }),
+      );
+    }
+
+    return { key: data.key, url: data.ufsUrl };
+  });
