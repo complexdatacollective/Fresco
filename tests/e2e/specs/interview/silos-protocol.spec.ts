@@ -246,21 +246,7 @@ test.describe('SILOS Protocol', () => {
       await interview.captureFinal();
     });
 
-    test('Stage 8: Geospatial Interface', async ({
-      interview,
-      stage,
-      browserName,
-    }) => {
-      // Skip on Firefox - Playwright's Firefox lacks WebGL support for Mapbox GL JS
-      // See: https://bugzilla.mozilla.org/show_bug.cgi?id=1375585
-      // Skip on WebKit - WebKitGTK's WebGL paint pipeline is unstable here:
-      // its idle/paint timings vary run-to-run, leading to flakes around the
-      // map-idle polls and captureInterview snapshots.
-      test.skip(
-        browserName === 'firefox' || browserName === 'webkit',
-        'Geospatial stage relies on Mapbox GL JS WebGL, which is unsupported on Firefox and unstable on WebKit',
-      );
-
+    test('Stage 8: Geospatial Interface', async ({ interview, stage }) => {
       await stage.geospatial.waitForGeoJsonRendered();
       await interview.captureInitial();
 
@@ -950,13 +936,7 @@ test.describe('SILOS Protocol', () => {
     test('Stage 19: Alter Census Tract (Geospatial)', async ({
       interview,
       stage,
-      browserName,
     }) => {
-      test.skip(
-        browserName === 'firefox' || browserName === 'webkit',
-        'Geospatial stage relies on Mapbox GL JS WebGL, which is unsupported on Firefox and unstable on WebKit',
-      );
-
       await stage.geospatial.waitForGeoJsonRendered();
       await interview.captureInitial();
 
@@ -1457,13 +1437,7 @@ test.describe('SILOS Protocol', () => {
     test('Stage 40: Venue Census Tract (Geospatial)', async ({
       interview,
       stage,
-      browserName,
     }) => {
-      test.skip(
-        browserName === 'firefox' || browserName === 'webkit',
-        'Geospatial stage relies on Mapbox GL JS WebGL, which is unsupported on Firefox and unstable on WebKit',
-      );
-
       await stage.geospatial.waitForGeoJsonRendered();
       await interview.captureInitial();
 
@@ -1669,13 +1643,7 @@ test.describe('SILOS Protocol', () => {
     test('Stage 50: Healthcare Census Tract (Geospatial)', async ({
       interview,
       stage,
-      browserName,
     }) => {
-      test.skip(
-        browserName === 'firefox' || browserName === 'webkit',
-        'Geospatial stage relies on Mapbox GL JS WebGL, which is unsupported on Firefox and unstable on WebKit',
-      );
-
       await stage.geospatial.waitForGeoJsonRendered();
       await interview.captureInitial();
 
