@@ -57,30 +57,52 @@ export const Disabled: Story = {
 
 export const DifferentIcons: Story = {
   render: () => (
-    <div className="flex flex-wrap gap-8">
-      <div className="flex flex-col items-center gap-2">
-        <ActionButton iconName="UserRound" />
-        <span className="text-sm">UserRound</span>
+    <div className="flex flex-col gap-6">
+      <Heading level="h3" margin="none">
+        Custom (kebab-case) icons
+      </Heading>
+      <div className="flex flex-wrap gap-8">
+        <div className="flex flex-col items-center gap-2">
+          <ActionButton iconName="add-a-person" />
+          <span className="text-sm">add-a-person</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <ActionButton iconName="add-a-place" />
+          <span className="text-sm">add-a-place</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <ActionButton iconName="add-a-context" />
+          <span className="text-sm">add-a-context</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <ActionButton iconName="add-a-relationship" />
+          <span className="text-sm">add-a-relationship</span>
+        </div>
       </div>
-      <div className="flex flex-col items-center gap-2">
-        <ActionButton iconName="Users" />
-        <span className="text-sm">Users</span>
-      </div>
-      <div className="flex flex-col items-center gap-2">
-        <ActionButton iconName="House" />
-        <span className="text-sm">House</span>
-      </div>
-      <div className="flex flex-col items-center gap-2">
-        <ActionButton iconName="Building" />
-        <span className="text-sm">Building</span>
-      </div>
-      <div className="flex flex-col items-center gap-2">
-        <ActionButton iconName="Heart" />
-        <span className="text-sm">Heart</span>
-      </div>
-      <div className="flex flex-col items-center gap-2">
-        <ActionButton iconName="Star" />
-        <span className="text-sm">Star</span>
+      <Heading level="h3" margin="none">
+        Lucide icons
+      </Heading>
+      <div className="flex flex-wrap gap-8">
+        <div className="flex flex-col items-center gap-2">
+          <ActionButton iconName="UserRound" />
+          <span className="text-sm">UserRound</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <ActionButton iconName="Users" />
+          <span className="text-sm">Users</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <ActionButton iconName="House" />
+          <span className="text-sm">House</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <ActionButton iconName="Smartphone" />
+          <span className="text-sm">Smartphone</span>
+        </div>
+        <div className="flex flex-col items-center gap-2">
+          <ActionButton iconName="BedDouble" />
+          <span className="text-sm">BedDouble</span>
+        </div>
       </div>
     </div>
   ),
@@ -114,3 +136,4 @@ export const DisabledStates: Story = {
     </div>
   ),
 };
+

@@ -2,6 +2,12 @@ import { PlusIcon } from 'lucide-react';
 import { forwardRef } from 'react';
 import { cva, cx, type VariantProps } from '@codaco/fresco-ui/utils/cva';
 import Icon, { type InterviewerIconName } from '@codaco/fresco-ui/Icon';
+import {
+  actionCircleVariants,
+  actionIconClass,
+  actionPlusBadgeVariants,
+  actionPlusIconClass,
+} from '~/lib/interviewer/components/actionButtonVariants';
 
 const actionButtonVariants = cva({
   base: 'group focusable relative mt-2 mr-4 flex aspect-square h-26 rounded-full',
@@ -17,7 +23,10 @@ const actionButtonVariants = cva({
 });
 
 const mainIconVariants = cva({
-  base: 'bg-sea-green elevation-high absolute inset-0 flex scale-100 items-center justify-center overflow-hidden rounded-full text-white [&>.lucide]:aspect-square [&>.lucide]:h-16 [&>.lucide]:w-auto',
+  base: cx(
+    actionCircleVariants(),
+    'bg-sea-green absolute inset-0 scale-100 text-white',
+  ),
   variants: {
     disabled: {
       true: 'pointer-events-none cursor-not-allowed opacity-50',
@@ -30,12 +39,10 @@ const mainIconVariants = cva({
   },
 });
 
-const plusContainerVariants = cva({
-  base: 'bg-platinum text-charcoal absolute -top-2 -right-4 flex h-10 w-10 items-center justify-center rounded-full p-5 shadow-md',
-});
+const plusContainerVariants = actionPlusBadgeVariants;
 
 const plusIconVariants = cva({
-  base: 'h-6 w-6',
+  base: actionPlusIconClass,
   variants: {
     disabled: {
       false:
@@ -63,7 +70,7 @@ const ActionButton = forwardRef<HTMLButtonElement, ActionButtonProps>(
         className={cx(actionButtonVariants({ disabled }), className)}
       >
         <div className={mainIconVariants({ disabled })}>
-          <Icon name={iconName} className="h-full w-auto" />
+          <Icon name={iconName} className={actionIconClass} />
         </div>
         <div className={plusContainerVariants()}>
           <div>
