@@ -70,14 +70,6 @@ export const DifferentIcons: Story = {
           <ActionButton iconName="add-a-place" />
           <span className="text-sm">add-a-place</span>
         </div>
-        <div className="flex flex-col items-center gap-2">
-          <ActionButton iconName="add-a-context" />
-          <span className="text-sm">add-a-context</span>
-        </div>
-        <div className="flex flex-col items-center gap-2">
-          <ActionButton iconName="add-a-relationship" />
-          <span className="text-sm">add-a-relationship</span>
-        </div>
       </div>
       <Heading level="h3" margin="none">
         Lucide icons

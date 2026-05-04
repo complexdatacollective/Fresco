@@ -9,12 +9,7 @@ import { action } from 'storybook/actions';
 import { fn } from 'storybook/test';
 import QuickAddField from './QuickAddField';
 
-const customIconOptions = [
-  'add-a-person',
-  'add-a-place',
-  'add-a-context',
-  'add-a-relationship',
-];
+const customIconOptions = ['add-a-person', 'add-a-place'];
 
 const iconOptions = [...customIconOptions, ...Object.keys(icons)];
 

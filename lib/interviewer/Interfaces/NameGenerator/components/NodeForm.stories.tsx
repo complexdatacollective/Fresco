@@ -10,12 +10,7 @@ import type { ComponentProps } from 'react';
 import { Provider } from 'react-redux';
 import NodeForm from './NodeForm';
 
-const customIconOptions = [
-  'add-a-person',
-  'add-a-place',
-  'add-a-context',
-  'add-a-relationship',
-];
+const customIconOptions = ['add-a-person', 'add-a-place'];
 
 const iconOptions = [...customIconOptions, ...Object.keys(icons)];
 
