@@ -2,8 +2,11 @@ import { createWriteStream } from 'node:fs';
 import { mkdir, unlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { Effect, Layer } from 'effect';
+import { OutputError } from '@codaco/network-exporters/errors';
+import { type OutputResult } from '@codaco/network-exporters/output';
 import { FileStorageError, getUserMessage } from '~/lib/storage/errors';
 import { FileStorage } from '~/lib/storage/services/FileStorage';
 import { FileStorageError as PackageFileStorageError } from '~/lib/network-exporters/errors';
@@ -89,3 +92,29 @@ export const makeLocalNetworkExportersFileStorage = (baseUrl: string) =>
     getDownloadUrl: (key) =>
       Effect.succeed(`${baseUrl}/api/test/exports/${key}`),
   });
+
+export const makeLocalSink =
+  (baseUrl: string) =>
+  (
+    zipStream: AsyncIterable<Uint8Array>,
+    fileName: string,
+  ): Effect.Effect<OutputResult, OutputError> =>
+    Effect.gen(function* () {
+      yield* Effect.tryPromise({
+        try: () => mkdir(LOCAL_EXPORT_DIR, { recursive: true }),
+        catch: (error) => new OutputError({ cause: error }),
+      });
+
+      const filePath = join(LOCAL_EXPORT_DIR, fileName);
+
+      yield* Effect.tryPromise({
+        try: () =>
+          pipeline(Readable.from(zipStream), createWriteStream(filePath)),
+        catch: (error) => new OutputError({ cause: error }),
+      });
+
+      return {
+        key: fileName,
+        url: `${baseUrl}/api/test/exports/${fileName}`,
+      };
+    });
