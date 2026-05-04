@@ -15,11 +15,14 @@ import { MotionSurface } from '@codaco/fresco-ui/layout/Surface';
 import Button, { IconButton } from '@codaco/fresco-ui/Button';
 import Node from '~/lib/interviewer/components/ConnectedNode';
 import { usePrompts } from '~/lib/interviewer/components/Prompts/usePrompts';
+import { useContractFlags } from '~/lib/interviewer/contract/context';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
 import { useAssetUrl } from '~/lib/interviewer/hooks/useAssetUrl';
 import useBeforeNext from '~/lib/interviewer/hooks/useBeforeNext';
 import usePropSelector from '~/lib/interviewer/hooks/usePropSelector';
 import useReadyForNextStage from '~/lib/interviewer/hooks/useReadyForNextStage';
+import GeospatialStubSearch from '~/lib/interviewer/Interfaces/Geospatial/GeospatialStubSearch';
+import { isMapboxStubBrowser } from '~/lib/interviewer/Interfaces/Geospatial/isMapboxStubBrowser';
 import { useMapbox } from '~/lib/interviewer/Interfaces/Geospatial/useMapbox';
 import CollapsablePrompts from '~/lib/interviewer/Interfaces/Sociogram/CollapsablePrompts';
 import { getNetworkNodesForType } from '~/lib/interviewer/selectors/session';
@@ -31,6 +34,8 @@ const GeospatialSearch = dynamic(
   () => import('~/lib/interviewer/Interfaces/Geospatial/GeospatialSearch'),
   { ssr: false },
 );
+
+const STUB_ZOOM_STEP = 1;
 
 const fadeVariants: Variants = {
   initial: {
@@ -71,11 +76,20 @@ const nodeAnimationVariants: Variants = {
 
 type GeospatialInterfaceProps = StageProps<'Geospatial'>;
 
+type GeoJsonFeatureCollection = {
+  features: {
+    properties?: Record<string, unknown> | null;
+  }[];
+};
+
 export default function GeospatialInterface({
   stage,
 }: GeospatialInterfaceProps) {
   const dispatch = useDispatch<ThunkDispatch<RootState, unknown, Action>>();
   const dragSafeRef = useRef(null);
+
+  const { isE2E } = useContractFlags();
+  const useStub = isE2E && isMapboxStubBrowser();
 
   const [navState, setNavState] = useState<{
     activeIndex: number;
@@ -110,14 +124,17 @@ export default function GeospatialInterface({
     [dispatch],
   );
 
-  const setLocationValue = (value: string | null) => {
-    void updateNode({
-      nodeId: stageNodes[navState.activeIndex]![entityPrimaryKeyProperty],
-      newAttributeData: {
-        [currentPrompt.variable!]: value,
-      },
-    });
-  };
+  const setLocationValue = useCallback(
+    (value: string | null) => {
+      void updateNode({
+        nodeId: stageNodes[navState.activeIndex]![entityPrimaryKeyProperty],
+        newAttributeData: {
+          [currentPrompt.variable!]: value,
+        },
+      });
+    },
+    [updateNode, stageNodes, navState.activeIndex, currentPrompt.variable],
+  );
 
   const initialSelectionValue: string | undefined =
     currentPrompt?.variable && stageNodes[navState.activeIndex]?.attributes
@@ -126,6 +143,10 @@ export default function GeospatialInterface({
         ] as string | undefined)
       : undefined;
 
+  // In stub mode, mapContainerRef is never attached so the hook's main
+  // useEffect early-returns (see useMapbox.ts) and the hook contributes
+  // nothing observable. Calling unconditionally avoids conditional-hook
+  // violations.
   const {
     mapContainerRef,
     mapRef,
@@ -147,6 +168,75 @@ export default function GeospatialInterface({
       }
     },
   });
+
+  // Stub-mode state mirrors the observable map state: zoom level
+  // (data-zoom-level), readiness flag (data-map-idle), and the feature ID
+  // resolved from the GeoJSON for click-to-select. Real mode ignores all
+  // of this.
+  const [stubZoom, setStubZoom] = useState<number>(mapOptions.initialZoom);
+  const [stubReady, setStubReady] = useState(false);
+  const [stubFeatureId, setStubFeatureId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!useStub) return;
+    if (!dataSourceUrl) return;
+    let cancelled = false;
+    void (async () => {
+      try {
+        const response = await fetch(dataSourceUrl);
+        const json = (await response.json()) as GeoJsonFeatureCollection;
+        if (cancelled) return;
+        const firstFeature = json.features?.[0];
+        const value =
+          firstFeature?.properties?.[mapOptions.targetFeatureProperty];
+        setStubFeatureId(typeof value === 'string' ? value : 'stub-feature');
+        setStubReady(true);
+      } catch {
+        if (cancelled) return;
+        setStubFeatureId('stub-feature');
+        setStubReady(true);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [useStub, dataSourceUrl, mapOptions.targetFeatureProperty]);
+
+  // Stub toolbar handlers — synchronous state updates so the fixture's
+  // expect.poll() on data-zoom-level resolves on the next render tick.
+  const handleStubZoomIn = useCallback(
+    () => setStubZoom((z) => z + STUB_ZOOM_STEP),
+    [],
+  );
+  const handleStubZoomOut = useCallback(
+    () => setStubZoom((z) => z - STUB_ZOOM_STEP),
+    [],
+  );
+  const handleStubRecenter = useCallback(
+    () => setStubZoom(mapOptions.initialZoom),
+    [mapOptions.initialZoom],
+  );
+
+  const handleStubMapClick = useCallback(() => {
+    if (!stubFeatureId) return;
+    if (!currentPrompt) return;
+    if (!stageNodes[navState.activeIndex]) return;
+    setLocationValue(stubFeatureId);
+  }, [
+    stubFeatureId,
+    currentPrompt,
+    stageNodes,
+    navState.activeIndex,
+    setLocationValue,
+  ]);
+
+  // Pick handlers based on mode. The toolbar buttons render the same way in
+  // both modes; only the wired callbacks differ.
+  const onZoomIn = useStub ? handleStubZoomIn : handleZoomIn;
+  const onZoomOut = useStub ? handleStubZoomOut : handleZoomOut;
+  const onRecenter = useStub ? handleStubRecenter : handleResetMapZoom;
+  const observedZoom = useStub ? stubZoom : zoomLevel;
+  const observedIdle = useStub ? stubReady : isStageReady;
 
   const getNodeIndex = useCallback(
     () => navState.activeIndex - 1,
@@ -179,16 +269,20 @@ export default function GeospatialInterface({
       activeIndex: getNodeIndex(),
       direction: 'backwards',
     });
-    handleResetSelection();
-  }, [getNodeIndex, handleResetSelection]);
+    if (!useStub) {
+      handleResetSelection();
+    }
+  }, [getNodeIndex, handleResetSelection, useStub]);
 
   const nextNode = useCallback(() => {
     setNavState({
       activeIndex: navState.activeIndex + 1,
       direction: 'forwards',
     });
-    handleResetSelection();
-  }, [handleResetSelection, navState.activeIndex]);
+    if (!useStub) {
+      handleResetSelection();
+    }
+  }, [handleResetSelection, navState.activeIndex, useStub]);
 
   const beforeNext = (direction: Direction) => {
     // Leave the stage if there are no nodes
@@ -209,7 +303,9 @@ export default function GeospatialInterface({
 
     // We are moving forwards.
     if (isLastNode()) {
-      handleResetSelection();
+      if (!useStub) {
+        handleResetSelection();
+      }
       return true;
     }
     nextNode();
@@ -234,12 +330,26 @@ export default function GeospatialInterface({
     <div className="relative flex size-full flex-col" ref={dragSafeRef}>
       <motion.div
         className="size-full"
-        ref={mapContainerRef}
+        ref={useStub ? undefined : mapContainerRef}
         variants={fadeVariants}
         data-testid="map-container"
-        data-map-idle={isStageReady}
-        data-zoom-level={zoomLevel}
+        data-map-idle={observedIdle}
+        data-zoom-level={observedZoom}
+        data-geospatial-stub={useStub ? 'true' : undefined}
       >
+        {/* Stub click area — fills the map region. Real mode renders nothing
+            here; Mapbox owns the canvas inside the same container. */}
+        {useStub && (
+          <button
+            type="button"
+            aria-label="Stubbed map (click to select test feature)"
+            onClick={handleStubMapClick}
+            disabled={!stubReady}
+            data-testid="geospatial-stub-click-area"
+            className="bg-accent/10 absolute inset-0 cursor-crosshair"
+          />
+        )}
+
         {/* if outside-selectable-areas, add an overlay */}
         {initialSelectionValue === 'outside-selectable-areas' && (
           <div
@@ -266,15 +376,18 @@ export default function GeospatialInterface({
           </div>
         )}
 
-        {mapOptions.allowSearch && (
-          <GeospatialSearch
-            accessToken={accessToken}
-            map={mapRef.current}
-            proximity={mapOptions.center}
-            resetKey={navState.activeIndex}
-            className="absolute top-4 left-4 z-20"
-          />
-        )}
+        {mapOptions.allowSearch &&
+          (useStub ? (
+            <GeospatialStubSearch className="absolute top-4 left-4 z-20" />
+          ) : (
+            <GeospatialSearch
+              accessToken={accessToken}
+              map={mapRef.current}
+              proximity={mapOptions.center}
+              resetKey={navState.activeIndex}
+              className="absolute top-4 left-4 z-20"
+            />
+          ))}
 
         {/* Map toolbar - zoom controls */}
         <MotionSurface
@@ -297,7 +410,7 @@ export default function GeospatialInterface({
         >
           <IconButton
             size="lg"
-            onClick={handleZoomIn}
+            onClick={onZoomIn}
             icon={<ZoomIn />}
             aria-label="Zoom In"
             color="dynamic"
@@ -305,7 +418,7 @@ export default function GeospatialInterface({
           />
           <IconButton
             size="lg"
-            onClick={handleZoomOut}
+            onClick={onZoomOut}
             icon={<ZoomOut />}
             aria-label="Zoom Out"
             color="dynamic"
@@ -313,7 +426,7 @@ export default function GeospatialInterface({
           />
           <IconButton
             size="lg"
-            onClick={handleResetMapZoom}
+            onClick={onRecenter}
             icon={<LocateFixed />}
             aria-label="Recenter Map"
             color="dynamic"
