@@ -158,7 +158,7 @@ const NodeForm = (props: NodeFormProps) => {
               </motion.div>
             </motion.div>
             <motion.div className={actionPlusBadgeVariants()}>
-              <Plus className={actionPlusIconClass} size={12} />
+              <Plus className={actionPlusIconClass} />
             </motion.div>
           </button>
         </motion.div>

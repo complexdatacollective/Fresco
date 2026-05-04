@@ -306,7 +306,7 @@ export default function QuickAddField({
                   : { scale: 0, opacity: 0, rotate: 180 }
               }
             >
-              <Plus className={actionPlusIconClass} size={12} />
+              <Plus className={actionPlusIconClass} />
             </motion.div>
           </button>
         }
