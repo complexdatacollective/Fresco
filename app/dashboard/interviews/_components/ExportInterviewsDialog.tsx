@@ -3,7 +3,7 @@ import { Button } from '@codaco/fresco-ui/Button';
 import useSafeLocalStorage from '@codaco/fresco-ui/hooks/useSafeLocalStorage';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 import Dialog from '@codaco/fresco-ui/dialogs/Dialog';
-import { ExportOptionsSchema } from '~/lib/network-exporters/options';
+import { ExportOptionsSchema } from '@codaco/network-exporters/options';
 import ExportOptionsView from './ExportOptionsView';
 
 export const ExportInterviewsDialog = ({

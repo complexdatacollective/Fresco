@@ -5,11 +5,11 @@ import posthog from 'posthog-js';
 import { createContext, useCallback, useContext, useRef } from 'react';
 import { updateExportTime } from '~/actions/interviews';
 import { deleteZipFromStorage } from '~/actions/uploadThing';
-import type { ExportSseEvent } from '~/app/api/export-interviews/sse';
+import type { ExportSseEvent } from '~/lib/export/sseEvents';
 import ProgressBar from '@codaco/fresco-ui/ProgressBar';
 import { useToast } from '@codaco/fresco-ui/Toast';
 import { useDownload } from '~/hooks/useDownload';
-import type { ExportOptions } from '~/lib/network-exporters/options';
+import type { ExportOptions } from '@codaco/network-exporters/options';
 import { ensureError } from '~/utils/ensureError';
 import Spinner from '@codaco/fresco-ui/Spinner';
 
@@ -40,8 +40,9 @@ function ExportProgressDescription({
   current?: number;
   total?: number;
 }) {
+  const progressStages = ['generating', 'outputting'];
   const showProgress =
-    stage === 'generating' && total !== undefined && total > 0;
+    progressStages.includes(stage) && total !== undefined && total > 0;
   const percent =
     showProgress && current !== undefined
       ? Math.round((current / total) * 100)
@@ -156,7 +157,9 @@ export function ExportProgressProvider({
                       message={
                         data.type === 'stage'
                           ? data.message
-                          : 'Generating files...'
+                          : data.stage === 'outputting'
+                            ? 'Creating archive...'
+                            : 'Generating files...'
                       }
                       current={'current' in data ? data.current : undefined}
                       total={'total' in data ? data.total : undefined}
