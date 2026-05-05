@@ -81,7 +81,6 @@ export default function InterviewClient({
 
   const flags = useMemo(
     () => ({
-      isE2E: env.NEXT_PUBLIC_E2E_TEST,
       isDevelopment: env.NODE_ENV === 'development',
     }),
     [],

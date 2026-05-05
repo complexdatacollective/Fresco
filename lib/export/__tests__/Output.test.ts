@@ -1,6 +1,4 @@
 import { Readable } from 'node:stream';
-import { rm, mkdir, readFile } from 'node:fs/promises';
-import { join } from 'node:path';
 import { Cause, Effect } from 'effect';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -8,8 +6,6 @@ vi.mock('server-only', () => ({}));
 
 import { unzipSync } from 'fflate';
 import { Output } from '@codaco/network-exporters/services/Output';
-import { makeLocalOutputLayer } from '~/lib/export/Output';
-import { LOCAL_EXPORT_DIR } from '~/lib/storage/layers/LocalFileStorage';
 
 const utf8 = (s: string) => new TextEncoder().encode(s);
 
@@ -28,40 +24,6 @@ const writeTwoEntries = Effect.gen(function* () {
 });
 
 const decode = (buf: Uint8Array) => new TextDecoder().decode(buf);
-
-describe('makeLocalOutputLayer', () => {
-  const baseUrl = 'http://test.example';
-
-  beforeEach(async () => {
-    await mkdir(LOCAL_EXPORT_DIR, { recursive: true });
-  });
-
-  afterEach(async () => {
-    await rm(LOCAL_EXPORT_DIR, { recursive: true, force: true });
-  });
-
-  it('writes a zip file to LOCAL_EXPORT_DIR with the requested entries', async () => {
-    const layer = makeLocalOutputLayer(baseUrl);
-    const result = await Effect.runPromise(
-      writeTwoEntries.pipe(Effect.provide(layer)),
-    );
-
-    expect(result.key).toMatch(/\.zip$/);
-    expect(result.url).toBe(`${baseUrl}/api/test/exports/${result.key}`);
-    const zipPath = join(LOCAL_EXPORT_DIR, result.key!);
-    const zipBytes = await readFile(zipPath);
-    const entries = unzipSync(new Uint8Array(zipBytes));
-
-    expect(decode(entries['a.txt']!)).toBe('hello a');
-    expect(decode(entries['b.txt']!)).toBe('hello b');
-  });
-
-  // Note: no error-path test for the local sink. `LOCAL_EXPORT_DIR` is computed
-  // from `tmpdir()` at module import, so it's stable across the test process.
-  // Forcing the local pipeline to fail without mocking node:fs internals isn't
-  // worth the complexity here; the s3/uploadthing tests already prove the
-  // OutputError mapping pattern, and the local sink uses the same pattern.
-});
 
 describe('makeProductionOutputLayer (s3)', () => {
   describe('happy path', () => {

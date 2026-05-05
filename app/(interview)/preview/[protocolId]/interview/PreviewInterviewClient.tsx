@@ -54,7 +54,6 @@ export default function PreviewInterviewClient({
 
   const flags = useMemo(
     () => ({
-      isE2E: env.NEXT_PUBLIC_E2E_TEST === true,
       isDevelopment: env.NODE_ENV === 'development',
     }),
     [],

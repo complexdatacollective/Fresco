@@ -6,7 +6,6 @@ import { after } from 'next/server';
 import { type z } from 'zod';
 import { z as zm } from 'zod/mini';
 import { addEvent } from '~/actions/activityFeed';
-import { env } from '~/env.js';
 import { requireApiAuth } from '~/lib/auth/guards';
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
@@ -111,18 +110,14 @@ export async function setUploadThingToken(rawData: unknown) {
     };
   }
 
-  // Verify the token works by making an API call.
-  // In E2E tests, skip verification since the storage layer uses a test stub.
-  if (String(env.E2E_TEST) !== 'true') {
-    const verifyError = await verifyUploadThingToken(token);
-    if (verifyError) {
-      return {
-        success: false as const,
-        fieldErrors: {
-          uploadThingToken: [verifyError],
-        },
-      };
-    }
+  const verifyError = await verifyUploadThingToken(token);
+  if (verifyError) {
+    return {
+      success: false as const,
+      fieldErrors: {
+        uploadThingToken: [verifyError],
+      },
+    };
   }
 
   await setAppSetting('uploadThingToken', token);

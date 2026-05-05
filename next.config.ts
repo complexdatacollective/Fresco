@@ -1,12 +1,9 @@
 import { withPostHogConfig } from '@posthog/nextjs-config';
 import type { NextConfig } from 'next';
 import ChildProcess from 'node:child_process';
-import { createRequire } from 'node:module';
 import './env.js';
 import { POSTHOG_APP_NAME } from './fresco.config';
 import pkg from './package.json' with { type: 'json' };
-
-const require = createRequire(import.meta.url);
 
 let commitHash = 'Unknown commit hash';
 
@@ -27,19 +24,10 @@ try {
   }
 }
 
-// eslint-disable-next-line no-process-env
-const isE2ETest = process.env.E2E_TEST === 'true';
-
 const config: NextConfig = {
   output: 'standalone',
   reactStrictMode: true,
   reactCompiler: true,
-  // Use no-op cache handler for E2E tests, otherwise use Next.js default.
-  // cacheHandlers (plural) intercepts 'use cache' directives.
-  // See lib/cache-handler.cjs and lib/cache.ts for caching strategy docs.
-  cacheHandlers: isE2ETest
-    ? { default: require.resolve('./lib/cache/cache-handler.cjs') }
-    : undefined,
   cacheComponents: true,
   typedRoutes: true,
   turbopack: {},
@@ -55,11 +43,8 @@ const config: NextConfig = {
     'sharp',
   ],
   env: {
-    // add the package.json version and git hash to the environment
     APP_VERSION: `v${pkg.version}`,
     COMMIT_HASH: commitHash,
-    // E2E test mode flag - ensures the value is inlined at build time
-    NEXT_PUBLIC_E2E_TEST: isE2ETest ? 'true' : 'false',
   },
   typescript: {
     ignoreBuildErrors: true,
