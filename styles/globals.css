@@ -8,7 +8,6 @@
  * interview in app/(interview)/layout.tsx).
  */
 @import '@codaco/fresco-ui/styles.css';
-@import "tailwindcss";
 /*
  * Tailwind's class scanner needs an explicit @source for the package's compiled
  * JS — the @source declaration inside the package's styles.css is relative to
