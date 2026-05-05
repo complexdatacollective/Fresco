@@ -49,7 +49,7 @@
     "@codaco/network-exporters": "^1.0.2",
     "@codaco/protocol-validation": "11.4.0-alpha.0",
     "@codaco/shared-consts": "5.0.0",
-    "@codaco/tailwind-config": "1.0.0-alpha.0",
+    "@codaco/tailwind-config": "1.0.0-alpha.1",
     "@faker-js/faker": "^10.4.0",
     "@paralleldrive/cuid2": "^3.3.0",
     "@posthog/nextjs-config": "^1.9.2",
