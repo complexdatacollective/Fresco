@@ -7,6 +7,83 @@ vi.mock('server-only', () => ({}));
 import { unzipSync } from 'fflate';
 import { Output } from '@codaco/network-exporters/services/Output';
 
+// Hoisted mock state — available when vi.mock factories run (before imports).
+const {
+  mockUploadDone,
+  capturedUploadParams,
+  mockGetSignedUrl,
+  mockGetS3Client,
+  mockGetS3Bucket,
+  mockGetUTApi,
+  mockUploadFiles,
+} = vi.hoisted(() => {
+  const mockUploadDone = vi.fn<() => Promise<void>>();
+  const capturedUploadParams: { value?: unknown } = {};
+  const mockGetSignedUrl = vi.fn<() => Promise<string>>();
+  const mockGetS3Client = vi.fn<() => Promise<object>>();
+  const mockGetS3Bucket = vi.fn<() => Promise<string>>();
+  const mockUploadFiles = vi.fn<
+    (file: File) => Promise<{
+      data: { key: string; ufsUrl: string } | null;
+      error: Error | null;
+    }>
+  >();
+  const mockGetUTApi = vi.fn<
+    () => Promise<{ uploadFiles: typeof mockUploadFiles }>
+  >();
+  return {
+    mockUploadDone,
+    capturedUploadParams,
+    mockGetSignedUrl,
+    mockGetS3Client,
+    mockGetS3Bucket,
+    mockGetUTApi,
+    mockUploadFiles,
+  };
+});
+
+// Static mocks — hoisted before any imports, so the module graph never
+// loads the real AWS SDK or Prisma (which can take 2–3 s on first load
+// and cause the test to exceed its 5 s timeout).
+vi.mock('@aws-sdk/client-s3', () => ({
+  // These are only passed as opaque values to mocked functions (getSignedUrl,
+  // Upload) that ignore them — no body is needed.
+  GetObjectCommand: class {},
+  PutObjectCommand: class {},
+  DeleteObjectCommand: class {},
+  S3Client: class {},
+}));
+
+vi.mock('@aws-sdk/lib-storage', () => ({
+  Upload: vi.fn(function (
+    this: { done: typeof mockUploadDone },
+    input: { params: unknown },
+  ) {
+    capturedUploadParams.value = input.params;
+    this.done = mockUploadDone;
+  }),
+}));
+
+vi.mock('@aws-sdk/s3-request-presigner', () => ({
+  getSignedUrl: mockGetSignedUrl,
+}));
+
+vi.mock('~/lib/storage/layers/S3Client', () => ({
+  getS3Client: mockGetS3Client,
+  getS3Bucket: mockGetS3Bucket,
+  getS3PublicBaseUrl: vi.fn(() => Promise.resolve('https://cdn.example')),
+}));
+
+vi.mock('~/lib/uploadthing/server-helpers', () => ({
+  getUTApi: mockGetUTApi,
+}));
+
+vi.mock('~/lib/uploadthing/token', () => ({
+  parseUploadThingToken: vi.fn(() => Promise.resolve(null)),
+}));
+
+import { makeProductionOutputLayer } from '~/lib/export/Output';
+
 const utf8 = (s: string) => new TextEncoder().encode(s);
 
 const writeTwoEntries = Effect.gen(function* () {
@@ -27,39 +104,15 @@ const decode = (buf: Uint8Array) => new TextDecoder().decode(buf);
 
 describe('makeProductionOutputLayer (s3)', () => {
   describe('happy path', () => {
-    const captured: { params?: unknown } = {};
-
     beforeEach(() => {
-      vi.resetModules();
-      captured.params = undefined;
-
-      vi.doMock('@aws-sdk/lib-storage', () => ({
-        Upload: class {
-          constructor(input: { params: unknown }) {
-            captured.params = input.params;
-          }
-          done() {
-            return Promise.resolve();
-          }
-        },
-      }));
-      vi.doMock('@aws-sdk/s3-request-presigner', () => ({
-        getSignedUrl: () => Promise.resolve('https://signed.example/test'),
-      }));
-      vi.doMock('~/lib/storage/layers/S3Client', () => ({
-        getS3Client: () => Promise.resolve({}),
-        getS3Bucket: () => Promise.resolve('test-bucket'),
-        getS3PublicBaseUrl: () => Promise.resolve('https://cdn.example'),
-      }));
-    });
-
-    afterEach(() => {
-      vi.resetModules();
+      capturedUploadParams.value = undefined;
+      mockUploadDone.mockResolvedValue(undefined);
+      mockGetSignedUrl.mockResolvedValue('https://signed.example/test');
+      mockGetS3Client.mockResolvedValue({});
+      mockGetS3Bucket.mockResolvedValue('test-bucket');
     });
 
     it('streams the zip into S3 and returns a signed URL', async () => {
-      // Re-import after mocks are in place
-      const { makeProductionOutputLayer } = await import('~/lib/export/Output');
       const layer = makeProductionOutputLayer('s3');
 
       const result = await Effect.runPromise(
@@ -70,13 +123,13 @@ describe('makeProductionOutputLayer (s3)', () => {
       expect(result.url).toBe('https://signed.example/test');
 
       if (
-        !captured.params ||
-        typeof captured.params !== 'object' ||
-        !('Bucket' in captured.params)
+        !capturedUploadParams.value ||
+        typeof capturedUploadParams.value !== 'object' ||
+        !('Bucket' in capturedUploadParams.value)
       ) {
         throw new Error('expected captured S3 Upload params');
       }
-      const { Bucket, Key, ContentType, Body } = captured.params as {
+      const { Bucket, Key, ContentType, Body } = capturedUploadParams.value as {
         Bucket: string;
         Key: string;
         ContentType: string;
@@ -100,31 +153,16 @@ describe('makeProductionOutputLayer (s3)', () => {
 
   describe('error path', () => {
     beforeEach(() => {
-      vi.resetModules();
-
-      vi.doMock('@aws-sdk/lib-storage', () => ({
-        Upload: class {
-          done() {
-            return Promise.reject(new Error('s3 boom'));
-          }
-        },
-      }));
-      vi.doMock('@aws-sdk/s3-request-presigner', () => ({
-        getSignedUrl: () => Promise.resolve('https://signed.example/test'),
-      }));
-      vi.doMock('~/lib/storage/layers/S3Client', () => ({
-        getS3Client: () => Promise.resolve({}),
-        getS3Bucket: () => Promise.resolve('test-bucket'),
-        getS3PublicBaseUrl: () => Promise.resolve('https://cdn.example'),
-      }));
+      mockUploadDone.mockRejectedValue(new Error('s3 boom'));
+      mockGetS3Client.mockResolvedValue({});
+      mockGetS3Bucket.mockResolvedValue('test-bucket');
     });
 
     afterEach(() => {
-      vi.resetModules();
+      mockUploadDone.mockReset();
     });
 
     it('maps S3 upload failures to OutputError', async () => {
-      const { makeProductionOutputLayer } = await import('~/lib/export/Output');
       const exit = await Effect.runPromiseExit(
         writeTwoEntries.pipe(Effect.provide(makeProductionOutputLayer('s3'))),
       );
@@ -143,12 +181,10 @@ describe('makeProductionOutputLayer (s3)', () => {
 describe('makeProductionOutputLayer (uploadthing)', () => {
   describe('happy path', () => {
     let capturedFile: File | undefined;
-    let uploadFiles: ReturnType<typeof vi.fn>;
 
     beforeEach(() => {
-      vi.resetModules();
       capturedFile = undefined;
-      uploadFiles = vi.fn((file: File) => {
+      mockUploadFiles.mockImplementation((file: File) => {
         capturedFile = file;
         return Promise.resolve({
           data: {
@@ -158,30 +194,22 @@ describe('makeProductionOutputLayer (uploadthing)', () => {
           error: null,
         });
       });
-      vi.doMock('~/lib/uploadthing/server-helpers', () => ({
-        getUTApi: () => Promise.resolve({ uploadFiles }),
-      }));
-      vi.doMock('~/lib/uploadthing/token', () => ({
-        parseUploadThingToken: () => Promise.resolve({ appId: 'TEST' }),
-      }));
-    });
-
-    afterEach(() => {
-      vi.resetModules();
+      mockGetUTApi.mockResolvedValue({ uploadFiles: mockUploadFiles });
     });
 
     it('uploads the zip as a File and returns the ufsUrl', async () => {
-      const { makeProductionOutputLayer } = await import('~/lib/export/Output');
+      const { makeProductionOutputLayer: freshMakeLayer } =
+        await import('~/lib/export/Output');
       const result = await Effect.runPromise(
         writeTwoEntries.pipe(
-          Effect.provide(makeProductionOutputLayer('uploadthing')),
+          Effect.provide(freshMakeLayer('uploadthing')),
         ),
       );
       expect(result).toEqual({
         key: 'utkey-abc',
         url: 'https://TEST.ufs.sh/f/utkey-abc',
       });
-      expect(uploadFiles).toHaveBeenCalledTimes(1);
+      expect(mockUploadFiles).toHaveBeenCalledTimes(1);
       if (!capturedFile) throw new Error('no file captured');
       expect(capturedFile.name).toMatch(/\.zip$/);
       const buf = new Uint8Array(await capturedFile.arrayBuffer());
@@ -193,21 +221,14 @@ describe('makeProductionOutputLayer (uploadthing)', () => {
 
   describe('error path', () => {
     beforeEach(() => {
-      vi.resetModules();
-      vi.doMock('~/lib/uploadthing/server-helpers', () => ({
-        getUTApi: () => Promise.reject(new Error('ut boom')),
-      }));
-      vi.doMock('~/lib/uploadthing/token', () => ({
-        parseUploadThingToken: () => Promise.resolve({ appId: 'TEST' }),
-      }));
+      mockGetUTApi.mockRejectedValue(new Error('ut boom'));
     });
 
     afterEach(() => {
-      vi.resetModules();
+      mockGetUTApi.mockReset();
     });
 
     it('maps UploadThing failures to OutputError', async () => {
-      const { makeProductionOutputLayer } = await import('~/lib/export/Output');
       const exit = await Effect.runPromiseExit(
         writeTwoEntries.pipe(
           Effect.provide(makeProductionOutputLayer('uploadthing')),
