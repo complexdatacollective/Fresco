@@ -1,5 +1,5 @@
 import { type Metadata } from 'next';
-import '@codaco/tailwind-config/fresco/interview-theme.css';
+import '@codaco/tailwind-config/fresco/themes/interview.css';
 
 export const metadata: Metadata = {
   title: 'Network Canvas Fresco - Interview',

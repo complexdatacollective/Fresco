@@ -3,7 +3,7 @@
  * (elevation, inset-surface, motion-spring), and the `interview:` /
  * `dashboard:` variants all come from @codaco/fresco-ui.
  *
- * Theme overrides come from @codaco/tailwind-config/fresco/{default-theme,interview-theme}.css,
+ * Theme overrides come from @codaco/tailwind-config/fresco/themes/{default,interview}.css,
  * imported in the appropriate route layouts (default in app/layout.tsx,
  * interview in app/(interview)/layout.tsx).
  */

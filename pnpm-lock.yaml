@@ -26,11 +26,11 @@ importers:
         specifier: ^1.4.1
         version: 1.4.1(@date-fns/tz@1.4.1)(@types/react@19.2.14)(date-fns@4.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@codaco/fresco-ui':
-        specifier: ^2.1.0
-        version: 2.1.0(@base-ui/react@1.4.1(@date-fns/tz@1.4.1)(@types/react@19.2.14)(date-fns@4.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@codaco/protocol-validation@11.4.0-alpha.0)(@codaco/shared-consts@5.0.0)(@codaco/tailwind-config@0.4.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@floating-ui/dom@1.7.6)(@tiptap/extension-list@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(immer@11.1.4)(motion@12.38.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(tailwindcss@4.2.4)(typescript@6.0.2)(zod@4.3.6)(zustand@5.0.12(@types/react@19.2.14)(immer@11.1.4)(react@19.2.5)(use-sync-external-store@1.6.0(react@19.2.5)))
+        specifier: ^2.2.0
+        version: 2.2.0(@base-ui/react@1.4.1(@date-fns/tz@1.4.1)(@types/react@19.2.14)(date-fns@4.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@codaco/protocol-validation@11.4.0-alpha.0)(@codaco/shared-consts@5.0.0)(@codaco/tailwind-config@0.5.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@floating-ui/dom@1.7.6)(@tiptap/extension-list@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(immer@11.1.4)(motion@12.38.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(tailwindcss@4.2.4)(typescript@6.0.2)(zod@4.3.6)(zustand@5.0.12(@types/react@19.2.14)(immer@11.1.4)(react@19.2.5)(use-sync-external-store@1.6.0(react@19.2.5)))
       '@codaco/interview':
-        specifier: 1.0.0-alpha.1
-        version: 1.0.0-alpha.1(b1a7748b83af8fd2edb34ae4fedfa313)
+        specifier: 1.0.0-alpha.2
+        version: 1.0.0-alpha.2(7497f956511dc366cc399f9ffbe83cd1)
       '@codaco/network-exporters':
         specifier: ^1.0.2
         version: 1.0.2
@@ -41,8 +41,8 @@ importers:
         specifier: 5.0.0
         version: 5.0.0
       '@codaco/tailwind-config':
-        specifier: ^0.4.1
-        version: 0.4.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+        specifier: ^0.5.0
+        version: 0.5.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@faker-js/faker':
         specifier: ^10.4.0
         version: 10.4.0
@@ -721,13 +721,13 @@ packages:
     peerDependencies:
       storybook: ^0.0.0-0 || ^10.1.0 || ^10.1.0-0 || ^10.2.0-0 || ^10.3.0-0 || ^10.4.0-0
 
-  '@codaco/fresco-ui@2.1.0':
-    resolution: {integrity: sha512-w+WN9Cj4mBd3tHVgyryAh+vUUyO4a8/EqqL2S6eraRpBLBecbdxY4cbKhCywHqINIOGt+DwyaDgmT1E0ZByrmw==}
+  '@codaco/fresco-ui@2.2.0':
+    resolution: {integrity: sha512-UqySPbhTgRjKEaODNugNIHf767t7CpWuk5y8OwYnY3aHOABRvvk6A5CAjwbWZR1sKWlClpVZAyt0WtXb5DZatA==}
     peerDependencies:
       '@base-ui/react': ^1.4.0
       '@codaco/protocol-validation': 11.4.0-alpha.0
       '@codaco/shared-consts': 5.0.0
-      '@codaco/tailwind-config': ^0.4.0
+      '@codaco/tailwind-config': ^0.5.0
       immer: ^11.1.4
       motion: ^12.38.0
       react: ^19.2.5
@@ -736,13 +736,13 @@ packages:
       zod: ^4.3.6
       zustand: ^5.0.12
 
-  '@codaco/interview@1.0.0-alpha.1':
-    resolution: {integrity: sha512-PLajazphHaWoQpt3VOZPr5HmVcAwVQND05LdvlvKhVFZ8x5FcD1R/qHilpDScAlS8TE1S/o8ITF5lfeKf2NIvQ==}
+  '@codaco/interview@1.0.0-alpha.2':
+    resolution: {integrity: sha512-V+8fW6URxoChKafU/x6T6NZqkWBSplsrx3yM5isSnx/dTYsgpWAxv0vjFulydR6n7vuk6mKgM/sMUa5PqDsd0g==}
     peerDependencies:
-      '@codaco/fresco-ui': ^2.0.1
+      '@codaco/fresco-ui': ^2.2.0
       '@codaco/protocol-validation': ^11.4.0
       '@codaco/shared-consts': ^5.0.0
-      '@codaco/tailwind-config': ^0.4.0
+      '@codaco/tailwind-config': ^0.5.0
       immer: ^11.1.4
       motion: ^12.38.0
       react: ^19.2.5
@@ -767,8 +767,8 @@ packages:
     resolution: {integrity: sha512-7neTWHNjw6Y7FdVOU8htO2OshADlpS9vI+5mQEDWOdtlL8BdHmBflqQlZE8lFjzBin8tUI9jIlxsLlMYOpjm/w==}
     engines: {node: '>=20.0.0'}
 
-  '@codaco/tailwind-config@0.4.1':
-    resolution: {integrity: sha512-JV//+03ZQcH71oOslxP8R0qhIsiuhahzDdLaXIT8e/dsDAnO7nouVDLE3tu6s8DonyWfJ/S1CQlJVGp1nZeKsQ==}
+  '@codaco/tailwind-config@0.5.0':
+    resolution: {integrity: sha512-Hbvo9q2dOWZ9ckGEMUYXyLAsbIX0jwQbNIgnRjHu0joUChrjA4IecHGYrZjAhW91goBoWy4PhbT4KgAv5fT6Eg==}
 
   '@csstools/color-helpers@6.0.2':
     resolution: {integrity: sha512-LMGQLS9EuADloEFkcTBR3BwV/CGHV7zyDxVRtVDTwdI2Ca4it0CCVTT9wCkxSgokjE5Ho41hEPgb8OEUwoXr6Q==}
@@ -8173,12 +8173,12 @@ snapshots:
       - '@chromatic-com/cypress'
       - '@chromatic-com/playwright'
 
-  '@codaco/fresco-ui@2.1.0(@base-ui/react@1.4.1(@date-fns/tz@1.4.1)(@types/react@19.2.14)(date-fns@4.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@codaco/protocol-validation@11.4.0-alpha.0)(@codaco/shared-consts@5.0.0)(@codaco/tailwind-config@0.4.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@floating-ui/dom@1.7.6)(@tiptap/extension-list@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(immer@11.1.4)(motion@12.38.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(tailwindcss@4.2.4)(typescript@6.0.2)(zod@4.3.6)(zustand@5.0.12(@types/react@19.2.14)(immer@11.1.4)(react@19.2.5)(use-sync-external-store@1.6.0(react@19.2.5)))':
+  '@codaco/fresco-ui@2.2.0(@base-ui/react@1.4.1(@date-fns/tz@1.4.1)(@types/react@19.2.14)(date-fns@4.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@codaco/protocol-validation@11.4.0-alpha.0)(@codaco/shared-consts@5.0.0)(@codaco/tailwind-config@0.5.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@floating-ui/dom@1.7.6)(@tiptap/extension-list@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(immer@11.1.4)(motion@12.38.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(tailwindcss@4.2.4)(typescript@6.0.2)(zod@4.3.6)(zustand@5.0.12(@types/react@19.2.14)(immer@11.1.4)(react@19.2.5)(use-sync-external-store@1.6.0(react@19.2.5)))':
     dependencies:
       '@base-ui/react': 1.4.1(@date-fns/tz@1.4.1)(@types/react@19.2.14)(date-fns@4.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@codaco/protocol-validation': 11.4.0-alpha.0
       '@codaco/shared-consts': 5.0.0
-      '@codaco/tailwind-config': 0.4.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@codaco/tailwind-config': 0.5.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@radix-ui/react-slot': 1.2.4(@types/react@19.2.14)(react@19.2.5)
       '@tiptap/core': 3.22.5(@tiptap/pm@3.22.5)
       '@tiptap/extension-bullet-list': 3.22.5(@tiptap/extension-list@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))
@@ -8217,14 +8217,14 @@ snapshots:
       - supports-color
       - typescript
 
-  '@codaco/interview@1.0.0-alpha.1(b1a7748b83af8fd2edb34ae4fedfa313)':
+  '@codaco/interview@1.0.0-alpha.2(7497f956511dc366cc399f9ffbe83cd1)':
     dependencies:
       '@base-ui/react': 1.4.1(@date-fns/tz@1.4.1)(@types/react@19.2.14)(date-fns@4.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
-      '@codaco/fresco-ui': 2.1.0(@base-ui/react@1.4.1(@date-fns/tz@1.4.1)(@types/react@19.2.14)(date-fns@4.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@codaco/protocol-validation@11.4.0-alpha.0)(@codaco/shared-consts@5.0.0)(@codaco/tailwind-config@0.4.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@floating-ui/dom@1.7.6)(@tiptap/extension-list@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(immer@11.1.4)(motion@12.38.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(tailwindcss@4.2.4)(typescript@6.0.2)(zod@4.3.6)(zustand@5.0.12(@types/react@19.2.14)(immer@11.1.4)(react@19.2.5)(use-sync-external-store@1.6.0(react@19.2.5)))
+      '@codaco/fresco-ui': 2.2.0(@base-ui/react@1.4.1(@date-fns/tz@1.4.1)(@types/react@19.2.14)(date-fns@4.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@codaco/protocol-validation@11.4.0-alpha.0)(@codaco/shared-consts@5.0.0)(@codaco/tailwind-config@0.5.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@floating-ui/dom@1.7.6)(@tiptap/extension-list@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(immer@11.1.4)(motion@12.38.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(tailwindcss@4.2.4)(typescript@6.0.2)(zod@4.3.6)(zustand@5.0.12(@types/react@19.2.14)(immer@11.1.4)(react@19.2.5)(use-sync-external-store@1.6.0(react@19.2.5)))
       '@codaco/network-query': 1.0.1
       '@codaco/protocol-validation': 11.4.0-alpha.0
       '@codaco/shared-consts': 5.0.0
-      '@codaco/tailwind-config': 0.4.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@codaco/tailwind-config': 0.5.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@faker-js/faker': 10.4.0
       '@mapbox/search-js-react': 1.5.1(mapbox-gl@3.22.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@reduxjs/toolkit': 2.11.2(react-redux@9.2.0(@types/react@19.2.14)(react@19.2.5)(redux@5.0.1))(react@19.2.5)
@@ -8287,7 +8287,7 @@ snapshots:
     dependencies:
       zod: 4.3.6
 
-  '@codaco/tailwind-config@0.4.1(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+  '@codaco/tailwind-config@0.5.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
       motion: 12.38.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       tailwindcss: 4.2.4
