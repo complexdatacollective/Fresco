@@ -7,8 +7,6 @@ import { NuqsTestingAdapter } from 'nuqs/adapters/testing';
 import { StrictMode } from 'react';
 import Providers from '../components/Providers';
 import '../styles/globals.css';
-import '@codaco/tailwind-config/fresco/themes/default.css';
-import '@codaco/tailwind-config/fresco/themes/interview.css';
 import { getInitialTheme, globalTypes, withTheme } from './theme-switcher';
 
 // @chromatic-com/storybook is not included here because it doesn't export a
