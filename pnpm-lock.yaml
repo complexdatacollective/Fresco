@@ -59,8 +59,8 @@ importers:
         specifier: ^7.8.0
         version: 7.8.0
       '@prisma/client':
-        specifier: ^7.7.0
-        version: 7.7.0(prisma@7.7.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.2))(typescript@6.0.2)
+        specifier: ^7.8.0
+        version: 7.8.0(prisma@7.7.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.2))(typescript@6.0.2)
       '@simplewebauthn/browser':
         specifier: ^13.3.0
         version: 13.3.0
@@ -2137,11 +2137,11 @@ packages:
   '@prisma/adapter-pg@7.8.0':
     resolution: {integrity: sha512-ygb3UkerK3v8MDpXVgCISdRNDozpxh6+JVJgiIGbSr5KBgz10LLf5ejUskPGoXlsIjxsOu6nuy1JVQr2EKGSlg==}
 
-  '@prisma/client-runtime-utils@7.7.0':
-    resolution: {integrity: sha512-BLyd0UpFYOtyJFTHm7jS9vesHW7P83abibodQMiIofqjBKzDHQ1VAsQkdfvXyYDkPlONPfOTz7/rv3x/+CQqvQ==}
+  '@prisma/client-runtime-utils@7.8.0':
+    resolution: {integrity: sha512-5NQZztQ0oY/ADFkmd9gPuweH5A1/CCY8YQPorLLO0Mu6a87mY5gsnDkzmFmIHs9NFaLnZojzgddFVN4RpKYrdw==}
 
-  '@prisma/client@7.7.0':
-    resolution: {integrity: sha512-5Ar4OsZpJ54s21sy5oDNNW9gQtd4NuxCaiM7+JDTOU07D6VvlpLjYzAVCMB1+JzokN+08dAVomlx+b7bhJd3ww==}
+  '@prisma/client@7.8.0':
+    resolution: {integrity: sha512-HFp3Dawv/3sU3JtlPha90IB+48lS7zHiH4LKZPjmcE8YH5P9DOXGPvo8dqOtO7MqLDd1p2hOWMcFlRT1DMblHw==}
     engines: {node: ^20.19 || ^22.12 || >=24.0}
     peerDependencies:
       prisma: '*'
@@ -4640,8 +4640,8 @@ packages:
   fast-uri@3.1.0:
     resolution: {integrity: sha512-iPeeDKJSWf4IEOasVVrknXpaBV0IApz/gp7S2bb7Z4Lljbl2MGJRqInZiUrQwV16cpzw/D3S5j5Julj/gT52AA==}
 
-  fast-uri@3.1.1:
-    resolution: {integrity: sha512-h2r7rcm6Ee/J8o0LD5djLuFVcfbZxhvho4vvsbeV0aMvXjUgqv4YpxpkEx0d68l6+IleVfLAdVEfhR7QNMkGHQ==}
+  fast-uri@3.1.2:
+    resolution: {integrity: sha512-rVjf7ArG3LTk+FS6Yw81V1DLuZl1bRbNrev6Tmd/9RaroeeRRJhAt7jg/6YFxbvAQXUCavSoZhPPj6oOx+5KjQ==}
 
   fast-xml-builder@1.1.5:
     resolution: {integrity: sha512-4TJn/8FKLeslLAH3dnohXqE3QSoxkhvaMzepOIZytwJXZO69Bfz0HBdDHzOTOon6G59Zrk6VQ2bEiv1t61rfkA==}
@@ -9367,11 +9367,11 @@ snapshots:
     transitivePeerDependencies:
       - pg-native
 
-  '@prisma/client-runtime-utils@7.7.0': {}
+  '@prisma/client-runtime-utils@7.8.0': {}
 
-  '@prisma/client@7.7.0(prisma@7.7.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.2))(typescript@6.0.2)':
+  '@prisma/client@7.8.0(prisma@7.7.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.2))(typescript@6.0.2)':
     dependencies:
-      '@prisma/client-runtime-utils': 7.7.0
+      '@prisma/client-runtime-utils': 7.8.0
     optionalDependencies:
       prisma: 7.7.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.2)
       typescript: 6.0.2
@@ -11084,7 +11084,7 @@ snapshots:
   ajv@8.20.0:
     dependencies:
       fast-deep-equal: 3.1.3
-      fast-uri: 3.1.1
+      fast-uri: 3.1.2
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
 
@@ -12110,7 +12110,7 @@ snapshots:
 
   fast-uri@3.1.0: {}
 
-  fast-uri@3.1.1: {}
+  fast-uri@3.1.2: {}
 
   fast-xml-builder@1.1.5:
     dependencies:
