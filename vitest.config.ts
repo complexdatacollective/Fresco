@@ -17,7 +17,7 @@ export default defineConfig({
   },
   test: {
     globals: true,
-    exclude: ['**/node_modules/**', '**/tests/e2e/**'], // Exclude Playwright E2E tests
+    exclude: ['**/node_modules/**'],
     projects: [
       {
         extends: true,

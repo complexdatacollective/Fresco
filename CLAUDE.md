@@ -266,8 +266,6 @@ export async function getItems() {
 
 Both accept a single tag or an array. All tags are typesafe against the `CacheTags` array in `lib/cache.ts`.
 
-**E2E test environment**: Set `E2E_TEST=true` to enable e2e test mode. This activates the no-op `cacheHandlers` in `next.config.ts` (`lib/cache-handler.cjs`) which returns cache misses for all `'use cache'` functions, and enables local file storage for exports instead of UploadThing.
-
 ### Naming Conventions
 
 - **Files**: PascalCase for components (`Button.tsx`), camelCase for utils (`shadcn.ts`)
@@ -294,7 +292,6 @@ ESLint:
 ## Testing
 
 - **Unit Tests**: Vitest with React Testing Library
-- **E2E Tests**: Playwright (via GitHub Actions)
 - **Visual Tests**: Storybook with Chromatic
 - **Load Tests**: k6 (`pnpm load-test`)
 
@@ -304,12 +301,6 @@ Run tests:
 pnpm test           # Unit tests
 pnpm storybook      # Component testing
 ```
-
-### E2E Testing Conventions
-
-- **Prefer `data-testid` attributes** over text matching for element selection in e2e tests. This makes tests more resilient to text changes and internationalization.
-- Add `data-testid` attributes to interactive elements and key UI components that need to be targeted in tests.
-- See `tests/e2e/CLAUDE.md` for detailed e2e testing patterns and fixtures.
 
 ## Important Files
 
@@ -355,7 +346,7 @@ pnpm storybook      # Component testing
 
 - Main branch protection likely enabled
 - Dependabot configured for security updates
-- GitHub Actions for CI/CD (build checks, Playwright tests, Docker publishing)
+- GitHub Actions for CI/CD (build checks, Docker publishing)
 
 ## Gotchas
 
@@ -387,36 +378,5 @@ pnpm storybook      # Component testing
 
 ## Debugging and Development Tips
 
-- Use the Playwright MCP to debug errors and view console output directly. Do NOT start the development server or the storybook server. Instead, prompt the user to start these for you.
 - NEVER disable linting rules unless you have asked permission from the user. This applies particularly to no-explicit-any which should only be disabled in truly exceptional circumstances.
 - when editing a component, look for a storybook story and ensure that any new features are documented and any changes to the component API are accurately reflected in the storybook
-
-## E2E Test Selector Best Practices
-
-When writing Playwright e2e tests, follow this selector hierarchy:
-
-1. **Prefer semantic `getByRole()` queries** - These are resilient and accessible:
-   - `getByRole('button', { name: /submit/i })`
-   - `getByRole('heading', { name: 'Settings', level: 1 })`
-   - `getByRole('switch')`, `getByRole('dialog')`, `getByRole('table')`
-
-2. **Use `getByTestId()` for non-semantic elements** - Add `data-testid` attributes to components:
-   - `getByTestId('user-row-testadmin')`
-   - `getByTestId('anonymous-recruitment-field')`
-
-3. **Avoid these fragile patterns:**
-   - `getByText()` - Breaks with text changes, i18n
-   - `toContainText()` / `toHaveText()` - Ties tests to specific copy, prevents refactoring
-   - `.first()` - Tied to DOM order
-   - `.locator('..')` - Parent traversal is fragile
-   - `.locator('#id')` - Prefer getByTestId for consistency
-
-4. **Test element presence, not text content** - Avoid assertions on specific text. Instead, test that elements exist using `toBeVisible()`. This allows copy changes without breaking tests.
-
-5. **For form fields with switches/toggles**, combine testId with role:
-
-   ```typescript
-   page.getByTestId('anonymous-recruitment-field').getByRole('switch');
-   ```
-
-6. **Add testIds to reusable components** (SettingsField, SettingsCard, DataTable rows, etc.) to enable targeted selection without DOM traversal.
