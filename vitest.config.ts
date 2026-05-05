@@ -15,17 +15,6 @@ export default defineConfig({
   resolve: {
     tsconfigPaths: true,
   },
-  // Pre-bundle dependencies that Vite's import scanner can't discover
-  // statically, so they're ready before any test runs. Without this, Vite
-  // finds them mid-test, re-bundles, and *reloads the page* — which tears
-  // down Playwright's connection and surfaces as flaky failures or browser
-  // disconnects.
-  //
-  // - `d3-force` is imported lazily by the FamilyPedigree pedigree-layout, which only
-  //   mounts after a specific story runs.
-  optimizeDeps: {
-    include: ['d3-force'],
-  },
   test: {
     globals: true,
     exclude: ['**/node_modules/**', '**/tests/e2e/**'], // Exclude Playwright E2E tests
@@ -40,6 +29,9 @@ export default defineConfig({
           ],
           name: 'units',
           setupFiles: ['./vitest.setup.ts'],
+          server: {
+            deps: { inline: ['@codaco/interview'] },
+          },
         },
       },
       {

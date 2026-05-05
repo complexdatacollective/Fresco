@@ -87,7 +87,7 @@ vi.mock('~/lib/posthog-server', () => ({
   shutdownPostHog: vi.fn(),
 }));
 
-vi.mock('~/lib/interviewer/ducks/modules/session', () => ({
+vi.mock('@codaco/interview', () => ({
   createInitialNetwork: vi.fn(() => ({
     nodes: [],
     edges: [],

@@ -11,8 +11,8 @@ import { prisma } from '~/lib/db';
 import { captureEvent, shutdownPostHog } from '~/lib/posthog-server';
 import { getAppSetting } from '~/queries/appSettings';
 import {
-    getInterviewById,
-    type GetInterviewByIdQuery,
+  getInterviewById,
+  type GetInterviewByIdQuery,
 } from '~/queries/interviews';
 import InterviewClient from './InterviewClient';
 import { mapInterviewPayload } from './mapInterviewPayload';
@@ -99,7 +99,13 @@ async function InterviewContent({
     }
   });
 
-  const { payload, assetUrls } = mapInterviewPayload(interview);
+  const { payload, assetUrls, initialStep } = mapInterviewPayload(interview);
 
-  return <InterviewClient payload={payload} assetUrls={assetUrls} />;
+  return (
+    <InterviewClient
+      payload={payload}
+      assetUrls={assetUrls}
+      initialStep={initialStep}
+    />
+  );
 }

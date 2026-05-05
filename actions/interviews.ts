@@ -6,7 +6,7 @@ import { requireApiAuth } from '~/lib/auth/guards';
 import { safeRevalidateTag, safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { type Interview } from '~/lib/db/generated/client';
-import { createInitialNetwork } from '~/lib/interviewer/ducks/modules/session';
+import { createInitialNetwork } from '@codaco/interview';
 import { captureException, shutdownPostHog } from '~/lib/posthog-server';
 import { getAppSetting } from '~/queries/appSettings';
 import type { CreateInterview, DeleteInterviews } from '~/schemas/interviews';

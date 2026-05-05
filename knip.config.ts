@@ -26,8 +26,6 @@ const config: KnipConfig = {
     'actions/webauthn.ts': ['exports'],
 
     // Pre-existing unused type exports (not related to e2e migration)
-    'lib/interviewer/containers/Interfaces/FamilyPedigree/useDynamicFields.tsx':
-      ['types'],
     'lib/protocol/validateAndMigrateProtocol.ts': ['types'],
   },
   // Our playwright config uses non-standard locations, so knip cannot auto-detect it

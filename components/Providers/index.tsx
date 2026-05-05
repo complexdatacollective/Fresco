@@ -7,8 +7,10 @@ import { NuqsAdapter as NextNuqsAdapter } from 'nuqs/adapters/next/app';
 import { type ComponentType, type ReactNode } from 'react';
 import DialogProvider from '@codaco/fresco-ui/dialogs/DialogProvider';
 import { DndStoreProvider } from '@codaco/fresco-ui/dnd/dnd';
-import { InterviewToastViewport } from '~/lib/interviewer/components/InterviewToast';
-import { interviewToastManager } from '~/lib/interviewer/components/interviewToastManager';
+import {
+  interviewToastManager,
+  InterviewToastViewport,
+} from '@codaco/interview';
 import { Toaster } from '@codaco/fresco-ui/Toast';
 import { TooltipProvider } from '@codaco/fresco-ui/Tooltip';
 

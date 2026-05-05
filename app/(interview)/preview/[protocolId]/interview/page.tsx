@@ -1,6 +1,6 @@
 import {
-    entityAttributesProperty,
-    entityPrimaryKeyProperty,
+  entityAttributesProperty,
+  entityPrimaryKeyProperty,
 } from '@codaco/shared-consts';
 import { notFound } from 'next/navigation';
 import { connection } from 'next/server';
@@ -8,11 +8,11 @@ import { Suspense } from 'react';
 import { v4 as uuid } from 'uuid';
 import Spinner from '@codaco/fresco-ui/Spinner';
 import { prisma } from '~/lib/db';
-import { isValidAssetType } from '~/lib/interviewer/contract/assets';
-import type {
-    InterviewPayload,
-    ResolvedAsset,
-} from '~/lib/interviewer/contract/types';
+import {
+  isValidAssetType,
+  type InterviewPayload,
+  type ResolvedAsset,
+} from '@codaco/interview';
 import { getPreviewMode } from '~/queries/appSettings';
 import { getProtocolForPreview } from '~/queries/protocols';
 import PreviewInterviewClient from './PreviewInterviewClient';
@@ -96,7 +96,6 @@ async function PreviewContent({
       finishTime: null,
       exportTime: null,
       lastUpdated: now.toISOString(),
-      currentStep: 0,
       stageMetadata: undefined,
       network: {
         ego: {
@@ -117,6 +116,10 @@ async function PreviewContent({
   };
 
   return (
-    <PreviewInterviewClient payload={payload} assetUrls={previewAssetUrls} />
+    <PreviewInterviewClient
+      payload={payload}
+      assetUrls={previewAssetUrls}
+      initialStep={0}
+    />
   );
 }

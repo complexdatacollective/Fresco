@@ -28,12 +28,12 @@ importers:
       '@codaco/fresco-ui':
         specifier: ^2.0.1
         version: 2.0.1(@codaco/protocol-validation@11.4.0-alpha.0)(@codaco/shared-consts@5.0.0)(@codaco/tailwind-config@0.4.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@date-fns/tz@1.4.1)(@floating-ui/dom@1.7.6)(@tiptap/extension-list@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(date-fns@4.1.0)(immer@11.1.4)(motion@12.38.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(tailwindcss@4.2.4)(typescript@6.0.2)(zod@4.3.6)(zustand@5.0.12(@types/react@19.2.14)(immer@11.1.4)(react@19.2.5)(use-sync-external-store@1.6.0(react@19.2.5)))
+      '@codaco/interview':
+        specifier: 1.0.0-alpha.0
+        version: 1.0.0-alpha.0(a95112644046e99eba014b9ae534aa71)
       '@codaco/network-exporters':
         specifier: ^1.0.2
         version: 1.0.2
-      '@codaco/network-query':
-        specifier: ^1.0.1
-        version: 1.0.1
       '@codaco/protocol-validation':
         specifier: 11.4.0-alpha.0
         version: 11.4.0-alpha.0
@@ -46,9 +46,6 @@ importers:
       '@faker-js/faker':
         specifier: ^10.4.0
         version: 10.4.0
-      '@mapbox/search-js-react':
-        specifier: ^1.5.1
-        version: 1.5.1(mapbox-gl@3.22.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
       '@paralleldrive/cuid2':
         specifier: ^3.3.0
         version: 3.3.0
@@ -64,9 +61,6 @@ importers:
       '@prisma/client':
         specifier: ^7.7.0
         version: 7.7.0(prisma@7.7.0(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(typescript@6.0.2))(typescript@6.0.2)
-      '@reduxjs/toolkit':
-        specifier: ^2.11.0
-        version: 2.11.2(react-redux@9.2.0(@types/react@19.2.14)(react@19.2.5)(redux@5.0.1))(react@19.2.5)
       '@simplewebauthn/browser':
         specifier: ^13.3.0
         version: 13.3.0
@@ -82,18 +76,6 @@ importers:
       blobs:
         specifier: 2.3.0-beta.2
         version: 2.3.0-beta.2
-      classnames:
-        specifier: ^2.5.1
-        version: 2.5.1
-      concaveman:
-        specifier: ^2.0.0
-        version: 2.0.0
-      csvtojson:
-        specifier: ^2.0.14
-        version: 2.0.14
-      d3-force:
-        specifier: ^3.0.0
-        version: 3.0.0
       d3-interpolate-path:
         specifier: ^2.3.0
         version: 2.3.0
@@ -148,9 +130,6 @@ importers:
       posthog-node:
         specifier: ^5.29.2
         version: 5.29.2(rxjs@7.8.2)
-      prop-types:
-        specifier: ^15.8.1
-        version: 15.8.1
       qrcode:
         specifier: ^1.5.4
         version: 1.5.4
@@ -166,15 +145,6 @@ importers:
       react-markdown:
         specifier: ^10.1.0
         version: 10.1.0(@types/react@19.2.14)(react@19.2.5)
-      react-redux:
-        specifier: ^9.2.0
-        version: 9.2.0(@types/react@19.2.14)(react@19.2.5)(redux@5.0.1)
-      redux-logger:
-        specifier: ^3.0.6
-        version: 3.0.6
-      redux-thunk:
-        specifier: ^3.1.0
-        version: 3.1.0(redux@5.0.1)
       server-only:
         specifier: ^0.0.1
         version: 0.0.1
@@ -254,9 +224,6 @@ importers:
       '@types/async':
         specifier: ^3.2.25
         version: 3.2.25
-      '@types/d3-force':
-        specifier: ^3.0.10
-        version: 3.0.10
       '@types/d3-interpolate-path':
         specifier: ^2.0.3
         version: 2.0.3
@@ -281,9 +248,6 @@ importers:
       '@types/react-dom':
         specifier: 19.2.3
         version: 19.2.3(@types/react@19.2.14)
-      '@types/redux-logger':
-        specifier: ^3.0.13
-        version: 3.0.13
       '@vitejs/plugin-react':
         specifier: ^6.0.1
         version: 6.0.1(babel-plugin-react-compiler@1.0.0)(vite@8.0.8(@types/node@22.19.3)(esbuild@0.28.0)(jiti@2.6.1)(sass-embedded@1.99.0)(sass@1.99.0)(terser@5.46.2)(tsx@4.21.0)(yaml@2.8.3))
@@ -747,8 +711,35 @@ packages:
       '@types/react':
         optional: true
 
+  '@base-ui/react@1.4.1':
+    resolution: {integrity: sha512-Ab5/LIhcmL8BQcsBUYiOfkSDRdLpvgUBzMK30cu684JPcLclYlztharvCZyNNgzJtbAiREzI9q0pI5erHCMgCw==}
+    engines: {node: '>=14.0.0'}
+    peerDependencies:
+      '@date-fns/tz': ^1.2.0
+      '@types/react': ^17 || ^18 || ^19
+      date-fns: ^4.0.0
+      react: ^17 || ^18 || ^19
+      react-dom: ^17 || ^18 || ^19
+    peerDependenciesMeta:
+      '@date-fns/tz':
+        optional: true
+      '@types/react':
+        optional: true
+      date-fns:
+        optional: true
+
   '@base-ui/utils@0.2.7':
     resolution: {integrity: sha512-nXYKhiL/0JafyJE8PfcflipGftOftlIwKd72rU15iZ1M5yqgg5J9P8NHU71GReDuXco5MJA/eVQqUT5WRqX9sA==}
+    peerDependencies:
+      '@types/react': ^17 || ^18 || ^19
+      react: ^17 || ^18 || ^19
+      react-dom: ^17 || ^18 || ^19
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+
+  '@base-ui/utils@0.2.8':
+    resolution: {integrity: sha512-jvOi+c+ftGlGotNcKnzPVg2IhCaDTB6/6R3JeqdjdXktuAJi3wKH9T7+svuaKh1mmfVU11UWzUZVH74JDfi/wQ==}
     peerDependencies:
       '@types/react': ^17 || ^18 || ^19
       react: ^17 || ^18 || ^19
@@ -790,6 +781,19 @@ packages:
       tailwindcss: ^4.2.4
       zod: ^4.3.6
       zustand: ^5.0.12
+
+  '@codaco/interview@1.0.0-alpha.0':
+    resolution: {integrity: sha512-9xNOoNKukho7N21YE4u75OGn/n9EzmR3Sis4DSgjuB+ru8T8wfiiHnG344HyWcOKrwoIXyD8thQLcjCZTTpR9g==}
+    peerDependencies:
+      '@codaco/fresco-ui': ^2.0.1
+      '@codaco/protocol-validation': ^11.4.0
+      '@codaco/shared-consts': ^5.0.0
+      '@codaco/tailwind-config': ^0.4.0
+      immer: ^11.1.4
+      motion: ^12.38.0
+      react: ^19.2.5
+      react-dom: ^19.2.5
+      tailwindcss: ^4.2.4
 
   '@codaco/network-exporters@1.0.2':
     resolution: {integrity: sha512-n9WR9qPMaN5gAfhvwp9JO3511yw/2vituxdckSZr/JVdYtQVhln+PIp7TSrd5eZcLsfCdGVDSZc9baNr9AxkeQ==}
@@ -3339,9 +3343,6 @@ packages:
   '@types/chai@5.2.3':
     resolution: {integrity: sha512-Mw558oeA9fFbv65/y4mHtXDs9bPnFMZAL/jxdPFUpOHHIXX91mcgEHbS5Lahr+pwZFR8A7GQleRWeI6cGFC2UA==}
 
-  '@types/d3-force@3.0.10':
-    resolution: {integrity: sha512-ZYeSaCF3p73RdOKcjj+swRlZfnYpK1EbaDiYICEEp5Q6sUiqFaFQ9qgoshp5CzIyyb/yD09kD9o2zEltCexlgw==}
-
   '@types/d3-interpolate-path@2.0.3':
     resolution: {integrity: sha512-EmFAmzvZN9vmYfUEOLOQj/PWXkUKrMp0iGElacDIcYj3N2zFJ2Mk5DiL8J4fKYnnyQdcYOixABJx7TaIc4GcdA==}
 
@@ -3430,9 +3431,6 @@ packages:
 
   '@types/react@19.2.14':
     resolution: {integrity: sha512-ilcTH/UniCkMdtexkoCN0bI7pMcJDvmQFPvuPvmEaYA/NSfFTAgdUSLAoVjaRJm7+6PvcM+q1zYOwS4wTYMF9w==}
-
-  '@types/redux-logger@3.0.13':
-    resolution: {integrity: sha512-jylqZXQfMxahkuPcO8J12AKSSCQngdEWQrw7UiLUJzMBcv1r4Qg77P6mjGLjM27e5gFQDPD8vwUMJ9AyVxFSsg==}
 
   '@types/resolve@1.20.6':
     resolution: {integrity: sha512-A4STmOXPhMUtHH+S6ymgE2GiBSMqf4oTvcQZMcHzokuTLVYzXTB8ttjcgxOVaAp2lGwEdzZ0J+cRbbeevQj1UQ==}
@@ -4269,9 +4267,6 @@ packages:
 
   citty@0.2.2:
     resolution: {integrity: sha512-+6vJA3L98yv+IdfKGZHBNiGW5KHn22e/JwID0Strsz8h4S/csAu/OuICwxrg44k5MRiZHWIo8XXuJgQTriRP4w==}
-
-  classnames@2.5.1:
-    resolution: {integrity: sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==}
 
   client-only@0.0.1:
     resolution: {integrity: sha512-IV3Ou0jSMzZrd3pZ48nLkT9DA7Ag1pnPzaiQhpW7c3RbcqqzvzzVu+L8gfqMp/8IM2MQtSiqaCxrrcfu8I8rMA==}
@@ -8565,7 +8560,32 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.14
 
+  '@base-ui/react@1.4.1(@date-fns/tz@1.4.1)(@types/react@19.2.14)(date-fns@4.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+    dependencies:
+      '@babel/runtime': 7.29.2
+      '@base-ui/utils': 0.2.8(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@floating-ui/react-dom': 2.1.8(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@floating-ui/utils': 0.2.11
+      react: 19.2.5
+      react-dom: 19.2.5(react@19.2.5)
+      use-sync-external-store: 1.6.0(react@19.2.5)
+    optionalDependencies:
+      '@date-fns/tz': 1.4.1
+      '@types/react': 19.2.14
+      date-fns: 4.1.0
+
   '@base-ui/utils@0.2.7(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
+    dependencies:
+      '@babel/runtime': 7.29.2
+      '@floating-ui/utils': 0.2.11
+      react: 19.2.5
+      react-dom: 19.2.5(react@19.2.5)
+      reselect: 5.1.1
+      use-sync-external-store: 1.6.0(react@19.2.5)
+    optionalDependencies:
+      '@types/react': 19.2.14
+
+  '@base-ui/utils@0.2.8(@types/react@19.2.14)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)':
     dependencies:
       '@babel/runtime': 7.29.2
       '@floating-ui/utils': 0.2.11
@@ -8643,6 +8663,42 @@ snapshots:
       - date-fns
       - supports-color
       - typescript
+
+  '@codaco/interview@1.0.0-alpha.0(a95112644046e99eba014b9ae534aa71)':
+    dependencies:
+      '@base-ui/react': 1.4.1(@date-fns/tz@1.4.1)(@types/react@19.2.14)(date-fns@4.1.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@codaco/fresco-ui': 2.0.1(@codaco/protocol-validation@11.4.0-alpha.0)(@codaco/shared-consts@5.0.0)(@codaco/tailwind-config@0.4.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(@date-fns/tz@1.4.1)(@floating-ui/dom@1.7.6)(@tiptap/extension-list@3.22.5(@tiptap/core@3.22.5(@tiptap/pm@3.22.5))(@tiptap/pm@3.22.5))(@types/react-dom@19.2.3(@types/react@19.2.14))(@types/react@19.2.14)(date-fns@4.1.0)(immer@11.1.4)(motion@12.38.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5))(react-dom@19.2.5(react@19.2.5))(react@19.2.5)(tailwindcss@4.2.4)(typescript@6.0.2)(zod@4.3.6)(zustand@5.0.12(@types/react@19.2.14)(immer@11.1.4)(react@19.2.5)(use-sync-external-store@1.6.0(react@19.2.5)))
+      '@codaco/network-query': 1.0.1
+      '@codaco/protocol-validation': 11.4.0-alpha.0
+      '@codaco/shared-consts': 5.0.0
+      '@codaco/tailwind-config': 0.4.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@faker-js/faker': 10.4.0
+      '@mapbox/search-js-react': 1.5.1(mapbox-gl@3.22.0)(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      '@reduxjs/toolkit': 2.11.2(react-redux@9.2.0(@types/react@19.2.14)(react@19.2.5)(redux@5.0.1))(react@19.2.5)
+      concaveman: 2.0.0
+      csvtojson: 2.0.14
+      d3-force: 3.0.0
+      es-toolkit: 1.46.1
+      immer: 11.1.4
+      lucide-react: 1.14.0(react@19.2.5)
+      mapbox-gl: 3.22.0
+      motion: 12.38.0(react-dom@19.2.5(react@19.2.5))(react@19.2.5)
+      ohash: 2.0.11
+      react: 19.2.5
+      react-dom: 19.2.5(react@19.2.5)
+      react-redux: 9.2.0(@types/react@19.2.14)(react@19.2.5)(redux@5.0.1)
+      redux-logger: 3.0.6
+      redux-thunk: 3.1.0(redux@5.0.1)
+      tailwindcss: 4.2.4
+      uuid: 14.0.0
+      zod: 4.3.6
+      zustand: 5.0.12(@types/react@19.2.14)(immer@11.1.4)(react@19.2.5)(use-sync-external-store@1.6.0(react@19.2.5))
+    transitivePeerDependencies:
+      - '@date-fns/tz'
+      - '@types/react'
+      - date-fns
+      - redux
+      - use-sync-external-store
 
   '@codaco/network-exporters@1.0.2':
     dependencies:
@@ -10967,8 +11023,6 @@ snapshots:
       '@types/deep-eql': 4.0.2
       assertion-error: 2.0.1
 
-  '@types/d3-force@3.0.10': {}
-
   '@types/d3-interpolate-path@2.0.3': {}
 
   '@types/debug@4.1.12':
@@ -11069,10 +11123,6 @@ snapshots:
   '@types/react@19.2.14':
     dependencies:
       csstype: 3.2.3
-
-  '@types/redux-logger@3.0.13':
-    dependencies:
-      redux: 5.0.1
 
   '@types/resolve@1.20.6': {}
 
@@ -11970,8 +12020,6 @@ snapshots:
       consola: 3.4.2
 
   citty@0.2.2: {}
-
-  classnames@2.5.1: {}
 
   client-only@0.0.1: {}
 

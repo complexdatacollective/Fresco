@@ -3,7 +3,7 @@ import { after, NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
 import { z as zm } from 'zod/mini';
 import { prisma } from '~/lib/db';
-import { StageMetadataSchema } from '~/lib/interviewer/ducks/modules/session';
+import { StageMetadataSchema } from '@codaco/interview';
 import { captureException, shutdownPostHog } from '~/lib/posthog-server';
 import { getAppSetting } from '~/queries/appSettings';
 import { ensureError } from '~/utils/ensureError';
