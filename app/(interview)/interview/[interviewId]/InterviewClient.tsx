@@ -4,25 +4,32 @@ import {
   Shell,
   type AssetRequestHandler,
   type FinishHandler,
+  type InterviewAnalyticsMetadata,
   type InterviewPayload,
   type StepChangeHandler,
   type SyncHandler,
 } from '@codaco/interview';
 import { useRouter } from 'next/navigation';
 import { parseAsInteger, useQueryState } from 'nuqs';
+import posthog from 'posthog-js';
 import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { env } from '~/env.js';
+import { POSTHOG_APP_NAME } from '~/fresco.config';
 
 type Props = {
   payload: InterviewPayload;
   assetUrls: Record<string, string>;
   initialStep: number;
+  installationId: string;
+  disableAnalytics: boolean;
 };
 
 export default function InterviewClient({
   payload,
   assetUrls,
   initialStep,
+  installationId,
+  disableAnalytics,
 }: Props) {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useQueryState(
@@ -86,6 +93,14 @@ export default function InterviewClient({
     [],
   );
 
+  const analytics = useMemo<InterviewAnalyticsMetadata>(
+    () => ({
+      installationId,
+      hostApp: POSTHOG_APP_NAME,
+    }),
+    [installationId],
+  );
+
   return (
     <Shell
       payload={payload}
@@ -95,6 +110,9 @@ export default function InterviewClient({
       onFinish={onFinish}
       onRequestAsset={onRequestAsset}
       flags={flags}
+      analytics={analytics}
+      posthogClient={posthog}
+      disableAnalytics={disableAnalytics}
     />
   );
 }

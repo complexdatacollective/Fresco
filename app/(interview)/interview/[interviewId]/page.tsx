@@ -101,11 +101,16 @@ async function InterviewContent({
 
   const { payload, assetUrls, initialStep } = mapInterviewPayload(interview);
 
+  const installationId = (await getAppSetting('installationId')) ?? 'unknown';
+  const disableAnalytics = (await getAppSetting('disableAnalytics')) ?? false;
+
   return (
     <InterviewClient
       payload={payload}
       assetUrls={assetUrls}
       initialStep={initialStep}
+      installationId={installationId}
+      disableAnalytics={disableAnalytics}
     />
   );
 }

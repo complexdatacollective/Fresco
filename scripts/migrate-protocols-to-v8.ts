@@ -1,10 +1,9 @@
 /* eslint-disable no-console */
 import { DeleteObjectsCommand, S3Client } from '@aws-sdk/client-s3';
-import { migrateProtocol } from '@codaco/protocol-validation';
+import { hashProtocol, migrateProtocol } from '@codaco/protocol-validation';
 import { UTApi } from 'uploadthing/server';
 import { Prisma, type PrismaClient } from '~/lib/db/generated/client';
 import { type AppSetting } from '~/lib/db/generated/enums';
-import { hashProtocol } from '~/lib/protocol/hashProtocol';
 
 const STORAGE_SETTING_KEYS: AppSetting[] = [
   'storageProvider',

@@ -1,6 +1,5 @@
-import { migrateProtocol } from '@codaco/protocol-validation';
+import { hashProtocol, migrateProtocol } from '@codaco/protocol-validation';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { hashProtocol } from '~/lib/protocol/hashProtocol';
 import { migrateProtocolsToV8 } from '~/scripts/migrate-protocols-to-v8';
 
 const mockDeleteFiles = vi.fn().mockResolvedValue({ success: true });

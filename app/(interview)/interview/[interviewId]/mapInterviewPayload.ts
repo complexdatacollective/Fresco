@@ -44,6 +44,7 @@ export function mapInterviewPayload(
     protocol: {
       ...protocol,
       schemaVersion: 8,
+      hash: protocol.hash,
       description: protocol.description ?? undefined,
       importedAt: protocol.importedAt.toISOString(),
       assets,

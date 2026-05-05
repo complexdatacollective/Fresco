@@ -3,6 +3,7 @@
 import {
   CURRENT_SCHEMA_VERSION,
   getMigrationInfo,
+  hashProtocol,
 } from '@codaco/protocol-validation';
 import { queue } from 'async';
 import posthog from 'posthog-js';
@@ -19,7 +20,6 @@ import {
 import ImportToastContent from '~/components/ProtocolImport/ImportToastContent';
 import { useToast } from '@codaco/fresco-ui/Toast';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
-import { hashProtocol } from '~/lib/protocol/hashProtocol';
 import {
   validateAndMigrateProtocol,
   type ProtocolValidationError,

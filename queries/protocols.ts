@@ -54,7 +54,6 @@ export async function getProtocolForPreview(protocolId: string) {
     include: { assets: true },
     omit: {
       lastModified: true,
-      hash: true,
     },
   });
 }

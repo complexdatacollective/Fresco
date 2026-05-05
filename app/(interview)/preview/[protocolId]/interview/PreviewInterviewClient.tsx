@@ -68,6 +68,8 @@ export default function PreviewInterviewClient({
       onFinish={onFinish}
       onRequestAsset={onRequestAsset}
       flags={flags}
+      analytics={{ installationId: 'preview', hostApp: 'Fresco' }}
+      disableAnalytics={true}
     />
   );
 }
