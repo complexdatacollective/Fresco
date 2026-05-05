@@ -1,5 +1,4 @@
 import { type Metadata } from 'next';
-import '@codaco/tailwind-config/fresco/themes/interview.css';
 
 export const metadata: Metadata = {
   title: 'Network Canvas Fresco - Interview',
@@ -8,12 +7,9 @@ export const metadata: Metadata = {
 
 function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <main
-      data-interview
-      className="flex h-screen max-h-screen flex-col scheme-dark"
-    >
+    <div className="flex h-screen max-h-screen flex-col scheme-dark">
       {children}
-    </main>
+    </div>
   );
 }
 
