@@ -1,13 +1,21 @@
+import Form from '@codaco/fresco-ui/form/Form';
+import { type FormSubmitHandler } from '@codaco/fresco-ui/form/store/types';
 import { configureStore } from '@reduxjs/toolkit';
 import type { Meta, StoryObj } from '@storybook/nextjs-vite';
+import { icons } from 'lucide-react';
+import type { ComponentProps } from 'react';
 import { Provider } from 'react-redux';
 import { action } from 'storybook/actions';
 import { fn } from 'storybook/test';
-import Form from '@codaco/fresco-ui/form/Form';
-import { type FormSubmitHandler } from '@codaco/fresco-ui/form/store/types';
 import QuickAddField from './QuickAddField';
 
-const mockProtocol = {
+const customIconOptions = ['add-a-person', 'add-a-place'];
+
+const iconOptions = [...customIconOptions, ...Object.keys(icons)];
+
+type StoryArgs = ComponentProps<typeof QuickAddField> & { icon: string };
+
+const buildMockProtocol = (icon: string) => ({
   id: 'test-protocol',
   codebook: {
     node: {
@@ -15,7 +23,7 @@ const mockProtocol = {
         name: 'Person',
         color: 'node-color-seq-1',
         displayVariable: 'name',
-        iconVariant: 'add-a-person',
+        icon,
         variables: {
           name: {
             name: 'Name',
@@ -46,7 +54,7 @@ const mockProtocol = {
     encryptedVariables: false,
   },
   assets: [],
-};
+});
 
 const mockSession = {
   id: 'test-session',
@@ -61,7 +69,9 @@ const mockSession = {
   },
 };
 
-const createMockStore = () => {
+const createMockStore = (icon: string) => {
+  const mockProtocol = buildMockProtocol(icon);
+
   const mockProtocolState = {
     id: 'test-protocol-id',
     codebook: mockProtocol.codebook,
@@ -98,8 +108,11 @@ const createMockStore = () => {
   });
 };
 
-const ReduxDecorator = (Story: React.ComponentType) => {
-  const store = createMockStore();
+const ReduxDecorator = (
+  Story: React.ComponentType,
+  context: { args: { icon?: string } },
+) => {
+  const store = createMockStore(context.args.icon ?? 'add-a-person');
   return (
     <Provider store={store}>
       <div className="relative flex h-[400px] w-[700px] items-end justify-end bg-slate-900 p-6">
@@ -109,14 +122,24 @@ const ReduxDecorator = (Story: React.ComponentType) => {
   );
 };
 
-const meta: Meta<typeof QuickAddField> = {
+const meta: Meta<StoryArgs> = {
   title: 'Interview/Interfaces/NameGenerator/QuickAddField',
   component: QuickAddField,
   decorators: [ReduxDecorator],
   parameters: {
+    forceTheme: 'interview',
     layout: 'fullscreen',
   },
+  args: {
+    icon: 'add-a-person',
+  },
   argTypes: {
+    icon: {
+      control: 'select',
+      options: iconOptions,
+      description:
+        'Icon for the node type (story-only — drives the redux codebook mock).',
+    },
     name: {
       control: 'text',
       description: 'Field name (variable)',
@@ -149,7 +172,7 @@ const meta: Meta<typeof QuickAddField> = {
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<StoryArgs>;
 
 function QuickAddFieldWrapper(
   props: React.ComponentProps<typeof QuickAddField> & {
@@ -186,7 +209,7 @@ export const Default: Story = {
     placeholder: 'Type a name and press enter...',
     disabled: false,
   },
-  render: (args) => (
+  render: ({ icon: _icon, ...args }) => (
     <QuickAddFieldWrapper {...args} onFormSubmit={formSubmitAction} />
   ),
   parameters: {
@@ -208,7 +231,7 @@ export const WithValidation: Story = {
     minLength: 2,
     maxLength: 50,
   },
-  render: (args) => (
+  render: ({ icon: _icon, ...args }) => (
     <QuickAddFieldWrapper {...args} onFormSubmit={formSubmitAction} />
   ),
   parameters: {
@@ -227,7 +250,7 @@ export const Disabled: Story = {
     placeholder: 'Type a name...',
     disabled: true,
   },
-  render: (args) => (
+  render: ({ icon: _icon, ...args }) => (
     <QuickAddFieldWrapper {...args} onFormSubmit={formSubmitAction} />
   ),
   parameters: {

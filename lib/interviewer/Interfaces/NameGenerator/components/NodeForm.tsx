@@ -20,6 +20,12 @@ import { type FormSubmitHandler } from '@codaco/fresco-ui/form/store/types';
 import { updateNode as updateNodeAction } from '~/lib/interviewer/ducks/modules/session';
 import { useCelebrate } from '~/lib/interviewer/hooks/useCelebrate';
 import { cx } from '@codaco/fresco-ui/utils/cva';
+import {
+  actionCircleVariants,
+  actionIconClass,
+  actionPlusBadgeVariants,
+  actionPlusIconClass,
+} from '~/lib/interviewer/components/actionButtonVariants';
 import { getNodeIconName } from '../../../selectors/name-generator';
 import { getPromptAdditionalAttributes } from '../../../selectors/session';
 import { useAppDispatch } from '../../../store';
@@ -138,20 +144,21 @@ const NodeForm = (props: NodeFormProps) => {
               ref={circleRef}
               data-toggle-circle
               className={cx(
-                'elevation-high relative flex aspect-square size-28 items-center justify-center overflow-hidden rounded-full transition-[background-color,filter] duration-300 [&>.lucide]:aspect-square [&>.lucide]:h-16 [&>.lucide]:w-auto',
+                actionCircleVariants(),
+                'relative aspect-square size-28 transition-[background-color,filter] duration-300',
                 disabled ? 'cursor-not-allowed saturate-0' : 'cursor-pointer',
               )}
               style={{ backgroundColor: 'var(--primary)' }}
             >
-              <motion.div className="h-full">
+              <motion.div className="flex h-full items-center justify-center">
                 <Icon
                   name={icon as InterviewerIconName}
-                  className="h-full w-auto"
+                  className={actionIconClass}
                 />
               </motion.div>
             </motion.div>
-            <motion.div className="bg-platinum text-charcoal absolute -top-2 -right-4 flex size-10 items-center justify-center rounded-full shadow-lg">
-              <Plus className="size-6" size={12} />
+            <motion.div className={actionPlusBadgeVariants()}>
+              <Plus className={actionPlusIconClass} />
             </motion.div>
           </button>
         </motion.div>
