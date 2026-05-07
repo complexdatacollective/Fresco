@@ -34,7 +34,7 @@ export default function InterviewClient({
   const router = useRouter();
   const [currentStep, setCurrentStep] = useQueryState(
     'step',
-    parseAsInteger.withDefault(initialStep),
+    parseAsInteger.withDefault(initialStep).withOptions({ history: 'push' }),
   );
 
   // Refs let onSync read the latest values even though the package's sync

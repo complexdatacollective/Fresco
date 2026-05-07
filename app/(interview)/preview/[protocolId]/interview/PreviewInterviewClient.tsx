@@ -25,7 +25,7 @@ export default function PreviewInterviewClient({
 }: Props) {
   const [currentStep, setCurrentStep] = useQueryState(
     'step',
-    parseAsInteger.withDefault(initialStep),
+    parseAsInteger.withDefault(initialStep).withOptions({ history: 'push' }),
   );
 
   const assetUrlsRef = useRef(assetUrls);
