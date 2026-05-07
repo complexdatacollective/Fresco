@@ -53,6 +53,7 @@ const ProtocolsTableClient = ({ dataPromise }: { dataPromise: GetData }) => {
   const { table } = useClientDataTable({
     data: protocols,
     columns,
+    defaultSortBy: { id: 'importedAt', desc: true },
   });
 
   return (
