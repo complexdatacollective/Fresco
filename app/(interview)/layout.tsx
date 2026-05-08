@@ -1,3 +1,4 @@
+import { ThemedRegion } from '@codaco/fresco-ui/ThemedRegion';
 import { type Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -7,9 +8,12 @@ export const metadata: Metadata = {
 
 function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex h-screen max-h-screen flex-col scheme-dark">
+    <ThemedRegion
+      theme="interview"
+      className="flex h-screen max-h-screen flex-col scheme-dark"
+    >
       {children}
-    </div>
+    </ThemedRegion>
   );
 }
 
