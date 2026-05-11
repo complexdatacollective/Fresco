@@ -73,7 +73,7 @@
     "dotenv": "^17.4.2",
     "effect": "^3.21.0",
     "es-toolkit": "^1.46.1",
-    "immer": "^11.1.4",
+    "immer": "^11.1.8",
     "jszip": "^3.10.1",
     "lucide-react": "^1.8.0",
     "luxon": "^3.7.2",
