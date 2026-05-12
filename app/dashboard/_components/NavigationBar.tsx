@@ -84,7 +84,6 @@ export function NavigationBar() {
         className={cx(
           'text-primary-contrast tablet-portrait:gap-4 bg-primary sticky top-4 flex max-w-5xl grow items-center justify-between gap-2 overflow-visible rounded-full px-6 py-2 shadow-lg shadow-black/25 backdrop-blur-sm',
         )}
-        elevation="none"
         variants={containerVariants}
         initial={shouldReduceMotion ? false : 'hidden'}
         animate="visible"

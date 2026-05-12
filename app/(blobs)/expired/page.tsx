@@ -9,7 +9,7 @@ import { cx } from '@codaco/fresco-ui/utils/cva';
 
 export default function Page() {
   return (
-    <Surface className={cx(containerClasses)} elevation="none" maxWidth="md">
+    <Surface className={cx(containerClasses, 'shadow-none')} maxWidth="md">
       <Heading level="h1">Installation expired</Heading>
       <Paragraph intent="lead">
         You did not configure this deployment of Fresco in time, and it has now
