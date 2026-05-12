@@ -14,20 +14,16 @@ jobs:
       NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
       NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
     steps:
-      - name: Get branch name
-        id: branch-name
-        uses: tj-actions/branch-names@v9
-
       - name: Create Neon Branch
         id: create-branch
-        uses: neondatabase/create-branch-action@v6
+        uses: neondatabase/create-branch-action@fb620d43d4c565abaf088b848a4e28e5c4ea4d9c # 6.3.1
         with:
           project_id: ${{ vars.NEON_PROJECT_ID }}
-          branch_name: preview/pr-${{ github.event.number }}-${{ steps.branch-name.outputs.current_branch }}
+          branch_name: preview/pr-${{ github.event.number }}-${{ github.head_ref }}
           api_key: ${{ secrets.NEON_API_KEY }}
 
       - name: Setup
-        uses: complexdatacollective/github-actions/setup-pnpm@v1
+        uses: complexdatacollective/github-actions/setup-pnpm@93811ade40da19d041bcf2a55603b3c5992af246 # v1
 
       - name: Install Netlify CLI
         run: pnpm add -g netlify-cli
@@ -40,7 +36,7 @@ jobs:
         # functions are baked with `connectionString: undefined`, which makes
         # `node-postgres` fall back to PGHOST=localhost (127.0.0.1).
         env:
-          BRANCH: ${{ steps.branch-name.outputs.current_branch }}
+          BRANCH: ${{ github.head_ref }}
           DB_URL_POOLED: ${{ steps.create-branch.outputs.db_url_pooled }}
           DB_URL: ${{ steps.create-branch.outputs.db_url }}
         run: |
@@ -50,7 +46,7 @@ jobs:
       - name: Get branch preview URL
         id: branch-preview
         env:
-          BRANCH: ${{ steps.branch-name.outputs.current_branch }}
+          BRANCH: ${{ github.head_ref }}
         run: |
           SUBDOMAIN=$(curl -s -H "Authorization: Bearer $NETLIFY_AUTH_TOKEN" \
             "https://api.netlify.com/api/v1/sites/$NETLIFY_SITE_ID" | jq -r '.name')
@@ -86,7 +82,7 @@ jobs:
         # cheaply via `scripts/netlify-should-build.sh` (no branch DB env yet),
         # so this is the only build that actually runs.
         env:
-          BRANCH: ${{ steps.branch-name.outputs.current_branch }}
+          BRANCH: ${{ github.head_ref }}
         run: |
           curl -fsS -X POST \
             -H "Authorization: Bearer $NETLIFY_AUTH_TOKEN" \
@@ -112,9 +108,9 @@ jobs:
 
       - name: Comment on Pull Request
         if: success() && steps.find-comment.outputs.exists != 'true'
-        uses: thollander/actions-comment-pull-request@v2
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
         with:
-          comment_tag: deploy-preview
+          comment-tag: deploy-preview
           message: |
             | Resource | Link |
             |----------|------|
@@ -124,17 +120,17 @@ jobs:
       - name: Remove failure comment on success
         if: success()
         continue-on-error: true
-        uses: thollander/actions-comment-pull-request@v2
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
         with:
-          comment_tag: deploy-preview-failure
-          mode: delete
+          comment-tag: deploy-preview-failure
+          mode: delete-on-completion
           message: ''
 
       - name: Comment on failure
         if: failure()
-        uses: thollander/actions-comment-pull-request@v2
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
         with:
-          comment_tag: deploy-preview-failure
+          comment-tag: deploy-preview-failure
           message: |
             ⚠️ **Branch preview setup failed**
 

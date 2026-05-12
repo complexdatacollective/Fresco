@@ -28,7 +28,7 @@ jobs:
     name: ${{ matrix.name }}
     steps:
       - name: Setup
-        uses: complexdatacollective/github-actions/setup-pnpm@v1
+        uses: complexdatacollective/github-actions/setup-pnpm@93811ade40da19d041bcf2a55603b3c5992af246 # v1
 
       - name: ${{ matrix.name }}
         run: ${{ matrix.command }}
