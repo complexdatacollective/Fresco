@@ -10,7 +10,7 @@ function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <ThemedRegion
       theme="interview"
-      className="flex h-screen max-h-screen flex-col scheme-dark"
+      className="flex h-screen max-h-screen flex-col"
     >
       {children}
     </ThemedRegion>

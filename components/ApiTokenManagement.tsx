@@ -274,7 +274,7 @@ export default function ApiTokenManagement({
         <Alert variant="success" data-testid="created-token-alert">
           <AlertTitle>Your API Token</AlertTitle>
           <AlertDescription>
-            <code className="font-monospace relative rounded px-[0.3rem] py-[0.2rem] text-sm">
+            <code className="font-monospace relative rounded px-1.5 py-0.5 text-sm">
               {createdToken}
             </code>
           </AlertDescription>
