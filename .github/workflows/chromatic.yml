@@ -54,14 +54,14 @@ jobs:
             ]);
 
       - name: Setup
-        uses: complexdatacollective/github-actions/setup-pnpm@v1
+        uses: complexdatacollective/github-actions/setup-pnpm@93811ade40da19d041bcf2a55603b3c5992af246 # v1
         with:
           fetch-depth: '0'
           ref: ${{ steps.pr.outputs.ref || '' }}
 
       - name: Run Chromatic
         id: chromatic
-        uses: chromaui/action@latest
+        uses: chromaui/action@e3eb8ec36101d8f0253c7c3ae66e5a2b4e2197ba # v16.10.0
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           autoAcceptChanges: main
