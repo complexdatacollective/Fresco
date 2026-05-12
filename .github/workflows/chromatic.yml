@@ -24,7 +24,7 @@ jobs:
       - name: Get PR details
         if: github.event_name == 'issue_comment'
         id: pr
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: |
             const pr = await github.rest.pulls.get({
@@ -69,7 +69,7 @@ jobs:
 
       - name: Post links to PR
         if: github.event_name == 'issue_comment'
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         env:
           BRANCH: ${{ steps.pr.outputs.ref }}
         with:
@@ -94,7 +94,7 @@ jobs:
 
       - name: Update commit status
         if: github.event_name == 'issue_comment' && always()
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         env:
           CHROMATIC_OUTCOME: ${{ steps.chromatic.outcome }}
           PR_SHA: ${{ steps.pr.outputs.sha }}
