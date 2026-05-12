@@ -2,9 +2,6 @@ name: E2E Tests
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
-  pull-requests: write
 
 on:
   push:
@@ -56,6 +53,11 @@ jobs:
     if: always()
     needs: e2e
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+      pull-requests: write
     concurrency:
       group: e2e-pages-deploy
       cancel-in-progress: false
