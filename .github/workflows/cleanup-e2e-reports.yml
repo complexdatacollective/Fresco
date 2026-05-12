@@ -31,7 +31,7 @@ jobs:
 
     steps:
       - name: Fetch GitHub Pages content
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: gh-pages
           path: pages
@@ -174,10 +174,10 @@ jobs:
 
       - name: Upload Pages artifact
         if: steps.check.outputs.has_content == 'true' && inputs.dry_run != true
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: pages/
 
       - name: Deploy to GitHub Pages
         if: steps.check.outputs.has_content == 'true' && inputs.dry_run != true
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
