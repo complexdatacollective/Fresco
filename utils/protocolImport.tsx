@@ -8,7 +8,7 @@ import { type AssetInsertType } from '~/schemas/protocol';
 /**
  * Extract apikey assets from a protocol's asset manifest.
  */
-export function extractApikeyAssetsFromManifest(
+function extractApikeyAssetsFromManifest(
   assetManifest: CurrentProtocol['assetManifest'],
 ): AssetInsertType[] {
   if (!assetManifest) return [];

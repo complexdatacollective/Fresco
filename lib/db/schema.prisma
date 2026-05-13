@@ -72,12 +72,8 @@ model Protocol {
   assets        Asset[]
   interviews    Interview[]
   experiments   Json?
-  isPreview     Boolean     @default(false)
-  isPending     Boolean     @default(false)
   originalFileKey String?
   originalFileUrl String?
-
-  @@index([isPreview, importedAt])
 }
 
 model Asset {
@@ -130,8 +126,6 @@ enum AppSetting {
   disableAnalytics
   disableSmallScreenOverlay
   uploadThingToken
-  previewMode
-  previewModeRequireAuth
   freezeInterviewsAfterCompletion
   enableInterviewDataApi
   storageProvider

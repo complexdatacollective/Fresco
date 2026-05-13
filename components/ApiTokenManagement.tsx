@@ -210,7 +210,7 @@ export default function ApiTokenManagement({
         open={isCreating}
         closeDialog={() => setIsCreating(false)}
         title="Create API Token"
-        description="Create a new API token for authenticating preview protocol uploads."
+        description="Create a new API token for authenticating Interview Data API requests."
         footer={
           <>
             <Button

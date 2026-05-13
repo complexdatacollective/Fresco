@@ -1,9 +1,3 @@
--- AlterEnum
-ALTER TYPE "AppSetting" ADD VALUE 'previewModeRequireAuth';
-
--- AlterTable
-ALTER TABLE "Protocol" ADD COLUMN "isPreview" BOOLEAN NOT NULL DEFAULT false;
-
 -- CreateTable
 CREATE TABLE "ApiToken" (
     "id" TEXT NOT NULL,
@@ -18,6 +12,3 @@ CREATE TABLE "ApiToken" (
 
 -- CreateIndex
 CREATE UNIQUE INDEX "ApiToken_token_key" ON "ApiToken"("token");
-
--- CreateIndex
-CREATE INDEX "Protocol_isPreview_importedAt_idx" ON "Protocol"("isPreview", "importedAt");

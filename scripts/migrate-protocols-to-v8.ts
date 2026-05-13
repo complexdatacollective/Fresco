@@ -1,74 +1,6 @@
 /* eslint-disable no-console */
-import { DeleteObjectsCommand, S3Client } from '@aws-sdk/client-s3';
 import { hashProtocol, migrateProtocol } from '@codaco/protocol-validation';
-import { UTApi } from 'uploadthing/server';
 import { Prisma, type PrismaClient } from '~/lib/db/generated/client';
-import { type AppSetting } from '~/lib/db/generated/enums';
-
-const STORAGE_SETTING_KEYS: AppSetting[] = [
-  'storageProvider',
-  'uploadThingToken',
-  's3Endpoint',
-  's3Region',
-  's3Bucket',
-  's3AccessKeyId',
-  's3SecretAccessKey',
-];
-
-// Inlined SDK construction rather than reusing lib/storage/* — those layers
-// depend on `'use cache'`, `'use server'`, and the serverless Prisma adapter,
-// none of which work in this tsx CLI context.
-async function deleteOrphanBlobs(
-  prisma: PrismaClient,
-  keys: string[],
-): Promise<void> {
-  if (keys.length === 0) return;
-
-  const settings = await prisma.appSettings.findMany({
-    where: { key: { in: STORAGE_SETTING_KEYS } },
-  });
-  const map = Object.fromEntries(settings.map((s) => [s.key, s.value]));
-  const provider = map.storageProvider ?? 'uploadthing';
-
-  try {
-    if (provider === 'uploadthing') {
-      if (!map.uploadThingToken) {
-        throw new Error('uploadThingToken is not configured');
-      }
-      const utapi = new UTApi({ token: map.uploadThingToken });
-      await utapi.deleteFiles(keys);
-    } else {
-      if (
-        !map.s3Endpoint ||
-        !map.s3Region ||
-        !map.s3Bucket ||
-        !map.s3AccessKeyId ||
-        !map.s3SecretAccessKey
-      ) {
-        throw new Error('S3 credentials are not configured');
-      }
-      const client = new S3Client({
-        endpoint: map.s3Endpoint,
-        region: map.s3Region,
-        credentials: {
-          accessKeyId: map.s3AccessKeyId,
-          secretAccessKey: map.s3SecretAccessKey,
-        },
-        forcePathStyle: true,
-      });
-      await client.send(
-        new DeleteObjectsCommand({
-          Bucket: map.s3Bucket,
-          Delete: { Objects: keys.map((Key) => ({ Key })) },
-        }),
-      );
-    }
-
-    console.log(`Deleted ${keys.length} orphan blobs from ${provider}`);
-  } catch (err) {
-    console.error('Blob cleanup failed (continuing):', err);
-  }
-}
 
 async function migrateOneProtocol(
   prisma: PrismaClient,
@@ -134,44 +66,15 @@ async function migrateOneProtocol(
 }
 
 /**
- * Delete preview protocols (cleaning up orphan assets + blobs) and migrate
- * any installed Protocol rows at schemaVersion < 8 up to v8.
+ * Migrate any Protocol rows at schemaVersion < 8 up to v8.
  *
- * Idempotent. Hard-fails per protocol on migration errors. Best-effort on
- * blob storage deletions.
+ * Idempotent. Hard-fails per protocol on migration errors.
  */
 export async function migrateProtocolsToV8(
   prisma: PrismaClient,
 ): Promise<void> {
-  // Find Asset rows attached only to preview protocols (not shared with any
-  // installed protocol). These are about to become orphans.
-  const orphanAssets = await prisma.asset.findMany({
-    where: {
-      protocols: { some: { isPreview: true } },
-      AND: { protocols: { every: { isPreview: true } } },
-    },
-    select: { key: true },
-  });
-  const orphanKeys = orphanAssets.map((a) => a.key);
-
-  // Delete all preview protocols. Their join-table rows cascade, leaving the
-  // orphan Asset rows truly unreferenced.
-  const previewDeleteResult = await prisma.protocol.deleteMany({
-    where: { isPreview: true },
-  });
-  console.log(
-    `Deleted ${previewDeleteResult.count} preview Protocol rows, ${orphanKeys.length} orphan asset candidates`,
-  );
-
-  await deleteOrphanBlobs(prisma, orphanKeys);
-
-  if (orphanKeys.length > 0) {
-    await prisma.asset.deleteMany({ where: { key: { in: orphanKeys } } });
-    console.log(`Deleted ${orphanKeys.length} orphan Asset rows`);
-  }
-
   const v7Protocols = await prisma.protocol.findMany({
-    where: { schemaVersion: { lt: 8 }, isPreview: false },
+    where: { schemaVersion: { lt: 8 } },
     select: {
       id: true,
       name: true,
