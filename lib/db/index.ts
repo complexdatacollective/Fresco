@@ -143,8 +143,7 @@ const createPrismaClient = () => {
 /**
  * Returns the result-extension config that parses Protocol's JSON fields
  * (stages, codebook, experiments) into structured types using
- * CurrentProtocolSchema. Both regular and preview protocols live in this
- * table (distinguished by isPreview) and are stored as schema-8.
+ * CurrentProtocolSchema. Protocols are stored as schema-8.
  */
 function protocolJsonExtensions() {
   const modelName = 'protocol';

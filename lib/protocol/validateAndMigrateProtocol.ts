@@ -30,15 +30,14 @@ export type ProtocolValidationResult =
 /**
  * Validates and migrates a protocol JSON object.
  *
- * This is a shared utility used by both the protocol import flow (useProtocolImport)
- * and the preview API route. It handles:
+ * This is a shared utility used by the protocol import flow (useProtocolImport).
+ * It handles:
  * 1. Basic object validation
  * 2. Schema version checking against APP_SUPPORTED_SCHEMA_VERSIONS
  * 3. Migration from older schema versions to v8 (with dependency checking)
  * 4. Full protocol validation
  *
- * Returns a discriminated union so consumers can handle errors appropriately
- * for their context (e.g., JSON responses for preview vs UI error states for useProtocolImport hook).
+ * Returns a discriminated union so consumers can handle errors appropriately.
  *
  * @param protocolJson - The protocol JSON to validate
  * @param dependencies - Dependencies required for migration (e.g., { name: 'Protocol Name' } for v7→v8)

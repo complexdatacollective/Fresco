@@ -70,8 +70,6 @@ describe('App Settings Schema Validators', () => {
         installationId: 'installation123',
         disableAnalytics: true,
         disableSmallScreenOverlay: false,
-        previewMode: false,
-        previewModeRequireAuth: true,
         freezeInterviewsAfterCompletion: true,
         enableInterviewDataApi: false,
       });
@@ -95,8 +93,6 @@ describe('App Settings Schema Validators', () => {
         installationId: 'installation123',
         disableAnalytics: true,
         disableSmallScreenOverlay: false,
-        previewMode: false,
-        previewModeRequireAuth: true,
         freezeInterviewsAfterCompletion: true,
         enableInterviewDataApi: false,
       });

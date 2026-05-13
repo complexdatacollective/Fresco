@@ -24,7 +24,7 @@ export default function ApiTokensSection() {
       <SettingsField
         label="Manage Tokens"
         testId="manage-api-tokens-field"
-        description="API tokens are used to authenticate requests to the Preview Mode upload endpoint and the Interview Data API."
+        description="API tokens are used to authenticate requests to the Interview Data API."
       >
         <ApiTokenManagement tokensPromise={apiTokensPromise} />
       </SettingsField>

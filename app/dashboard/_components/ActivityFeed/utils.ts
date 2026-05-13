@@ -30,8 +30,6 @@ export const getBadgeColorsForActivityType = (type: string) => {
       return 'bg-neon-coral hover:bg-neon-coral-dark';
     case 'User Created':
       return 'bg-sea-green hover:bg-sea-green-dark';
-    case 'Preview Mode':
-      return 'bg-tomato hover:bg-tomato-dark';
     case 'User Deleted':
       return 'bg-charcoal hover:bg-charcoal-dark';
     case 'Two-Factor Enabled':
