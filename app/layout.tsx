@@ -5,8 +5,9 @@ import Providers from '~/components/Providers';
 import { PostHogIdentify } from '~/components/Providers/PosthogIdentify';
 import { env } from '~/env';
 import { getDisableAnalytics, getInstallationId } from '~/queries/appSettings';
+import '@codaco/tailwind-config/fonts/inclusive-sans.css';
+import '@codaco/tailwind-config/fonts/nunito.css';
 import '~/styles/globals.css';
-import '@codaco/tailwind-config/fresco/default-theme.css';
 
 export const metadata: Metadata = {
   title: 'Network Canvas Fresco',

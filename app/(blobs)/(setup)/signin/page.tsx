@@ -23,9 +23,8 @@ export default async function Page() {
       noContainer
       className={cx(
         containerClasses,
-        'phone-landscape:w-md mx-auto w-full rounded',
+        'phone-landscape:w-md mx-auto w-full rounded shadow-none',
       )}
-      elevation="none"
       baseSize="content"
     >
       <Heading level="h2">Sign In To Fresco</Heading>

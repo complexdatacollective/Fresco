@@ -25,20 +25,8 @@ const config: KnipConfig = {
     // Server actions for passkey password management — UI not yet wired
     'actions/webauthn.ts': ['exports'],
 
-    // Pre-existing unused type exports (not related to e2e migration)
-    'lib/interviewer/containers/Interfaces/FamilyPedigree/useDynamicFields.tsx':
-      ['types'],
+    // Pre-existing unused type exports
     'lib/protocol/validateAndMigrateProtocol.ts': ['types'],
-  },
-  // Our playwright config uses non-standard locations, so knip cannot auto-detect it
-  playwright: {
-    config: 'tests/e2e/playwright.config.ts',
-    entry: [
-      'tests/e2e/global-setup.ts',
-      'tests/e2e/global-teardown.ts',
-      'tests/e2e/specs/**/*.spec.ts',
-      'tests/e2e/suites/**/*.spec.ts',
-    ],
   },
 };
 

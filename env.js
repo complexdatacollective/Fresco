@@ -19,28 +19,16 @@ export const env = createEnv({
    * isn't built with invalid env vars. To expose them to the client, prefix them with
    * `NEXT_PUBLIC_`.
    */
-  client: {
-    /**
-     * Client-side E2E test flag. Derived from E2E_TEST at build time via next.config.ts.
-     * Used to disable video autoplay/preload to prevent browser crashes in headless tests.
-     */
-    NEXT_PUBLIC_E2E_TEST: z.stringbool().optional(),
-  },
+  client: {},
   shared: {
     PUBLIC_URL: z.string().url().optional(),
     INSTALLATION_ID: z.string().optional(),
     DISABLE_ANALYTICS: z.stringbool().optional(),
-    /**
-     * E2E test mode. Used by next.config.ts to derive NEXT_PUBLIC_E2E_TEST
-     * and by server-side code for runtime checks.
-     */
-    E2E_TEST: z.stringbool().optional(),
     NODE_ENV: z
       .enum(['development', 'test', 'production'])
       .default('development'),
     CI: z.stringbool().optional(),
     SANDBOX_MODE: z.stringbool().optional(),
-    PREVIEW_MODE: z.stringbool().optional(),
     COOKIE_SECURE: z.stringbool().optional(),
     APP_VERSION: z.string().optional(),
     COMMIT_HASH: z.string().optional(),
@@ -56,11 +44,8 @@ export const env = createEnv({
     CI: process.env.CI,
     PUBLIC_URL: process.env.PUBLIC_URL,
     DISABLE_ANALYTICS: process.env.DISABLE_ANALYTICS,
-    E2E_TEST: process.env.E2E_TEST,
-    NEXT_PUBLIC_E2E_TEST: process.env.NEXT_PUBLIC_E2E_TEST,
     INSTALLATION_ID: process.env.INSTALLATION_ID,
     SANDBOX_MODE: process.env.SANDBOX_MODE,
-    PREVIEW_MODE: process.env.PREVIEW_MODE,
     COOKIE_SECURE: process.env.COOKIE_SECURE,
     APP_VERSION: process.env.APP_VERSION,
     COMMIT_HASH: process.env.COMMIT_HASH,

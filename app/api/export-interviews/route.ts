@@ -4,14 +4,10 @@ import { type stageMessages } from '@codaco/network-exporters/events';
 import { addEvent } from '~/actions/activityFeed';
 import { requireApiAuth } from '~/lib/auth/guards';
 import { safeRevalidateTag } from '~/lib/cache';
-import { env } from '~/env.js';
 import { describeExportError } from '~/lib/export/errors';
 import { PrismaInterviewRepository } from '~/lib/export/InterviewRepository';
 import { PrismaProtocolRepository } from '~/lib/export/ProtocolRepository';
-import {
-  makeLocalOutputLayer,
-  makeProductionOutputLayer,
-} from '~/lib/export/Output';
+import { makeProductionOutputLayer } from '~/lib/export/Output';
 import { formatSSE, type ExportSseEvent } from '~/lib/export/sseEvents';
 import {
   captureEvent,
@@ -59,9 +55,7 @@ export async function POST(request: Request) {
 
   const { interviewIds, exportOptions } = parsed.data;
 
-  const outputLayer = env.E2E_TEST
-    ? makeLocalOutputLayer(env.PUBLIC_URL ?? 'http://localhost:3000')
-    : makeProductionOutputLayer(await getStorageProvider());
+  const outputLayer = makeProductionOutputLayer(await getStorageProvider());
 
   const exportLayer = Layer.mergeAll(
     PrismaInterviewRepository,

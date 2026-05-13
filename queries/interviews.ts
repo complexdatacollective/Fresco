@@ -159,7 +159,6 @@ async function prisma_getInterviewById(interviewId: string) {
         include: { assets: true },
         omit: {
           lastModified: true,
-          hash: true,
         },
       },
     },

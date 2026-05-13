@@ -1,7 +1,10 @@
 'use client';
 
+import { Badge } from '@codaco/fresco-ui/Badge';
+import Checkbox from '@codaco/fresco-ui/form/fields/Checkbox';
+import ProgressBar from '@codaco/fresco-ui/ProgressBar';
+import TimeAgo from '@codaco/fresco-ui/TimeAgo';
 import { type FilterFn } from '@tanstack/react-table';
-import { type StrictColumnDef } from '~/components/DataTable/types';
 import Image from 'next/image';
 import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
 import {
@@ -12,11 +15,10 @@ import {
   rangeFilterFn,
 } from '~/components/DataTable/filters/filterFns';
 import { SelectAllHeader } from '~/components/DataTable/SelectAllHeader';
-import { type Option } from '~/components/DataTable/types';
-import { Badge } from '@codaco/fresco-ui/Badge';
-import ProgressBar from '@codaco/fresco-ui/ProgressBar';
-import TimeAgo from '@codaco/fresco-ui/TimeAgo';
-import Checkbox from '@codaco/fresco-ui/form/fields/Checkbox';
+import {
+  type Option,
+  type StrictColumnDef,
+} from '~/components/DataTable/types';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 import NetworkSummary from './NetworkSummary';
 
@@ -282,11 +284,7 @@ export const InterviewColumns = (): StrictColumnDef<InterviewRow>[] => [
         return <Badge variant="destructive">Not exported</Badge>;
       }
 
-      return (
-        <div className="text-xs">
-          <TimeAgo date={row.original.exportTime} />
-        </div>
-      );
+      return <TimeAgo date={row.original.exportTime} />;
     },
   },
 ];

@@ -1,3 +1,5 @@
+import '@codaco/tailwind-config/fonts/inclusive-sans.css';
+import '@codaco/tailwind-config/fonts/nunito.css';
 import addonA11y from '@storybook/addon-a11y';
 import addonDocs from '@storybook/addon-docs';
 import addonVitest from '@storybook/addon-vitest';
@@ -7,9 +9,6 @@ import { NuqsTestingAdapter } from 'nuqs/adapters/testing';
 import { StrictMode } from 'react';
 import Providers from '../components/Providers';
 import '../styles/globals.css';
-import '@codaco/tailwind-config/fresco/default-theme.css';
-import '@codaco/tailwind-config/fresco/interview-theme.css';
-import { getInitialTheme, globalTypes, withTheme } from './theme-switcher';
 
 // @chromatic-com/storybook is not included here because it doesn't export a
 // CSF Next compatible preview addon. It only provides server-side preset
@@ -96,12 +95,5 @@ export default definePreview({
         </StrictMode>
       );
     },
-    withTheme,
   ],
-
-  globalTypes,
-
-  initialGlobals: {
-    theme: getInitialTheme(),
-  },
 });

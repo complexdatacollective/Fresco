@@ -8,7 +8,7 @@ const uploadThingTokenSchema = z.object({
   ingestHost: z._default(z.optional(z.string()), 'ingest.uploadthing.com'),
 });
 
-export type ParsedToken = z.infer<typeof uploadThingTokenSchema>;
+type ParsedToken = z.infer<typeof uploadThingTokenSchema>;
 
 export async function parseUploadThingToken(): Promise<ParsedToken | null> {
   const token = await getAppSetting('uploadThingToken');

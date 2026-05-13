@@ -1,230 +1,24 @@
 /*
  * Tailwind v4 entry, design tokens, NC palette, custom plugins
- * (elevation, inset-surface, motion-spring), and the `interview:` /
- * `dashboard:` variants all come from @codaco/fresco-ui.
- *
- * Theme overrides come from @codaco/tailwind-config/fresco/{default-theme,interview-theme}.css,
- * imported in the appropriate route layouts (default in app/layout.tsx,
- * interview in app/(interview)/layout.tsx).
+ * 
+ * Note: fonts must be imported in JS, so that url() references are resolved
+ * by the bundler.
  */
-@import '@codaco/fresco-ui/styles.css';
+@import '@codaco/tailwind-config/fresco.css';
 
 /*
  * Tailwind's class scanner needs an explicit @source for the package's compiled
  * JS — the @source declaration inside the package's styles.css is relative to
  * the package's own dist/, which Fresco's compiler can't resolve from here.
  */
-@source '../node_modules/@codaco/fresco-ui/dist/**/*.js';
+@import '@codaco/fresco-ui/styles.css';
+@import '@codaco/interview/styles.css';
 
-@plugin '@tailwindcss/forms';
 
-/* 
-
-The default tailwind way to do this uses a psuedo element selector, which
-means that anything not editable is "read only", including things
-like <select>. 
-
-This custom variant lets you target only elements with the readonly attribute.
-
-*/
-@custom-variant is-read-only (&[readonly]);
-
-/**
- * Utility classes for focus styles:
- * - focusable: applies focus styles on :focus-visible (default color: currentColor)
- * - focusable-within: applies focus styles on :focus-within + :focus-visible
- * - focus-styles: the actual focus styles (sizing only, no color)
- *
- * The outline color is set via --focus-color, which defaults to currentColor.
- * Parent containers (e.g. Surface) can set --focus-color to override the
- * focus ring color for all descendants — useful when currentColor would have
- * poor contrast against a child component's background.
- *
- * To override per-element, add outline-[color] to the element itself.
- */
-@utility focus-styles {
-  @apply outline-4 outline-offset-3 transition-all duration-200 ease-in-out;
-}
-
-@utility focusable {
-  outline-color: var(--focus-color, currentColor);
-  @apply focus-visible:focus-styles;
-}
-
-@utility focusable-within {
-  outline-color: var(--focus-color, currentColor);
-  @apply focus-visible-within:focus-styles;
-}
-
-/**
- * focusable-after: applies focus styles via ::after pseudo-element on a wrapper.
- * Apply this to a PARENT element that wraps a scrollable/overflow child.
- * The child that should trigger focus styles must have the `focusable-after-trigger` class.
- * The pseudo-element sits on the parent and won't be clipped by child overflow.
- */
-@utility focusable-after {
-  @apply relative;
-  &::after {
-    @apply pointer-events-none absolute inset-0 content-[''];
-    outline-color: var(--focus-color, currentColor);
-  }
-  &:has(.focusable-after-trigger:focus-visible)::after {
-    @apply focus-styles z-1 rounded-sm;
-  }
-}
-
-@utility focusable-after-trigger {
-  @apply outline-none;
-}
-
-/**
- * focusable-after-within: extends focusable-after to also trigger when ANY
- * descendant has :focus-visible. Use this for Collection components where
- * items receive actual DOM focus instead of the trigger element.
- */
-@utility focusable-after-within {
-  &:has(:focus-visible)::after {
-    @apply focus-styles z-1 rounded-sm;
-  }
-}
-
-/**
- * Gradient scroll fade for ScrollArea viewport.
- * Uses CSS variables set by ScrollArea component to create fade effects at scroll edges.
- * --scroll-area-overflow-y-start: distance scrolled from top
- * --scroll-area-overflow-y-end: distance remaining to scroll
- */
-@utility scroll-area-viewport {
-  --fade-height: max(1.5rem, 8%);
-  &::before,
-  &::after {
-    @apply pointer-events-none absolute left-0 block transition-[height] duration-100 ease-out content-[''];
-    right: var(--scrollbar-width, 0px);
-  }
-  &::before {
-    @apply top-0 z-1 bg-linear-to-b from-(--published-bg,var(--background)) to-transparent;
-    height: min(var(--fade-height), var(--scroll-area-overflow-y-start, 0px));
-  }
-  &::after {
-    @apply bottom-0 bg-linear-to-t from-(--published-bg,var(--background)) to-transparent;
-    height: min(var(--fade-height), var(--scroll-area-overflow-y-end, 0px));
-  }
-}
-
-@utility scroll-area-viewport-x {
-  --fade-width: max(1.5rem, 8%);
-  &::before,
-  &::after {
-    @apply pointer-events-none absolute top-0 block transition-[width] duration-100 ease-out content-[''];
-    bottom: var(--scrollbar-height, 0px);
-  }
-  &::before {
-    @apply left-0 z-1 bg-linear-to-r from-(--published-bg,var(--background)) to-transparent;
-    width: min(var(--fade-width), var(--scroll-area-overflow-x-start, 0px));
-  }
-  &::after {
-    @apply right-0 bg-linear-to-l from-(--published-bg,var(--background)) to-transparent;
-    width: min(var(--fade-width), var(--scroll-area-overflow-x-end, 0px));
-  }
-}
-
-/* Replacement for interface centering mixin */
-@utility interface {
-  @apply relative flex min-h-0 w-full shrink grow basis-auto flex-col items-center justify-center;
-  @apply phone-landscape:p-4 phone-landscape:gap-6 tablet-landscape:p-6 tablet-landscape:gap-8 desktop:px-8 desktop:gap-10 gap-4 p-2;
-}
-
-/* Required for base-ui components that use portals: https://base-ui.com/react/overview/quick-start#portals */
-@utility root {
-  @apply isolate;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0s !important;
-    animation-delay: 0s !important;
-    transition-duration: 0s !important;
-    transition-delay: 0s !important;
-  }
-}
-
-/* Override default border color to use our theme values */
-@layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    @apply border-outline;
-  }
-
-  body {
-    @apply bg-background text-text publish-colors font-body;
-    position: relative; /* https://base-ui.com/react/overview/quick-start#ios-26-safari */
-  }
-
-  /* These tags are semantic, so I think its okay to apply styles to them directly in the global styles. */
-  strong {
-    @apply font-bold;
-  }
-
-  /* Within contexts that are already bold (headings, labels), push strong
-     to weight 900 so it remains visually distinct. */
-  :is(h1, h2, h3, h4, h5, h6) strong {
-    @apply font-black tracking-normal;
-  }
-
-  /* Labels additionally get slightly wider tracking on strong to further
-     reinforce the visual distinction. */
-  label strong {
-    @apply font-black tracking-wide;
-  }
-
-  em {
-    @apply italic;
-  }
-
-  s {
-    @apply line-through;
-  }
-
-  u {
-    @apply underline;
-  }
-
-  hr {
-    @apply my-6 rounded border-[1.2px] border-current/5;
-  }
-
-  kbd {
-    @apply font-monospace inline-flex items-center justify-center rounded-sm border border-current/15 bg-current/5 px-1.5 py-0.5 text-xs leading-none font-medium shadow-[0_1px_0_1px_oklch(from_currentColor_l_c_h/0.1)];
-  }
-
-  /* Slightly increase default stroke width for better visibility */
-  .lucide {
-    stroke-width: 2.5px;
-  }
-
-  /* Interview mode responsive font-size (lives here because theme() needs @theme in same file) */
-  :root:has([data-interview]) {
-    font-size: 16px;
-
-    @media (width >= theme(--breakpoint-tablet-landscape-max)) {
-      font-size: 18px;
-    }
-
-    @media (width >= theme(--breakpoint-desktop-lg)) {
-      font-size: 20px;
-    }
-  }
-}
-
-/* Custom variant for :focus-within + :focus-visible */
-@variant focus-visible-within (&:has(:focus-visible));
-
-/* Storybook docs story canvas background */
+/* Autodocs renders each story in a `.sbdocs-preview` wrapper that lives
+   outside the canvas iframe, so the body rule above doesn't reach it.
+   Paint the docs preview canvas with the theme background directly. */
 .sbdocs-preview {
-  background: var(--background) !important;
+	@apply bg-background!;
 }
+

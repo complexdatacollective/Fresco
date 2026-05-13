@@ -1,8 +1,8 @@
-import { isValidAssetType } from '~/lib/interviewer/contract/assets';
-import type {
-  InterviewPayload,
-  ResolvedAsset,
-} from '~/lib/interviewer/contract/types';
+import {
+  isValidAssetType,
+  type InterviewPayload,
+  type ResolvedAsset,
+} from '@codaco/interview';
 import type { GetInterviewByIdQuery } from '~/queries/interviews';
 
 export function mapInterviewPayload(
@@ -10,6 +10,7 @@ export function mapInterviewPayload(
 ): {
   payload: InterviewPayload;
   assetUrls: Record<string, string>;
+  initialStep: number;
 } {
   const { protocol, ...session } = source;
 
@@ -33,7 +34,6 @@ export function mapInterviewPayload(
   const payload: InterviewPayload = {
     session: {
       id: session.id,
-      currentStep: session.currentStep,
       startTime: session.startTime.toISOString(),
       finishTime: session.finishTime?.toISOString() ?? null,
       exportTime: session.exportTime?.toISOString() ?? null,
@@ -44,11 +44,12 @@ export function mapInterviewPayload(
     protocol: {
       ...protocol,
       schemaVersion: 8,
+      hash: protocol.hash,
       description: protocol.description ?? undefined,
       importedAt: protocol.importedAt.toISOString(),
       assets,
     },
   };
 
-  return { payload, assetUrls };
+  return { payload, assetUrls, initialStep: session.currentStep };
 }
