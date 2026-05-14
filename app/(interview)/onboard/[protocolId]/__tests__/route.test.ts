@@ -62,7 +62,7 @@ describe('Onboard Route Handler', () => {
       delete: vi.fn(),
       size: 0,
       [Symbol.iterator]: vi.fn(),
-    } as Awaited<ReturnType<typeof cookies>>);
+    });
   });
 
   describe('GET handler', () => {
