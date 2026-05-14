@@ -24,17 +24,9 @@ export const UploadThingFileStorage = Layer.succeed(FileStorage, {
           }),
       });
 
-      const zipFile = new File(
-        [
-          new Uint8Array(
-            fileBuffer.buffer as ArrayBuffer,
-            fileBuffer.byteOffset,
-            fileBuffer.byteLength,
-          ),
-        ],
-        fileName,
-        { type: 'application/zip' },
-      );
+      const zipFile = new File([fileBuffer], fileName, {
+        type: 'application/zip',
+      });
 
       const { data, error } = yield* Effect.tryPromise({
         try: () => utapi.uploadFiles(zipFile),

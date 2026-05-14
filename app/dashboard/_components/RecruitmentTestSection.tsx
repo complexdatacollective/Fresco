@@ -46,10 +46,10 @@ export default function RecruitmentTestSection({
 
   const getInterviewURL = (): Route => {
     if (!selectedParticipant) {
-      return `/onboard/${selectedProtocol?.id}`;
+      return `/onboard/${selectedProtocol?.id}` as Route;
     }
 
-    return `/onboard/${selectedProtocol?.id}/?participantIdentifier=${selectedParticipant?.identifier}`;
+    return `/onboard/${selectedProtocol?.id}/?participantIdentifier=${selectedParticipant?.identifier}` as Route;
   };
 
   return (
