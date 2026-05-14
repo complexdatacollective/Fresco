@@ -44,14 +44,12 @@ export default function RecruitmentTestSection({
   const buttonDisabled =
     !selectedProtocol || (!allowAnonymousRecruitment && !selectedParticipant);
 
-  const getInterviewURL = (): Route | null => {
-    if (!selectedProtocol) return null;
-
+  const getInterviewURL = (): Route => {
     if (!selectedParticipant) {
-      return `/onboard/${selectedProtocol.id}`;
+      return `/onboard/${selectedProtocol?.id}` as Route;
     }
 
-    return `/onboard/${selectedProtocol.id}/?participantIdentifier=${selectedParticipant.identifier}`;
+    return `/onboard/${selectedProtocol?.id}/?participantIdentifier=${selectedParticipant?.identifier}` as Route;
   };
 
   return (
@@ -90,19 +88,14 @@ export default function RecruitmentTestSection({
       <div className="tablet-landscape:flex-row mt-4 flex flex-col gap-2">
         <Button
           disabled={buttonDisabled}
-          onClick={() => {
-            const url = getInterviewURL();
-            if (url) router.push(url);
-          }}
+          onClick={() => router.push(getInterviewURL())}
         >
           Start Interview with GET
         </Button>
         <Button
           disabled={buttonDisabled}
-          onClick={async () => {
-            const url = getInterviewURL();
-            if (!url) return;
-            await fetch(window.location.origin + url, {
+          onClick={async () =>
+            await fetch(window.location.origin + getInterviewURL(), {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -114,8 +107,8 @@ export default function RecruitmentTestSection({
               if (response.redirected) {
                 window.location.href = response.url;
               }
-            });
-          }}
+            })
+          }
         >
           Start Interview with POST
         </Button>
