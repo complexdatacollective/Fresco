@@ -32,20 +32,14 @@ export default function NuqsClearFilters({
     const entries = paramKeys.map(
       (key) => [key, parseAsString.withOptions({ clearOnDefault: true })] as const,
     );
-    return Object.fromEntries(entries) as Record<
-      (typeof paramKeys)[number],
-      typeof parseAsString
-    >;
+    return Object.fromEntries(entries);
   }, [paramKeys]);
 
   const urlKeys = useMemo(() => {
     const entries = paramKeys.map(
       (key) => [key, nuqsTableUrlKey(prefix, key)] as const,
     );
-    return Object.fromEntries(entries) as Record<
-      (typeof paramKeys)[number],
-      string
-    >;
+    return Object.fromEntries(entries);
   }, [paramKeys, prefix]);
 
   const [values, setValues] = useQueryStates(parsers, {

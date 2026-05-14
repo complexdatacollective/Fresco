@@ -16,7 +16,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div
       data-testid="dashboard-layout"
-      className="tablet-landscape:gap-16 tablet-landscape:px-6 laptop:px-12 flex h-dvh flex-col gap-10 overflow-y-auto px-2 pb-10 [scrollbar-gutter:stable_both-edges]"
+      className="tablet-landscape:gap-16 tablet-landscape:px-6 laptop:px-12 flex h-dvh flex-col gap-10 overflow-y-auto px-2 pb-10 scrollbar-gutter-both"
     >
       <NavigationBar />
       <Suspense fallback={null}>

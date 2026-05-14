@@ -33,7 +33,7 @@ function triggerAllObservers(width: number, height: number) {
   for (const obs of latestObserverInstances) {
     obs.callback(
       [{ contentRect: { width, height } } as ResizeObserverEntry],
-      obs as unknown as ResizeObserver,
+      obs,
     );
   }
 }

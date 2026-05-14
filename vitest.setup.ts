@@ -256,11 +256,11 @@ class ResizeObserverMock implements ResizeObserver {
               bottom: 600,
               right: 800,
               toJSON: () => ({}),
-            } as DOMRectReadOnly,
+            },
             borderBoxSize: [{ inlineSize: 800, blockSize: 600 }],
             contentBoxSize: [{ inlineSize: 800, blockSize: 600 }],
             devicePixelContentBoxSize: [{ inlineSize: 800, blockSize: 600 }],
-          } as ResizeObserverEntry,
+          },
         ],
         this,
       );
@@ -359,4 +359,4 @@ class WorkerMock implements Worker {
   }
 }
 
-global.Worker = WorkerMock as unknown as typeof Worker;
+global.Worker = WorkerMock;
