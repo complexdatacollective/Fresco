@@ -1,4 +1,5 @@
 'use client';
+import { type Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { use, useEffect, useState } from 'react';
 import { SuperJSON } from 'superjson';
@@ -43,10 +44,7 @@ export default function RecruitmentTestSection({
   const buttonDisabled =
     !selectedProtocol || (!allowAnonymousRecruitment && !selectedParticipant);
 
-  const getInterviewURL = ():
-    | `/onboard/${string}`
-    | `/onboard/${string}/?participantIdentifier=${string}`
-    | null => {
+  const getInterviewURL = (): Route | null => {
     if (!selectedProtocol) return null;
 
     if (!selectedParticipant) {
