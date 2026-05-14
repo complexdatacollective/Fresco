@@ -1,5 +1,4 @@
 'use client';
-import { type Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { use, useEffect, useState } from 'react';
 import { SuperJSON } from 'superjson';
@@ -44,12 +43,17 @@ export default function RecruitmentTestSection({
   const buttonDisabled =
     !selectedProtocol || (!allowAnonymousRecruitment && !selectedParticipant);
 
-  const getInterviewURL = (): Route => {
+  const getInterviewURL = ():
+    | `/onboard/${string}`
+    | `/onboard/${string}/?participantIdentifier=${string}`
+    | null => {
+    if (!selectedProtocol) return null;
+
     if (!selectedParticipant) {
-      return `/onboard/${selectedProtocol?.id}` as Route;
+      return `/onboard/${selectedProtocol.id}`;
     }
 
-    return `/onboard/${selectedProtocol?.id}/?participantIdentifier=${selectedParticipant?.identifier}` as Route;
+    return `/onboard/${selectedProtocol.id}/?participantIdentifier=${selectedParticipant.identifier}`;
   };
 
   return (
@@ -88,14 +92,19 @@ export default function RecruitmentTestSection({
       <div className="tablet-landscape:flex-row mt-4 flex flex-col gap-2">
         <Button
           disabled={buttonDisabled}
-          onClick={() => router.push(getInterviewURL())}
+          onClick={() => {
+            const url = getInterviewURL();
+            if (url) router.push(url);
+          }}
         >
           Start Interview with GET
         </Button>
         <Button
           disabled={buttonDisabled}
-          onClick={async () =>
-            await fetch(window.location.origin + getInterviewURL(), {
+          onClick={async () => {
+            const url = getInterviewURL();
+            if (!url) return;
+            await fetch(window.location.origin + url, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -107,8 +116,8 @@ export default function RecruitmentTestSection({
               if (response.redirected) {
                 window.location.href = response.url;
               }
-            })
-          }
+            });
+          }}
         >
           Start Interview with POST
         </Button>
