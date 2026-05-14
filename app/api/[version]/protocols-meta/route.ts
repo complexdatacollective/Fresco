@@ -19,23 +19,26 @@ export function OPTIONS() {
 }
 
 async function v1(request: NextRequest) {
-  const enabled = await getAppSetting('enableInterviewDataApi');
-  if (!enabled) {
-    return NextResponse.json(
-      { error: 'Interview Data API is not enabled' },
-      { status: 403, headers: corsHeaders },
-    );
-  }
-
-  const authResult = await requireApiTokenAuth(request);
-  if ('error' in authResult) {
-    return NextResponse.json(
-      { error: 'Authentication required. Provide a Bearer token.' },
-      { status: 401, headers: corsHeaders },
-    );
-  }
-
   try {
+    const enabled = await getAppSetting('enableInterviewDataApi');
+    if (!enabled) {
+      return NextResponse.json(
+        { error: 'Interview Data API is not enabled' },
+        { status: 403, headers: corsHeaders },
+      );
+    }
+
+    const authResult = await requireApiTokenAuth(request);
+    if ('error' in authResult) {
+      return NextResponse.json(
+        { error: 'Authentication required. Provide a Bearer token.' },
+        {
+          status: 401,
+          headers: { ...corsHeaders, 'WWW-Authenticate': 'Bearer' },
+        },
+      );
+    }
+
     const protocols = await prisma.protocol.findMany({
       select: {
         id: true,
@@ -49,7 +52,9 @@ async function v1(request: NextRequest) {
     return NextResponse.json(protocols, { headers: corsHeaders });
   } catch (e) {
     const error = ensureError(e);
-    await captureException(error);
+    captureException(error).catch(() => {
+      // swallow telemetry errors so they cannot replace the 500
+    });
     after(async () => {
       await shutdownPostHog();
     });
