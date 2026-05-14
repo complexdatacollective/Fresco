@@ -45,7 +45,7 @@
     "@aws-sdk/s3-request-presigner": "^3.1037.0",
     "@base-ui/react": "^1.4.1",
     "@codaco/fresco-ui": "^2.10.2",
-    "@codaco/interview": "1.0.0-alpha.19",
+    "@codaco/interview": "1.0.0-alpha.20",
     "@codaco/network-exporters": "^1.0.2",
     "@codaco/protocol-validation": "^11.5.0",
     "@codaco/shared-consts": "5.0.0",
