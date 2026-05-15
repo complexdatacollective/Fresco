@@ -1,0 +1,27 @@
+name: Deploy Production
+
+on:
+  push:
+    branches: [next]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy-production:
+    runs-on: ubuntu-latest
+    env:
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Trigger Netlify production deploy and wait
+        # `pnpm build:platform` (the production-context build command in
+        # netlify.toml) runs migrations and initialization itself, so we
+        # don't need to do any DB setup from CI — just trigger and gate
+        # the CI status on the build outcome.
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: ./scripts/netlify-deploy.sh

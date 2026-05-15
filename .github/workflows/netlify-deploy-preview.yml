@@ -2,6 +2,10 @@ name: Deploy Preview
 
 on:
   pull_request:
+    # Only for development-track PRs (base = next). The sandbox-dev Netlify
+    # project is wired to this branch; PRs into main go through a separate
+    # production workflow / project.
+    branches: [next]
 
 permissions:
   contents: read
@@ -75,20 +79,14 @@ jobs:
           DATABASE_URL_UNPOOLED: ${{ steps.create-branch.outputs.db_url }}
         run: npx tsx scripts/initialize.ts
 
-      - name: Trigger Netlify rebuild
-        # Now that the branch-scoped DATABASE_URL is set and migrations have
-        # run, force a fresh deploy that's guaranteed to see the env vars.
-        # The build Netlify auto-triggered on the same push will have skipped
-        # cheaply via `scripts/netlify-should-build.sh` (no branch DB env yet),
-        # so this is the only build that actually runs.
+      - name: Trigger Netlify build and wait for completion
+        # Branch-scoped DATABASE_URL is set and migrations have run, so the
+        # build will see the right env. Triggering via API + polling means
+        # this CI step fails if the Netlify build fails (otherwise we'd post
+        # a working-preview comment for a broken deploy).
         env:
           BRANCH: ${{ github.head_ref }}
-        run: |
-          curl -fsS -X POST \
-            -H "Authorization: Bearer $NETLIFY_AUTH_TOKEN" \
-            -H "Content-Type: application/json" \
-            -d "{\"branch\": \"$BRANCH\", \"clear_cache\": false}" \
-            "https://api.netlify.com/api/v1/sites/$NETLIFY_SITE_ID/builds"
+        run: ./scripts/netlify-deploy.sh
 
       - name: Check for existing deploy comment
         id: find-comment
