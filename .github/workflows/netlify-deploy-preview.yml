@@ -26,7 +26,12 @@ jobs:
         uses: complexdatacollective/github-actions/setup-pnpm@93811ade40da19d041bcf2a55603b3c5992af246 # v1
 
       - name: Install Netlify CLI
-        run: pnpm add -g netlify-cli
+        # Install via npm rather than pnpm: pnpm 10+ resolves the global bin
+        # dir as `$PNPM_HOME/bin`, but `pnpm/action-setup` sets `PNPM_HOME` to
+        # `.../node_modules/.bin` (already a bin dir), so the resolved path
+        # `.bin/bin` is not on PATH and `pnpm add -g` errors out. npm's global
+        # bin is on PATH via actions/setup-node.
+        run: npm install -g netlify-cli
 
       - name: Set Netlify runtime environment variables
         # Set the database URLs on Netlify *before* anything else so that the
