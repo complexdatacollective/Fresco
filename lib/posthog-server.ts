@@ -34,33 +34,45 @@ export async function captureEvent(
   event: string,
   properties?: Record<string, unknown>,
 ) {
-  if (await isAnalyticsDisabled()) return;
+  // Telemetry must never throw — DB lookups for installationId/disableAnalytics
+  // can fail, and a failed capture should never break the calling flow.
+  try {
+    if (await isAnalyticsDisabled()) return;
 
-  const distinctId = await resolveInstallationId();
-  const client = getPostHogServer();
+    const distinctId = await resolveInstallationId();
+    const client = getPostHogServer();
 
-  client.capture({
-    distinctId,
-    event,
-    properties: {
-      app: POSTHOG_APP_NAME,
-      installation_id: distinctId,
-      ...properties,
-      $source: 'server',
-    },
-  });
+    client.capture({
+      distinctId,
+      event,
+      properties: {
+        app: POSTHOG_APP_NAME,
+        installation_id: distinctId,
+        ...properties,
+        $source: 'server',
+      },
+    });
+  } catch {
+    // swallow
+  }
 }
 
 export async function captureException(
   error: unknown,
   properties?: Record<string, unknown>,
 ) {
-  if (await isAnalyticsDisabled()) return;
+  // Telemetry must never throw — DB lookups for installationId/disableAnalytics
+  // can fail, and a failed capture should never replace the original error.
+  try {
+    if (await isAnalyticsDisabled()) return;
 
-  const distinctId = await resolveInstallationId();
-  const client = getPostHogServer();
+    const distinctId = await resolveInstallationId();
+    const client = getPostHogServer();
 
-  client.captureException(error, distinctId, properties);
+    client.captureException(error, distinctId, properties);
+  } catch {
+    // swallow
+  }
 }
 
 export async function shutdownPostHog() {

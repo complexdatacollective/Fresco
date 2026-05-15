@@ -70,6 +70,17 @@ describe('posthog-server', () => {
         },
       });
     });
+
+    it('swallows errors thrown by underlying lookups', async () => {
+      mockGetDisableAnalytics.mockRejectedValue(new Error('db down'));
+
+      const { captureEvent } = await import('../posthog-server');
+
+      await expect(
+        captureEvent('test-event', { key: 'value' }),
+      ).resolves.toBeUndefined();
+      expect(mockCapture).not.toHaveBeenCalled();
+    });
   });
 
   describe('captureException', () => {
@@ -95,6 +106,17 @@ describe('posthog-server', () => {
       expect(mockCaptureException).toHaveBeenCalledWith(error, 'install-123', {
         extra: 'data',
       });
+    });
+
+    it('swallows errors thrown by underlying lookups', async () => {
+      mockGetDisableAnalytics.mockRejectedValue(new Error('db down'));
+
+      const { captureException } = await import('../posthog-server');
+
+      await expect(
+        captureException(new Error('test'), { extra: 'data' }),
+      ).resolves.toBeUndefined();
+      expect(mockCaptureException).not.toHaveBeenCalled();
     });
   });
 
