@@ -12,7 +12,7 @@ WORKDIR /app
 RUN corepack enable
 
 # Copy dependency files
-COPY package.json pnpm-lock.yaml* prisma.config.ts env.js ./
+COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml prisma.config.ts env.js ./
 COPY lib/db/schema.prisma ./lib/db/schema.prisma
 COPY patches ./patches
 
