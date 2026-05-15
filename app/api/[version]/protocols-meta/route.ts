@@ -52,9 +52,7 @@ async function v1(request: NextRequest) {
     return NextResponse.json(protocols, { headers: corsHeaders });
   } catch (e) {
     const error = ensureError(e);
-    captureException(error).catch(() => {
-      // swallow telemetry errors so they cannot replace the 500
-    });
+    await captureException(error);
     after(async () => {
       await shutdownPostHog();
     });
