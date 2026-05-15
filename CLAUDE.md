@@ -68,7 +68,7 @@ styles/                # Global CSS/SCSS
 - **Styling**: Tailwind CSS 4.1 + shadcn/ui
 - **State Management**: Redux Toolkit (interview sessions)
 - **Forms**: React Hook Form + Zod validation
-- **Package Manager**: pnpm 9.1.1
+- **Package Manager**: pnpm 11.1.2
 
 ## Code Conventions
 

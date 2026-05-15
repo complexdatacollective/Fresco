@@ -1,0 +1,21 @@
+autoInstallPeers: true
+
+publicHoistPattern:
+  - '*tailwind-config*'
+
+allowBuilds:
+  '@parcel/watcher': true
+  '@posthog/cli': false
+  '@prisma/engines': true
+  '@tailwindcss/oxide': true
+  core-js: false
+  core-js-pure: true
+  esbuild: true
+  msgpackr-extract: false
+  prisma: true
+  protobufjs: false
+  sharp: true
+  unrs-resolver: true
+
+patchedDependencies:
+  react-best-merge-refs@1.0.2: patches/react-best-merge-refs@1.0.2.patch
