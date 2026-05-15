@@ -123,8 +123,7 @@ jobs:
         uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
         with:
           comment-tag: deploy-preview-failure
-          mode: delete-on-completion
-          message: ''
+          mode: delete
 
       - name: Comment on failure
         if: failure()
