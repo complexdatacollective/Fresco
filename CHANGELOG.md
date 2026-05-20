@@ -28,15 +28,30 @@ Fresco v4 is a major release that rearchitects the application around three pill
 
 Fresco's auth stack has been rewritten from scratch. Lucia and its Prisma adapter are removed; the new system is implemented in `lib/auth/` and exposed via server actions in `actions/`.
 
-- **Passkeys (WebAuthn)** — Users can register one or more passkeys (security keys, Touch ID, Windows Hello, etc.) and use them as their primary sign-in method. Implemented with `@simplewebauthn/browser` and `@simplewebauthn/server`. Credentials are stored in a new `WebAuthnCredential` model with counter, transports, AAGUID, friendly name, and last-used timestamp.
-- **TOTP two-factor authentication** — Optional authenticator-app 2FA using `otpauth` and QR-code enrolment via `qrcode`. Stored in `TotpCredential`.
-- **Recovery codes** — Ten hashed single-use codes generated at 2FA enrolment, tracked in a new `RecoveryCode` model.
+- **Passkeys (WebAuthn)** — Users can register one or more passkeys (security keys, Touch ID, Windows Hello, etc.) and use them as their primary sign-in method. Implemented with `@simplewebauthn/browser` and `@simplewebauthn/server`. The Passkeys settings panel shows device type (synced vs. device-bound), creation and last-used dates, and a friendly name per credential. The panel will not let you delete your last passkey if you don't also have a password.
+- **TOTP two-factor authentication** — Optional authenticator-app 2FA using `otpauth` with a QR-code enrolment flow (`qrcode`). The Two-Factor Authentication settings panel lets users enable, disable, and regenerate recovery codes; disabling or regenerating requires a current verification code.
+- **Recovery codes** — Ten hashed single-use codes generated at 2FA enrolment, tracked in `RecoveryCode`. Available as a fallback on the sign-in 2FA prompt.
 - **Sessions** — Custom session table replaces Lucia's; 24-hour active / 14-day idle expiry.
-- **Brute-force protection** — A new `LoginAttempt` model records every login try (username, IP, success, timestamp) with indexes that support rate limiting and audit.
-- **Password is now optional** — `Key.hashed_password` is nullable; users can be passkey-only after enrolment.
-- **Account settings UI** — New `PasskeySettings` and `TwoFactorSettings` sections in dashboard settings let users manage their methods.
+- **Brute-force protection** — Every login attempt is logged (username, IP, success, timestamp). The sign-in form surfaces a countdown when rate-limited.
+- **Password is now optional** — `Key.hashed_password` is nullable; users can switch their account between *password*, *password + 2FA*, and *passkey-only* modes from settings.
+- **User management overhaul** — The User Management panel lets admins:
+  - Create users with live username uniqueness checks and a password-strength meter (min 8 chars, lowercase + uppercase + number + symbol).
+  - Delete other users (cannot delete self).
+  - See every user's active auth methods at a glance (password / password+2FA / passkey) and revoke any user's passkeys or 2FA.
+  - Reset another user's authentication, which generates a one-time temporary password shown in a confirmation dialog.
+  - Change their own password from the same place.
 
 Removed: `@lucia-auth/adapter-prisma`, `lucia`.
+
+### Sign-in & first-run setup
+
+- **Sign-in form** — Detects WebAuthn capability and offers passkey sign-in when available. If 2FA is enabled, the form prompts for a 6-digit code with a "use recovery code" fallback. Rate-limit lockouts show a retry countdown rather than an opaque error. (PR #731 also fixed the confirm-password show/hide toggle.)
+- **First-run setup wizard** — `app/(blobs)/(setup)/` is now a multi-step wizard (`?step=` URL state via `nuqs`, so refresh keeps your place):
+  1. Create the initial admin account.
+  2. Configure storage (choose UploadThing or S3-compatible and enter credentials inline).
+  3. Upload your first protocol.
+  4. Documentation hand-off.
+  Steps are conditionally skipped: an already-authenticated visitor jumps past account creation, an unauthenticated one is bounced back to step 1.
 
 ### Storage & file uploads
 
@@ -104,16 +119,47 @@ The on-disk `lib/network-exporters/` (29 files, ~6,000 LOC) has been moved into 
 - **User-friendly errors** — `describeExportError` classifies OOM, disk-full, timeout, connection, and unknown failures with actionable messages.
 - **Progress events** — SSE events (`progress`, `complete`, `error`) defined in `lib/export/sseEvents.ts`.
 
-### Dashboard, settings & UX
+### Dashboard pages
 
 The dashboard has been substantially rebuilt.
 
-- **Activity feed** — New home-page panel listing recent protocols, interviews, and participants, with full-text search and faceted type filtering. URL-persisted via `nuqs` under the `af_` namespace.
-- **Summary statistics** — Redesigned stat cards for Protocols, Participants, and Interviews with skeleton loading states.
+- **Home page**
+  - Summary statistics cards (Protocols / Participants / Interviews) with Suspense fallbacks.
+  - New **Activity Feed** panel below the stats, listing protocol imports, interview starts/completions, exports, settings changes, and user-management events. Searchable full-text via `?af_q=` and faceted by event type via `?af_type=`; both are URL-persisted via `nuqs` under the `af_` namespace so views are bookmarkable.
+  - Auth check runs in its own Suspense boundary so a slow auth probe no longer breaks the RSC tree.
+  - Alert banners for missing UploadThing token or anonymous-recruitment misconfiguration.
+- **Interviews page** — DataTable with new filterable columns:
+  - Faceted filter on protocol name.
+  - Date-range filters on *started* and *last updated*.
+  - Progress range filter with not-started / in-progress / complete presets.
+  - Network entity count (nodes / edges) with comparison operators (`eq`, `gt`, `lt`, `gte`, `lte`).
+  - Boolean *exported* filter.
+  - Network summary now renders as a card showing entity counts.
+  - Sticky select column; sort by text, datetime, or basic comparators.
+  - Default sort: newest first by *last updated*.
+- **Participants page** — Identifier (with badge), label, total + completed interview counts, and a "copy unique participant URL" button per row. Sortable and searchable.
+- **Protocols page** — Name, imported date, modified date. Default sort by import date, newest first. Conditional anonymous-recruitment URL button when that feature is enabled. Each row offers a **"Download original `.netcanvas`"** action (PR #732).
 - **Navigation** — New `NavigationBar` and `MobileNavDrawer` for responsive layouts.
-- **Settings hub** — `app/dashboard/settings/` gains dedicated sections for API tokens, configuration, developer tools, interview settings, passkeys, privacy, storage provider, synthetic interview data, two-factor auth, installation ID, S3 settings, UploadThing token, user management, and a read-only environment alert.
-- **Protocol import** — Replaced the modal + reducer workflow with a lightweight `ProtocolImportPopover`, drag-and-drop dropzone, and toast-based per-file progress. Progress math lives in a unit-tested helper.
-- **Default sort** — Protocols and Interviews tables now default to newest-first by import / last-updated time.
+
+### Protocol import
+
+Replaced the modal + reducer workflow with a lightweight `ProtocolImportPopover`: a drag-and-drop dropzone in a popover, toast-based per-file progress, and a unit-tested progress-math helper. The full-screen modal and the `JobReducer` are gone.
+
+### Settings hub
+
+`app/dashboard/settings/` is now a proper hub with sections that each map to a clearly-scoped admin task:
+
+- **API Tokens** — Toggle the read-only Interview Data API on or off, then create, describe, enable/disable, and delete bearer tokens. Generated tokens are shown once at creation.
+- **Configuration** — App version details and **Installation ID** management (regenerate, or see it locked when supplied by an environment variable).
+- **Interview Settings** — Toggles for *allow anonymous recruitment*, *limit one completed interview per participant per protocol*, *freeze completed interviews against re-entry*, and *disable small-screen overlay warning*.
+- **Privacy** — Opt out of anonymous telemetry sent to the Network Canvas team.
+- **Storage Provider** — Shows the active backend (UploadThing or S3-compatible) and edits credentials inline. S3 fields (endpoint, bucket, region, access key, secret key) are individually editable with save/reset per row; the secret key is password-masked. UploadThing has a dedicated token editor.
+- **Passkeys** *(user-scoped)* — Add and remove passkeys for the current user (see above).
+- **Two-Factor Authentication** *(user-scoped)* — Enable / disable 2FA and regenerate recovery codes.
+- **User Management** *(admin-scoped)* — Create, delete, and reset users; manage their auth methods (see above).
+- **Synthetic Interview Data** *(admin/dev)* — Generate test interviews per protocol with options to *simulate drop-out* and *respect skip logic and filtering* (1–1000 at a time). Deletion of all synthetic data shows a live progress bar via Server-Sent Events.
+- **Developer Tools** — Reset all data to defaults; test recruitment URL generation with preview options.
+- **Read-only environment alert** — A banner appears on any setting that is locked to a value supplied via `.env`, so admins know why the field is uneditable.
 
 ### DataTable component
 
@@ -133,7 +179,37 @@ The dashboard has been substantially rebuilt.
 
 ### Telemetry & observability
 
-- **PostHog** added (`@posthog/nextjs-config`, `posthog-js`, `posthog-node`) with installation-ID tagging and graceful degradation when the database is unreachable. Captures sign-ins, password resets, passkey lifecycle events, and interview completion. Respects the existing `disableAnalytics` setting. Server helpers are non-throwing so telemetry never breaks the app.
+- **PostHog** added (`@posthog/nextjs-config`, `posthog-js`, `posthog-node`) with installation-ID tagging and graceful degradation when the database is unreachable. Captures sign-ins, password resets, passkey lifecycle events, API-token creation, synthetic-data deletion, interview start / open / completion, and exports. Respects the existing `disableAnalytics` setting. Server helpers are non-throwing so telemetry never breaks the app.
+- **Activity-feed events** — All of the above are also persisted to the `Events` table so admins can review them in the dashboard activity feed without an external analytics account.
+
+### Smaller changes & polish
+
+A long tail of smaller fixes and refinements that didn't merit a top-level section:
+
+- **Combobox search query preserved** — Filter dropdowns no longer reset their search text when the underlying list updates (PR #734).
+- **Activity-feed filter state** — Faceted filters no longer drop their selection when paginating or re-rendering (PR #733).
+- **Confirm-password show toggle** — The eye icon on the confirm-password field now works the same as the password field (PR #731).
+- **Unique-attribute validator** — A node editing its own value no longer fails its own uniqueness check (PR #719).
+- **Categorical bin** — Falsy values (0, empty string) render correctly instead of being dropped (PR #717); the expanded view now sizes its tiles correctly (PR #718).
+- **QuickAdd icons** — Lucide icons in the QuickAdd node-action buttons render at the right size again (PR #737).
+- **DatePicker** — Min / max validation is now wired through and timezone-related off-by-one bugs are fixed.
+- **Interview-column text size** — Exported interview columns render at a consistent size.
+- **CSS theming prep** — Duplicate `@import "tailwindcss"` removed from `globals.css`; deprecated `--color-*` Tailwind variables dropped in preparation for the upcoming theming system; data-table `--sea-green` tuple wrapped in `oklch()` for `color-mix` correctness.
+- **Mapbox session tokens** — Switched to UUIDv4 per search session for cleaner billing isolation (PR #724).
+- **Type-safety** — `as Route` casts in `RecruitmentTestSection` removed in favour of Next.js's `next typegen`-narrowed `Route` type (now run on `postinstall`).
+- **PostHog server helpers** — Made non-throwing so a missing API key or unreachable host never breaks a server action.
+
+### New schemas
+
+All Zod schemas live in `schemas/` and are imported wherever the corresponding data crosses a boundary:
+
+- `auth.ts` — User-creation rules (8+ chars, lowercase + uppercase + number + symbol).
+- `apiTokens.ts` — Create / update / delete payloads for bearer tokens.
+- `s3Settings.ts` — Endpoint, bucket, region, access key, secret key (all required).
+- `totp.ts` — 6-digit codes and 20-char hex recovery codes; enable, disable, regenerate payloads.
+- `synthetic-interviews.ts` — Generation request (protocolId, count 1–1000, `simulateDropOut`, `respectSkipLogicAndFiltering`).
+- `network-canvas.ts` — Shared types pulled in from `@codaco/shared-consts`.
+- `export.ts`, `interviews.ts`, `participant.ts`, `protocol.ts`, `users.ts` — Reorganised from previous locations.
 
 ### Tooling, CI & developer experience
 
