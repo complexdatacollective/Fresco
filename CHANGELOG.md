@@ -74,6 +74,21 @@ Storage is no longer hard-wired to UploadThing.
 - **`AppSetting` enum:** new keys for `storageProvider`, `s3Endpoint`, `s3Bucket`, `s3Region`, `s3AccessKeyId`, `s3SecretAccessKey`, `enableInterviewDataApi`.
 - **Protocol schema v7 → v8** — `setup-database` runs `migrateProtocolsToV8` after `prisma migrate deploy` to bring stored protocols forward in place. Migration errors are wrapped with protocol id and name; P2002 hash collisions surface both sources.
 
+### Protocol schema v8
+
+Fresco v4 ships with `@codaco/protocol-validation@^11.5.0` and pins the *current* protocol schema at version 8. Both v7 and v8 are accepted at import time (`APP_SUPPORTED_SCHEMA_VERSIONS = [7, 8]`); anything older is rejected. v7 protocols are upgraded in place to v8 — once on deploy (`migrateProtocolsToV8` runs after `prisma migrate deploy`) and again at import time for any v7 `.netcanvas` file dropped in. Hash, codebook, stages, and the new `experiments` JSON are rewritten atomically, so the in-database row is *only* ever v8 after upgrade. Interviews see the protocol via `mapInterviewPayload`, which hard-pins `schemaVersion: 8` in the payload — the interview package never has to think about earlier shapes.
+
+The concrete v7→v8 transformations visible from Fresco's migration tests and protocol handling:
+
+- **New top-level `experiments` field on protocols** — Opaque JSON column (mirrored in Prisma as `Protocol.experiments`). Defaults to `{}`. This is the carrier for protocol-level experiment/feature toggles consumed by `@codaco/interview` (e.g. dyad census ordering, tie-strength prompts, alter-filter variants); future per-protocol experiments can be introduced without further schema bumps.
+- **Node `iconVariant` → `icon`** — The codebook key that identifies a node-type's icon is renamed to a stable `icon` field. v7 protocols' `iconVariant` strings (e.g. `"add-a-person"`) are carried across unchanged under the new key.
+- **Node `shape` added** — Each node-type now gets a `shape: { default: 'circle' }` object, paving the way for per-node-type shape selection alongside the existing colour token.
+- **`Toggle` boolean variables lose per-variable `options`** — A v7 boolean variable using the `Toggle` component used to carry its own `{ label, value }` pair for Yes/No. v8 strips those — the interview package owns the canonical Yes/No labelling so research designs stay consistent across protocols.
+- **Alter-filter rule shape rewritten** — Filter rules attached to stages (alter filters) are restructured by the migration. The tests fixture exercises this path, though the exact new shape lives in `@codaco/protocol-validation` rather than in Fresco.
+- **Hash recomputed** — The `hash` column is rewritten after migration. A migrated v7 protocol produces the *same* hash whether it was upgraded in place by `migrateProtocolsToV8` or imported afresh through the protocol-import flow, so deduplication works across both paths.
+
+In practice this means existing v7 protocols keep working after upgrading to Fresco v4 — they're silently upgraded — and new Architect releases producing v8 protocols can lean on the renamed `icon`/`shape` keys, the standardised Toggle, the restructured alter filters, and the new `experiments` channel for opt-in interview behaviours. The full v8 grammar (new stage types, validator changes, etc.) lives in `@codaco/protocol-validation`; see that package for the authoritative definition.
+
 ### Interview engine extraction (`@codaco/interview`)
 
 The interview runtime — all 226 files of `lib/interviewer/` plus the supporting Redux infrastructure — has been moved into the `@codaco/interview` package (currently `1.0.0-alpha.20`). Fresco is now a thin host:
