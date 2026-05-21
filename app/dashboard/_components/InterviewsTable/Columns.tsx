@@ -6,19 +6,19 @@ import ProgressBar from '@codaco/fresco-ui/ProgressBar';
 import TimeAgo from '@codaco/fresco-ui/TimeAgo';
 import { type FilterFn } from '@tanstack/react-table';
 import Image from 'next/image';
-import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
+import { DataTableColumnHeader } from '@codaco/fresco-ui/DataTable/ColumnHeader';
 import {
   booleanFilterFn,
   dateFilterFn,
   facetedFilterFn,
   operatorFilterFn,
   rangeFilterFn,
-} from '~/components/DataTable/filters/filterFns';
-import { SelectAllHeader } from '~/components/DataTable/SelectAllHeader';
+} from '@codaco/fresco-ui/DataTable/filters/filterFns';
+import { SelectAllHeader } from '@codaco/fresco-ui/DataTable/SelectAllHeader';
 import {
   type Option,
   type StrictColumnDef,
-} from '~/components/DataTable/types';
+} from '@codaco/fresco-ui/DataTable/types';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 import NetworkSummary from './NetworkSummary';
 

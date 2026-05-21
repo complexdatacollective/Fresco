@@ -1,5 +1,5 @@
 import { Suspense } from 'react';
-import { DataTableSkeleton } from '~/components/DataTable/DataTableSkeleton';
+import { DataTableSkeleton } from '@codaco/fresco-ui/DataTable/DataTableSkeleton';
 import { getParticipants } from '~/queries/participants';
 import { getProtocols } from '~/queries/protocols';
 import { ParticipantsTableClient } from './ParticipantsTableClient';

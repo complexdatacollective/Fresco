@@ -1,17 +1,21 @@
 import { Suspense } from 'react';
-import { DataTableSkeleton } from '~/components/DataTable/DataTableSkeleton';
+import { DataTableSkeleton } from '@codaco/fresco-ui/DataTable/DataTableSkeleton';
 import { getAppSetting } from '~/queries/appSettings';
 import { getProtocols } from '~/queries/protocols';
 import ProtocolsTableClient from './ProtocolsTableClient';
 
 async function getData() {
-  const [protocols, allowAnonymousRecruitment, storageProvider, uploadThingToken] =
-    await Promise.all([
-      getProtocols(),
-      getAppSetting('allowAnonymousRecruitment'),
-      getAppSetting('storageProvider'),
-      getAppSetting('uploadThingToken'),
-    ]);
+  const [
+    protocols,
+    allowAnonymousRecruitment,
+    storageProvider,
+    uploadThingToken,
+  ] = await Promise.all([
+    getProtocols(),
+    getAppSetting('allowAnonymousRecruitment'),
+    getAppSetting('storageProvider'),
+    getAppSetting('uploadThingToken'),
+  ]);
   const storageConfigured = storageProvider === 's3' || !!uploadThingToken;
   return [protocols, allowAnonymousRecruitment, storageConfigured] as const;
 }

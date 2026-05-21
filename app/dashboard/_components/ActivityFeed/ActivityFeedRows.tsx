@@ -18,7 +18,7 @@ import {
   useQueryStates,
 } from 'nuqs';
 import { use, useMemo } from 'react';
-import { DataTable } from '~/components/DataTable/DataTable';
+import { DataTable } from '@codaco/fresco-ui/DataTable/DataTable';
 import { useNuqsTable } from '~/components/DataTable/nuqs/NuqsTableProvider';
 import type { Events } from '~/lib/db/generated/client';
 import type { ActivitiesFeed } from '~/queries/activityFeed';

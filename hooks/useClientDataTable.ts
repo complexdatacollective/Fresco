@@ -14,7 +14,14 @@ import {
 } from '@tanstack/react-table';
 import { parseAsJson, useQueryState } from 'nuqs';
 import { useState } from 'react';
-import { ColumnFiltersStateSchema } from '~/components/DataTable/filters/types';
+import { z } from 'zod/mini';
+
+const ColumnFiltersStateSchema = z.array(
+  z.object({
+    id: z.string(),
+    value: z.unknown(),
+  }),
+);
 
 type UseClientDataTableOptions<TData, TValue> = {
   data: TData[];

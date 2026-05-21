@@ -4,7 +4,7 @@ import {
   startAuthentication,
   startRegistration,
 } from '@simplewebauthn/browser';
-import { type StrictColumnDef } from '~/components/DataTable/types';
+import { type StrictColumnDef } from '@codaco/fresco-ui/DataTable/types';
 import { Plus, Trash, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { use, useCallback, useState } from 'react';
@@ -25,9 +25,9 @@ import {
 } from '~/actions/webauthn';
 import PasskeySettings from '~/app/dashboard/settings/_components/PasskeySettings';
 import TwoFactorSettings from '~/app/dashboard/settings/_components/TwoFactorSettings';
-import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
-import { DataTable } from '~/components/DataTable/DataTable';
-import { DataTableFloatingBar } from '~/components/DataTable/DataTableFloatingBar';
+import { DataTableColumnHeader } from '@codaco/fresco-ui/DataTable/ColumnHeader';
+import { DataTable } from '@codaco/fresco-ui/DataTable/DataTable';
+import { DataTableFloatingBar } from '@codaco/fresco-ui/DataTable/DataTableFloatingBar';
 import Surface from '@codaco/fresco-ui/layout/Surface';
 import SettingsField from '~/components/settings/SettingsField';
 import Heading from '@codaco/fresco-ui/typography/Heading';

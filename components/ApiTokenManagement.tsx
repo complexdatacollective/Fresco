@@ -1,7 +1,7 @@
 'use client';
 
 import { type Row } from '@tanstack/react-table';
-import { type StrictColumnDef } from '~/components/DataTable/types';
+import { type StrictColumnDef } from '@codaco/fresco-ui/DataTable/types';
 import { Clipboard } from 'lucide-react';
 import { use, useState } from 'react';
 import {
@@ -9,12 +9,12 @@ import {
   deleteApiToken,
   updateApiToken,
 } from '~/actions/apiTokens';
-import { DataTable } from '~/components/DataTable/DataTable';
+import { DataTable } from '@codaco/fresco-ui/DataTable/DataTable';
 import { useClientDataTable } from '~/hooks/useClientDataTable';
 import Dialog from '@codaco/fresco-ui/dialogs/Dialog';
 import InputField from '@codaco/fresco-ui/form/fields/InputField';
 import { type GetApiTokensReturnType } from '~/queries/apiTokens';
-import { DataTableColumnHeader } from './DataTable/ColumnHeader';
+import { DataTableColumnHeader } from '@codaco/fresco-ui/DataTable/ColumnHeader';
 import { Alert, AlertDescription, AlertTitle } from '@codaco/fresco-ui/Alert';
 import { Button } from '@codaco/fresco-ui/Button';
 import { Label } from '@codaco/fresco-ui/Label';

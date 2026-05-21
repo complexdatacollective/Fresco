@@ -1,7 +1,7 @@
 'use client';
 
-import { type StrictColumnDef } from '~/components/DataTable/types';
-import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
+import { type StrictColumnDef } from '@codaco/fresco-ui/DataTable/types';
+import { DataTableColumnHeader } from '@codaco/fresco-ui/DataTable/ColumnHeader';
 import { Badge } from '@codaco/fresco-ui/Badge';
 import TimeAgo from '@codaco/fresco-ui/TimeAgo';
 import type { Events } from '~/lib/db/generated/client';

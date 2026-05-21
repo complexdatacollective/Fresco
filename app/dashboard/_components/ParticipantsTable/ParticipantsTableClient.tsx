@@ -14,9 +14,9 @@ import ExportParticipants, {
 } from '~/app/dashboard/participants/_components/ExportParticipants/ExportParticipants';
 import ImportParticipants from '~/app/dashboard/participants/_components/ImportParticipants';
 import ParticipantModal from '~/app/dashboard/participants/_components/ParticipantModal';
-import { DataTable } from '~/components/DataTable/DataTable';
-import { DataTableFloatingBar } from '~/components/DataTable/DataTableFloatingBar';
-import { DataTableToolbar } from '~/components/DataTable/DataTableToolbar';
+import { DataTable } from '@codaco/fresco-ui/DataTable/DataTable';
+import { DataTableFloatingBar } from '@codaco/fresco-ui/DataTable/DataTableFloatingBar';
+import { DataTableToolbar } from '@codaco/fresco-ui/DataTable/DataTableToolbar';
 import { Button } from '@codaco/fresco-ui/Button';
 import { useClientDataTable } from '~/hooks/useClientDataTable';
 import type { Participant } from '~/lib/db/generated/client';

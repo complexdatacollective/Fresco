@@ -2,12 +2,11 @@ import {
   type CurrentProtocol,
   CurrentProtocolSchema,
 } from '@codaco/protocol-validation';
-import { NcNetworkSchema } from '@codaco/shared-consts';
+import { NcNetworkSchema, StageMetadataSchema } from '@codaco/shared-consts';
 import { PrismaNeon } from '@prisma/adapter-neon';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { env } from '~/env';
 import { PrismaClient } from '~/lib/db/generated/client';
-import { StageMetadataSchema } from '@codaco/interview';
 import { captureException } from '../posthog-server';
 
 /**

@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import { type SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
-import { DataTableSkeleton } from '~/components/DataTable/DataTableSkeleton';
+import { DataTableSkeleton } from '@codaco/fresco-ui/DataTable/DataTableSkeleton';
 import ResponsiveContainer from '@codaco/fresco-ui/layout/ResponsiveContainer';
 import Heading from '@codaco/fresco-ui/typography/Heading';
 import PageHeader from '@codaco/fresco-ui/typography/PageHeader';

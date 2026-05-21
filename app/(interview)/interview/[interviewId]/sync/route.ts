@@ -1,9 +1,7 @@
-import { NcNetworkSchema } from '@codaco/shared-consts';
+import { NcNetworkSchema, StageMetadataSchema } from '@codaco/shared-consts';
 import { after, NextResponse, type NextRequest } from 'next/server';
 import { z } from 'zod';
-import { z as zm } from 'zod/mini';
 import { prisma } from '~/lib/db';
-import { StageMetadataSchema } from '@codaco/interview';
 import { captureException, shutdownPostHog } from '~/lib/posthog-server';
 import { getAppSetting } from '~/queries/appSettings';
 import { ensureError } from '~/utils/ensureError';
@@ -23,7 +21,7 @@ const routeHandler = async (
     id: z.string(),
     network: NcNetworkSchema,
     currentStep: z.number(),
-    stageMetadata: zm.optional(StageMetadataSchema),
+    stageMetadata: StageMetadataSchema.optional(),
     lastUpdated: z.string(),
   });
 

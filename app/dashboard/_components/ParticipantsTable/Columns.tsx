@@ -1,8 +1,8 @@
-import { type StrictColumnDef } from '~/components/DataTable/types';
+import { type StrictColumnDef } from '@codaco/fresco-ui/DataTable/types';
 import Image from 'next/image';
 import Checkbox from '@codaco/fresco-ui/form/fields/Checkbox';
-import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
-import { SelectAllHeader } from '~/components/DataTable/SelectAllHeader';
+import { DataTableColumnHeader } from '@codaco/fresco-ui/DataTable/ColumnHeader';
+import { SelectAllHeader } from '@codaco/fresco-ui/DataTable/SelectAllHeader';
 import { Badge } from '@codaco/fresco-ui/Badge';
 import type { ProtocolWithInterviews } from '../ProtocolsTable/ProtocolsTableClient';
 import { GenerateParticipationURLButton } from './GenerateParticipantURLButton';

@@ -2,7 +2,7 @@ import { createId } from '@paralleldrive/cuid2';
 import { addEvent } from '~/actions/activityFeed';
 import { requireApiAuth } from '~/lib/auth/guards';
 import { prisma } from '~/lib/db';
-import { generateNetwork } from '@codaco/interview';
+import { generateNetwork } from '@codaco/protocol-utilities';
 import { generateSyntheticInterviewsSchema } from '~/schemas/synthetic-interviews';
 
 export async function POST(request: Request) {

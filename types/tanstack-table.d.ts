@@ -1,5 +1,5 @@
 import type { RowData } from '@tanstack/react-table';
-import type { FilterConfig } from '~/components/DataTable/filters/types';
+import type { FilterConfig } from '@codaco/fresco-ui/DataTable/filters/types';
 
 declare module '@tanstack/react-table' {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

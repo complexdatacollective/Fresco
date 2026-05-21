@@ -9,9 +9,9 @@ import { InterviewColumns } from '~/app/dashboard/_components/InterviewsTable/Co
 import { DeleteInterviewsDialog } from '~/app/dashboard/interviews/_components/DeleteInterviewsDialog';
 import { ExportInterviewsDialog } from '~/app/dashboard/interviews/_components/ExportInterviewsDialog';
 import { GenerateInterviewURLs } from '~/app/dashboard/interviews/_components/GenerateInterviewURLs';
-import { DataTable } from '~/components/DataTable/DataTable';
-import { DataTableFloatingBar } from '~/components/DataTable/DataTableFloatingBar';
-import { DataTableToolbar } from '~/components/DataTable/DataTableToolbar';
+import { DataTable } from '@codaco/fresco-ui/DataTable/DataTable';
+import { DataTableFloatingBar } from '@codaco/fresco-ui/DataTable/DataTableFloatingBar';
+import { DataTableToolbar } from '@codaco/fresco-ui/DataTable/DataTableToolbar';
 import { Button } from '@codaco/fresco-ui/Button';
 import {
   DropdownMenu,

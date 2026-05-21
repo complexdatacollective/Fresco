@@ -1,9 +1,9 @@
 'use client';
 
-import { type StrictColumnDef } from '~/components/DataTable/types';
+import { type StrictColumnDef } from '@codaco/fresco-ui/DataTable/types';
 import Image from 'next/image';
 import Checkbox from '@codaco/fresco-ui/form/fields/Checkbox';
-import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
+import { DataTableColumnHeader } from '@codaco/fresco-ui/DataTable/ColumnHeader';
 import TimeAgo from '@codaco/fresco-ui/TimeAgo';
 import { AnonymousRecruitmentURLButton } from './AnonymousRecruitmentURLButton';
 import type { ProtocolWithInterviews } from './ProtocolsTableClient';
