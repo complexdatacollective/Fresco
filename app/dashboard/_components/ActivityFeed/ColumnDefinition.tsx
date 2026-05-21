@@ -38,7 +38,9 @@ export function fetchActivityFeedTableColumnDefs(): StrictColumnDef<Events>[] {
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Details" />
       ),
-      cell: ({ row }) => row.original.message,
+      cell: ({ row }) => (
+        <div className="whitespace-normal">{row.original.message}</div>
+      ),
       enableSorting: false,
       enableHiding: false,
     },
