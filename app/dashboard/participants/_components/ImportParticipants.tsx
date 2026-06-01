@@ -35,7 +35,7 @@ export default function ImportParticipants() {
             title: 'Error',
             description:
               'File must be a valid CSV with label or identifier columns',
-            type: 'destructive',
+            variant: 'destructive',
           });
           return;
         }
@@ -46,7 +46,7 @@ export default function ImportParticipants() {
           add({
             title: 'Error',
             description: result.error,
-            type: 'destructive',
+            variant: 'destructive',
           });
           return;
         }
@@ -73,13 +73,13 @@ export default function ImportParticipants() {
                 )}
               </>
             ),
-            type: 'destructive',
+            variant: 'destructive',
           });
         } else {
           add({
             title: 'Participants imported',
             description: 'Participants have been imported successfully',
-            type: 'success',
+            variant: 'success',
           });
         }
 
@@ -90,7 +90,7 @@ export default function ImportParticipants() {
         add({
           title: 'Error',
           description: 'An error occurred while importing participants',
-          type: 'destructive',
+          variant: 'destructive',
         });
       }
     },

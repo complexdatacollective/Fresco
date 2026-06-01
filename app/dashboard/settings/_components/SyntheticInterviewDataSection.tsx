@@ -102,7 +102,7 @@ export default function SyntheticInterviewDataSection({
             toast({
               title: 'Generation failed',
               description: data.message,
-              type: 'destructive',
+              variant: 'destructive',
             });
           } else if (data.type === 'complete' && data.created !== undefined) {
             const created = data.created;
@@ -113,7 +113,7 @@ export default function SyntheticInterviewDataSection({
             toast({
               title: 'Generation complete',
               description: `Successfully generated ${String(created)} synthetic interviews.`,
-              type: 'success',
+              variant: 'success',
             });
           }
         }

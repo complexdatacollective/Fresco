@@ -41,13 +41,13 @@ export function useExportParticipants(protocols: ProtocolWithInterviews[]) {
         add({
           title: 'Success',
           description: 'Participants exported successfully',
-          type: 'success',
+          variant: 'success',
         });
       } catch (error) {
         add({
           title: 'Error',
           description: 'An error occurred while exporting participants',
-          type: 'destructive',
+          variant: 'destructive',
         });
       }
     },

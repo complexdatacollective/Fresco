@@ -44,14 +44,14 @@ function ExportCSVInterviewURLs({
       add({
         title: 'Success',
         description: 'Incomplete interview URLs CSV exported successfully',
-        type: 'success',
+        variant: 'success',
       });
     } catch (error) {
       add({
         title: 'Error',
         description:
           'An error occurred while exporting incomplete interview URLs',
-        type: 'destructive',
+        variant: 'destructive',
       });
       throw new Error(
         'An error occurred while exporting incomplete interview URLs',

@@ -19,3 +19,9 @@ allowBuilds:
 
 patchedDependencies:
   react-best-merge-refs@1.0.2: patches/react-best-merge-refs@1.0.2.patch
+
+minimumReleaseAgeExclude:
+  - '@codaco/fresco-ui@2.11.1'
+  - '@codaco/interview@1.0.0-alpha.22'
+  - '@codaco/protocol-validation@11.6.1'
+  - '@codaco/tailwind-config@1.0.0-alpha.19'

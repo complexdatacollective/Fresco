@@ -92,7 +92,7 @@ export default function ApiTokenManagement({
     const result = await deleteApiToken({ id: token.id });
 
     if (result.error) {
-      add({ title: result.error, type: 'destructive' });
+      add({ title: result.error, variant: 'destructive' });
     } else {
       setTokens(tokens.filter((t) => t.id !== token.id));
       setTokenToDelete(null);
@@ -261,7 +261,7 @@ export default function ApiTokenManagement({
             <Button
               onClick={() => {
                 void navigator.clipboard.writeText(createdToken!);
-                add({ title: 'Copied to clipboard', type: 'success' });
+                add({ title: 'Copied to clipboard', variant: 'success' });
               }}
               icon={<Clipboard />}
               color="primary"

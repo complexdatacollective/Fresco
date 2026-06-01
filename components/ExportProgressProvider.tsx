@@ -184,7 +184,7 @@ export function ExportProgressProvider({
                 add({
                   title: 'Export complete!',
                   description: 'Your download should start automatically.',
-                  type: 'success',
+                  variant: 'success',
                   timeout: 5000,
                 });
 
@@ -195,7 +195,7 @@ export function ExportProgressProvider({
 
                     add({
                       timeout: Infinity,
-                      type: 'destructive',
+                      variant: 'destructive',
                       title: 'Could not delete temporary file',
                       description:
                         'We were unable to delete the temporary file containing your exported data, which is stored on your UploadThing account. Although extremely unlikely, it is possible that this file could be accessed by someone else. You can delete the file manually by visiting uploadthing.com and logging in with your GitHub account. Please contact us to report this issue.',
@@ -206,7 +206,7 @@ export function ExportProgressProvider({
                 update(toastId, {
                   title: 'Export failed',
                   description: data.message,
-                  type: 'destructive',
+                  variant: 'destructive',
                   timeout: 0,
                 });
 
@@ -221,7 +221,7 @@ export function ExportProgressProvider({
           update(toastId, {
             title: 'Export failed',
             description: e.message,
-            type: 'destructive',
+            variant: 'destructive',
             timeout: 0,
           });
 

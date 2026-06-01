@@ -35,7 +35,7 @@ ${error.stack}`;
     add({
       title: 'Success',
       description: 'Debug information copied to clipboard',
-      type: 'success',
+      variant: 'success',
     });
   };
 

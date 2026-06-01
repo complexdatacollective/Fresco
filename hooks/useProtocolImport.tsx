@@ -89,7 +89,7 @@ export const useProtocolImport = () => {
 
     if (phase === 'complete') {
       toastUpdate(toastId, {
-        type: 'success',
+        variant: 'success',
         title: 'Protocol imported successfully',
         description: `Protocol ${toastId} has been imported.`,
         timeout: 2000,
@@ -99,7 +99,7 @@ export const useProtocolImport = () => {
 
     if (phase === 'error') {
       toastUpdate(toastId, {
-        type: 'destructive',
+        variant: 'destructive',
         description: (
           <ImportToastContent
             phase={phase}
