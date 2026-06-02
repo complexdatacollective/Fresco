@@ -9,7 +9,7 @@ import { hashPassword, verifyPassword } from '~/utils/password';
 import { addEvent } from './activityFeed';
 
 export async function createUser(data: unknown) {
-  await requireApiAuth();
+  const session = await requireApiAuth();
 
   const parsedData = createUserSchema.safeParse(data);
 
@@ -37,7 +37,10 @@ export async function createUser(data: unknown) {
       },
     });
 
-    void addEvent('User Created', `Created user: ${username}`);
+    void addEvent(
+      'User Created',
+      `User ${session.user.username} created user: ${username}`,
+    );
     safeUpdateTag('getUsers');
     safeUpdateTag('activityFeed');
 
@@ -113,7 +116,10 @@ export async function deleteUsers(data: unknown) {
 
     const deletedIds = usersToDelete.map((u) => u.id);
     const usernames = usersToDelete.map((u) => u.username).join(', ');
-    void addEvent('User Deleted', `Deleted user(s): ${usernames}`);
+    void addEvent(
+      'User Deleted',
+      `User ${session.user.username} deleted user(s): ${usernames}`,
+    );
     safeUpdateTag('getUsers');
     safeUpdateTag('activityFeed');
 

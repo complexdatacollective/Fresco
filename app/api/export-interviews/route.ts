@@ -72,7 +72,7 @@ export async function POST(request: Request) {
           safeRevalidateTag(['getInterviews', 'activityFeed']);
           void addEvent(
             'Data Exported',
-            `${username} exported data for ${String(interviewIds.length)} interview(s)`,
+            `User ${username} exported data for ${String(interviewIds.length)} interview(s)`,
           );
           void captureEvent('Data Exported', {
             interviewCount: interviewIds.length,

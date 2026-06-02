@@ -3,6 +3,7 @@
 import NuqsClearFilters from '~/components/DataTable/nuqs/NuqsClearFilters';
 import NuqsFacetedFilter from '~/components/DataTable/nuqs/NuqsFacetedFilter';
 import NuqsSearchFilter from '~/components/DataTable/nuqs/NuqsSearchFilter';
+import ExportActivityFeed from './ExportActivityFeed';
 import { activityTypes } from './types';
 
 const clearableFilters = ['q', 'type'] as const;
@@ -22,6 +23,7 @@ export default function ActivityFeedToolbar() {
         searchPlaceholder="Search Type..."
         emptyMessage="No type found."
       />
+      <ExportActivityFeed />
       <NuqsClearFilters paramKeys={clearableFilters} />
     </div>
   );

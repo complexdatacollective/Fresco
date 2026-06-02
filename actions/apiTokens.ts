@@ -17,7 +17,7 @@ function generateToken(): string {
 }
 
 export async function createApiToken(data: unknown) {
-  await requireApiAuth();
+  const session = await requireApiAuth();
 
   const { description } = createApiTokenSchema.parse(data);
   const token = generateToken();
@@ -32,7 +32,7 @@ export async function createApiToken(data: unknown) {
 
     void addEvent(
       'API Token Created',
-      `Created API token: ${description ?? 'Untitled'}`,
+      `User ${session.user.username} created API token: ${description ?? 'Untitled'}`,
     );
     safeUpdateTag('getApiTokens');
     safeUpdateTag('activityFeed');
@@ -45,7 +45,7 @@ export async function createApiToken(data: unknown) {
 }
 
 export async function updateApiToken(data: unknown) {
-  await requireApiAuth();
+  const session = await requireApiAuth();
 
   const { id, ...updateData } = updateApiTokenSchema.parse(data);
 
@@ -62,7 +62,10 @@ export async function updateApiToken(data: unknown) {
       },
     });
 
-    void addEvent('API Token Updated', `Updated API token: ${id}`);
+    void addEvent(
+      'API Token Updated',
+      `User ${session.user.username} updated API token: ${id}`,
+    );
     safeUpdateTag('getApiTokens');
     safeUpdateTag('activityFeed');
 
@@ -73,7 +76,7 @@ export async function updateApiToken(data: unknown) {
 }
 
 export async function deleteApiToken(data: unknown) {
-  await requireApiAuth();
+  const session = await requireApiAuth();
 
   const { id } = deleteApiTokenSchema.parse(data);
 
@@ -82,7 +85,10 @@ export async function deleteApiToken(data: unknown) {
       where: { id },
     });
 
-    void addEvent('API Token Deleted', `Deleted API token: ${id}`);
+    void addEvent(
+      'API Token Deleted',
+      `User ${session.user.username} deleted API token: ${id}`,
+    );
     safeUpdateTag('getApiTokens');
     safeUpdateTag('activityFeed');
 

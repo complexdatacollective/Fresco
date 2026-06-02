@@ -11,7 +11,7 @@ import {
 } from '~/schemas/participant';
 
 export async function deleteParticipants(participantIds: string[]) {
-  await requireApiAuth();
+  const session = await requireApiAuth();
 
   const result = await prisma.participant.deleteMany({
     where: {
@@ -21,7 +21,7 @@ export async function deleteParticipants(participantIds: string[]) {
 
   void addEvent(
     'Participant(s) Removed',
-    `Deleted ${result.count} participant(s)`,
+    `User ${session.user.username} removed ${result.count} participant(s)`,
   );
 
   safeUpdateTag('getParticipants');
@@ -31,7 +31,7 @@ export async function deleteParticipants(participantIds: string[]) {
 }
 
 export async function importParticipants(rawInput: unknown) {
-  await requireApiAuth();
+  const session = await requireApiAuth();
 
   const participantList = participantListInputSchema.parse(rawInput);
 
@@ -67,7 +67,7 @@ export async function importParticipants(rawInput: unknown) {
 
     void addEvent(
       'Participant(s) Added',
-      `Added ${createdParticipants.count} participant(s)`,
+      `User ${session.user.username} added ${createdParticipants.count} participant(s)`,
     );
 
     safeUpdateTag('getParticipants');
@@ -109,7 +109,7 @@ export async function updateParticipant(rawInput: unknown) {
 }
 
 export async function createParticipant(rawInput: unknown) {
-  await requireApiAuth();
+  const session = await requireApiAuth();
 
   const participants = participantListInputSchema.parse(rawInput);
 
@@ -140,7 +140,7 @@ export async function createParticipant(rawInput: unknown) {
 
     void addEvent(
       'Participant(s) Added',
-      `Added ${createdParticipants.count} participant(s)`,
+      `User ${session.user.username} added ${createdParticipants.count} participant(s)`,
     );
 
     safeUpdateTag('getParticipants');

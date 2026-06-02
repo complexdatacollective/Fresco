@@ -14,7 +14,7 @@ import { ensureError } from '~/utils/ensureError';
 import { addEvent } from './activityFeed';
 
 export async function deleteInterviews(data: DeleteInterviews) {
-  await requireApiAuth();
+  const session = await requireApiAuth();
 
   const idsToDelete = data.map((p) => p.id);
 
@@ -29,7 +29,7 @@ export async function deleteInterviews(data: DeleteInterviews) {
 
     void addEvent(
       'Interview(s) Deleted',
-      `Deleted ${deletedInterviews.count} interview(s)`,
+      `User ${session.user.username} deleted ${deletedInterviews.count} interview(s)`,
     );
 
     safeUpdateTag('getInterviews');

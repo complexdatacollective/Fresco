@@ -19,7 +19,7 @@ export async function revalidateSyntheticData() {
 }
 
 export async function deleteSyntheticData() {
-  await requireApiAuth();
+  const session = await requireApiAuth();
 
   try {
     const interviewCount = await prisma.interview.count({
@@ -49,7 +49,7 @@ export async function deleteSyntheticData() {
 
     void addEvent(
       'Synthetic Data Deleted',
-      `Deleted ${String(interviewCount)} synthetic interviews and ${String(participantCount)} test participants`,
+      `User ${session.user.username} deleted ${String(interviewCount)} synthetic interviews and ${String(participantCount)} test participants`,
     );
 
     return { error: null, deleted: { interviewCount, participantCount } };

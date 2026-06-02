@@ -50,7 +50,7 @@ export async function getNewAssetIds(assetIds: string[]) {
 // When deleting protocols we must first delete the assets associated with them
 // from the cloud storage.
 export async function deleteProtocols(hashes: string[]) {
-  await requireApiAuth();
+  const session = await requireApiAuth();
 
   const protocolsToBeDeleted = await prisma.protocol.findMany({
     where: { hash: { in: hashes } },
@@ -118,7 +118,7 @@ export async function deleteProtocols(hashes: string[]) {
     const events = protocolsToBeDeleted.map((p) => {
       return {
         type: 'Protocol Uninstalled',
-        message: `Protocol "${p.name}" uninstalled`,
+        message: `User ${session.user.username} uninstalled protocol "${p.name}"`,
       };
     });
 
@@ -164,7 +164,7 @@ async function deleteFilesFromStorage(fileKey: string | string[]) {
 export async function insertProtocol(
   input: z.infer<typeof protocolInsertSchema>,
 ) {
-  await requireApiAuth();
+  const session = await requireApiAuth();
 
   const { protocol, protocolName, newAssets, existingAssetIds, originalFile } =
     input;
@@ -191,7 +191,10 @@ export async function insertProtocol(
       },
     });
 
-    void addEvent('Protocol Installed', `Protocol "${protocolName}" installed`);
+    void addEvent(
+      'Protocol Installed',
+      `User ${session.user.username} installed protocol "${protocolName}"`,
+    );
 
     safeUpdateTag('getProtocols');
     safeUpdateTag('summaryStatistics');

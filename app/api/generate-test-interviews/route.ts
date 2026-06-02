@@ -6,8 +6,10 @@ import { generateNetwork } from '@codaco/protocol-utilities';
 import { generateSyntheticInterviewsSchema } from '~/schemas/synthetic-interviews';
 
 export async function POST(request: Request) {
+  let username: string;
   try {
-    await requireApiAuth();
+    const session = await requireApiAuth();
+    username = session.user.username;
   } catch {
     return new Response(JSON.stringify({ error: 'Unauthorized' }), {
       status: 401,
@@ -157,7 +159,7 @@ export async function POST(request: Request) {
 
         void addEvent(
           'Synthetic Data Generated',
-          `Generated ${String(count)} synthetic interviews for protocol "${protocol.name}"`,
+          `User ${username} generated ${String(count)} synthetic interviews for protocol "${protocol.name}"`,
         );
 
         send({ type: 'complete', created: count });

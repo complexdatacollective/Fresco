@@ -5,6 +5,7 @@ import type {
   Activity,
   ActivityType,
 } from '~/app/dashboard/_components/ActivityFeed/types';
+import { requireApiAuth } from '~/lib/auth/guards';
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { captureEvent, shutdownPostHog } from '~/lib/posthog-server';
@@ -33,4 +34,13 @@ export async function addEvent(
   } catch (_error) {
     return { success: false, error: 'Failed to add event' };
   }
+}
+
+export async function getActivitiesForExport(): Promise<Activity[]> {
+  await requireApiAuth();
+
+  return prisma.events.findMany({
+    select: { id: true, timestamp: true, type: true, message: true },
+    orderBy: [{ timestamp: 'desc' }, { id: 'desc' }],
+  });
 }
