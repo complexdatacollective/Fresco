@@ -14,3 +14,7 @@ export const UNCONFIGURED_TIMEOUT = 7200000;
 // This matches the UploadThing per-file limit (256MB) and is enforced
 // regardless of storage provider to keep messaging consistent.
 export const MAX_PROTOCOL_UPLOAD_BYTES = 256 * 1024 * 1024;
+
+// Size of each piece the .netcanvas original is split into for upload. Many
+// small uploads are far more reliable than one large single PUT.
+export const PROTOCOL_UPLOAD_PART_BYTES = 16 * 1024 * 1024;
