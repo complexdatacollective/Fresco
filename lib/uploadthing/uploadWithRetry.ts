@@ -15,6 +15,7 @@ type AssetUploadHandle = {
 type StartAssetUpload = (
   files: File[],
   onProgress: (totalProgress: number) => void,
+  onUploaded: (key: string) => void,
 ) => Promise<AssetUploadHandle>;
 
 // Delay (ms) applied before attempt index N. Index 0 (first attempt) never
@@ -27,11 +28,23 @@ const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 // SDK result to the app's `UploadedFile` shape. `createUpload`'s
 // `onUploadProgress` reports `totalProgress` (overall bytes across the batch),
 // which avoids the per-file progress overwrites that made the bar jump.
-const startAssetUpload: StartAssetUpload = async (files, onProgress) => {
+const startAssetUpload: StartAssetUpload = async (
+  files,
+  onProgress,
+  onUploaded,
+) => {
   const { done } = await createUpload('assetRouter', {
     files,
     onUploadProgress: ({ totalProgress }) => onProgress(totalProgress),
   });
+
+  // Report each file's key as soon as that file finishes, so the caller can
+  // track uploaded blobs for cleanup even if the overall batch later fails.
+  for (const file of files) {
+    void done(file)
+      .then((result) => onUploaded(result.key))
+      .catch(() => undefined);
+  }
 
   return {
     done: async () => {
@@ -55,7 +68,11 @@ const startAssetUpload: StartAssetUpload = async (files, onProgress) => {
 export async function uploadToUploadThingWithRetry(
   files: File[],
   onProgress?: (progress: number) => void,
-  options: { backoffMs?: number[]; startUpload?: StartAssetUpload } = {},
+  options: {
+    backoffMs?: number[];
+    startUpload?: StartAssetUpload;
+    onUploaded?: (key: string) => void;
+  } = {},
 ): Promise<UploadedFile[]> {
   const backoffMs = options.backoffMs ?? DEFAULT_BACKOFF_MS;
   const startUpload = options.startUpload ?? startAssetUpload;
@@ -68,8 +85,10 @@ export async function uploadToUploadThingWithRetry(
     }
 
     try {
-      const { done } = await startUpload(files, (progress) =>
-        onProgress?.(progress),
+      const { done } = await startUpload(
+        files,
+        (progress) => onProgress?.(progress),
+        (key) => options.onUploaded?.(key),
       );
       return await done();
     } catch (error) {

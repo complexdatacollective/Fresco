@@ -37,7 +37,9 @@ export const ActionsDropdown = ({
   const handleDownload = async () => {
     const { originalFileParts, name } = row.original;
     const parts = protocolFilePartsSchema.parse(originalFileParts);
-    if (parts.length === 0) return;
+    if (parts.length === 0) {
+      throw new Error('Protocol file has no parts to download');
+    }
 
     const blobs = await Promise.all(
       parts.map(async (part) => {

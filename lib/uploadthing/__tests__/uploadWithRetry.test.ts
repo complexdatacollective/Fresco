@@ -75,4 +75,28 @@ describe('uploadToUploadThingWithRetry', () => {
 
     expect(onProgress).toHaveBeenCalledWith(42);
   });
+
+  it('forwards per-file uploaded keys via onUploaded', async () => {
+    const startUpload = vi.fn(
+      (
+        _files: File[],
+        _onProgress: (p: number) => void,
+        onUploaded: (key: string) => void,
+      ) => {
+        onUploaded('key-1');
+        return Promise.resolve({
+          done: () => Promise.resolve(uploadedFiles),
+        });
+      },
+    );
+    const onUploaded = vi.fn();
+
+    await uploadToUploadThingWithRetry([file], undefined, {
+      backoffMs: NO_BACKOFF,
+      startUpload,
+      onUploaded,
+    });
+
+    expect(onUploaded).toHaveBeenCalledWith('key-1');
+  });
 });

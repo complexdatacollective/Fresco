@@ -63,6 +63,7 @@ async function uploadViaS3(
   files: File[],
   urls: PresignedUploadUrl[],
   onProgress?: (progress: number) => void,
+  onUploaded?: (key: string) => void,
 ): Promise<UploadedFile[]> {
   const totalBytes = files.reduce((sum, f) => sum + f.size, 0);
   const loaded = new Array<number>(files.length).fill(0);
@@ -83,6 +84,8 @@ async function uploadViaS3(
       }
     });
 
+    onUploaded?.(presigned.fileKey);
+
     return {
       key: presigned.fileKey,
       url: presigned.publicUrl,
@@ -97,8 +100,9 @@ async function uploadViaS3(
 async function uploadViaUploadThing(
   files: File[],
   onProgress?: (progress: number) => void,
+  onUploaded?: (key: string) => void,
 ): Promise<UploadedFile[]> {
-  return uploadToUploadThingWithRetry(files, onProgress);
+  return uploadToUploadThingWithRetry(files, onProgress, { onUploaded });
 }
 
 export function useUploadAssets() {
@@ -106,15 +110,16 @@ export function useUploadAssets() {
     async (
       files: File[],
       onProgress?: (progress: number) => void,
+      onUploaded?: (key: string) => void,
     ): Promise<UploadedFile[]> => {
       const fileMeta = files.map((f) => ({ name: f.name, size: f.size }));
       const presign = await fetchPresignResponse(fileMeta);
 
       if (presign.provider === 'uploadthing') {
-        return uploadViaUploadThing(files, onProgress);
+        return uploadViaUploadThing(files, onProgress, onUploaded);
       }
 
-      return uploadViaS3(files, presign.urls, onProgress);
+      return uploadViaS3(files, presign.urls, onProgress, onUploaded);
     },
     [],
   );

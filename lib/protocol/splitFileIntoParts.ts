@@ -5,6 +5,10 @@
  * reproduces the original file byte-for-byte.
  */
 export function splitFileIntoParts(file: File, partBytes: number): File[] {
+  if (!Number.isFinite(partBytes) || partBytes <= 0) {
+    throw new Error('partBytes must be a positive, finite number');
+  }
+
   const partCount = Math.ceil(file.size / partBytes);
   const parts: File[] = [];
 

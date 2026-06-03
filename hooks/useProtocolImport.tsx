@@ -243,11 +243,13 @@ export const useProtocolImport = () => {
         file,
         PROTOCOL_UPLOAD_PART_BYTES,
       );
-      const uploadedParts = await uploadAssets(protocolParts, (progress) => {
-        updateToastPhase(toastId, 'uploading-protocol', progress);
-      });
-
-      uploadedKeys.push(...uploadedParts.map((part) => part.key));
+      const uploadedParts = await uploadAssets(
+        protocolParts,
+        (progress) => {
+          updateToastPhase(toastId, 'uploading-protocol', progress);
+        },
+        (key) => uploadedKeys.push(key),
+      );
 
       const originalFileParts = protocolParts.map((part) => {
         const uploaded = uploadedParts.find((u) => u.name === part.name);
@@ -266,12 +268,9 @@ export const useProtocolImport = () => {
             (progress) => {
               updateToastPhase(toastId, 'uploading-assets', progress);
             },
+            (key) => uploadedKeys.push(key),
           )
         : [];
-
-      uploadedKeys.push(
-        ...uploadedAssetFiles.map((uploadedFile) => uploadedFile.key),
-      );
 
       newAssetsWithCombinedMetadata = newAssets.map((asset) => {
         const uploadedAsset = uploadedAssetFiles.find(

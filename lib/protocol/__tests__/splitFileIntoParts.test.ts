@@ -34,4 +34,11 @@ describe('splitFileIntoParts', () => {
     const recombined = new Uint8Array(await new Blob(parts).arrayBuffer());
     expect(recombined).toEqual(original);
   });
+
+  it('throws for a non-positive or non-finite part size', () => {
+    expect(() => splitFileIntoParts(makeFile(100), 0)).toThrow();
+    expect(() => splitFileIntoParts(makeFile(100), -1)).toThrow();
+    expect(() => splitFileIntoParts(makeFile(100), Number.NaN)).toThrow();
+    expect(() => splitFileIntoParts(makeFile(100), Infinity)).toThrow();
+  });
 });
