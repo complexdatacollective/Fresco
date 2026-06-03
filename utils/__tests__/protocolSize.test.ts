@@ -17,4 +17,15 @@ describe('getProtocolSizeError', () => {
     expect(error).toContain('300');
     expect(error).toContain('256');
   });
+
+  it('rejects a file just over the limit and rounds its size up', () => {
+    const error = getProtocolSizeError({ size: 256 * 1024 * 1024 + 1 });
+    // Math.ceil avoids displaying an over-limit file as exactly "256 MB".
+    expect(error).toContain('257');
+  });
+
+  it('phrases the limit inclusively to match the <= check', () => {
+    const error = getProtocolSizeError({ size: 300 * 1024 * 1024 });
+    expect(error).toContain('256 MB or smaller');
+  });
 });
