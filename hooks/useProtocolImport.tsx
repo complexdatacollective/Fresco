@@ -223,21 +223,29 @@ export const useProtocolImport = () => {
         throw new Error('Error checking for existing assets');
       }
 
-      // Phase: Uploading assets
-      updateToastPhase(toastId, 'uploading-assets');
+      // Phase: Uploading protocol
+      updateToastPhase(toastId, 'uploading-protocol');
 
-      const filesToUpload = [...newAssets.map((asset) => asset.file), file];
-
-      const uploadedFiles = await uploadAssets(filesToUpload, (progress) => {
-        updateToastPhase(toastId, 'uploading-assets', progress);
+      const [uploadedOriginalFile] = await uploadAssets([file], (progress) => {
+        updateToastPhase(toastId, 'uploading-protocol', progress);
       });
 
-      const uploadedOriginalFile = uploadedFiles.at(-1);
       if (uploadedOriginalFile?.name !== file.name) {
         throw new Error('Original protocol file upload result mismatch');
       }
 
-      const uploadedAssetFiles = uploadedFiles.slice(0, newAssets.length);
+      // Phase: Uploading assets
+      updateToastPhase(toastId, 'uploading-assets');
+
+      const uploadedAssetFiles = newAssets.length
+        ? await uploadAssets(
+            newAssets.map((asset) => asset.file),
+            (progress) => {
+              updateToastPhase(toastId, 'uploading-assets', progress);
+            },
+          )
+        : [];
+
       newAssetsWithCombinedMetadata = newAssets.map((asset) => {
         const uploadedAsset = uploadedAssetFiles.find(
           (uploadedFile) => uploadedFile.name === asset.name,
