@@ -30,35 +30,42 @@ export const Parsing: Story = {
 export const Validating: Story = {
   args: {
     phase: 'validating',
-    progress: 16.7,
+    progress: 14.3,
   },
 };
 
 export const CheckingDuplicates: Story = {
   args: {
     phase: 'checking-duplicates',
-    progress: 33.3,
+    progress: 28.6,
   },
 };
 
 export const ExtractingAssets: Story = {
   args: {
     phase: 'extracting-assets',
-    progress: 50,
+    progress: 42.9,
+  },
+};
+
+export const UploadingProtocol: Story = {
+  args: {
+    phase: 'uploading-protocol',
+    progress: 64,
   },
 };
 
 export const UploadingAssets: Story = {
   args: {
     phase: 'uploading-assets',
-    progress: 75,
+    progress: 78,
   },
 };
 
 export const Saving: Story = {
   args: {
     phase: 'saving',
-    progress: 83.3,
+    progress: 85.7,
   },
 };
 
