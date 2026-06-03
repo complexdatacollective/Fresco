@@ -9,6 +9,7 @@ import { queue } from 'async';
 import posthog from 'posthog-js';
 import { useCallback, useRef } from 'react';
 import {
+  cleanupUploadedFiles,
   getNewAssetIds,
   getProtocolByHash,
   insertProtocol,
@@ -135,6 +136,10 @@ export const useProtocolImport = () => {
       importProtocols([file]);
     };
 
+    // Storage keys of every blob uploaded during this attempt, so they can be
+    // cleaned up on a best-effort basis if the import fails partway through.
+    const uploadedKeys: string[] = [];
+
     try {
       // Phase: Parsing
       updateToastPhase(toastId, 'parsing');
@@ -234,6 +239,10 @@ export const useProtocolImport = () => {
         updateToastPhase(toastId, 'uploading-protocol', progress);
       });
 
+      if (uploadedOriginalFile) {
+        uploadedKeys.push(uploadedOriginalFile.key);
+      }
+
       if (uploadedOriginalFile?.name !== file.name) {
         throw new Error('Original protocol file upload result mismatch');
       }
@@ -249,6 +258,10 @@ export const useProtocolImport = () => {
             },
           )
         : [];
+
+      uploadedKeys.push(
+        ...uploadedAssetFiles.map((uploadedFile) => uploadedFile.key),
+      );
 
       newAssetsWithCombinedMetadata = newAssets.map((asset) => {
         const uploadedAsset = uploadedAssetFiles.find(
@@ -298,6 +311,12 @@ export const useProtocolImport = () => {
       const error = ensureError(e);
 
       posthog.captureException(error);
+
+      // Best-effort cleanup of any blobs uploaded before the failure, so a
+      // failed import doesn't leave orphaned files in storage.
+      if (uploadedKeys.length > 0) {
+        void cleanupUploadedFiles(uploadedKeys);
+      }
 
       updateToastPhase(toastId, 'error', 0, error.message, retryThisFile);
 
