@@ -3,6 +3,7 @@
 import {
   Database,
   FileSearch,
+  FileUp,
   Package,
   RefreshCw,
   Search,
@@ -23,6 +24,7 @@ const phaseConfig: Record<ImportPhase, PhaseConfig> = {
   'validating': { label: 'Validating...', icon: ShieldCheck },
   'checking-duplicates': { label: 'Checking duplicates...', icon: Search },
   'extracting-assets': { label: 'Extracting assets...', icon: Package },
+  'uploading-protocol': { label: 'Uploading protocol...', icon: FileUp },
   'uploading-assets': { label: 'Uploading assets...', icon: Upload },
   'saving': { label: 'Saving...', icon: Database },
   'complete': { label: 'Import complete', icon: Database },
@@ -76,11 +78,14 @@ export default function ImportToastContent({
         <Icon className="size-3.5 animate-pulse" />
         <span>{config.label}</span>
       </div>
-      <ProgressBar
-        percentProgress={progress}
-        orientation="horizontal"
-        nudge={false}
-      />
+      <div className="flex items-center gap-2">
+        <ProgressBar
+          percentProgress={progress}
+          orientation="horizontal"
+          nudge={false}
+        />
+        <span className="text-xs tabular-nums">{Math.round(progress)}%</span>
+      </div>
     </div>
   );
 }
