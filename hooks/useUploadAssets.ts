@@ -2,14 +2,10 @@
 
 import { useCallback } from 'react';
 import type { PresignedUploadUrl } from '~/lib/storage/services/AssetStorage';
-import { uploadFiles } from '~/lib/uploadthing/client-helpers';
-
-type UploadedFile = {
-  key: string;
-  url: string;
-  name: string;
-  size: number;
-};
+import {
+  type UploadedFile,
+  uploadToUploadThingWithRetry,
+} from '~/lib/uploadthing/uploadWithRetry';
 
 type PresignResponse =
   | { provider: 's3'; urls: PresignedUploadUrl[] }
@@ -102,19 +98,7 @@ async function uploadViaUploadThing(
   files: File[],
   onProgress?: (progress: number) => void,
 ): Promise<UploadedFile[]> {
-  const results = await uploadFiles('assetRouter', {
-    files,
-    onUploadProgress: ({ progress }) => {
-      if (onProgress) onProgress(progress);
-    },
-  });
-
-  return results.map((result) => ({
-    key: result.key,
-    url: result.ufsUrl,
-    name: result.name,
-    size: result.size,
-  }));
+  return uploadToUploadThingWithRetry(files, onProgress);
 }
 
 export function useUploadAssets() {
