@@ -9,6 +9,7 @@ import { queue } from 'async';
 import posthog from 'posthog-js';
 import { useCallback, useRef } from 'react';
 import {
+  cleanupUploadedFiles,
   getNewAssetIds,
   getProtocolByHash,
   insertProtocol,
@@ -25,7 +26,9 @@ import {
   type ProtocolValidationError,
 } from '~/lib/protocol/validateAndMigrateProtocol';
 import { useUploadAssets } from '~/hooks/useUploadAssets';
+import Spinner from '@codaco/fresco-ui/Spinner';
 import { type AssetInsertType } from '~/schemas/protocol';
+import { getProtocolSizeError } from '~/utils/protocolSize';
 import { DatabaseError } from '~/utils/databaseError';
 import { ensureError } from '~/utils/ensureError';
 import {
@@ -92,6 +95,7 @@ export const useProtocolImport = () => {
         variant: 'success',
         title: 'Protocol imported successfully',
         description: `Protocol ${toastId} has been imported.`,
+        icon: null,
         timeout: 2000,
       });
       return;
@@ -100,6 +104,7 @@ export const useProtocolImport = () => {
     if (phase === 'error') {
       toastUpdate(toastId, {
         variant: 'destructive',
+        icon: null,
         description: (
           <ImportToastContent
             phase={phase}
@@ -130,6 +135,10 @@ export const useProtocolImport = () => {
     const retryThisFile = () => {
       importProtocols([file]);
     };
+
+    // Storage keys of every blob uploaded during this attempt, so they can be
+    // cleaned up on a best-effort basis if the import fails partway through.
+    const uploadedKeys: string[] = [];
 
     try {
       // Phase: Parsing
@@ -223,21 +232,37 @@ export const useProtocolImport = () => {
         throw new Error('Error checking for existing assets');
       }
 
-      // Phase: Uploading assets
-      updateToastPhase(toastId, 'uploading-assets');
+      // Phase: Uploading protocol
+      updateToastPhase(toastId, 'uploading-protocol');
 
-      const filesToUpload = [...newAssets.map((asset) => asset.file), file];
-
-      const uploadedFiles = await uploadAssets(filesToUpload, (progress) => {
-        updateToastPhase(toastId, 'uploading-assets', progress);
+      const [uploadedOriginalFile] = await uploadAssets([file], (progress) => {
+        updateToastPhase(toastId, 'uploading-protocol', progress);
       });
 
-      const uploadedOriginalFile = uploadedFiles.at(-1);
+      if (uploadedOriginalFile) {
+        uploadedKeys.push(uploadedOriginalFile.key);
+      }
+
       if (uploadedOriginalFile?.name !== file.name) {
         throw new Error('Original protocol file upload result mismatch');
       }
 
-      const uploadedAssetFiles = uploadedFiles.slice(0, newAssets.length);
+      // Phase: Uploading assets
+      updateToastPhase(toastId, 'uploading-assets');
+
+      const uploadedAssetFiles = newAssets.length
+        ? await uploadAssets(
+            newAssets.map((asset) => asset.file),
+            (progress) => {
+              updateToastPhase(toastId, 'uploading-assets', progress);
+            },
+          )
+        : [];
+
+      uploadedKeys.push(
+        ...uploadedAssetFiles.map((uploadedFile) => uploadedFile.key),
+      );
+
       newAssetsWithCombinedMetadata = newAssets.map((asset) => {
         const uploadedAsset = uploadedAssetFiles.find(
           (uploadedFile) => uploadedFile.name === asset.name,
@@ -287,6 +312,12 @@ export const useProtocolImport = () => {
 
       posthog.captureException(error);
 
+      // Best-effort cleanup of any blobs uploaded before the failure, so a
+      // failed import doesn't leave orphaned files in storage.
+      if (uploadedKeys.length > 0) {
+        void cleanupUploadedFiles(uploadedKeys);
+      }
+
       updateToastPhase(toastId, 'error', 0, error.message, retryThisFile);
 
       return;
@@ -299,6 +330,18 @@ export const useProtocolImport = () => {
 
   const importProtocols = useCallback((files: File[]) => {
     files.forEach((file) => {
+      const sizeError = getProtocolSizeError(file);
+      if (sizeError) {
+        toastRef.current.add({
+          id: generateJobId(),
+          variant: 'destructive',
+          title: file.name,
+          description: sizeError,
+          timeout: 0,
+        });
+        return;
+      }
+
       const jobAlreadyExists = activeJobs.current.has(file.name);
 
       if (jobAlreadyExists) {
@@ -314,6 +357,7 @@ export const useProtocolImport = () => {
         id: toastId,
         title: file.name,
         description: <ImportToastContent phase="parsing" progress={0} />,
+        icon: <Spinner size="xs" />,
         timeout: 0,
       });
 

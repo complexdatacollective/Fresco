@@ -9,6 +9,7 @@ import { Prisma } from '~/lib/db/generated/client';
 import { hashProtocol } from '@codaco/protocol-validation';
 import { getStorageLayer } from '~/lib/storage/layers/StorageLayer';
 import { AssetStorage } from '~/lib/storage/services/AssetStorage';
+import { selectUnreferencedKeys } from '~/lib/protocol/selectUnreferencedKeys';
 import { type protocolInsertSchema } from '~/schemas/protocol';
 import { addEvent } from './activityFeed';
 
@@ -143,6 +144,53 @@ export async function deleteProtocols(hashes: string[]) {
   }
 }
 
+/**
+ * Best-effort cleanup of storage blobs that were uploaded during a protocol
+ * import that ultimately failed. Any key still referenced by a stored asset or
+ * protocol original file is skipped, so blobs in use by other protocols are
+ * never deleted. Never throws — cleanup failures must not mask the import error.
+ */
+export async function cleanupUploadedFiles(keys: string[]) {
+  await requireApiAuth();
+
+  const uploadedKeys = keys.filter((key) => key.length > 0);
+  if (uploadedKeys.length === 0) {
+    return { error: null, deletedCount: 0 };
+  }
+
+  try {
+    const [referencedAssets, referencingProtocols] = await Promise.all([
+      prisma.asset.findMany({
+        where: { key: { in: uploadedKeys } },
+        select: { key: true },
+      }),
+      prisma.protocol.findMany({
+        where: { originalFileKey: { in: uploadedKeys } },
+        select: { originalFileKey: true },
+      }),
+    ]);
+
+    const referencedKeys = [
+      ...referencedAssets.map((asset) => asset.key),
+      ...referencingProtocols
+        .map((protocol) => protocol.originalFileKey)
+        .filter((key): key is string => key !== null),
+    ];
+
+    const keysToDelete = selectUnreferencedKeys(uploadedKeys, referencedKeys);
+
+    if (keysToDelete.length > 0) {
+      await deleteFilesFromStorage(keysToDelete);
+    }
+
+    return { error: null, deletedCount: keysToDelete.length };
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log('Error cleaning up uploaded files after failed import:', error);
+    return { error: 'Failed to clean up uploaded files', deletedCount: 0 };
+  }
+}
+
 async function deleteFilesFromStorage(fileKey: string | string[]) {
   await requireApiAuth();
 
@@ -202,12 +250,10 @@ export async function insertProtocol(
 
     return { error: null, success: true };
   } catch (e) {
-    // Attempt to delete any files we uploaded to storage (assets + original)
-    const keysToCleanUp = [
-      ...newAssets.map((a: { key: string }) => a.key),
-      originalFile.key,
-    ];
-    void deleteFilesFromStorage(keysToCleanUp);
+    // Storage cleanup of any uploaded blobs is handled by the import caller
+    // (processJob) via cleanupUploadedFiles, which runs for every failure path
+    // and skips keys still referenced by other protocols.
+
     // Check for protocol already existing
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       if (e.code === 'P2002') {
