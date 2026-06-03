@@ -20,7 +20,11 @@ import {
 } from '~/components/ProtocolImport/calculateImportProgress';
 import ImportToastContent from '~/components/ProtocolImport/ImportToastContent';
 import { useToast } from '@codaco/fresco-ui/Toast';
-import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
+import {
+  APP_SUPPORTED_SCHEMA_VERSIONS,
+  PROTOCOL_UPLOAD_PART_BYTES,
+} from '~/fresco.config';
+import { splitFileIntoParts } from '~/lib/protocol/splitFileIntoParts';
 import {
   validateAndMigrateProtocol,
   type ProtocolValidationError,
@@ -232,20 +236,26 @@ export const useProtocolImport = () => {
         throw new Error('Error checking for existing assets');
       }
 
-      // Phase: Uploading protocol
+      // Phase: Uploading protocol (split into pieces for reliable upload)
       updateToastPhase(toastId, 'uploading-protocol');
 
-      const [uploadedOriginalFile] = await uploadAssets([file], (progress) => {
+      const protocolParts = splitFileIntoParts(
+        file,
+        PROTOCOL_UPLOAD_PART_BYTES,
+      );
+      const uploadedParts = await uploadAssets(protocolParts, (progress) => {
         updateToastPhase(toastId, 'uploading-protocol', progress);
       });
 
-      if (uploadedOriginalFile) {
-        uploadedKeys.push(uploadedOriginalFile.key);
-      }
+      uploadedKeys.push(...uploadedParts.map((part) => part.key));
 
-      if (uploadedOriginalFile?.name !== file.name) {
-        throw new Error('Original protocol file upload result mismatch');
-      }
+      const originalFileParts = protocolParts.map((part) => {
+        const uploaded = uploadedParts.find((u) => u.name === part.name);
+        if (!uploaded) {
+          throw new Error('Protocol file part upload result mismatch');
+        }
+        return { key: uploaded.key, url: uploaded.url, size: uploaded.size };
+      });
 
       // Phase: Uploading assets
       updateToastPhase(toastId, 'uploading-assets');
@@ -289,10 +299,7 @@ export const useProtocolImport = () => {
         protocolName: fileName,
         newAssets: [...newAssetsWithCombinedMetadata, ...newApikeyAssets],
         existingAssetIds: existingAssetIds,
-        originalFile: {
-          key: uploadedOriginalFile.key,
-          url: uploadedOriginalFile.url,
-        },
+        originalFileParts,
       });
 
       if (result.error) {

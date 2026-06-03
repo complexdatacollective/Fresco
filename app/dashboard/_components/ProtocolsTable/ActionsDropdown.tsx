@@ -15,6 +15,7 @@ import {
 } from '@codaco/fresco-ui/DropdownMenu';
 import { useToast } from '@codaco/fresco-ui/Toast';
 import { useDownload } from '~/hooks/useDownload';
+import { protocolFilePartsSchema } from '~/schemas/protocolFileParts';
 import type { ProtocolWithInterviews } from './ProtocolsTableClient';
 
 export const ActionsDropdown = ({
@@ -34,14 +35,21 @@ export const ActionsDropdown = ({
   };
 
   const handleDownload = async () => {
-    const { originalFileUrl, name } = row.original;
-    if (!originalFileUrl) return;
+    const { originalFileParts, name } = row.original;
+    const parts = protocolFilePartsSchema.parse(originalFileParts);
+    if (parts.length === 0) return;
 
-    const response = await fetch(originalFileUrl);
-    if (!response.ok) {
-      throw new Error('Failed to download protocol file');
-    }
-    const blob = await response.blob();
+    const blobs = await Promise.all(
+      parts.map(async (part) => {
+        const response = await fetch(part.url);
+        if (!response.ok) {
+          throw new Error('Failed to download protocol file');
+        }
+        return response.blob();
+      }),
+    );
+
+    const blob = new Blob(blobs);
     const blobUrl = URL.createObjectURL(blob);
     download(blobUrl, name);
     URL.revokeObjectURL(blobUrl);
@@ -69,7 +77,7 @@ export const ActionsDropdown = ({
         <DropdownMenuContent align="end">
           <DropdownMenuGroup>
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            {row.original.originalFileUrl && (
+            {row.original.originalFileParts != null && (
               <DropdownMenuItem
                 onClick={() =>
                   void promise(handleDownload(), {

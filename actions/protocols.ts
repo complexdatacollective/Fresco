@@ -10,6 +10,7 @@ import { hashProtocol } from '@codaco/protocol-validation';
 import { getStorageLayer } from '~/lib/storage/layers/StorageLayer';
 import { AssetStorage } from '~/lib/storage/services/AssetStorage';
 import { selectUnreferencedKeys } from '~/lib/protocol/selectUnreferencedKeys';
+import { protocolFilePartsSchema } from '~/schemas/protocolFileParts';
 import { type protocolInsertSchema } from '~/schemas/protocol';
 import { addEvent } from './activityFeed';
 
@@ -55,7 +56,7 @@ export async function deleteProtocols(hashes: string[]) {
 
   const protocolsToBeDeleted = await prisma.protocol.findMany({
     where: { hash: { in: hashes } },
-    select: { id: true, name: true, originalFileKey: true },
+    select: { id: true, name: true, originalFileParts: true },
   });
 
   // Select assets that are ONLY associated with the protocols to be deleted
@@ -72,9 +73,12 @@ export async function deleteProtocols(hashes: string[]) {
     select: { key: true },
   });
 
-  const originalFileKeysToDelete = protocolsToBeDeleted
-    .map((p) => p.originalFileKey)
-    .filter((k): k is string => !!k);
+  const originalFileKeysToDelete = protocolsToBeDeleted.flatMap((p) =>
+    protocolFilePartsSchema
+      .catch([])
+      .parse(p.originalFileParts)
+      .map((part) => part.key),
+  );
 
   // We put file deletion in a separate try/catch because if it fails, we still
   // want to delete the protocol.
@@ -146,9 +150,9 @@ export async function deleteProtocols(hashes: string[]) {
 
 /**
  * Best-effort cleanup of storage blobs that were uploaded during a protocol
- * import that ultimately failed. Any key still referenced by a stored asset or
- * protocol original file is skipped, so blobs in use by other protocols are
- * never deleted. Never throws — cleanup failures must not mask the import error.
+ * import that ultimately failed. Any key still referenced by a stored asset is
+ * skipped, so blobs in use by other protocols are never deleted. Never throws —
+ * cleanup failures must not mask the import error.
  */
 export async function cleanupUploadedFiles(keys: string[]) {
   await requireApiAuth();
@@ -159,23 +163,14 @@ export async function cleanupUploadedFiles(keys: string[]) {
   }
 
   try {
-    const [referencedAssets, referencingProtocols] = await Promise.all([
-      prisma.asset.findMany({
-        where: { key: { in: uploadedKeys } },
-        select: { key: true },
-      }),
-      prisma.protocol.findMany({
-        where: { originalFileKey: { in: uploadedKeys } },
-        select: { originalFileKey: true },
-      }),
-    ]);
+    // Only assets are deduplicated/shared between protocols. Protocol file part
+    // keys are unique per import, so they are always safe to delete.
+    const referencedAssets = await prisma.asset.findMany({
+      where: { key: { in: uploadedKeys } },
+      select: { key: true },
+    });
 
-    const referencedKeys = [
-      ...referencedAssets.map((asset) => asset.key),
-      ...referencingProtocols
-        .map((protocol) => protocol.originalFileKey)
-        .filter((key): key is string => key !== null),
-    ];
+    const referencedKeys = referencedAssets.map((asset) => asset.key);
 
     const keysToDelete = selectUnreferencedKeys(uploadedKeys, referencedKeys);
 
@@ -214,8 +209,13 @@ export async function insertProtocol(
 ) {
   const session = await requireApiAuth();
 
-  const { protocol, protocolName, newAssets, existingAssetIds, originalFile } =
-    input;
+  const {
+    protocol,
+    protocolName,
+    newAssets,
+    existingAssetIds,
+    originalFileParts,
+  } = input;
 
   try {
     const protocolHash = hashProtocol(protocol);
@@ -229,8 +229,7 @@ export async function insertProtocol(
         stages: protocol.stages,
         codebook: protocol.codebook,
         description: protocol.description,
-        originalFileKey: originalFile.key,
-        originalFileUrl: originalFile.url,
+        originalFileParts,
         assets: {
           create: newAssets,
           connect: existingAssetIds.map((assetId: string) => ({ assetId })),

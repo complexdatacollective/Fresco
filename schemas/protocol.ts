@@ -1,6 +1,7 @@
 import 'server-only';
 import { CurrentProtocolSchema } from '@codaco/protocol-validation';
 import { z } from 'zod';
+import { protocolFilePartsSchema } from '~/schemas/protocolFileParts';
 
 const assetInsertSchema = z.object({
   key: z.string(),
@@ -19,8 +20,5 @@ export const protocolInsertSchema = z.object({
   protocolName: z.string(),
   newAssets: z.array(assetInsertSchema),
   existingAssetIds: z.array(z.string()),
-  originalFile: z.object({
-    key: z.string(),
-    url: z.string(),
-  }),
+  originalFileParts: protocolFilePartsSchema,
 });
