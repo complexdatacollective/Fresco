@@ -25,7 +25,9 @@ import {
   type ProtocolValidationError,
 } from '~/lib/protocol/validateAndMigrateProtocol';
 import { useUploadAssets } from '~/hooks/useUploadAssets';
+import Spinner from '@codaco/fresco-ui/Spinner';
 import { type AssetInsertType } from '~/schemas/protocol';
+import { getProtocolSizeError } from '~/utils/protocolSize';
 import { DatabaseError } from '~/utils/databaseError';
 import { ensureError } from '~/utils/ensureError';
 import {
@@ -92,6 +94,7 @@ export const useProtocolImport = () => {
         variant: 'success',
         title: 'Protocol imported successfully',
         description: `Protocol ${toastId} has been imported.`,
+        icon: null,
         timeout: 2000,
       });
       return;
@@ -100,6 +103,7 @@ export const useProtocolImport = () => {
     if (phase === 'error') {
       toastUpdate(toastId, {
         variant: 'destructive',
+        icon: null,
         description: (
           <ImportToastContent
             phase={phase}
@@ -307,6 +311,18 @@ export const useProtocolImport = () => {
 
   const importProtocols = useCallback((files: File[]) => {
     files.forEach((file) => {
+      const sizeError = getProtocolSizeError(file);
+      if (sizeError) {
+        toastRef.current.add({
+          id: generateJobId(),
+          variant: 'destructive',
+          title: file.name,
+          description: sizeError,
+          timeout: 0,
+        });
+        return;
+      }
+
       const jobAlreadyExists = activeJobs.current.has(file.name);
 
       if (jobAlreadyExists) {
@@ -322,6 +338,7 @@ export const useProtocolImport = () => {
         id: toastId,
         title: file.name,
         description: <ImportToastContent phase="parsing" progress={0} />,
+        icon: <Spinner size="xs" />,
         timeout: 0,
       });
 
