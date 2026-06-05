@@ -1,0 +1,28 @@
+autoInstallPeers: true
+
+publicHoistPattern:
+  - '*tailwind-config*'
+
+allowBuilds:
+  '@parcel/watcher': true
+  '@posthog/cli': false
+  '@prisma/engines': true
+  '@tailwindcss/oxide': true
+  core-js: false
+  core-js-pure: true
+  esbuild: true
+  msgpackr-extract: false
+  prisma: true
+  protobufjs: false
+  sharp: true
+  unrs-resolver: true
+
+patchedDependencies:
+  react-best-merge-refs@1.0.2: patches/react-best-merge-refs@1.0.2.patch
+
+minimumReleaseAgeExclude:
+  - '@codaco/fresco-ui@2.11.2'
+  - '@codaco/interview@1.0.0-alpha.23'
+  - '@codaco/network-exporters@1.0.3'
+  - '@codaco/protocol-validation@11.6.1'
+  - '@codaco/tailwind-config@1.0.0-alpha.19'

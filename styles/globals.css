@@ -1,0 +1,24 @@
+/*
+ * Tailwind v4 entry, design tokens, NC palette, custom plugins
+ * 
+ * Note: fonts must be imported in JS, so that url() references are resolved
+ * by the bundler.
+ */
+@import '@codaco/tailwind-config/fresco.css';
+
+/*
+ * Tailwind's class scanner needs an explicit @source for the package's compiled
+ * JS — the @source declaration inside the package's styles.css is relative to
+ * the package's own dist/, which Fresco's compiler can't resolve from here.
+ */
+@import '@codaco/fresco-ui/styles.css';
+@import '@codaco/interview/styles.css';
+
+
+/* Autodocs renders each story in a `.sbdocs-preview` wrapper that lives
+   outside the canvas iframe, so the body rule above doesn't reach it.
+   Paint the docs preview canvas with the theme background directly. */
+.sbdocs-preview {
+	@apply bg-background!;
+}
+

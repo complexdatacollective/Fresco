@@ -1,0 +1,46 @@
+import { Suspense } from 'react';
+import ParticipantsTable from '~/app/dashboard/_components/ParticipantsTable/ParticipantsTable';
+import { DataTableSkeleton } from '@codaco/fresco-ui/DataTable/DataTableSkeleton';
+import ResponsiveContainer from '@codaco/fresco-ui/layout/ResponsiveContainer';
+import PageHeader from '@codaco/fresco-ui/typography/PageHeader';
+import { requirePageAuth } from '~/lib/auth/guards';
+import { requireAppNotExpired } from '~/queries/appSettings';
+
+export default function ParticipantPage() {
+  return (
+    <>
+      <PageHeader
+        headerText="Participants"
+        subHeaderText="View and manage your participants."
+        data-testid="participants-page-header"
+      />
+      <Suspense
+        fallback={
+          <ResponsiveContainer
+            maxWidth="6xl"
+            baseSize="content"
+            container={false}
+          >
+            <DataTableSkeleton
+              columnCount={4}
+              searchableColumnCount={1}
+              headerItemsCount={3}
+            />
+          </ResponsiveContainer>
+        }
+      >
+        <AuthenticatedParticipants />
+      </Suspense>
+    </>
+  );
+}
+
+async function AuthenticatedParticipants() {
+  await requireAppNotExpired();
+  await requirePageAuth();
+  return (
+    <ResponsiveContainer maxWidth="6xl" baseSize="content" container={false}>
+      <ParticipantsTable />
+    </ResponsiveContainer>
+  );
+}

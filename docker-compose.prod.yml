@@ -1,0 +1,93 @@
+services:
+  fresco:
+    image: 'ghcr.io/complexdatacollective/fresco:latest'
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    volumes:
+      - .:/app/next-app
+    restart: always
+    ports:
+      - 3000:3000
+    networks:
+      - fresco_network
+    env_file:
+      - .env
+
+  postgres:
+    env_file:
+      - .env
+    image: postgres:17-alpine
+    restart: always
+    volumes:
+      - postgres:/var/lib/postgresql/data:Z
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'postgres']
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    networks:
+      - fresco_network
+
+  # Optional: S3-compatible storage using MinIO.
+  # If you prefer UploadThing, remove this service and configure
+  # UploadThing during Fresco setup instead.
+  #
+  # During Fresco setup, select "S3 / S3-Compatible" and use:
+  #   Endpoint URL:      http://minio:9000
+  #   Bucket Name:       fresco
+  #   Region:            us-east-1
+  #   Access Key ID:     value of MINIO_ROOT_USER (default: minioadmin)
+  #   Secret Access Key: value of MINIO_ROOT_PASSWORD (default: minioadmin)
+  #
+  # MinIO console is available at http://localhost:9001
+  minio:
+    image: minio/minio:latest
+    restart: always
+    ports:
+      - 9000:9000
+      - 9001:9001
+    volumes:
+      - minio:/data
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ['CMD', 'mc', 'ready', 'local']
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    networks:
+      - fresco_network
+
+  # One-shot container that creates the default bucket after MinIO starts.
+  # Runs once and exits — it does not stay running.
+  minio-init:
+    image: minio/minio:latest
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: /bin/sh
+    command:
+      - -c
+      - |
+        mc alias set minio http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD}
+        mc mb --ignore-existing minio/fresco
+        mc anonymous set download minio/fresco
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+    networks:
+      - fresco_network
+
+volumes:
+  postgres:
+  minio:
+
+# Define a network, which allows containers to communicate
+# with each other, by using their container name as a hostname
+networks:
+  fresco_network:

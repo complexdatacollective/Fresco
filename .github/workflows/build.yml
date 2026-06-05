@@ -1,0 +1,34 @@
+name: Checks
+permissions:
+  contents: read
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - '*'
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Lint
+            command: pnpm lint
+          - name: Type check
+            command: pnpm typecheck
+          - name: Unit tests
+            command: pnpm test:unit
+          - name: Knip
+            command: pnpm knip
+    name: ${{ matrix.name }}
+    steps:
+      - name: Setup
+        uses: complexdatacollective/github-actions/setup-pnpm@4d9ebee3e57834a7ac8389a57d0fe1ef3614be14 # v2
+
+      - name: ${{ matrix.name }}
+        run: ${{ matrix.command }}

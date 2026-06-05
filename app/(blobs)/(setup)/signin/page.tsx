@@ -1,0 +1,35 @@
+import { type Metadata } from 'next';
+import { redirect } from 'next/navigation';
+import { connection } from 'next/server';
+import { containerClasses } from '~/components/ContainerClasses';
+import { MotionSurface } from '@codaco/fresco-ui/layout/Surface';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import { getServerSession } from '~/lib/auth/guards';
+import { cx } from '@codaco/fresco-ui/utils/cva';
+import SandboxCredentials from '../_components/SandboxCredentials';
+import { SignInForm } from '../_components/SignInForm';
+
+export const metadata: Metadata = {
+  title: 'Fresco - Sign In',
+  description: 'Sign in to Fresco.',
+};
+
+export default async function Page() {
+  await connection();
+  const session = await getServerSession();
+  if (session) redirect('/dashboard');
+  return (
+    <MotionSurface
+      noContainer
+      className={cx(
+        containerClasses,
+        'phone-landscape:w-md mx-auto w-full rounded shadow-none',
+      )}
+      baseSize="content"
+    >
+      <Heading level="h2">Sign In To Fresco</Heading>
+      <SandboxCredentials />
+      <SignInForm />
+    </MotionSurface>
+  );
+}

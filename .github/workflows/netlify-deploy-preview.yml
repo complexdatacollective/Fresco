@@ -1,0 +1,134 @@
+name: Deploy Preview
+
+on:
+  pull_request:
+    # Only for development-track PRs (base = next). The sandbox-dev Netlify
+    # project is wired to this branch; PRs into main go through a separate
+    # production workflow / project.
+    branches: [next]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  deploy-preview:
+    runs-on: ubuntu-latest
+    env:
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+    steps:
+      - name: Create Neon Branch
+        id: create-branch
+        uses: neondatabase/create-branch-action@fb620d43d4c565abaf088b848a4e28e5c4ea4d9c # 6.3.1
+        with:
+          project_id: ${{ vars.NEON_PROJECT_ID }}
+          branch_name: preview/pr-${{ github.event.number }}-${{ github.head_ref }}
+          api_key: ${{ secrets.NEON_API_KEY }}
+
+      - name: Setup
+        uses: complexdatacollective/github-actions/setup-pnpm@4d9ebee3e57834a7ac8389a57d0fe1ef3614be14 # v2
+
+      - name: Install Netlify CLI
+        run: pnpm add -g netlify-cli
+
+      - name: Set Netlify runtime environment variables
+        # Set the database URLs on Netlify *before* anything else so that the
+        # deploy preview Netlify auto-triggers from the same push has them
+        # available when its build container starts. If we set them after the
+        # migrations, the auto-deploy races ahead with stale env and the
+        # functions are baked with `connectionString: undefined`, which makes
+        # `node-postgres` fall back to PGHOST=localhost (127.0.0.1).
+        env:
+          BRANCH: ${{ github.head_ref }}
+          DB_URL_POOLED: ${{ steps.create-branch.outputs.db_url_pooled }}
+          DB_URL: ${{ steps.create-branch.outputs.db_url }}
+        run: |
+          netlify env:set DATABASE_URL "$DB_URL_POOLED" --context "branch:$BRANCH"
+          netlify env:set DATABASE_URL_UNPOOLED "$DB_URL" --context "branch:$BRANCH"
+
+      - name: Get branch preview URL
+        id: branch-preview
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          SUBDOMAIN=$(curl -s -H "Authorization: Bearer $NETLIFY_AUTH_TOKEN" \
+            "https://api.netlify.com/api/v1/sites/$NETLIFY_SITE_ID" | jq -r '.name')
+          BRANCH_SLUG=$(echo "$BRANCH" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9-]/-/g' | sed 's/--*/-/g' | sed 's/^-//;s/-$//')
+          echo "url=https://${BRANCH_SLUG}--${SUBDOMAIN}.netlify.app" >> "$GITHUB_OUTPUT"
+
+      - name: Write .env file
+        # Only used by the local migration/initialization scripts below to
+        # surface non-DB Netlify env vars (UploadThing keys, etc.). The DB URLs
+        # are passed to those steps directly via `env:` so the scripts don't
+        # depend on dotenv parsing this file correctly — `netlify env:list
+        # --plain` is not guaranteed to terminate with a newline, which would
+        # otherwise glue an appended `DATABASE_URL=...` line onto the previous
+        # variable's value.
+        run: netlify env:list --context deploy-preview --plain >> .env
+
+      - name: Run Migrations
+        env:
+          DATABASE_URL: ${{ steps.create-branch.outputs.db_url_pooled }}
+          DATABASE_URL_UNPOOLED: ${{ steps.create-branch.outputs.db_url }}
+        run: npx tsx scripts/setup-database.ts
+
+      - name: Run Initialization
+        env:
+          DATABASE_URL: ${{ steps.create-branch.outputs.db_url_pooled }}
+          DATABASE_URL_UNPOOLED: ${{ steps.create-branch.outputs.db_url }}
+        run: npx tsx scripts/initialize.ts
+
+      - name: Trigger Netlify build and wait for completion
+        # Branch-scoped DATABASE_URL is set and migrations have run, so the
+        # build will see the right env. Triggering via API + polling means
+        # this CI step fails if the Netlify build fails (otherwise we'd post
+        # a working-preview comment for a broken deploy).
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: ./scripts/netlify-deploy.sh
+
+      - name: Check for existing deploy comment
+        id: find-comment
+        if: success()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPO: ${{ github.repository }}
+        run: |
+          FOUND=$(gh api "repos/$REPO/issues/$PR_NUMBER/comments" \
+            --jq '[.[] | select(.body | contains("<!-- tag: deploy-preview -->"))] | length')
+          if [ "$FOUND" -gt 0 ]; then
+            echo "exists=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "exists=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Comment on Pull Request
+        if: success() && steps.find-comment.outputs.exists != 'true'
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
+        with:
+          comment-tag: deploy-preview
+          message: |
+            | Resource | Link |
+            |----------|------|
+            | Branch Preview 🌐 | ${{ steps.branch-preview.outputs.url }} |
+            | Neon branch 🐘 | https://console.neon.tech/app/projects/${{ vars.NEON_PROJECT_ID }}/branches/${{ steps.create-branch.outputs.branch_id }} |
+
+      - name: Remove failure comment on success
+        if: success()
+        continue-on-error: true
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
+        with:
+          comment-tag: deploy-preview-failure
+          mode: delete
+
+      - name: Comment on failure
+        if: failure()
+        uses: thollander/actions-comment-pull-request@24bffb9b452ba05a4f3f77933840a6a841d1b32b # v3.0.1
+        with:
+          comment-tag: deploy-preview-failure
+          message: |
+            ⚠️ **Branch preview setup failed**
+
+            Check the [workflow run](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) for details.

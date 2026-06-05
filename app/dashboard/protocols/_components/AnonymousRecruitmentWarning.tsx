@@ -1,0 +1,27 @@
+import ResponsiveContainer from '@codaco/fresco-ui/layout/ResponsiveContainer';
+import { Alert, AlertDescription, AlertTitle } from '@codaco/fresco-ui/Alert';
+import Link from '~/components/Link';
+import { getAppSetting } from '~/queries/appSettings';
+
+export default async function AnonymousRecruitmentWarning() {
+  const allowAnonymousRecruitment = await getAppSetting(
+    'allowAnonymousRecruitment',
+  );
+
+  if (!allowAnonymousRecruitment) return null;
+
+  return (
+    <ResponsiveContainer maxWidth="3xl">
+      <Alert variant="info" className="m-0">
+        <AlertTitle>Please Note</AlertTitle>
+        <AlertDescription>
+          Anonymous recruitment is enabled. This means that participants can
+          self-enroll in your study without needing to be invited, by visiting
+          the protocol-specific onboarding link. To disable anonymous
+          recruitment, visit{' '}
+          <Link href="/dashboard/settings">the settings page</Link>.
+        </AlertDescription>
+      </Alert>
+    </ResponsiveContainer>
+  );
+}

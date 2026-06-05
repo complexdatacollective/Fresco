@@ -1,0 +1,28 @@
+import { Alert, AlertDescription, AlertTitle } from '@codaco/fresco-ui/Alert';
+import Link from '~/components/Link';
+import { getAppSetting } from '~/queries/appSettings';
+
+export default async function UpdateUploadThingTokenAlert() {
+  const storageProvider = await getAppSetting('storageProvider');
+  if (storageProvider === 's3') return null;
+
+  const uploadThingToken = await getAppSetting('uploadThingToken');
+  if (uploadThingToken) return null;
+
+  return (
+    <Alert variant="destructive">
+      <AlertTitle>Configuration update required</AlertTitle>
+      <AlertDescription>
+        You need to add a new UploadThing API key before you can upload
+        protocols. See the{' '}
+        <Link
+          href="https://documentation.networkcanvas.com/en/fresco/deployment/upgrading#uploadthing-variable-update"
+          target="_blank"
+        >
+          upgrade documentation
+        </Link>{' '}
+        for more information.
+      </AlertDescription>
+    </Alert>
+  );
+}

@@ -1,0 +1,98 @@
+import { Loader2, Trash2 } from 'lucide-react';
+import { type Dispatch, type SetStateAction, useEffect, useState } from 'react';
+import { deleteInterviews } from '~/actions/interviews';
+import { Alert, AlertDescription, AlertTitle } from '@codaco/fresco-ui/Alert';
+import { Button } from '@codaco/fresco-ui/Button';
+import type { GetInterviewsQuery } from '~/queries/interviews';
+import Dialog from '@codaco/fresco-ui/dialogs/Dialog';
+
+type DeleteInterviewsDialog = {
+  open: boolean;
+  setOpen: Dispatch<SetStateAction<boolean>>;
+  interviewsToDelete: GetInterviewsQuery;
+};
+
+export const DeleteInterviewsDialog = ({
+  open,
+  setOpen,
+  interviewsToDelete,
+}: DeleteInterviewsDialog) => {
+  const [hasUnexported, setHasUnexported] = useState<boolean>(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  useEffect(() => {
+    setHasUnexported(
+      interviewsToDelete?.some((interview) => !interview.exportTime),
+    );
+  }, [interviewsToDelete]);
+
+  const handleConfirm = async () => {
+    await deleteInterviews(interviewsToDelete.map((d) => ({ id: d.id })));
+    setHasUnexported(false);
+
+    setOpen(false);
+  };
+
+  const handleCancelDialog = () => {
+    setHasUnexported(false);
+    setOpen(false);
+  };
+
+  return (
+    <Dialog
+      accent="destructive"
+      open={open}
+      closeDialog={handleCancelDialog}
+      title="Are you absolutely sure?"
+      description={
+        <>
+          This action cannot be undone. This will permanently delete{' '}
+          <strong>
+            {interviewsToDelete.length}{' '}
+            {interviewsToDelete.length > 1 ? <>interviews.</> : <>interview.</>}
+          </strong>
+        </>
+      }
+      footer={
+        <>
+          <Button disabled={isDeleting} onClick={handleCancelDialog}>
+            Cancel
+          </Button>
+          <Button
+            disabled={isDeleting}
+            color="primary"
+            onClick={async () => {
+              setIsDeleting(true);
+              await handleConfirm();
+              setIsDeleting(false);
+            }}
+            icon={
+              isDeleting ? <Loader2 className="animate-spin" /> : <Trash2 />
+            }
+          >
+            {isDeleting ? 'Deleting...' : 'Delete interview(s)'}
+          </Button>
+        </>
+      }
+    >
+      {hasUnexported && (
+        <Alert variant="destructive">
+          <AlertTitle>Warning</AlertTitle>
+          <AlertDescription>
+            {interviewsToDelete.length > 1 ? (
+              <>
+                One or more of the selected interviews
+                <strong> has not yet been exported.</strong>
+              </>
+            ) : (
+              <>
+                The selected interview
+                <strong> has not yet been exported.</strong>
+              </>
+            )}
+          </AlertDescription>
+        </Alert>
+      )}
+    </Dialog>
+  );
+};

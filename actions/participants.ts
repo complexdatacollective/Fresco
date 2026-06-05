@@ -1,0 +1,162 @@
+'use server';
+
+import { createId } from '@paralleldrive/cuid2';
+import { addEvent } from '~/actions/activityFeed';
+import { requireApiAuth } from '~/lib/auth/guards';
+import { safeUpdateTag } from '~/lib/cache';
+import { prisma } from '~/lib/db';
+import {
+  participantListInputSchema,
+  updateSchema,
+} from '~/schemas/participant';
+
+export async function deleteParticipants(participantIds: string[]) {
+  const session = await requireApiAuth();
+
+  const result = await prisma.participant.deleteMany({
+    where: {
+      id: { in: participantIds },
+    },
+  });
+
+  void addEvent(
+    'Participant(s) Removed',
+    `User ${session.user.username} removed ${result.count} participant(s)`,
+  );
+
+  safeUpdateTag('getParticipants');
+  safeUpdateTag('getInterviews');
+  safeUpdateTag('summaryStatistics');
+  safeUpdateTag('activityFeed');
+}
+
+export async function importParticipants(rawInput: unknown) {
+  const session = await requireApiAuth();
+
+  const participantList = participantListInputSchema.parse(rawInput);
+
+  /*
+  Format participantList:
+  - Ensure all participants have an identifier by generating one for any that don't have one.
+  - If participant label is empty string, set it to undefined
+  */
+  const participantsWithIdentifiers = participantList.map((participant) => {
+    return {
+      // Cannot use nullish coalescing here because of https://github.com/complexdatacollective/Fresco/pull/140/commits/06260b815558030b0605e14e5baf5a6ce238b1ab
+      // eslint-disable-next-line @typescript-eslint/prefer-nullish-coalescing
+      identifier: !participant.identifier ? createId() : participant.identifier,
+      label: participant.label === '' ? undefined : participant.label,
+    };
+  });
+
+  try {
+    const [existingParticipants, createdParticipants] =
+      await prisma.$transaction([
+        prisma.participant.findMany({
+          where: {
+            identifier: {
+              in: participantsWithIdentifiers.map((p) => p.identifier),
+            },
+          },
+        }),
+        prisma.participant.createMany({
+          data: participantsWithIdentifiers,
+          skipDuplicates: true,
+        }),
+      ]);
+
+    void addEvent(
+      'Participant(s) Added',
+      `User ${session.user.username} added ${createdParticipants.count} participant(s)`,
+    );
+
+    safeUpdateTag('getParticipants');
+    safeUpdateTag('summaryStatistics');
+    safeUpdateTag('activityFeed');
+
+    return {
+      error: null,
+      createdParticipants: createdParticipants.count,
+      existingParticipants: existingParticipants,
+    };
+  } catch (error) {
+    return {
+      error: 'Failed to create participant',
+      createdParticipants: null,
+      existingParticipants: null,
+    };
+  }
+}
+
+export async function updateParticipant(rawInput: unknown) {
+  await requireApiAuth();
+
+  const { existingIdentifier, formData } = updateSchema.parse(rawInput);
+
+  try {
+    const updatedParticipant = await prisma.participant.update({
+      where: { identifier: existingIdentifier },
+      data: formData,
+    });
+
+    safeUpdateTag('getParticipants');
+    safeUpdateTag('summaryStatistics');
+
+    return { error: null, participant: updatedParticipant };
+  } catch (error) {
+    return { error: 'Failed to update participant', participant: null };
+  }
+}
+
+export async function createParticipant(rawInput: unknown) {
+  const session = await requireApiAuth();
+
+  const participants = participantListInputSchema.parse(rawInput);
+
+  const participantsWithIdentifiers = participants.map((participant) => {
+    const { identifier, ...rest } = participant;
+
+    return {
+      identifier: identifier ?? createId(),
+      ...rest,
+    };
+  });
+
+  try {
+    const [existingParticipants, createdParticipants] =
+      await prisma.$transaction([
+        prisma.participant.findMany({
+          where: {
+            identifier: {
+              in: participantsWithIdentifiers.map((p) => p.identifier),
+            },
+          },
+        }),
+        prisma.participant.createMany({
+          data: participantsWithIdentifiers,
+          skipDuplicates: true,
+        }),
+      ]);
+
+    void addEvent(
+      'Participant(s) Added',
+      `User ${session.user.username} added ${createdParticipants.count} participant(s)`,
+    );
+
+    safeUpdateTag('getParticipants');
+    safeUpdateTag('summaryStatistics');
+    safeUpdateTag('activityFeed');
+
+    return {
+      error: null,
+      createdParticipants: createdParticipants.count,
+      existingParticipants: existingParticipants,
+    };
+  } catch (error) {
+    return {
+      error: 'Failed to create participant',
+      createdParticipants: null,
+      existingParticipants: null,
+    };
+  }
+}

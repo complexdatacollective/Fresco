@@ -1,0 +1,191 @@
+'use client';
+
+import { type ColumnDef, type Row } from '@tanstack/react-table';
+import { FileUp, HardDriveUpload, Trash } from 'lucide-react';
+import { use, useMemo, useState } from 'react';
+import superjson from 'superjson';
+import { ActionsDropdown } from '~/app/dashboard/_components/InterviewsTable/ActionsDropdown';
+import { InterviewColumns } from '~/app/dashboard/_components/InterviewsTable/Columns';
+import { DeleteInterviewsDialog } from '~/app/dashboard/interviews/_components/DeleteInterviewsDialog';
+import { ExportInterviewsDialog } from '~/app/dashboard/interviews/_components/ExportInterviewsDialog';
+import { GenerateInterviewURLs } from '~/app/dashboard/interviews/_components/GenerateInterviewURLs';
+import { DataTable } from '@codaco/fresco-ui/DataTable/DataTable';
+import { DataTableFloatingBar } from '@codaco/fresco-ui/DataTable/DataTableFloatingBar';
+import { DataTableToolbar } from '@codaco/fresco-ui/DataTable/DataTableToolbar';
+import { Button } from '@codaco/fresco-ui/Button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@codaco/fresco-ui/DropdownMenu';
+import { useClientDataTable } from '~/hooks/useClientDataTable';
+import type {
+  GetInterviewsQuery,
+  GetInterviewsReturnType,
+} from '~/queries/interviews';
+import type { GetProtocolsReturnType } from '~/queries/protocols';
+
+type InterviewRow = GetInterviewsQuery[number];
+
+export const InterviewsTable = ({
+  interviewsPromise,
+  protocolsPromise,
+}: {
+  interviewsPromise: GetInterviewsReturnType;
+  protocolsPromise: GetProtocolsReturnType;
+}) => {
+  // TanStack Table: consumers must also opt out so React Compiler doesn't memoize JSX that depends on the table ref.
+  'use no memo';
+  const serializedInterviews = use(interviewsPromise);
+  const interviews = useMemo(
+    () => superjson.parse<GetInterviewsQuery>(serializedInterviews),
+    [serializedInterviews],
+  );
+
+  const [selectedInterviews, setSelectedInterviews] =
+    useState<typeof interviews>();
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+
+  const unexportedInterviews = useMemo(
+    () => interviews.filter((interview) => !interview.exportTime),
+    [interviews],
+  );
+
+  const completedInterviews = useMemo(
+    () => interviews.filter((interview) => interview.finishTime),
+    [interviews],
+  );
+
+  const handleDelete = (data: typeof interviews) => {
+    setSelectedInterviews(data);
+    setShowDeleteModal(true);
+  };
+
+  const handleExportUnexported = () => {
+    setSelectedInterviews(unexportedInterviews);
+    setShowExportModal(true);
+  };
+
+  const handleExportAll = () => {
+    setSelectedInterviews(interviews);
+    setShowExportModal(true);
+  };
+
+  const handleExportCompleted = () => {
+    setSelectedInterviews(completedInterviews);
+    setShowExportModal(true);
+  };
+
+  const handleResetExport = () => {
+    setSelectedInterviews([]);
+    setShowExportModal(false);
+  };
+
+  const actionsColumn: ColumnDef<InterviewRow> = {
+    id: 'actions',
+    cell: ({ row }: { row: Row<InterviewRow> }) => (
+      <ActionsDropdown row={row} />
+    ),
+  };
+
+  const columns = useMemo<ColumnDef<InterviewRow, unknown>[]>(
+    () => [...InterviewColumns(), actionsColumn],
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
+  const { table } = useClientDataTable({
+    data: interviews,
+    columns,
+    defaultSortBy: { id: 'lastUpdated', desc: true },
+    enableUrlFilters: true,
+  });
+
+  return (
+    <>
+      <ExportInterviewsDialog
+        open={showExportModal}
+        handleCancel={handleResetExport}
+        interviewsToExport={selectedInterviews!}
+      />
+      <DeleteInterviewsDialog
+        open={showDeleteModal}
+        setOpen={setShowDeleteModal}
+        interviewsToDelete={selectedInterviews ?? []}
+      />
+      <DataTable
+        table={table}
+        toolbar={
+          <>
+            <DataTableToolbar
+              table={table}
+              searchableColumns={[{ id: 'identifier', title: 'by identifier' }]}
+            >
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={<Button icon={<HardDriveUpload />} />}
+                  disabled={interviews.length === 0}
+                  nativeButton
+                  data-testid="export-interviews-button"
+                  className="tablet-landscape:w-auto w-full"
+                >
+                  Export Interview Data
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={handleExportAll}>
+                    Export all interviews
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    disabled={completedInterviews.length === 0}
+                    onClick={handleExportCompleted}
+                  >
+                    Export all completed interviews
+                  </DropdownMenuItem>
+                  <DropdownMenuItem
+                    disabled={unexportedInterviews.length === 0}
+                    onClick={handleExportUnexported}
+                  >
+                    Export all unexported interviews
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+              <GenerateInterviewURLs
+                interviews={interviews}
+                protocolsPromise={protocolsPromise}
+                className="tablet-landscape:w-auto w-full"
+              />
+            </DataTableToolbar>
+          </>
+        }
+        floatingBar={
+          <DataTableFloatingBar table={table}>
+            <Button
+              onClick={() =>
+                handleDelete(
+                  table.getSelectedRowModel().rows.map((r) => r.original),
+                )
+              }
+              color="destructive"
+              icon={<Trash className="size-4" />}
+            >
+              Delete Selected
+            </Button>
+            <Button
+              onClick={() => {
+                setSelectedInterviews(
+                  table.getSelectedRowModel().rows.map((r) => r.original),
+                );
+                setShowExportModal(true);
+              }}
+              icon={<FileUp className="size-4" />}
+            >
+              Export Selected
+            </Button>
+          </DataTableFloatingBar>
+        }
+      />
+    </>
+  );
+};

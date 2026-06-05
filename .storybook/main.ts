@@ -1,0 +1,30 @@
+import { defineMain } from '@storybook/nextjs-vite/node';
+import { stubUseServer } from './vite-plugin-stub-use-server.ts';
+
+export default defineMain({
+  addons: [
+    '@storybook/addon-docs',
+    '@storybook/addon-a11y',
+    '@storybook/addon-vitest',
+    '@chromatic-com/storybook',
+  ],
+  framework: {
+    name: '@storybook/nextjs-vite',
+    options: {
+      builder: {
+        // Customize the Vite builder options here
+        viteConfigPath: './vitest.config.ts',
+      },
+    },
+  },
+  staticDirs: ['../public'],
+  typescript: {
+    check: false,
+  },
+  stories: ['../**/*.stories.@(js|jsx|mjs|ts|tsx|mdx)'],
+
+  viteFinal(config) {
+    config.plugins = [stubUseServer(), ...(config.plugins ?? [])];
+    return config;
+  },
+});

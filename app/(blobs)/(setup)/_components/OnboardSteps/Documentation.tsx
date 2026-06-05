@@ -1,0 +1,64 @@
+'use client';
+
+import { FileText } from 'lucide-react';
+import { completeSetup } from '~/actions/appSettings';
+import Surface from '@codaco/fresco-ui/layout/Surface';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import Button from '@codaco/fresco-ui/Button';
+
+export default function Documentation() {
+  return (
+    <div className="w-full">
+      <div className="mb-12">
+        <Heading level="h2">Documentation</Heading>
+        <Paragraph>
+          This is the end of the onboarding process. You are now ready to use
+          Fresco! For further help and information, consider using the resources
+          below.
+        </Paragraph>
+      </div>
+      <div className="flex flex-col gap-4">
+        <a
+          href="https://documentation.networkcanvas.com/en/fresco"
+          target="_blank"
+        >
+          <Surface className="flex gap-8" level={1}>
+            <div className="flex-1">
+              <Heading level="h4" variant="all-caps" className="mb-2">
+                About Fresco
+              </Heading>
+              Visit our documentation site to learn more about Fresco.
+            </div>
+            <div className="flex min-w-32 shrink-0 flex-col items-end justify-center">
+              <FileText />
+            </div>
+          </Surface>
+        </a>
+        <a
+          href="https://documentation.networkcanvas.com/en/fresco/using-fresco"
+          target="_blank"
+        >
+          <Surface className="flex gap-10" level={1}>
+            <div className="flex-1">
+              <Heading level="h4" variant="all-caps" className="mb-2">
+                Using Fresco
+              </Heading>
+              Read our guide on the basic workflow for using Fresco to conduct
+              your study.
+            </div>
+            <div className="flex min-w-32 shrink-0 flex-col items-end justify-center">
+              <FileText />
+            </div>
+          </Surface>
+        </a>
+      </div>
+
+      <div className="flex justify-end pt-12">
+        <Button onClick={completeSetup} color="primary">
+          Go to the dashboard!
+        </Button>
+      </div>
+    </div>
+  );
+}
