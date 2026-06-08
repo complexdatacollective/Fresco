@@ -178,8 +178,8 @@ importers:
         specifier: ^10.4.1
         version: 10.4.1(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(esbuild@0.28.0)(storybook@10.4.1(@testing-library/dom@10.4.1)(@types/react@19.2.15)(prettier@3.8.3)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(vite@8.0.14(@types/node@24.12.4)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(terser@5.48.0)(tsx@4.22.4)(yaml@2.9.0))(webpack@5.107.2(esbuild@0.28.0)(postcss@8.5.15))
       '@storybook/addon-vitest':
-        specifier: ^10.4.1
-        version: 10.4.1(@vitest/browser-playwright@4.1.7)(@vitest/browser@4.1.7)(@vitest/runner@4.1.7)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(storybook@10.4.1(@testing-library/dom@10.4.1)(@types/react@19.2.15)(prettier@3.8.3)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(vitest@4.1.7)
+        specifier: ^10.4.2
+        version: 10.4.2(@vitest/browser-playwright@4.1.7)(@vitest/browser@4.1.7)(@vitest/runner@4.1.7)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(storybook@10.4.1(@testing-library/dom@10.4.1)(@types/react@19.2.15)(prettier@3.8.3)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(vitest@4.1.7)
       '@storybook/nextjs-vite':
         specifier: ^10.4.1
         version: 10.4.1(@babel/core@7.29.7)(@types/react-dom@19.2.3(@types/react@19.2.15))(@types/react@19.2.15)(esbuild@0.28.0)(next@16.2.6(@babel/core@7.29.7)(@opentelemetry/api@1.9.1)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(sass@1.100.0))(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(storybook@10.4.1(@testing-library/dom@10.4.1)(@types/react@19.2.15)(prettier@3.8.3)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(typescript@6.0.3)(vite@8.0.14(@types/node@24.12.4)(esbuild@0.28.0)(jiti@2.7.0)(sass-embedded@1.100.0)(sass@1.100.0)(terser@5.48.0)(tsx@4.22.4)(yaml@2.9.0))(webpack@5.107.2(esbuild@0.28.0)(postcss@8.5.15))
@@ -2503,13 +2503,13 @@ packages:
       '@types/react':
         optional: true
 
-  '@storybook/addon-vitest@10.4.1':
-    resolution: {integrity: sha512-ymrX9EOou1x3d21iDhjP3j3XfhOAiflhlPZWKcipULBoJCq/aZPbV68EghzovkJNuGRl9ezMYxbbKxwrMmCmGg==}
+  '@storybook/addon-vitest@10.4.2':
+    resolution: {integrity: sha512-gq1ZVr0IOLgiS2PzaJqHxKLczwrXvA5g3W2k/FVJA19fJNFNUut1IyQCQRSJTXLLXbnNaa8I0wjGGc2BoLarJg==}
     peerDependencies:
       '@vitest/browser': ^3.0.0 || ^4.0.0
       '@vitest/browser-playwright': ^4.0.0
       '@vitest/runner': ^3.0.0 || ^4.0.0
-      storybook: ^10.4.1
+      storybook: ^10.4.2
       vitest: ^3.0.0 || ^4.0.0
     peerDependenciesMeta:
       '@vitest/browser':
@@ -3009,6 +3009,9 @@ packages:
 
   '@types/node@24.12.4':
     resolution: {integrity: sha512-GUUEShf+PBCGW2KaXwcIt3Yk+e3pkKwWKb9GSyM9WQVE+ep2jzmHdGsHzu4wgcZy5fN9FBdVzjpBQsYlpfpgLA==}
+
+  '@types/node@24.13.1':
+    resolution: {integrity: sha512-RSpUJGmvsJ1ZeBehQZFhIdpsz+bIpES0nIQXko4Ybq+N+kX6XvOq3Jo+iJ82FWLdblFq85AsMikd3m35jgezYg==}
 
   '@types/papaparse@5.5.2':
     resolution: {integrity: sha512-gFnFp/JMzLHCwRf7tQHrNnfhN4eYBVYYI897CGX4MY1tzY9l2aLkVyx2IlKZ/SAqDbB3I1AOZW5gTMGGsqWliA==}
@@ -3966,6 +3969,10 @@ packages:
 
   enhanced-resolve@5.22.1:
     resolution: {integrity: sha512-6QEuw3zoX1SJQc7b87aBXke/no+mG2bTBgw29gWMQonLmpEkWoCAVkl+M49e48AZlWzxiDzDZzYdp6kobcyLww==}
+    engines: {node: '>=10.13.0'}
+
+  enhanced-resolve@5.23.0:
+    resolution: {integrity: sha512-yJN/BOOLxcOW2aQgeif9mSnaUB8KtvmMMp56oA1kx1CRfBKbhZm2pJ+NBY+3eOboHxix8lfjWpHE0Ei5U8RbSA==}
     engines: {node: '>=10.13.0'}
 
   entities@6.0.1:
@@ -6553,6 +6560,9 @@ packages:
   undici-types@7.16.0:
     resolution: {integrity: sha512-Zz+aZWSj8LE6zoxD+xrjh4VfkIG8Ya6LvYkZqtUQGJPZjYl53ypCaUwWqo7eI0x66KBGeRo+mlBEkMSeSZ38Nw==}
 
+  undici-types@7.18.2:
+    resolution: {integrity: sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==}
+
   undici@7.26.0:
     resolution: {integrity: sha512-3O9Tf67pGhgOv9jM35AbhkXAKi13f3oy3aE4CSgr+TckGeY+/iu97ZXN+J7DpHPzLbVApFd1IFhcnBjREYXYcg==}
     engines: {node: '>=20.18.1'}
@@ -9005,7 +9015,7 @@ snapshots:
       - vite
       - webpack
 
-  '@storybook/addon-vitest@10.4.1(@vitest/browser-playwright@4.1.7)(@vitest/browser@4.1.7)(@vitest/runner@4.1.7)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(storybook@10.4.1(@testing-library/dom@10.4.1)(@types/react@19.2.15)(prettier@3.8.3)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(vitest@4.1.7)':
+  '@storybook/addon-vitest@10.4.2(@vitest/browser-playwright@4.1.7)(@vitest/browser@4.1.7)(@vitest/runner@4.1.7)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)(storybook@10.4.1(@testing-library/dom@10.4.1)(@types/react@19.2.15)(prettier@3.8.3)(react-dom@19.2.6(react@19.2.6))(react@19.2.6))(vitest@4.1.7)':
     dependencies:
       '@storybook/global': 5.0.0
       '@storybook/icons': 2.0.2(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -9507,6 +9517,10 @@ snapshots:
   '@types/node@24.12.4':
     dependencies:
       undici-types: 7.16.0
+
+  '@types/node@24.13.1':
+    dependencies:
+      undici-types: 7.18.2
 
   '@types/papaparse@5.5.2':
     dependencies:
@@ -10474,6 +10488,11 @@ snapshots:
   empathic@2.0.1: {}
 
   enhanced-resolve@5.22.1:
+    dependencies:
+      graceful-fs: 4.2.11
+      tapable: 2.3.3
+
+  enhanced-resolve@5.23.0:
     dependencies:
       graceful-fs: 4.2.11
       tapable: 2.3.3
@@ -11448,7 +11467,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 24.12.4
+      '@types/node': 24.13.1
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -13501,6 +13520,8 @@ snapshots:
 
   undici-types@7.16.0: {}
 
+  undici-types@7.18.2: {}
+
   undici@7.26.0: {}
 
   unified@11.0.5:
@@ -13742,7 +13763,7 @@ snapshots:
       acorn-import-phases: 1.0.4(acorn@8.16.0)
       browserslist: 4.28.2
       chrome-trace-event: 1.0.4
-      enhanced-resolve: 5.22.1
+      enhanced-resolve: 5.23.0
       es-module-lexer: 2.1.0
       eslint-scope: 5.1.1
       events: 3.3.0
