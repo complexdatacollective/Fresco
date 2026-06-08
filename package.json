@@ -100,7 +100,7 @@
     "@vitejs/plugin-react": "^6.0.2",
     "@vitest/browser": "4.1.7",
     "@vitest/browser-playwright": "^4.1.7",
-    "@vitest/coverage-v8": "^4.1.7",
+    "@vitest/coverage-v8": "^4.1.8",
     "babel-plugin-react-compiler": "^1.0.0",
     "chromatic": "^17.0.1",
     "concurrently": "^10.0.0",
