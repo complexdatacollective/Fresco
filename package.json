@@ -117,7 +117,7 @@
     "fflate": "^0.8.3",
     "globals": "^17.6.0",
     "jsdom": "^29.1.1",
-    "knip": "^6.15.0",
+    "knip": "^6.16.1",
     "prettier": "^3.8.3",
     "prettier-plugin-tailwindcss": "^0.8.0",
     "prisma": "^7.8.0",
