@@ -5,9 +5,8 @@ flowchart TB
     admin["Researcher browser<br/>(dashboard)"]
     participant["Participant browser<br/>(interview)"]
 
-    proxy["<b>Reverse proxy</b> — TLS<br/>app domain (PUBLIC_URL) → fresco :3000"]
-
     subgraph host["Docker host — docker-compose.prod.yml"]
+        proxy["<b>Traefik</b> — :80/:443, TLS via Let's Encrypt<br/>FRESCO_DOMAIN → fresco :3000"]
         fresco["<b>Fresco app</b><br/>Next.js :3000"]
         postgres[("PostgreSQL")]
     end

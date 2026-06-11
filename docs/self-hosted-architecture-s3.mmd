@@ -5,12 +5,11 @@ flowchart TB
     admin["Researcher browser<br/>(dashboard)"]
     participant["Participant browser<br/>(interview)"]
 
-    proxy["<b>Reverse proxy</b> — TLS, single app domain<br/>/* → fresco :3000<br/>/fresco/* (bucket path) → minio :9000"]
-
     subgraph host["Docker host — docker-compose.prod.yml"]
+        proxy["<b>Traefik</b> — :80/:443, TLS via Let's Encrypt<br/>FRESCO_DOMAIN → fresco :3000<br/>FRESCO_DOMAIN/assets/* → minio :9000"]
         fresco["<b>Fresco app</b><br/>Next.js :3000"]
         postgres[("PostgreSQL")]
-        minio[("MinIO — <b>private</b><br/>no published ports,<br/>no anonymous access")]
+        minio[("MinIO — <b>private</b><br/>bucket 'assets',<br/>no published ports,<br/>no anonymous access")]
     end
 
     ph["Analytics relay<br/>(optional)"]
@@ -19,7 +18,7 @@ flowchart TB
     admin -->|"dashboard +<br/>asset upload (presigned PUT,<br/>signed for app domain)"| proxy
     participant -->|"interview +<br/>asset download (/api/assets/key<br/>→ 307 to presigned GET)"| proxy
     proxy --> fresco
-    proxy -->|"/fresco/*"| minio
+    proxy -->|"/assets/*"| minio
     fresco -->|"Prisma"| postgres
     fresco -->|"S3 API — internal<br/>http://minio:9000"| minio
     admin -.->|"events"| ph
