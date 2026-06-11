@@ -1,4 +1,43 @@
+# Required .env variables for this deployment:
+#
+#   FRESCO_DOMAIN  - the public domain for this deployment (e.g. study.example.com)
+#   ACME_EMAIL     - email for Let's Encrypt certificate notifications
+#
+# App configuration (.env):
+#   PUBLIC_URL     - should be https://<FRESCO_DOMAIN>
+#   S3_PUBLIC_URL  - should also be https://<FRESCO_DOMAIN> (or set during Fresco setup)
+
 services:
+  # Bundled reverse proxy: terminates TLS (automatic Let's Encrypt
+  # certificates) and routes both the app and MinIO on one domain.
+  #
+  # Required deployer configuration (set in .env):
+  #   FRESCO_DOMAIN  - the public domain for this deployment (e.g. study.example.com)
+  #   ACME_EMAIL     - email for Let's Encrypt certificate notifications
+  #
+  # DNS for FRESCO_DOMAIN must point at this host, with ports 80/443 reachable.
+  traefik:
+    image: traefik:v3.4
+    restart: always
+    command:
+      - '--providers.docker=true'
+      - '--providers.docker.exposedbydefault=false'
+      - '--entrypoints.web.address=:80'
+      - '--entrypoints.websecure.address=:443'
+      - '--entrypoints.web.http.redirections.entrypoint.to=websecure'
+      - '--entrypoints.web.http.redirections.entrypoint.scheme=https'
+      - '--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:?Set ACME_EMAIL in .env (Lets Encrypt contact email)}'
+      - '--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json'
+      - '--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web'
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - letsencrypt:/letsencrypt
+    networks:
+      - fresco_network
+
   fresco:
     image: 'ghcr.io/complexdatacollective/fresco:latest'
     depends_on:
@@ -9,12 +48,16 @@ services:
     volumes:
       - .:/app/next-app
     restart: always
-    ports:
-      - 3000:3000
     networks:
       - fresco_network
     env_file:
       - .env
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.fresco.rule=Host(`${FRESCO_DOMAIN:?Set FRESCO_DOMAIN in .env (public domain for this deployment)}`)'
+      - 'traefik.http.routers.fresco.entrypoints=websecure'
+      - 'traefik.http.routers.fresco.tls.certresolver=letsencrypt'
+      - 'traefik.http.services.fresco.loadbalancer.server.port=3000'
 
   postgres:
     env_file:
@@ -86,6 +129,14 @@ services:
       retries: 5
     networks:
       - fresco_network
+    # Traefik rule-length priority makes the PathPrefix rule win for /assets/*;
+    # Host and path are preserved — required for SigV4 signature validation.
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.minio.rule=Host(`${FRESCO_DOMAIN}`) && PathPrefix(`/assets`)'
+      - 'traefik.http.routers.minio.entrypoints=websecure'
+      - 'traefik.http.routers.minio.tls.certresolver=letsencrypt'
+      - 'traefik.http.services.minio.loadbalancer.server.port=9000'
 
   # One-shot container that creates the default bucket after MinIO starts.
   # Runs once and exits — it does not stay running.
@@ -109,6 +160,7 @@ services:
 volumes:
   postgres:
   minio:
+  letsencrypt:
 
 # Define a network, which allows containers to communicate
 # with each other, by using their container name as a hostname
