@@ -37,16 +37,34 @@ function isProviderEnvManaged(provider: 'uploadthing' | 's3'): boolean {
   return Boolean(env.UPLOADTHING_TOKEN);
 }
 
-/** Non-throwing env introspection for settings/onboarding UI. */
-export function getStorageEnvStatus(): {
-  providerPinned: boolean;
+export type StorageEnvStatus = {
+  pinnedProvider: 's3' | 'uploadthing' | null;
   s3EnvManaged: boolean;
   uploadThingEnvManaged: boolean;
-} {
+  /** Names of the storage env vars currently set, for display in lock alerts. */
+  setVariables: string[];
+};
+
+/** Non-throwing env introspection for settings/onboarding UI. */
+export function getStorageEnvStatus(): StorageEnvStatus {
+  const storageEnvVars = {
+    STORAGE_PROVIDER: env.STORAGE_PROVIDER,
+    S3_ENDPOINT: env.S3_ENDPOINT,
+    S3_PUBLIC_URL: env.S3_PUBLIC_URL,
+    S3_BUCKET: env.S3_BUCKET,
+    S3_REGION: env.S3_REGION,
+    S3_ACCESS_KEY_ID: env.S3_ACCESS_KEY_ID,
+    S3_SECRET_ACCESS_KEY: env.S3_SECRET_ACCESS_KEY,
+    UPLOADTHING_TOKEN: env.UPLOADTHING_TOKEN,
+  };
+
   return {
-    providerPinned: Boolean(env.STORAGE_PROVIDER),
+    pinnedProvider: env.STORAGE_PROVIDER ?? null,
     s3EnvManaged: isProviderEnvManaged('s3'),
     uploadThingEnvManaged: isProviderEnvManaged('uploadthing'),
+    setVariables: Object.entries(storageEnvVars)
+      .filter(([, value]) => Boolean(value))
+      .map(([name]) => name),
   };
 }
 

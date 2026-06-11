@@ -7,16 +7,11 @@ import { Button } from '@codaco/fresco-ui/Button';
 import type { RichSelectOption } from '@codaco/fresco-ui/form/fields/RichSelectGroup';
 import RichSelectGroupField from '@codaco/fresco-ui/form/fields/RichSelectGroup';
 import { setStorageProvider } from '~/actions/storageProvider';
+import { type StorageEnvStatus } from '~/lib/storage/config';
 import { S3ConfigForm } from './S3ConfigForm';
 import { UploadThingTokenForm } from './UploadThingTokenForm';
 
 type Provider = 'uploadthing' | 's3';
-
-export type StorageEnvStatus = {
-  pinnedProvider: Provider | null;
-  s3EnvManaged: boolean;
-  uploadThingEnvManaged: boolean;
-};
 
 const providerOptions: RichSelectOption[] = [
   {

@@ -37,9 +37,9 @@ export default async function StorageProviderSection() {
         >
           <Alert variant="info">
             <AlertDescription>
-              Storage is configured via environment variables and cannot be
-              edited here. Remove the STORAGE_PROVIDER / S3_* /
-              UPLOADTHING_TOKEN variables to manage it from this dashboard.
+              Storage is configured via environment variables (
+              {envStatus.setVariables.join(', ')}) and cannot be edited here.
+              Remove these variables to manage storage from this dashboard.
             </AlertDescription>
           </Alert>
         </SettingsField>

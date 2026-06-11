@@ -54,6 +54,7 @@ function S3FieldEditor({
   const [value, setValue] = useState(initialValue);
   const [isSaving, setSaving] = useState(false);
   const [savedValue, setSavedValue] = useState(initialValue);
+  const [error, setError] = useState<string | null>(null);
 
   // Secret values are write-only: they are never sent to the client, so the
   // input starts empty and saving an empty value is disallowed to prevent
@@ -62,9 +63,17 @@ function S3FieldEditor({
 
   const handleSave = async () => {
     setSaving(true);
-    await setAppSetting(settingsKey, value);
-    setSavedValue(value);
-    setSaving(false);
+    setError(null);
+    try {
+      await setAppSetting(settingsKey, value);
+      setSavedValue(value);
+    } catch (caught) {
+      setError(
+        caught instanceof Error ? caught.message : 'Failed to save setting',
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -77,6 +86,7 @@ function S3FieldEditor({
         className="w-full"
         disabled={isSaving}
       />
+      {error && <p className="text-destructive mt-2 text-sm">{error}</p>}
       {value !== savedValue && (
         <div className="mt-2 flex justify-end gap-2">
           <Button

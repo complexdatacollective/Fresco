@@ -1,8 +1,7 @@
 import Heading from '@codaco/fresco-ui/typography/Heading';
 import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
-import StorageProviderSelector, {
-  type StorageEnvStatus,
-} from '../StorageProviderSelector';
+import { type StorageEnvStatus } from '~/lib/storage/config';
+import StorageProviderSelector from '../StorageProviderSelector';
 
 export default function ConfigureStorage({
   storageEnv,

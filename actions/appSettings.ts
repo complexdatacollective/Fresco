@@ -35,7 +35,7 @@ const S3_SETTING_KEYS: AppSetting[] = [
  */
 function isStorageSettingEnvManaged(key: AppSetting): boolean {
   const status = getStorageEnvStatus();
-  if (key === 'storageProvider') return status.providerPinned;
+  if (key === 'storageProvider') return status.pinnedProvider !== null;
   if (S3_SETTING_KEYS.includes(key)) return status.s3EnvManaged;
   if (key === 'uploadThingToken') return status.uploadThingEnvManaged;
   return false;

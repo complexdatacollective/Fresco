@@ -106,29 +106,48 @@ describe('getStorageConfig', () => {
 });
 
 describe('getStorageEnvStatus', () => {
-  it('returns all false with no storage env vars set', () => {
+  it('returns unmanaged status with no storage env vars set', () => {
     expect(getStorageEnvStatus()).toEqual({
-      providerPinned: false,
+      pinnedProvider: null,
       s3EnvManaged: false,
       uploadThingEnvManaged: false,
+      setVariables: [],
     });
   });
 
-  it('returns providerPinned true but both envManaged false when only STORAGE_PROVIDER is set', () => {
+  it('returns the pinned provider but both envManaged false when only STORAGE_PROVIDER is set', () => {
     mockEnv.STORAGE_PROVIDER = 's3';
     expect(getStorageEnvStatus()).toEqual({
-      providerPinned: true,
+      pinnedProvider: 's3',
       s3EnvManaged: false,
       uploadThingEnvManaged: false,
+      setVariables: ['STORAGE_PROVIDER'],
     });
   });
 
   it('returns s3EnvManaged true and uploadThingEnvManaged false when an S3 credential var is set', () => {
     mockEnv.S3_BUCKET = 'my-bucket';
     expect(getStorageEnvStatus()).toEqual({
-      providerPinned: false,
+      pinnedProvider: null,
       s3EnvManaged: true,
       uploadThingEnvManaged: false,
+      setVariables: ['S3_BUCKET'],
+    });
+  });
+
+  it('lists the exact names of every storage env var that is set', () => {
+    mockEnv.S3_ACCESS_KEY_ID = 'env-key';
+    mockEnv.S3_SECRET_ACCESS_KEY = 'env-secret';
+    mockEnv.UPLOADTHING_TOKEN = 'env-token';
+    expect(getStorageEnvStatus()).toEqual({
+      pinnedProvider: null,
+      s3EnvManaged: true,
+      uploadThingEnvManaged: true,
+      setVariables: [
+        'S3_ACCESS_KEY_ID',
+        'S3_SECRET_ACCESS_KEY',
+        'UPLOADTHING_TOKEN',
+      ],
     });
   });
 });

@@ -3,7 +3,6 @@
 import { HeadBucketCommand, S3Client } from '@aws-sdk/client-s3';
 import { z as zm } from 'zod/mini';
 import { setAppSetting } from '~/actions/appSettings';
-import { env } from '~/env';
 import { requireApiAuth } from '~/lib/auth/guards';
 import { getStorageEnvStatus } from '~/lib/storage/config';
 import { hasProtocols, type StorageProvider } from '~/queries/storageProvider';
@@ -12,11 +11,12 @@ import { s3ConfigSchema } from '~/schemas/s3Settings';
 export async function setStorageProvider(provider: StorageProvider) {
   await requireApiAuth();
 
-  if (getStorageEnvStatus().providerPinned) {
+  const { pinnedProvider } = getStorageEnvStatus();
+  if (pinnedProvider !== null) {
     // When STORAGE_PROVIDER pins the same provider the database value is
     // irrelevant, so treat this as a successful no-op. A conflicting value
     // is an error.
-    if (env.STORAGE_PROVIDER === provider) {
+    if (pinnedProvider === provider) {
       return { success: true as const };
     }
     return {
@@ -51,7 +51,7 @@ export async function saveS3Config(rawData: unknown) {
         'S3 storage is configured via environment variables and cannot be changed here.',
     };
   }
-  if (envStatus.providerPinned && env.STORAGE_PROVIDER !== 's3') {
+  if (envStatus.pinnedProvider && envStatus.pinnedProvider !== 's3') {
     return {
       success: false as const,
       fieldErrors: {},
@@ -113,7 +113,7 @@ export async function saveS3Config(rawData: unknown) {
 
   // When STORAGE_PROVIDER is pinned to 's3' via env the database provider
   // value is ignored (and setAppSetting would reject the write).
-  if (!envStatus.providerPinned) {
+  if (!envStatus.pinnedProvider) {
     await setAppSetting('storageProvider', 's3');
   }
   await setAppSetting('s3Endpoint', s3Endpoint);

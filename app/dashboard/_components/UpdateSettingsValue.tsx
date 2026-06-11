@@ -51,8 +51,16 @@ export default function UpdateSettingsValue({
     if (!newValue) return;
 
     setSaving(true);
-    await setAppSetting(settingsKey, newValue);
-    setSaving(false);
+    setError(null);
+    try {
+      await setAppSetting(settingsKey, newValue);
+    } catch (caught) {
+      setError(
+        caught instanceof Error ? caught.message : 'Failed to save setting',
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (

@@ -1,6 +1,5 @@
 import { Loader2 } from 'lucide-react';
 import { Suspense } from 'react';
-import { env } from '~/env';
 import { getServerSession } from '~/lib/auth/guards';
 import { prisma } from '~/lib/db';
 import { getStorageEnvStatus } from '~/lib/storage/config';
@@ -24,8 +23,6 @@ async function getSetupData() {
 
   const uploadThingToken = await getAppSetting('uploadThingToken');
 
-  const { s3EnvManaged, uploadThingEnvManaged } = getStorageEnvStatus();
-
   return {
     hasAuth: !!session,
     allowAnonymousRecruitment,
@@ -33,11 +30,7 @@ async function getSetupData() {
     hasProtocol: otherData[0] > 0,
     hasParticipants: otherData[1] > 0,
     hasUploadThingToken: !!uploadThingToken,
-    storageEnv: {
-      pinnedProvider: env.STORAGE_PROVIDER ?? null,
-      s3EnvManaged,
-      uploadThingEnvManaged,
-    },
+    storageEnv: getStorageEnvStatus(),
   };
 }
 
