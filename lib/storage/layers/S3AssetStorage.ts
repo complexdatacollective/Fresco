@@ -1,31 +1,25 @@
 import { DeleteObjectsCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Effect, Layer } from 'effect';
+import { extname } from 'node:path';
+import { randomUUID } from 'node:crypto';
 import { AssetStorageError } from '~/lib/storage/errors';
 import { AssetStorage } from '~/lib/storage/services/AssetStorage';
 import {
-  getPublicAssetBase,
   getS3Bucket,
   getS3PublicClient,
   getS3ServerClient,
 } from '~/lib/storage/layers/S3Client';
 
 function generateS3Key(fileName: string): string {
-  const timestamp = Date.now();
-  const random = Math.random().toString(36).slice(2, 10);
-  return `assets/${timestamp}-${random}-${fileName}`;
+  return `${randomUUID()}${extname(fileName).toLowerCase()}`;
 }
 
 export const S3AssetStorage = Layer.succeed(AssetStorage, {
   generatePresignedUploadUrls: (files) =>
     Effect.gen(function* () {
-      const [client, bucket, baseUrl] = yield* Effect.tryPromise({
-        try: () =>
-          Promise.all([
-            getS3PublicClient(),
-            getS3Bucket(),
-            getPublicAssetBase(),
-          ]),
+      const [client, bucket] = yield* Effect.tryPromise({
+        try: () => Promise.all([getS3PublicClient(), getS3Bucket()]),
         catch: (error) =>
           new AssetStorageError({
             cause: error,
@@ -55,7 +49,7 @@ export const S3AssetStorage = Layer.succeed(AssetStorage, {
           return {
             uploadUrl,
             fileKey,
-            publicUrl: `${baseUrl}/${fileKey}`,
+            publicUrl: `/api/assets/${fileKey}`,
           };
         }),
       );

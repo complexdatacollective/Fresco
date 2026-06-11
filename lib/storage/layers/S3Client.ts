@@ -40,8 +40,3 @@ export async function getS3Bucket(): Promise<string> {
   const config = await getS3Config();
   return config.bucket;
 }
-
-export async function getPublicAssetBase(): Promise<string> {
-  const config = await getS3Config();
-  return `${config.publicUrl.replace(/\/$/, '')}/${config.bucket}`;
-}
