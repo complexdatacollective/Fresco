@@ -26,7 +26,6 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1057.0",
-    "@aws-sdk/lib-storage": "^3.1057.0",
     "@aws-sdk/s3-request-presigner": "^3.1057.0",
     "@base-ui/react": "^1.5.0",
     "@codaco/fresco-ui": "^2.12.2",

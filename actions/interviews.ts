@@ -5,7 +5,6 @@ import { after } from 'next/server';
 import { requireApiAuth } from '~/lib/auth/guards';
 import { safeRevalidateTag, safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
-import { type Interview } from '~/lib/db/generated/client';
 import { createInitialNetwork } from '@codaco/interview';
 import { captureException, shutdownPostHog } from '~/lib/posthog-server';
 import { getAppSetting } from '~/queries/appSettings';
@@ -41,28 +40,6 @@ export async function deleteInterviews(data: DeleteInterviews) {
     return { error: 'Failed to delete interviews', interview: null };
   }
 }
-
-export const updateExportTime = async (interviewIds: Interview['id'][]) => {
-  await requireApiAuth();
-  try {
-    const updatedInterviews = await prisma.interview.updateMany({
-      where: {
-        id: {
-          in: interviewIds,
-        },
-      },
-      data: {
-        exportTime: new Date(),
-      },
-    });
-
-    safeUpdateTag('getInterviews');
-
-    return { error: null, interview: updatedInterviews };
-  } catch (error) {
-    return { error: 'Failed to update interviews', interview: null };
-  }
-};
 
 export async function createInterview(data: CreateInterview) {
   const { participantIdentifier, protocolId } = data;
