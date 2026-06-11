@@ -45,8 +45,14 @@ export async function saveS3Config(rawData: unknown) {
     };
   }
 
-  const { s3Endpoint, s3Bucket, s3Region, s3AccessKeyId, s3SecretAccessKey } =
-    parsed.data;
+  const {
+    s3Endpoint,
+    s3PublicUrl,
+    s3Bucket,
+    s3Region,
+    s3AccessKeyId,
+    s3SecretAccessKey,
+  } = parsed.data;
 
   // Validate credentials by attempting a HeadBucket call
   try {
@@ -73,6 +79,7 @@ export async function saveS3Config(rawData: unknown) {
 
   await setAppSetting('storageProvider', 's3');
   await setAppSetting('s3Endpoint', s3Endpoint);
+  await setAppSetting('s3PublicUrl', s3PublicUrl);
   await setAppSetting('s3Bucket', s3Bucket);
   await setAppSetting('s3Region', s3Region);
   await setAppSetting('s3AccessKeyId', s3AccessKeyId);

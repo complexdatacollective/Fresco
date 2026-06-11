@@ -61,18 +61,18 @@ model WebAuthnCredential {
 }
 
 model Protocol {
-  id            String      @id @default(cuid())
-  hash          String      @unique
-  name          String
-  schemaVersion Int
-  description   String?
-  importedAt    DateTime    @default(now())
-  lastModified  DateTime
-  stages        Json
-  codebook      Json
-  assets        Asset[]
-  interviews    Interview[]
-  experiments   Json?
+  id              String      @id @default(cuid())
+  hash            String      @unique
+  name            String
+  schemaVersion   Int
+  description     String?
+  importedAt      DateTime    @default(now())
+  lastModified    DateTime
+  stages          Json
+  codebook        Json
+  assets          Asset[]
+  interviews      Interview[]
+  experiments     Json?
   originalFileKey String?
   originalFileUrl String?
 }
@@ -131,6 +131,7 @@ enum AppSetting {
   enableInterviewDataApi
   storageProvider
   s3Endpoint
+  s3PublicUrl
   s3Bucket
   s3Region
   s3AccessKeyId
