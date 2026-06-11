@@ -24,16 +24,22 @@ export async function POST(request: Request) {
     return Response.json({ error: 'Invalid request body' }, { status: 400 });
   }
 
+  // Dedupe so repeated IDs don't make the count mismatch look like a 404.
+  const interviewIds = [...new Set(parsed.data.interviewIds)];
+
   const count = await prisma.interview.count({
-    where: { id: { in: parsed.data.interviewIds } },
+    where: { id: { in: interviewIds } },
   });
-  if (count !== parsed.data.interviewIds.length) {
+  if (count !== interviewIds.length) {
     return Response.json(
       { error: 'One or more interviews not found' },
       { status: 404 },
     );
   }
 
-  const ticketId = await createExportTicket(userId, parsed.data);
+  const ticketId = await createExportTicket(userId, {
+    interviewIds,
+    exportOptions: parsed.data.exportOptions,
+  });
   return Response.json({ ticketId });
 }

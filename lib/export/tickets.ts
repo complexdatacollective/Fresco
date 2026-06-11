@@ -1,6 +1,7 @@
 import 'server-only';
 import { type z } from 'zod/mini';
 import { prisma } from '~/lib/db';
+import { Prisma } from '~/lib/db/generated/client';
 import { exportInterviewsSchema } from '~/schemas/export';
 
 const TICKET_TTL_MS = 5 * 60 * 1000;
@@ -27,14 +28,30 @@ export async function createExportTicket(
   return ticket.id;
 }
 
+function isRecordNotFound(error: unknown): boolean {
+  return (
+    error instanceof Prisma.PrismaClientKnownRequestError &&
+    error.code === 'P2025'
+  );
+}
+
 export async function consumeExportTicket(
   id: string,
+  userId: string,
 ): Promise<ExportTicketParams | null> {
-  const ticket = await prisma.exportTicket.findUnique({ where: { id } });
+  // Atomic single-use consume: with concurrent redemptions only one delete
+  // succeeds; the loser gets P2025 (record not found), which is treated as
+  // "no ticket". Any other DB error must propagate.
+  const ticket = await prisma.exportTicket
+    .delete({ where: { id } })
+    .catch((error: unknown) => {
+      if (isRecordNotFound(error)) return null;
+      throw error;
+    });
   if (!ticket) return null;
 
-  // Single use: delete before validating so a failed parse can't be retried.
-  await prisma.exportTicket.delete({ where: { id } });
+  // Tickets are bound to the user who created them.
+  if (ticket.userId !== userId) return null;
 
   if (ticket.expiresAt < new Date()) return null;
 

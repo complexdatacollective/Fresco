@@ -2,26 +2,23 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 vi.mock('server-only', () => ({}));
 
-const { mockCreate, mockFindUnique, mockDelete, mockDeleteMany } = vi.hoisted(
-  () => ({
-    mockCreate: vi.fn(),
-    mockFindUnique: vi.fn(),
-    mockDelete: vi.fn(),
-    mockDeleteMany: vi.fn(),
-  }),
-);
+const { mockCreate, mockDelete, mockDeleteMany } = vi.hoisted(() => ({
+  mockCreate: vi.fn(),
+  mockDelete: vi.fn(),
+  mockDeleteMany: vi.fn(),
+}));
 
 vi.mock('~/lib/db', () => ({
   prisma: {
     exportTicket: {
       create: mockCreate,
-      findUnique: mockFindUnique,
       delete: mockDelete,
       deleteMany: mockDeleteMany,
     },
   },
 }));
 
+import { Prisma } from '~/lib/db/generated/client';
 import { createExportTicket, consumeExportTicket } from '~/lib/export/tickets';
 
 const validParams = {
@@ -36,6 +33,12 @@ const validParams = {
     },
   },
 };
+
+const recordNotFoundError = () =>
+  new Prisma.PrismaClientKnownRequestError('Record not found', {
+    code: 'P2025',
+    clientVersion: 'test',
+  });
 
 beforeEach(() => {
   vi.clearAllMocks();
@@ -70,45 +73,65 @@ describe('createExportTicket', () => {
 
 describe('consumeExportTicket', () => {
   it('returns params and deletes the ticket', async () => {
-    mockFindUnique.mockResolvedValue({
+    mockDelete.mockResolvedValue({
       id: 'ticket-1',
+      userId: 'user-1',
       params: validParams,
       expiresAt: new Date(Date.now() + 60_000),
     });
-    mockDelete.mockResolvedValue({});
 
-    const result = await consumeExportTicket('ticket-1');
+    const result = await consumeExportTicket('ticket-1', 'user-1');
 
     expect(result).toEqual(validParams);
     expect(mockDelete).toHaveBeenCalledWith({ where: { id: 'ticket-1' } });
   });
 
-  it('returns null for an unknown ticket', async () => {
-    mockFindUnique.mockResolvedValue(null);
-    expect(await consumeExportTicket('nope')).toBeNull();
+  it('returns null when the delete reports record not found (P2025)', async () => {
+    mockDelete.mockRejectedValue(recordNotFoundError());
+
+    expect(await consumeExportTicket('nope', 'user-1')).toBeNull();
+  });
+
+  it('rethrows non-P2025 errors from the delete', async () => {
+    mockDelete.mockRejectedValue(new Error('connection refused'));
+
+    await expect(consumeExportTicket('ticket-1', 'user-1')).rejects.toThrow(
+      'connection refused',
+    );
+  });
+
+  it('returns null when the ticket belongs to a different user', async () => {
+    mockDelete.mockResolvedValue({
+      id: 'ticket-1',
+      userId: 'user-2',
+      params: validParams,
+      expiresAt: new Date(Date.now() + 60_000),
+    });
+
+    expect(await consumeExportTicket('ticket-1', 'user-1')).toBeNull();
   });
 
   it('returns null (but still deletes) for an expired ticket', async () => {
-    mockFindUnique.mockResolvedValue({
+    mockDelete.mockResolvedValue({
       id: 'ticket-1',
+      userId: 'user-1',
       params: validParams,
       expiresAt: new Date(Date.now() - 1),
     });
-    mockDelete.mockResolvedValue({});
 
-    expect(await consumeExportTicket('ticket-1')).toBeNull();
+    expect(await consumeExportTicket('ticket-1', 'user-1')).toBeNull();
     expect(mockDelete).toHaveBeenCalled();
   });
 
   it('returns null for a ticket whose params fail schema validation', async () => {
-    mockFindUnique.mockResolvedValue({
+    mockDelete.mockResolvedValue({
       id: 'ticket-1',
+      userId: 'user-1',
       params: { interviewIds: 'not-an-array' },
       expiresAt: new Date(Date.now() + 60_000),
     });
-    mockDelete.mockResolvedValue({});
 
-    expect(await consumeExportTicket('ticket-1')).toBeNull();
+    expect(await consumeExportTicket('ticket-1', 'user-1')).toBeNull();
     expect(mockDelete).toHaveBeenCalled();
   });
 });
