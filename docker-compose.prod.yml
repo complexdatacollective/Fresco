@@ -35,31 +35,44 @@ services:
   # If you prefer UploadThing, remove this service and configure
   # UploadThing during Fresco setup instead.
   #
-  # IMPORTANT: the Endpoint URL is used both by the Fresco server AND by
-  # browsers (researchers upload assets via presigned URLs; participants
-  # download assets directly). It must therefore be a URL that is reachable
-  # from outside the Docker network — `http://minio:9000` only resolves
-  # between containers and will NOT work.
+  # MinIO stays PRIVATE: no published ports, no anonymous bucket access.
+  # Browsers reach it through the bundled Traefik reverse proxy via a path
+  # route on your Fresco domain: /assets/* -> minio:9000 (the bucket is named
+  # 'assets'; path-style S3 URLs put the bucket name in the path). The path
+  # and Host header are preserved - required for signature validation.
   #
-  # In production, route a public hostname to minio:9000 via your reverse
-  # proxy (e.g. https://assets.example.com) and use that as the Endpoint URL.
-  # For local single-machine testing, http://localhost:9000 works because
-  # port 9000 is published to the host.
+  # Using your own reverse proxy instead of the bundled Traefik?
+  # Caddy example:
+  #   app.example.com {
+  #     handle /assets/* {
+  #       reverse_proxy minio:9000
+  #     }
+  #     handle {
+  #       reverse_proxy fresco:3000
+  #     }
+  #   }
+  # nginx example:
+  #   location /assets/ {
+  #     proxy_set_header Host $host;
+  #     proxy_pass http://minio:9000;
+  #   }
   #
   # During Fresco setup, select "S3 / S3-Compatible" and use:
-  #   Endpoint URL:      https://assets.example.com (see above)
-  #   Bucket Name:       fresco
+  #   Endpoint URL:      http://minio:9000        (internal - containers only)
+  #   Public URL:        https://<your domain>    (your Fresco domain)
+  #   Bucket Name:       assets
   #   Region:            us-east-1
   #   Access Key ID:     value of MINIO_ROOT_USER (default: minioadmin)
   #   Secret Access Key: value of MINIO_ROOT_PASSWORD (default: minioadmin)
   #
-  # MinIO console is available at http://localhost:9001
+  # Note: the bucket name occupies /<bucket>/ on your domain - keep the
+  # default 'assets' (verified collision-free) or pick a name that cannot
+  # collide with app routes.
   minio:
     image: minio/minio:latest
     restart: always
-    ports:
-      - 9000:9000
-      - 9001:9001
+    # ports:
+    #   - '9001:9001'  # Uncomment to expose the MinIO admin console for debugging only.
     volumes:
       - minio:/data
     environment:
@@ -86,8 +99,7 @@ services:
       - -c
       - |
         mc alias set minio http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD}
-        mc mb --ignore-existing minio/fresco
-        mc anonymous set download minio/fresco
+        mc mb --ignore-existing minio/assets
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
