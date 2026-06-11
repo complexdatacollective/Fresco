@@ -1,3 +1,9 @@
+# Fresco deployment with SELF-HOSTED storage (bundled MinIO).
+#
+# Alternative storage scenarios live in sibling files:
+#   docker-compose.external-s3.yml  - external S3-compatible service (AWS S3, R2, ...)
+#   docker-compose.uploadthing.yml  - UploadThing (cloud)
+#
 # Required .env variables for this deployment:
 #
 #   FRESCO_DOMAIN  - the public domain for this deployment (e.g. study.example.com)

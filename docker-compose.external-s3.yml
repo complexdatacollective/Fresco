@@ -1,0 +1,102 @@
+# Fresco deployment using an EXTERNAL S3-compatible storage service
+# (AWS S3, Cloudflare R2, Backblaze B2, DigitalOcean Spaces, a managed MinIO, …).
+#
+# No storage runs on this host — assets are uploaded by browsers directly to
+# your S3 service via presigned URLs, and downloaded via presigned redirects.
+#
+# Required .env variables for this deployment:
+#
+#   FRESCO_DOMAIN  - the public domain for this deployment (e.g. study.example.com)
+#   ACME_EMAIL     - email for Let's Encrypt certificate notifications
+#   PUBLIC_URL     - should be https://<FRESCO_DOMAIN>
+#
+# Storage configuration — either enter it during Fresco setup, or set these
+# env variables (env wins over values entered in the dashboard and locks the
+# storage settings UI):
+#
+#   STORAGE_PROVIDER=s3
+#   S3_ENDPOINT          - your service endpoint (e.g. https://s3.us-east-1.amazonaws.com
+#                          or https://<account-id>.r2.cloudflarestorage.com)
+#   S3_PUBLIC_URL        - the URL browsers use; for external services this is
+#                          usually THE SAME as S3_ENDPOINT
+#   S3_BUCKET            - an existing bucket (create it first)
+#   S3_REGION            - e.g. us-east-1 (use 'auto' for R2)
+#   S3_ACCESS_KEY_ID     - credentials with read/write access to the bucket
+#   S3_SECRET_ACCESS_KEY
+#
+# IMPORTANT — bucket requirements on your S3 service:
+#   - The bucket can (and should) stay PRIVATE: Fresco never requires public
+#     read access; downloads use short-lived presigned URLs.
+#   - CORS must allow your Fresco origin (https://<FRESCO_DOMAIN>) for PUT
+#     (browser asset uploads) and GET (presigned asset downloads), with the
+#     usual headers (Content-Type, Content-Length) exposed.
+
+services:
+  # Bundled reverse proxy: terminates TLS (automatic Let's Encrypt
+  # certificates) and routes the app on your domain.
+  #
+  # DNS for FRESCO_DOMAIN must point at this host, with ports 80/443 reachable.
+  traefik:
+    image: traefik:v3.4
+    restart: always
+    command:
+      - '--providers.docker=true'
+      - '--providers.docker.exposedbydefault=false'
+      - '--entrypoints.web.address=:80'
+      - '--entrypoints.websecure.address=:443'
+      - '--entrypoints.web.http.redirections.entrypoint.to=websecure'
+      - '--entrypoints.web.http.redirections.entrypoint.scheme=https'
+      - '--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:?Set ACME_EMAIL in .env (Lets Encrypt contact email)}'
+      - '--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json'
+      - '--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web'
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - letsencrypt:/letsencrypt
+    networks:
+      - fresco_network
+
+  fresco:
+    image: 'ghcr.io/complexdatacollective/fresco:latest'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app/next-app
+    restart: always
+    networks:
+      - fresco_network
+    env_file:
+      - .env
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.fresco.rule=Host(`${FRESCO_DOMAIN:?Set FRESCO_DOMAIN in .env (public domain for this deployment)}`)'
+      - 'traefik.http.routers.fresco.entrypoints=websecure'
+      - 'traefik.http.routers.fresco.tls.certresolver=letsencrypt'
+      - 'traefik.http.services.fresco.loadbalancer.server.port=3000'
+
+  postgres:
+    env_file:
+      - .env
+    image: postgres:17-alpine
+    restart: always
+    volumes:
+      - postgres:/var/lib/postgresql/data:Z
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'postgres']
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    networks:
+      - fresco_network
+
+volumes:
+  postgres:
+  letsencrypt:
+
+# Define a network, which allows containers to communicate
+# with each other, by using their container name as a hostname
+networks:
+  fresco_network:
