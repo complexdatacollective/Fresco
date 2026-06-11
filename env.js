@@ -12,6 +12,14 @@ export const env = createEnv({
     DATABASE_URL: z.string(),
     PUBLIC_URL: z.string().url().optional(),
     USE_NEON_POSTGRES_ADAPTER: z.stringbool().optional(),
+    STORAGE_PROVIDER: z.enum(['s3', 'uploadthing']).optional(),
+    S3_ENDPOINT: z.string().url().optional(),
+    S3_PUBLIC_URL: z.string().url().optional(),
+    S3_BUCKET: z.string().optional(),
+    S3_REGION: z.string().optional(),
+    S3_ACCESS_KEY_ID: z.string().optional(),
+    S3_SECRET_ACCESS_KEY: z.string().optional(),
+    UPLOADTHING_TOKEN: z.string().optional(),
   },
 
   /**
@@ -50,6 +58,14 @@ export const env = createEnv({
     APP_VERSION: process.env.APP_VERSION,
     COMMIT_HASH: process.env.COMMIT_HASH,
     USE_NEON_POSTGRES_ADAPTER: process.env.USE_NEON_POSTGRES_ADAPTER,
+    STORAGE_PROVIDER: process.env.STORAGE_PROVIDER,
+    S3_ENDPOINT: process.env.S3_ENDPOINT,
+    S3_PUBLIC_URL: process.env.S3_PUBLIC_URL,
+    S3_BUCKET: process.env.S3_BUCKET,
+    S3_REGION: process.env.S3_REGION,
+    S3_ACCESS_KEY_ID: process.env.S3_ACCESS_KEY_ID,
+    S3_SECRET_ACCESS_KEY: process.env.S3_SECRET_ACCESS_KEY,
+    UPLOADTHING_TOKEN: process.env.UPLOADTHING_TOKEN,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially
