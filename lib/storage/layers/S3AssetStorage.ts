@@ -4,9 +4,10 @@ import { Effect, Layer } from 'effect';
 import { AssetStorageError } from '~/lib/storage/errors';
 import { AssetStorage } from '~/lib/storage/services/AssetStorage';
 import {
+  getPublicAssetBase,
   getS3Bucket,
-  getS3Client,
-  getS3PublicBaseUrl,
+  getS3PublicClient,
+  getS3ServerClient,
 } from '~/lib/storage/layers/S3Client';
 
 function generateS3Key(fileName: string): string {
@@ -20,7 +21,11 @@ export const S3AssetStorage = Layer.succeed(AssetStorage, {
     Effect.gen(function* () {
       const [client, bucket, baseUrl] = yield* Effect.tryPromise({
         try: () =>
-          Promise.all([getS3Client(), getS3Bucket(), getS3PublicBaseUrl()]),
+          Promise.all([
+            getS3PublicClient(),
+            getS3Bucket(),
+            getPublicAssetBase(),
+          ]),
         catch: (error) =>
           new AssetStorageError({
             cause: error,
@@ -63,7 +68,7 @@ export const S3AssetStorage = Layer.succeed(AssetStorage, {
       if (keys.length === 0) return;
 
       const [client, bucket] = yield* Effect.tryPromise({
-        try: () => Promise.all([getS3Client(), getS3Bucket()]),
+        try: () => Promise.all([getS3ServerClient(), getS3Bucket()]),
         catch: (error) =>
           new AssetStorageError({
             cause: error,

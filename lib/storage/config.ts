@@ -15,7 +15,7 @@ export type S3StorageConfig = {
   envManaged: boolean;
 };
 
-export type UploadThingStorageConfig = {
+type UploadThingStorageConfig = {
   provider: 'uploadthing';
   token: string;
   envManaged: boolean;

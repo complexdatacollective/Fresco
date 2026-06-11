@@ -1,12 +1,15 @@
 import { Alert, AlertDescription, AlertTitle } from '@codaco/fresco-ui/Alert';
 import Link from '~/components/Link';
+import { env } from '~/env';
 import { getAppSetting } from '~/queries/appSettings';
+import { getStorageProvider } from '~/queries/storageProvider';
 
 export default async function UpdateUploadThingTokenAlert() {
-  const storageProvider = await getAppSetting('storageProvider');
+  const storageProvider = await getStorageProvider();
   if (storageProvider === 's3') return null;
 
-  const uploadThingToken = await getAppSetting('uploadThingToken');
+  const uploadThingToken =
+    env.UPLOADTHING_TOKEN ?? (await getAppSetting('uploadThingToken'));
   if (uploadThingToken) return null;
 
   return (
