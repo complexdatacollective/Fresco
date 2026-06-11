@@ -70,6 +70,15 @@ export async function setAppSetting<
     }
     const stringValue = getStringValue(value);
 
+    // Validate the serialized value against the same schema the read path
+    // uses (queries/appSettings.ts), so a stored value can never throw on
+    // read-back (e.g. a malformed URL for s3PublicUrl).
+    const validated =
+      appSettingPreprocessedSchema.shape[key].safeParse(stringValue);
+    if (!validated.success) {
+      throw new Error(`Invalid value for app setting ${key}`);
+    }
+
     await prisma.appSettings.upsert({
       where: { key },
       create: { key, value: stringValue },
