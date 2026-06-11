@@ -21,15 +21,12 @@ async function getSetupData() {
     prisma.participant.count(),
   ]);
 
-  const uploadThingToken = await getAppSetting('uploadThingToken');
-
   return {
     hasAuth: !!session,
     allowAnonymousRecruitment,
     limitInterviews,
     hasProtocol: otherData[0] > 0,
     hasParticipants: otherData[1] > 0,
-    hasUploadThingToken: !!uploadThingToken,
     storageEnv: getStorageEnvStatus(),
   };
 }

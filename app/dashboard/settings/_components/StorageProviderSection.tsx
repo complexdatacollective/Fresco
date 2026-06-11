@@ -4,13 +4,14 @@ import SettingsField from '~/components/settings/SettingsField';
 import Link from '~/components/Link';
 import { getStorageEnvStatus } from '~/lib/storage/config';
 import { getAppSetting } from '~/queries/appSettings';
+import { getStorageProvider } from '~/queries/storageProvider';
 import UpdateUploadThingToken from './UpdateUploadThingToken';
 import UpdateS3Settings from './UpdateS3Settings';
 
 export default async function StorageProviderSection() {
-  const [storageProvider, s3Endpoint, s3PublicUrl, s3Bucket, s3Region] =
+  const [provider, s3Endpoint, s3PublicUrl, s3Bucket, s3Region] =
     await Promise.all([
-      getAppSetting('storageProvider'),
+      getStorageProvider(),
       getAppSetting('s3Endpoint'),
       getAppSetting('s3PublicUrl'),
       getAppSetting('s3Bucket'),
@@ -18,8 +19,6 @@ export default async function StorageProviderSection() {
     ]);
 
   const envStatus = getStorageEnvStatus();
-
-  const provider = storageProvider ?? 'uploadthing';
   const providerLabel =
     provider === 's3' ? 'S3 / S3-Compatible' : 'UploadThing';
 
