@@ -1,0 +1,28 @@
+---
+title: "Fresco self-hosted — S3-compatible asset storage (MinIO)"
+---
+flowchart TB
+    admin["Researcher browser<br/>(dashboard)"]
+    participant["Participant browser<br/>(interview)"]
+
+    proxy["<b>Reverse proxy</b> — TLS<br/>app domain (PUBLIC_URL) → fresco :3000<br/>asset domain (s3Endpoint) → minio :9000"]
+
+    subgraph host["Docker host — docker-compose.prod.yml"]
+        fresco["<b>Fresco app</b><br/>Next.js :3000"]
+        postgres[("PostgreSQL")]
+        minio[("MinIO<br/>:9000")]
+    end
+
+    ph["Analytics relay<br/>(optional)"]
+
+    admin -->|"dashboard +<br/>asset upload (presigned PUT)"| proxy
+    participant -->|"interview +<br/>asset download"| proxy
+    proxy --> fresco
+    proxy --> minio
+    fresco -->|"Prisma"| postgres
+    fresco -->|"S3 API"| minio
+    admin -.->|"events"| ph
+    participant -.->|"events"| ph
+    fresco -.->|"events"| ph
+
+    linkStyle 6,7,8 stroke:#999,color:#999
