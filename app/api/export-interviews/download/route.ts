@@ -89,6 +89,7 @@ export async function GET(request: Request) {
   const run = Effect.runPromise(program).catch(async (defect: unknown) => {
     await writable.abort(defect).catch(() => undefined);
     await captureException(defect);
+    await shutdownPostHog();
   });
   // Registering the already-started promise with `after` extends the function
   // lifetime on Vercel so post-success side effects aren't cut off when the

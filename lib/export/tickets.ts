@@ -39,19 +39,18 @@ export async function consumeExportTicket(
   id: string,
   userId: string,
 ): Promise<ExportTicketParams | null> {
-  // Atomic single-use consume: with concurrent redemptions only one delete
-  // succeeds; the loser gets P2025 (record not found), which is treated as
-  // "no ticket". Any other DB error must propagate.
+  // Atomic single-use consume, bound to the creating user via the compound
+  // where: a wrong-user attempt matches nothing (so the ticket survives), and
+  // with concurrent redemptions only one delete succeeds. Either miss surfaces
+  // as P2025 (record not found), which is treated as "no ticket". Any other
+  // DB error must propagate.
   const ticket = await prisma.exportTicket
-    .delete({ where: { id } })
+    .delete({ where: { id, userId } })
     .catch((error: unknown) => {
       if (isRecordNotFound(error)) return null;
       throw error;
     });
   if (!ticket) return null;
-
-  // Tickets are bound to the user who created them.
-  if (ticket.userId !== userId) return null;
 
   if (ticket.expiresAt < new Date()) return null;
 

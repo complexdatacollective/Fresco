@@ -83,7 +83,9 @@ describe('consumeExportTicket', () => {
     const result = await consumeExportTicket('ticket-1', 'user-1');
 
     expect(result).toEqual(validParams);
-    expect(mockDelete).toHaveBeenCalledWith({ where: { id: 'ticket-1' } });
+    expect(mockDelete).toHaveBeenCalledWith({
+      where: { id: 'ticket-1', userId: 'user-1' },
+    });
   });
 
   it('returns null when the delete reports record not found (P2025)', async () => {
@@ -100,15 +102,15 @@ describe('consumeExportTicket', () => {
     );
   });
 
-  it('returns null when the ticket belongs to a different user', async () => {
-    mockDelete.mockResolvedValue({
-      id: 'ticket-1',
-      userId: 'user-2',
-      params: validParams,
-      expiresAt: new Date(Date.now() + 60_000),
-    });
+  it('returns null without consuming the ticket when it belongs to a different user', async () => {
+    // The user-bound where means a wrong-user attempt matches no row: the
+    // delete reports P2025 and the ticket survives for its rightful owner.
+    mockDelete.mockRejectedValue(recordNotFoundError());
 
     expect(await consumeExportTicket('ticket-1', 'user-1')).toBeNull();
+    expect(mockDelete).toHaveBeenCalledWith({
+      where: { id: 'ticket-1', userId: 'user-1' },
+    });
   });
 
   it('returns null (but still deletes) for an expired ticket', async () => {

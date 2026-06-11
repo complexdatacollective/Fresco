@@ -91,7 +91,14 @@ describe('makeHttpOutputLayer', () => {
       Uint8Array
     >();
 
-    const readError = readable.cancel();
+    // Drain the readable in the background like a real HTTP response consumer
+    // would. Aborting the writable side errors the readable, so the drain must
+    // observe a rejection. Capture the outcome instead of letting the promise
+    // reject unhandled while the Effect is still running.
+    const drainOutcome = collect(readable).then(
+      () => ({ rejected: false as const }),
+      (error: unknown) => ({ rejected: true as const, error }),
+    );
 
     const exit = await Effect.gen(function* () {
       const output = yield* Output;
@@ -109,13 +116,16 @@ describe('makeHttpOutputLayer', () => {
       Effect.runPromiseExit,
     );
 
-    await readError.catch(() => undefined);
-
     expect(exit._tag).toBe('Failure');
     if (exit._tag !== 'Failure') return;
     const failure = Cause.failureOption(exit.cause);
     expect(failure._tag).toBe('Some');
     if (failure._tag !== 'Some') return;
     expect(failure.value._tag).toBe('NetworkExporters/OutputError');
+
+    const drained = await drainOutcome;
+    expect(drained.rejected).toBe(true);
+    if (!drained.rejected) return;
+    expect(drained.error).toEqual(new Error('entry stream boom'));
   });
 });
