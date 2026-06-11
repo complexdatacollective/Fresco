@@ -64,6 +64,22 @@ describe('getStorageConfig', () => {
     });
   });
 
+  it('resolves env bucket with remaining fields from DB and envManaged true', async () => {
+    mockEnv.S3_BUCKET = 'env-bucket';
+
+    const config = await getStorageConfig();
+    expect(config).toEqual({
+      provider: 's3',
+      endpoint: 'http://minio:9000',
+      publicUrl: 'https://app.example.com',
+      bucket: 'env-bucket',
+      region: 'us-east-1',
+      accessKeyId: 'db-key',
+      secretAccessKey: 'db-secret',
+      envManaged: true,
+    });
+  });
+
   it('selects provider from STORAGE_PROVIDER env var', async () => {
     mockEnv.STORAGE_PROVIDER = 'uploadthing';
     mockEnv.UPLOADTHING_TOKEN = 'env-token';

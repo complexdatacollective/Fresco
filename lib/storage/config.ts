@@ -68,6 +68,17 @@ export function getStorageEnvStatus(): StorageEnvStatus {
   };
 }
 
+/**
+ * Resolves the active storage configuration.
+ *
+ * - Provider selection order: `STORAGE_PROVIDER` env var → `storageProvider`
+ *   app setting → `'uploadthing'`.
+ * - Each credential field independently prefers its env var over the
+ *   database app setting.
+ * - `envManaged` is true when any credential env var for the ACTIVE provider
+ *   is set (used by the UI to lock env-controlled fields).
+ * - Throws when the active provider is incompletely configured.
+ */
 export async function getStorageConfig(): Promise<StorageConfig> {
   const provider =
     env.STORAGE_PROVIDER ??
@@ -77,14 +88,12 @@ export async function getStorageConfig(): Promise<StorageConfig> {
   if (provider === 's3') {
     const [endpoint, publicUrl, bucket, region, accessKeyId, secretAccessKey] =
       await Promise.all([
-        Promise.resolve(env.S3_ENDPOINT ?? getAppSetting('s3Endpoint')),
-        Promise.resolve(env.S3_PUBLIC_URL ?? getAppSetting('s3PublicUrl')),
-        Promise.resolve(env.S3_BUCKET ?? getAppSetting('s3Bucket')),
-        Promise.resolve(env.S3_REGION ?? getAppSetting('s3Region')),
-        Promise.resolve(env.S3_ACCESS_KEY_ID ?? getAppSetting('s3AccessKeyId')),
-        Promise.resolve(
-          env.S3_SECRET_ACCESS_KEY ?? getAppSetting('s3SecretAccessKey'),
-        ),
+        env.S3_ENDPOINT ?? getAppSetting('s3Endpoint'),
+        env.S3_PUBLIC_URL ?? getAppSetting('s3PublicUrl'),
+        env.S3_BUCKET ?? getAppSetting('s3Bucket'),
+        env.S3_REGION ?? getAppSetting('s3Region'),
+        env.S3_ACCESS_KEY_ID ?? getAppSetting('s3AccessKeyId'),
+        env.S3_SECRET_ACCESS_KEY ?? getAppSetting('s3SecretAccessKey'),
       ]);
 
     if (

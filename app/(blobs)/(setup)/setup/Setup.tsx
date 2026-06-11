@@ -34,6 +34,10 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
     },
   ];
 
+  // The step comes from the URL, so out-of-range values (?step=0, ?step=99)
+  // must be clamped before indexing into the steps array.
+  const clampedStep = Math.min(Math.max(step, 1), steps.length);
+
   const cardClasses = cx(
     containerClasses,
     'tablet-portrait:flex-row tablet-portrait:gap-6 flex flex-col gap-4',
@@ -57,7 +61,7 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
     <div className={cardClasses}>
       <OnboardSteps steps={steps.map((step) => step.label)} />
       <Surface noContainer className="w-full max-w-4xl">
-        {steps[step - 1]!.content}
+        {steps[clampedStep - 1]?.content}
       </Surface>
     </div>
   );

@@ -159,6 +159,7 @@ model ExportTicket {
   expiresAt DateTime
 
   @@index([userId])
+  @@index([expiresAt])
 }
 
 model ApiToken {

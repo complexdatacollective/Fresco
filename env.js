@@ -2,6 +2,11 @@
 import { createEnv } from '@t3-oss/env-nextjs';
 import { z } from 'zod';
 
+// Blank values (e.g. `UPLOADTHING_TOKEN=` left in .env) must behave as unset,
+// otherwise they override database-stored storage settings with '' and flip
+// env-managed detection.
+const emptyToUndefined = (value) => (value === '' ? undefined : value);
+
 export const env = createEnv({
   /**
    * Specify your server-side environment variables schema here. This way you can ensure the app
@@ -12,14 +17,17 @@ export const env = createEnv({
     DATABASE_URL: z.string(),
     PUBLIC_URL: z.string().url().optional(),
     USE_NEON_POSTGRES_ADAPTER: z.stringbool().optional(),
-    STORAGE_PROVIDER: z.enum(['s3', 'uploadthing']).optional(),
-    S3_ENDPOINT: z.string().url().optional(),
-    S3_PUBLIC_URL: z.string().url().optional(),
-    S3_BUCKET: z.string().optional(),
-    S3_REGION: z.string().optional(),
-    S3_ACCESS_KEY_ID: z.string().optional(),
-    S3_SECRET_ACCESS_KEY: z.string().optional(),
-    UPLOADTHING_TOKEN: z.string().optional(),
+    STORAGE_PROVIDER: z.preprocess(
+      emptyToUndefined,
+      z.enum(['s3', 'uploadthing']).optional(),
+    ),
+    S3_ENDPOINT: z.preprocess(emptyToUndefined, z.string().url().optional()),
+    S3_PUBLIC_URL: z.preprocess(emptyToUndefined, z.string().url().optional()),
+    S3_BUCKET: z.preprocess(emptyToUndefined, z.string().optional()),
+    S3_REGION: z.preprocess(emptyToUndefined, z.string().optional()),
+    S3_ACCESS_KEY_ID: z.preprocess(emptyToUndefined, z.string().optional()),
+    S3_SECRET_ACCESS_KEY: z.preprocess(emptyToUndefined, z.string().optional()),
+    UPLOADTHING_TOKEN: z.preprocess(emptyToUndefined, z.string().optional()),
   },
 
   /**

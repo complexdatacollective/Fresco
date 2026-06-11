@@ -116,7 +116,9 @@ services:
   #
   # Note: the bucket name occupies /<bucket>/ on your domain - keep the
   # default 'assets' (verified collision-free) or pick a name that cannot
-  # collide with app routes.
+  # collide with app routes. If you change the bucket name, set S3_BUCKET in
+  # .env so the Traefik route and bucket creation stay in sync with the
+  # bucket name you enter during Fresco setup.
   minio:
     image: minio/minio:latest
     restart: always
@@ -139,7 +141,7 @@ services:
     # Host and path are preserved — required for SigV4 signature validation.
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.minio.rule=Host(`${FRESCO_DOMAIN}`) && PathPrefix(`/assets`)'
+      - 'traefik.http.routers.minio.rule=Host(`${FRESCO_DOMAIN}`) && PathPrefix(`/${S3_BUCKET:-assets}`)'
       - 'traefik.http.routers.minio.entrypoints=websecure'
       - 'traefik.http.routers.minio.tls.certresolver=letsencrypt'
       - 'traefik.http.services.minio.loadbalancer.server.port=9000'
@@ -156,7 +158,7 @@ services:
       - -c
       - |
         mc alias set minio http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD}
-        mc mb --ignore-existing minio/assets
+        mc mb --ignore-existing minio/${S3_BUCKET:-assets}
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}

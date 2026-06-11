@@ -12,7 +12,12 @@ import {
 } from '~/lib/storage/layers/S3Client';
 
 function generateS3Key(fileName: string): string {
-  return `${randomUUID()}${extname(fileName).toLowerCase()}`;
+  // The key is embedded in /api/assets/{key} URLs, so strip any
+  // URL-significant characters (#, ?, etc.) the user's filename may carry.
+  const ext = extname(fileName)
+    .toLowerCase()
+    .replace(/[^.a-z0-9]/g, '');
+  return `${randomUUID()}${ext}`;
 }
 
 export const S3AssetStorage = Layer.succeed(AssetStorage, {

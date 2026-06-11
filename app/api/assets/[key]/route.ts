@@ -5,6 +5,10 @@ import { getS3Bucket, getS3PublicClient } from '~/lib/storage/layers/S3Client';
 // Must exceed the longest plausible interview session so cached redirect
 // targets keep working for ranged media requests.
 const PRESIGN_EXPIRY_SECONDS = 60 * 60 * 24;
+// Much shorter than the presign expiry: if credentials or bucket config
+// rotate, browsers re-request a fresh redirect within this window (bounded
+// staleness), while already-cached redirects keep working for ranged media
+// requests because the signed URL itself stays valid for the full expiry.
 const REDIRECT_CACHE_SECONDS = 60 * 60;
 
 export async function GET(

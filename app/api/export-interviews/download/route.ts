@@ -62,7 +62,7 @@ export async function GET(request: Request) {
           data: { exportTime: new Date() },
         });
         safeRevalidateTag(['getInterviews', 'activityFeed']);
-        void addEvent(
+        await addEvent(
           'Data Exported',
           `User ${username} exported data for ${String(interviewIds.length)} interview(s)`,
         );

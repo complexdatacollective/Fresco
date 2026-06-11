@@ -17,6 +17,8 @@ function makeClient(endpoint: string, config: S3StorageConfig): S3Client {
       accessKeyId: config.accessKeyId,
       secretAccessKey: config.secretAccessKey,
     },
+    // Required for MinIO and for bucket-in-path URLs that the reverse-proxy
+    // path route depends on.
     forcePathStyle: true,
   });
 }
