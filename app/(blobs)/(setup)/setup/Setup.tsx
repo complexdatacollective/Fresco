@@ -18,19 +18,19 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
   const steps = [
     {
       label: 'Create Account',
-      component: CreateAccount,
+      content: <CreateAccount />,
     },
     {
       label: 'Configure Storage',
-      component: ConfigureStorage,
+      content: <ConfigureStorage storageEnv={setupData.storageEnv} />,
     },
     {
       label: 'Upload Protocol',
-      component: UploadProtocol,
+      content: <UploadProtocol />,
     },
     {
       label: 'Documentation',
-      component: Documentation,
+      content: <Documentation />,
     },
   ];
 
@@ -53,13 +53,11 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
     }
   }, [step, setStep, setupData]);
 
-  const StepComponent = steps[step - 1]!.component;
-
   return (
     <div className={cardClasses}>
       <OnboardSteps steps={steps.map((step) => step.label)} />
       <Surface noContainer className="w-full max-w-4xl">
-        <StepComponent />
+        {steps[step - 1]!.content}
       </Surface>
     </div>
   );

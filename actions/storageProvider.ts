@@ -3,12 +3,28 @@
 import { HeadBucketCommand, S3Client } from '@aws-sdk/client-s3';
 import { z as zm } from 'zod/mini';
 import { setAppSetting } from '~/actions/appSettings';
+import { env } from '~/env';
 import { requireApiAuth } from '~/lib/auth/guards';
+import { getStorageEnvStatus } from '~/lib/storage/config';
 import { hasProtocols, type StorageProvider } from '~/queries/storageProvider';
 import { s3ConfigSchema } from '~/schemas/s3Settings';
 
 export async function setStorageProvider(provider: StorageProvider) {
   await requireApiAuth();
+
+  if (getStorageEnvStatus().providerPinned) {
+    // When STORAGE_PROVIDER pins the same provider the database value is
+    // irrelevant, so treat this as a successful no-op. A conflicting value
+    // is an error.
+    if (env.STORAGE_PROVIDER === provider) {
+      return { success: true as const };
+    }
+    return {
+      success: false as const,
+      error:
+        'The storage provider is configured via the STORAGE_PROVIDER environment variable and cannot be changed here.',
+    };
+  }
 
   const protocolsExist = await hasProtocols();
   if (protocolsExist) {
@@ -25,6 +41,24 @@ export async function setStorageProvider(provider: StorageProvider) {
 
 export async function saveS3Config(rawData: unknown) {
   await requireApiAuth();
+
+  const envStatus = getStorageEnvStatus();
+  if (envStatus.s3EnvManaged) {
+    return {
+      success: false as const,
+      fieldErrors: {},
+      error:
+        'S3 storage is configured via environment variables and cannot be changed here.',
+    };
+  }
+  if (envStatus.providerPinned && env.STORAGE_PROVIDER !== 's3') {
+    return {
+      success: false as const,
+      fieldErrors: {},
+      error:
+        'The storage provider is pinned to UploadThing via the STORAGE_PROVIDER environment variable.',
+    };
+  }
 
   const protocolsExist = await hasProtocols();
   if (protocolsExist) {
@@ -77,7 +111,11 @@ export async function saveS3Config(rawData: unknown) {
     };
   }
 
-  await setAppSetting('storageProvider', 's3');
+  // When STORAGE_PROVIDER is pinned to 's3' via env the database provider
+  // value is ignored (and setAppSetting would reject the write).
+  if (!envStatus.providerPinned) {
+    await setAppSetting('storageProvider', 's3');
+  }
   await setAppSetting('s3Endpoint', s3Endpoint);
   await setAppSetting('s3PublicUrl', s3PublicUrl);
   await setAppSetting('s3Bucket', s3Bucket);

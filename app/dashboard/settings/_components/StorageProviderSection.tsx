@@ -2,35 +2,50 @@ import { Alert, AlertDescription } from '@codaco/fresco-ui/Alert';
 import SettingsCard from '~/components/settings/SettingsCard';
 import SettingsField from '~/components/settings/SettingsField';
 import Link from '~/components/Link';
+import { getStorageEnvStatus } from '~/lib/storage/config';
 import { getAppSetting } from '~/queries/appSettings';
-import { hasProtocols } from '~/queries/storageProvider';
 import UpdateUploadThingToken from './UpdateUploadThingToken';
 import UpdateS3Settings from './UpdateS3Settings';
 
 export default async function StorageProviderSection() {
-  const [
-    storageProvider,
-    uploadThingKey,
-    ,
-    s3Endpoint,
-    s3Bucket,
-    s3Region,
-    s3AccessKeyId,
-    s3SecretAccessKey,
-  ] = await Promise.all([
-    getAppSetting('storageProvider'),
-    getAppSetting('uploadThingToken'),
-    hasProtocols(),
-    getAppSetting('s3Endpoint'),
-    getAppSetting('s3Bucket'),
-    getAppSetting('s3Region'),
-    getAppSetting('s3AccessKeyId'),
-    getAppSetting('s3SecretAccessKey'),
-  ]);
+  const [storageProvider, s3Endpoint, s3PublicUrl, s3Bucket, s3Region] =
+    await Promise.all([
+      getAppSetting('storageProvider'),
+      getAppSetting('s3Endpoint'),
+      getAppSetting('s3PublicUrl'),
+      getAppSetting('s3Bucket'),
+      getAppSetting('s3Region'),
+    ]);
+
+  const envStatus = getStorageEnvStatus();
 
   const provider = storageProvider ?? 'uploadthing';
   const providerLabel =
     provider === 's3' ? 'S3 / S3-Compatible' : 'UploadThing';
+
+  const activeProviderEnvManaged =
+    provider === 's3'
+      ? envStatus.s3EnvManaged
+      : envStatus.uploadThingEnvManaged;
+
+  if (activeProviderEnvManaged) {
+    return (
+      <SettingsCard id="storage" title="Storage" divideChildren>
+        <SettingsField
+          label="Storage Provider"
+          description={`Files are stored using ${providerLabel}.`}
+        >
+          <Alert variant="info">
+            <AlertDescription>
+              Storage is configured via environment variables and cannot be
+              edited here. Remove the STORAGE_PROVIDER / S3_* /
+              UPLOADTHING_TOKEN variables to manage it from this dashboard.
+            </AlertDescription>
+          </Alert>
+        </SettingsField>
+      </SettingsCard>
+    );
+  }
 
   return (
     <SettingsCard id="storage" title="Storage" divideChildren>
@@ -59,7 +74,7 @@ export default async function StorageProviderSection() {
             </>
           }
         >
-          <UpdateUploadThingToken uploadThingKey={uploadThingKey} />
+          <UpdateUploadThingToken />
         </SettingsField>
       )}
 
@@ -67,10 +82,9 @@ export default async function StorageProviderSection() {
         <UpdateS3Settings
           initialValues={{
             s3Endpoint: s3Endpoint ?? undefined,
+            s3PublicUrl: s3PublicUrl ?? undefined,
             s3Bucket: s3Bucket ?? undefined,
             s3Region: s3Region ?? undefined,
-            s3AccessKeyId: s3AccessKeyId ?? undefined,
-            s3SecretAccessKey: s3SecretAccessKey ?? undefined,
           }}
         />
       )}

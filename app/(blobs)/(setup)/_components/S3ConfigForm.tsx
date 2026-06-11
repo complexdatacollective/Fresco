@@ -47,6 +47,15 @@ export const S3ConfigForm = () => {
         type="text"
       />
       <Field
+        name="s3PublicUrl"
+        label="Public URL"
+        placeholder="https://app.example.com"
+        hint="The URL browsers use to reach this storage. For MinIO behind your reverse proxy, this is your Fresco domain (see deployment docs). For AWS S3 or R2, this is usually the same as the Endpoint URL."
+        custom={{ schema: s3ConfigSchema.shape.s3PublicUrl, hint: 'Required' }}
+        component={InputField}
+        type="text"
+      />
+      <Field
         name="s3Bucket"
         label="Bucket Name"
         placeholder="my-fresco-bucket"

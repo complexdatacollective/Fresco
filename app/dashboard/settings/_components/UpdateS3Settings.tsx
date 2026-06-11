@@ -15,6 +15,7 @@ type S3Field = {
 
 const s3Fields: S3Field[] = [
   { key: 's3Endpoint', label: 'Endpoint URL', type: 'text' },
+  { key: 's3PublicUrl', label: 'Public URL', type: 'text' },
   { key: 's3Bucket', label: 'Bucket Name', type: 'text' },
   { key: 's3Region', label: 'Region', type: 'text' },
   { key: 's3AccessKeyId', label: 'Access Key ID', type: 'password' },
@@ -54,6 +55,11 @@ function S3FieldEditor({
   const [isSaving, setSaving] = useState(false);
   const [savedValue, setSavedValue] = useState(initialValue);
 
+  // Secret values are write-only: they are never sent to the client, so the
+  // input starts empty and saving an empty value is disallowed to prevent
+  // accidentally blanking the stored secret.
+  const isWriteOnly = inputType === 'password';
+
   const handleSave = async () => {
     setSaving(true);
     await setAppSetting(settingsKey, value);
@@ -67,6 +73,7 @@ function S3FieldEditor({
         value={value}
         onChange={(v) => setValue(v ?? '')}
         type={inputType}
+        placeholder={isWriteOnly ? '••••••••' : undefined}
         className="w-full"
         disabled={isSaving}
       />
@@ -79,7 +86,11 @@ function S3FieldEditor({
           >
             Reset
           </Button>
-          <Button onClick={handleSave} color="primary" disabled={isSaving}>
+          <Button
+            onClick={handleSave}
+            color="primary"
+            disabled={isSaving || (isWriteOnly && value === '')}
+          >
             {isSaving ? 'Saving...' : 'Save'}
           </Button>
         </div>

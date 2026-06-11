@@ -1,8 +1,14 @@
 import Heading from '@codaco/fresco-ui/typography/Heading';
 import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
-import StorageProviderSelector from '../StorageProviderSelector';
+import StorageProviderSelector, {
+  type StorageEnvStatus,
+} from '../StorageProviderSelector';
 
-export default function ConfigureStorage() {
+export default function ConfigureStorage({
+  storageEnv,
+}: {
+  storageEnv: StorageEnvStatus;
+}) {
   return (
     <div className="w-full">
       <div className="mb-4">
@@ -12,7 +18,7 @@ export default function ConfigureStorage() {
           Choose between UploadThing (managed service) or an S3-compatible
           bucket (self-hosted or cloud).
         </Paragraph>
-        <StorageProviderSelector />
+        <StorageProviderSelector envStatus={storageEnv} />
       </div>
     </div>
   );
