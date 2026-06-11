@@ -35,8 +35,19 @@ services:
   # If you prefer UploadThing, remove this service and configure
   # UploadThing during Fresco setup instead.
   #
+  # IMPORTANT: the Endpoint URL is used both by the Fresco server AND by
+  # browsers (researchers upload assets via presigned URLs; participants
+  # download assets directly). It must therefore be a URL that is reachable
+  # from outside the Docker network — `http://minio:9000` only resolves
+  # between containers and will NOT work.
+  #
+  # In production, route a public hostname to minio:9000 via your reverse
+  # proxy (e.g. https://assets.example.com) and use that as the Endpoint URL.
+  # For local single-machine testing, http://localhost:9000 works because
+  # port 9000 is published to the host.
+  #
   # During Fresco setup, select "S3 / S3-Compatible" and use:
-  #   Endpoint URL:      http://minio:9000
+  #   Endpoint URL:      https://assets.example.com (see above)
   #   Bucket Name:       fresco
   #   Region:            us-east-1
   #   Access Key ID:     value of MINIO_ROOT_USER (default: minioadmin)
