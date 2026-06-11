@@ -14,6 +14,7 @@ flowchart TB
 
     ut["UploadThing (cloud)<br/>ingest + CDN"]
     ph["Analytics relay<br/>(optional)"]
+    exports["Interview exports stream<br/>Postgres → app → browser<br/>(never stored)"]
 
     admin -->|"dashboard +<br/>upload authorization"| proxy
     participant -->|"interview"| proxy
@@ -21,9 +22,10 @@ flowchart TB
     fresco -->|"Prisma"| postgres
     admin -->|"asset upload<br/>(SDK, direct)"| ut
     participant -->|"asset download<br/>(CDN)"| ut
-    fresco -->|"UTApi<br/>register / delete"| ut
+    fresco -->|"UTApi — assets only<br/>register / delete"| ut
     admin -.->|"events"| ph
     participant -.->|"events"| ph
     fresco -.->|"events"| ph
+    fresco -.- exports
 
-    linkStyle 7,8,9 stroke:#999,color:#999
+    linkStyle 7,8,9,10 stroke:#999,color:#999

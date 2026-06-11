@@ -1,28 +1,30 @@
 ---
-title: "Fresco self-hosted — S3-compatible asset storage (MinIO)"
+title: "Fresco self-hosted — S3-compatible asset storage (MinIO, private bucket)"
 ---
 flowchart TB
     admin["Researcher browser<br/>(dashboard)"]
     participant["Participant browser<br/>(interview)"]
 
-    proxy["<b>Reverse proxy</b> — TLS<br/>app domain (PUBLIC_URL) → fresco :3000<br/>asset domain (s3Endpoint) → minio :9000"]
+    proxy["<b>Reverse proxy</b> — TLS, single app domain<br/>/* → fresco :3000<br/>/fresco/* (bucket path) → minio :9000"]
 
     subgraph host["Docker host — docker-compose.prod.yml"]
         fresco["<b>Fresco app</b><br/>Next.js :3000"]
         postgres[("PostgreSQL")]
-        minio[("MinIO<br/>:9000")]
+        minio[("MinIO — <b>private</b><br/>no published ports,<br/>no anonymous access")]
     end
 
     ph["Analytics relay<br/>(optional)"]
+    exports["Interview exports stream<br/>Postgres → app → browser<br/>(never stored)"]
 
-    admin -->|"dashboard +<br/>asset upload (presigned PUT)"| proxy
-    participant -->|"interview +<br/>asset download"| proxy
+    admin -->|"dashboard +<br/>asset upload (presigned PUT,<br/>signed for app domain)"| proxy
+    participant -->|"interview +<br/>asset download (/api/assets/key<br/>→ 307 to presigned GET)"| proxy
     proxy --> fresco
-    proxy --> minio
+    proxy -->|"/fresco/*"| minio
     fresco -->|"Prisma"| postgres
-    fresco -->|"S3 API"| minio
+    fresco -->|"S3 API — internal<br/>http://minio:9000"| minio
     admin -.->|"events"| ph
     participant -.->|"events"| ph
     fresco -.->|"events"| ph
+    fresco -.- exports
 
-    linkStyle 6,7,8 stroke:#999,color:#999
+    linkStyle 6,7,8,9 stroke:#999,color:#999
