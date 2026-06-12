@@ -97,7 +97,7 @@ export function ExportProgressProvider({
             onCancel={() => controller.abort()}
           />
         ),
-        timeout: Infinity,
+        timeout: 0,
       });
 
       void (async () => {
@@ -193,7 +193,7 @@ export function ExportProgressProvider({
             variant: 'destructive',
             title: 'Export failed',
             description: e.message,
-            timeout: Infinity,
+            timeout: 0,
           });
         } finally {
           exportingRef.current = false;
