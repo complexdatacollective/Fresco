@@ -1,5 +1,5 @@
 import { after } from 'next/server';
-import { Effect, Layer, Queue } from 'effect';
+import { Effect, Fiber, Layer, Queue } from 'effect';
 import { type ExportEvent } from '@codaco/network-exporters/events';
 import { exportPipeline } from '@codaco/network-exporters/pipeline';
 import { addEvent } from '~/actions/activityFeed';
@@ -9,6 +9,7 @@ import { prisma } from '~/lib/db';
 import { PrismaInterviewRepository } from '~/lib/export/InterviewRepository';
 import { makeHttpOutputLayer } from '~/lib/export/Output';
 import { PrismaProtocolRepository } from '~/lib/export/ProtocolRepository';
+import { encodeExportEvent } from '~/lib/export/streamProtocol';
 import { consumeExportTicket } from '~/lib/export/tickets';
 import {
   captureEvent,
@@ -42,21 +43,43 @@ export async function GET(request: Request) {
 
   const { interviewIds, exportOptions } = params;
   const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>();
+  const writer = writable.getWriter();
 
   const exportLayer = Layer.mergeAll(
     PrismaInterviewRepository,
     PrismaProtocolRepository,
-    makeHttpOutputLayer(writable),
+    makeHttpOutputLayer(writer),
   );
 
   const program = Effect.gen(function* () {
-    // The pipeline requires a progress queue; nothing consumes it here, so a
-    // sliding queue of capacity 1 keeps it from accumulating events.
-    const queue = yield* Queue.sliding<ExportEvent>(1);
+    const queue = yield* Queue.unbounded<ExportEvent>();
+
+    // Drain progress events to the client concurrently with the zip data.
+    // Each event is one writer.write() call, so the shared writer serializes
+    // progress and data frames without interleaving.
+    const progressFiber = yield* Effect.fork(
+      Effect.forever(
+        Queue.take(queue).pipe(
+          Effect.flatMap((event) =>
+            Effect.promise(() => writer.write(encodeExportEvent(event))),
+          ),
+        ),
+      ),
+    );
+
     yield* exportPipeline(interviewIds, exportOptions, queue);
+
+    // Stop draining, then flush any progress events buffered after the last take.
+    yield* Fiber.interrupt(progressFiber);
+    const remaining = yield* Queue.takeAll(queue);
+    yield* Effect.forEach(remaining, (event) =>
+      Effect.promise(() => writer.write(encodeExportEvent(event))),
+    );
   }).pipe(
     Effect.tap(() =>
       Effect.promise(async () => {
+        await writer.write(encodeExportEvent({ type: 'complete' }));
+        await writer.close();
         await prisma.interview.updateMany({
           where: { id: { in: interviewIds } },
           data: { exportTime: new Date() },
@@ -74,8 +97,12 @@ export async function GET(request: Request) {
     ),
     Effect.tapError((error) =>
       Effect.promise(async () => {
-        // Abort first so the browser surfaces a failed download instead of hanging.
-        await writable.abort(error).catch(() => undefined);
+        const message =
+          error instanceof Error ? error.message : 'Export failed';
+        await writer
+          .write(encodeExportEvent({ type: 'error', message }))
+          .catch(() => undefined);
+        await writer.close().catch(() => undefined);
         await captureException(error);
         await shutdownPostHog();
       }),
@@ -84,23 +111,22 @@ export async function GET(request: Request) {
     Effect.provide(exportLayer),
   );
 
-  // Defects (rejections inside Effect.promise taps, pipeline bugs) bypass
-  // tapError/catchAll and reject the runPromise, so abort the stream here too.
-  const run = Effect.runPromise(program).catch(async (defect: unknown) => {
-    await writable.abort(defect).catch(() => undefined);
-    await captureException(defect);
-    await shutdownPostHog();
-  });
-  // Registering the already-started promise with `after` extends the function
-  // lifetime on Vercel so post-success side effects aren't cut off when the
-  // response stream finishes.
-  after(() => run);
+  const fiber = Effect.runFork(program);
 
-  const date = new Date().toISOString().slice(0, 10);
+  // If the client aborts (cancel button or navigation), interrupt the run and
+  // close the stream; exportTime is never set, so a cancelled export is not
+  // marked exported.
+  request.signal.addEventListener('abort', () => {
+    Effect.runFork(Fiber.interrupt(fiber));
+    void writer.close().catch(() => undefined);
+  });
+
+  // Keep the function alive on Vercel until post-success side effects finish.
+  after(() => Fiber.await(fiber).pipe(Effect.runPromise));
+
   return new Response(readable, {
     headers: {
-      'Content-Type': 'application/zip',
-      'Content-Disposition': `attachment; filename="fresco-export-${date}.zip"`,
+      'Content-Type': 'text/event-stream',
       'Cache-Control': 'no-store',
     },
   });
