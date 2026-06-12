@@ -19,6 +19,7 @@ import {
   type GetProtocolsQuery,
   type GetProtocolsReturnType,
 } from '~/queries/protocols';
+import { MAX_SYNTHETIC_INTERVIEWS } from '~/schemas/synthetic-interviews';
 
 type SyntheticInterviewDataSectionProps = {
   protocolsPromise: GetProtocolsReturnType;
@@ -63,6 +64,19 @@ export default function SyntheticInterviewDataSection({
       });
 
       if (!response.ok || !response.body) {
+        const errorBody: unknown = await response.json().catch(() => null);
+        const description =
+          errorBody &&
+          typeof errorBody === 'object' &&
+          'error' in errorBody &&
+          typeof errorBody.error === 'string'
+            ? errorBody.error
+            : 'Could not generate synthetic interviews.';
+        toast({
+          title: 'Generation failed',
+          description,
+          variant: 'destructive',
+        });
         setIsGenerating(false);
         return;
       }
@@ -173,9 +187,13 @@ export default function SyntheticInterviewDataSection({
             name="count"
             type="number"
             min={1}
-            max={1000}
+            max={MAX_SYNTHETIC_INTERVIEWS}
             value={String(count)}
-            onChange={(value) => setCount(Number(value))}
+            onChange={(value) => {
+              const parsed = Number(value);
+              if (Number.isNaN(parsed)) return;
+              setCount(Math.min(Math.max(parsed, 1), MAX_SYNTHETIC_INTERVIEWS));
+            }}
             disabled={isGenerating}
             className="shrink-0"
           />
