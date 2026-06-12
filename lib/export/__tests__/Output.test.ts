@@ -6,16 +6,28 @@ vi.mock('server-only', () => ({}));
 import { unzipSync } from 'fflate';
 import { Output } from '@codaco/network-exporters/services/Output';
 import { makeHttpOutputLayer } from '~/lib/export/Output';
+import {
+  decodeBase64Chunk,
+  parseExportEventBuffer,
+} from '~/lib/export/streamProtocol';
 
-async function collect(
+// Read the SSE stream, decode every `data` frame, and concatenate into the zip.
+async function collectZipFromFrames(
   readable: ReadableStream<Uint8Array>,
 ): Promise<Uint8Array> {
-  const chunks: Uint8Array[] = [];
   const reader = readable.getReader();
+  const textDecoder = new TextDecoder();
+  let buffer = '';
+  const chunks: Uint8Array[] = [];
   for (;;) {
     const { done, value } = await reader.read();
     if (done) break;
-    chunks.push(value);
+    buffer += textDecoder.decode(value, { stream: true });
+    const { events, rest } = parseExportEventBuffer(buffer);
+    buffer = rest;
+    for (const event of events) {
+      if (event.type === 'data') chunks.push(decodeBase64Chunk(event.b64));
+    }
   }
   const total = chunks.reduce((sum, c) => sum + c.length, 0);
   const out = new Uint8Array(total);
@@ -32,9 +44,7 @@ function chunksAsAsyncIterable(
 ): AsyncIterable<Uint8Array> {
   return new ReadableStream<Uint8Array>({
     start(controller) {
-      for (const chunk of chunks) {
-        controller.enqueue(chunk);
-      }
+      for (const chunk of chunks) controller.enqueue(chunk);
       controller.close();
     },
   });
@@ -64,12 +74,13 @@ function throwingAsyncIterable(
 }
 
 describe('makeHttpOutputLayer', () => {
-  it('streams a valid zip through the writable stream', async () => {
+  it('streams a valid zip as base64 data frames', async () => {
     const { readable, writable } = new TransformStream<
       Uint8Array,
       Uint8Array
     >();
-    const collected = collect(readable);
+    const writer = writable.getWriter();
+    const collected = collectZipFromFrames(readable);
 
     await Effect.gen(function* () {
       const output = yield* Output;
@@ -79,26 +90,18 @@ describe('makeHttpOutputLayer', () => {
         data: chunksAsAsyncIterable([new TextEncoder().encode('a,b\n1,2\n')]),
       });
       yield* output.end(handle);
-    }).pipe(Effect.provide(makeHttpOutputLayer(writable)), Effect.runPromise);
+    }).pipe(Effect.provide(makeHttpOutputLayer(writer)), Effect.runPromise);
+
+    // The route closes the writer in production; close here so the reader ends.
+    await writer.close();
 
     const zip = unzipSync(await collected);
     expect(new TextDecoder().decode(zip['test.csv'])).toBe('a,b\n1,2\n');
   });
 
-  it('aborts the writable and rejects when an entry stream throws', async () => {
-    const { readable, writable } = new TransformStream<
-      Uint8Array,
-      Uint8Array
-    >();
-
-    // Drain the readable in the background like a real HTTP response consumer
-    // would. Aborting the writable side errors the readable, so the drain must
-    // observe a rejection. Capture the outcome instead of letting the promise
-    // reject unhandled while the Effect is still running.
-    const drainOutcome = collect(readable).then(
-      () => ({ rejected: false as const }),
-      (error: unknown) => ({ rejected: true as const, error }),
-    );
+  it('rejects with OutputError when an entry stream throws', async () => {
+    const { writable } = new TransformStream<Uint8Array, Uint8Array>();
+    const writer = writable.getWriter();
 
     const exit = await Effect.gen(function* () {
       const output = yield* Output;
@@ -111,10 +114,7 @@ describe('makeHttpOutputLayer', () => {
         ),
       });
       yield* output.end(handle);
-    }).pipe(
-      Effect.provide(makeHttpOutputLayer(writable)),
-      Effect.runPromiseExit,
-    );
+    }).pipe(Effect.provide(makeHttpOutputLayer(writer)), Effect.runPromiseExit);
 
     expect(exit._tag).toBe('Failure');
     if (exit._tag !== 'Failure') return;
@@ -122,10 +122,5 @@ describe('makeHttpOutputLayer', () => {
     expect(failure._tag).toBe('Some');
     if (failure._tag !== 'Some') return;
     expect(failure.value._tag).toBe('NetworkExporters/OutputError');
-
-    const drained = await drainOutcome;
-    expect(drained.rejected).toBe(true);
-    if (!drained.rejected) return;
-    expect(drained.error).toEqual(new Error('entry stream boom'));
   });
 });
