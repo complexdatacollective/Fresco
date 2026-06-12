@@ -1,6 +1,6 @@
 'use server';
 
-import { HeadBucketCommand, S3Client } from '@aws-sdk/client-s3';
+import { ListObjectsV2Command, S3Client } from '@aws-sdk/client-s3';
 import { z as zm } from 'zod/mini';
 import { setAppSetting } from '~/actions/appSettings';
 import { requireApiAuth } from '~/lib/auth/guards';
@@ -100,7 +100,9 @@ export async function saveS3Config(rawData: unknown) {
       forcePathStyle: true,
     });
 
-    await client.send(new HeadBucketCommand({ Bucket: s3Bucket }));
+    await client.send(
+      new ListObjectsV2Command({ Bucket: s3Bucket, MaxKeys: 0 }),
+    );
   } catch (error) {
     const message =
       error instanceof Error ? error.message : 'Connection failed';
