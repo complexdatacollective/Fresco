@@ -49,7 +49,7 @@ export function parseExportEventBuffer(buffer: string): {
   return { events, rest };
 }
 
-export function decodeBase64Chunk(b64: string): Uint8Array {
+export function decodeBase64Chunk(b64: string): Uint8Array<ArrayBuffer> {
   const binary = atob(b64);
   const bytes = new Uint8Array(binary.length);
   for (let i = 0; i < binary.length; i++) {
