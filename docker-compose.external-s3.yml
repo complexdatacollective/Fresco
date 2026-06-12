@@ -8,7 +8,11 @@
 #
 #   FRESCO_DOMAIN  - the public domain for this deployment (e.g. study.example.com)
 #   ACME_EMAIL     - email for Let's Encrypt certificate notifications
-#   PUBLIC_URL     - should be https://<FRESCO_DOMAIN>
+#
+# PUBLIC_URL is derived from FRESCO_DOMAIN automatically (see the fresco
+# service's `environment:` block) — you do not set it separately. Note that
+# S3_PUBLIC_URL below is a *different* host (your external S3 service), so it
+# remains its own value.
 #
 # Storage configuration — either enter it during Fresco setup, or set these
 # env variables (env wins over values entered in the dashboard and locks the
@@ -70,6 +74,10 @@ services:
       - fresco_network
     env_file:
       - .env
+    environment:
+      # FRESCO_DOMAIN is the only place the deployment domain is set; the app's
+      # public URL is derived from it here (overrides any PUBLIC_URL in .env).
+      PUBLIC_URL: https://${FRESCO_DOMAIN}
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.routers.fresco.rule=Host(`${FRESCO_DOMAIN:?Set FRESCO_DOMAIN in .env (public domain for this deployment)}`)'
