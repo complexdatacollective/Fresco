@@ -81,6 +81,10 @@ COPY --from=builder --chown=nextjs:nodejs /app/node_modules ./node_modules
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./
 COPY --from=builder --chown=nextjs:nodejs /app/env.js ./
 COPY --from=builder --chown=nextjs:nodejs /app/tsconfig.json ./
+# pnpm-workspace.yaml carries the publicHoistPattern/patchedDependencies config
+# that node_modules was built with; without it the `pnpm add prisma` below fails
+# with ERR_PNPM_PUBLIC_HOIST_PATTERN_DIFF.
+COPY --from=builder --chown=nextjs:nodejs /app/pnpm-workspace.yaml ./
 
 # Install Prisma CLI for database migrations (required for setup-database.js)
 # The standalone build doesn't include node_modules, so we install prisma via pnpm
