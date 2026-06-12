@@ -12,3 +12,5 @@ export const s3ConfigSchema = zm.object({
     .string()
     .check(zm.minLength(1, 'Secret Access Key is required.')),
 });
+
+export type S3EnvValues = zm.infer<typeof s3ConfigSchema>;

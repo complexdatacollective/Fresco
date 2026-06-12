@@ -22,7 +22,12 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
     },
     {
       label: 'Configure Storage',
-      content: <ConfigureStorage storageEnv={setupData.storageEnv} />,
+      content: (
+        <ConfigureStorage
+          storageEnv={setupData.storageEnv}
+          s3EnvValues={setupData.s3EnvValues}
+        />
+      ),
     },
     {
       label: 'Upload Protocol',
