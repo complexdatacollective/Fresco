@@ -53,7 +53,13 @@ export default function ExportToastContent({
         />
         <span className="text-xs tabular-nums">{Math.round(progress)}%</span>
       </div>
-      <Button onClick={onCancel} color="dynamic" icon={<X />} size="sm">
+      <Button
+        onClick={onCancel}
+        color="dynamic"
+        icon={<X />}
+        size="sm"
+        className="mb-1"
+      >
         Cancel
       </Button>
     </div>
