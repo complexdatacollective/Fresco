@@ -11,7 +11,7 @@ import { getAppSetting } from '~/queries/appSettings';
 import { getInterviewIdsMatching } from '~/queries/interviews';
 import type { CreateInterview, DeleteInterviews } from '~/schemas/interviews';
 import { ensureError } from '~/utils/ensureError';
-import { addEvent } from './activityFeed';
+import { addEvent } from '~/actions/activityFeed';
 import type { InterviewsSearchParams } from '~/app/dashboard/_components/InterviewsTable/searchParams';
 
 export async function deleteInterviews(data: DeleteInterviews) {
@@ -56,6 +56,38 @@ export async function revalidateInterviewsAfterExport() {
   await requireApiAuth();
   safeUpdateTag('getInterviews');
   safeUpdateTag('activityFeed');
+}
+
+/**
+ * Marks interviews exported after the browser has assembled and downloaded the
+ * complete zip. This is the single commit point for a (possibly batched)
+ * export: it sets exportTime, logs one activity event, and — because it is a
+ * server action — triggers Next's route refresh via safeUpdateTag
+ * (read-your-own-writes), so the interviews table shows the new status.
+ */
+export async function commitInterviewExport(interviewIds: string[]) {
+  const session = await requireApiAuth();
+  const ids = [...new Set(interviewIds)];
+  if (ids.length === 0) {
+    return { error: null, data: { count: 0 } };
+  }
+
+  try {
+    const result = await prisma.interview.updateMany({
+      where: { id: { in: ids } },
+      data: { exportTime: new Date() },
+    });
+    await addEvent(
+      'Data Exported',
+      `User ${session.user.username} exported data for ${String(ids.length)} interview(s)`,
+      { interviewCount: ids.length },
+    );
+    safeUpdateTag('getInterviews');
+    safeUpdateTag('activityFeed');
+    return { error: null, data: { count: result.count } };
+  } catch {
+    return { error: 'Failed to commit export', data: null };
+  }
 }
 
 export async function resolveInterviewIds(
