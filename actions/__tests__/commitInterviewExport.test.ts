@@ -73,4 +73,16 @@ describe('commitInterviewExport', () => {
     expect(updateMany).not.toHaveBeenCalled();
     expect(result).toEqual({ error: null, data: { count: 0 } });
   });
+
+  it('logs the actually-updated count, not the requested id count', async () => {
+    // One id was deleted between export and commit, so updateMany matches fewer.
+    updateMany.mockResolvedValue({ count: 1 });
+    const result = await commitInterviewExport(['a', 'b']);
+    expect(addEvent).toHaveBeenCalledWith(
+      'Data Exported',
+      expect.stringContaining('1 interview(s)'),
+      { interviewCount: 1 },
+    );
+    expect(result).toEqual({ error: null, data: { count: 1 } });
+  });
 });

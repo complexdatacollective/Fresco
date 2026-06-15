@@ -64,8 +64,8 @@ export async function commitInterviewExport(interviewIds: string[]) {
     });
     await addEvent(
       'Data Exported',
-      `User ${session.user.username} exported data for ${String(ids.length)} interview(s)`,
-      { interviewCount: ids.length },
+      `User ${session.user.username} exported data for ${String(result.count)} interview(s)`,
+      { interviewCount: result.count },
     );
     safeUpdateTag('getInterviews');
     safeUpdateTag('activityFeed');

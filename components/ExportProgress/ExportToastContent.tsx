@@ -56,7 +56,7 @@ export default function ExportToastContent({
       <Button
         onClick={onCancel}
         color="dynamic"
-        icon={<X />}
+        icon={<X aria-hidden />}
         size="sm"
         className="mb-1 w-fit"
       >
