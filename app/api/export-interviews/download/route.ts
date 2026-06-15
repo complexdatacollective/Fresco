@@ -1,5 +1,5 @@
 import { after } from 'next/server';
-import { Effect, Fiber, Layer, Queue } from 'effect';
+import { Effect, Fiber, Layer, Queue, Ref } from 'effect';
 import { type ExportEvent } from '@codaco/network-exporters/events';
 import { exportPipeline } from '@codaco/network-exporters/pipeline';
 import { addEvent } from '~/actions/activityFeed';
@@ -57,12 +57,35 @@ export async function GET(request: Request) {
     // Drain progress events to the client concurrently with the zip data.
     // Each event is one writer.write() call, so the shared writer serializes
     // progress and data frames without interleaving.
+    //
+    // Coalesce `progress` events: a large export emits one per item (17k+
+    // files), which would flood the stream and re-render the client toast
+    // hundreds of times a second. Forward a `progress` only when its integer
+    // percentage changes; always forward `stage` events.
+    const lastPct = yield* Ref.make(-1);
     const progressFiber = yield* Effect.fork(
       Effect.forever(
         Queue.take(queue).pipe(
-          Effect.flatMap((event) =>
-            Effect.promise(() => writer.write(encodeExportEvent(event))),
-          ),
+          Effect.flatMap((event) => {
+            if (event.type === 'stage') {
+              return Effect.promise(() =>
+                writer.write(encodeExportEvent(event)),
+              );
+            }
+            const pct =
+              event.total > 0
+                ? Math.round((event.current / event.total) * 100)
+                : 0;
+            return Ref.getAndSet(lastPct, pct).pipe(
+              Effect.flatMap((prev) =>
+                prev === pct
+                  ? Effect.void
+                  : Effect.promise(() =>
+                      writer.write(encodeExportEvent(event)),
+                    ),
+              ),
+            );
+          }),
         ),
       ),
     );
@@ -78,13 +101,17 @@ export async function GET(request: Request) {
   }).pipe(
     Effect.tap(() =>
       Effect.promise(async () => {
-        await writer.write(encodeExportEvent({ type: 'complete' }));
-        await writer.close();
+        // Commit the export status BEFORE signalling completion: the client
+        // calls router.refresh() when it receives `complete`, so exportTime and
+        // the cache revalidation must already be in place for that refresh to
+        // show fresh data (fixes the previous live-refresh race).
         await prisma.interview.updateMany({
           where: { id: { in: interviewIds } },
           data: { exportTime: new Date() },
         });
         safeRevalidateTag(['getInterviews', 'activityFeed']);
+        await writer.write(encodeExportEvent({ type: 'complete' }));
+        await writer.close();
         await addEvent(
           'Data Exported',
           `User ${username} exported data for ${String(interviewIds.length)} interview(s)`,
