@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  consumeBatchStream,
   consumeExportStream,
   decodeBase64Chunk,
   encodeExportEvent,
@@ -107,5 +108,76 @@ describe('consumeExportStream', () => {
         () => undefined,
       ),
     ).rejects.toThrow('boom');
+  });
+});
+
+describe('consumeBatchStream', () => {
+  it('reassembles file entries and returns them with no failures', async () => {
+    const result = await consumeBatchStream(
+      streamOf([
+        { type: 'file-open', name: 'a.csv' },
+        { type: 'file-chunk', b64: b64([1, 2]) },
+        { type: 'file-chunk', b64: b64([3]) },
+        { type: 'file-close' },
+        { type: 'complete', failedSessionIds: [] },
+      ]),
+      () => undefined,
+    );
+    expect([...result.files.keys()]).toEqual(['a.csv']);
+    expect(Array.from(result.files.get('a.csv')!)).toEqual([1, 2, 3]);
+    expect(result.failedSessionIds).toEqual([]);
+  });
+
+  it('returns failedSessionIds from the complete event', async () => {
+    const result = await consumeBatchStream(
+      streamOf([{ type: 'complete', failedSessionIds: ['s1', 's2'] }]),
+      () => undefined,
+    );
+    expect(result.failedSessionIds).toEqual(['s1', 's2']);
+  });
+
+  it('reports progress events', async () => {
+    const progress: ExportStreamEvent[] = [];
+    await consumeBatchStream(
+      streamOf([
+        { type: 'progress', stage: 'generating', current: 1, total: 2 },
+        { type: 'complete', failedSessionIds: [] },
+      ]),
+      (event) => progress.push(event),
+    );
+    expect(progress).toEqual([
+      { type: 'progress', stage: 'generating', current: 1, total: 2 },
+    ]);
+  });
+
+  it('throws when the stream ends without a complete event', async () => {
+    await expect(
+      consumeBatchStream(
+        streamOf([
+          { type: 'file-open', name: 'a.csv' },
+          { type: 'file-chunk', b64: b64([1]) },
+          { type: 'file-close' },
+        ]),
+        () => undefined,
+      ),
+    ).rejects.toThrow(/interrupted/i);
+  });
+
+  it('throws the server message on an error event', async () => {
+    await expect(
+      consumeBatchStream(
+        streamOf([{ type: 'error', message: 'boom' }]),
+        () => undefined,
+      ),
+    ).rejects.toThrow('boom');
+  });
+
+  it('throws on a file-chunk with no open file', async () => {
+    await expect(
+      consumeBatchStream(
+        streamOf([{ type: 'file-chunk', b64: b64([1]) }]),
+        () => undefined,
+      ),
+    ).rejects.toThrow(/file-open/);
   });
 });
