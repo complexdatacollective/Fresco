@@ -12,6 +12,7 @@ import {
 import { z } from 'zod/mini';
 import { useToast } from '@codaco/fresco-ui/Toast';
 import type { ExportOptions } from '@codaco/network-exporters/options';
+import { revalidateInterviewsAfterExport } from '~/actions/interviews';
 import ExportToastContent from '~/components/ExportProgress/ExportToastContent';
 import { calculateExportProgress } from '~/components/ExportProgress/calculateExportProgress';
 import { useDownload } from '~/hooks/useDownload';
@@ -168,6 +169,13 @@ export function ExportProgressProvider({
           download(objectUrl, `fresco-export-${date}.zip`);
           setTimeout(() => URL.revokeObjectURL(objectUrl), 10_000);
 
+          // The server action's safeUpdateTag (read-your-own-writes) EXPIRES
+          // the getInterviews cache; router.refresh() then re-fetches it fresh.
+          // Both are needed here: the route can only stale-while-revalidate (so
+          // refresh alone reads stale), and this action runs in a detached
+          // streaming context where Next's post-action auto-revalidation that
+          // covers direct-handler actions (e.g. deleteInterviews) does not fire.
+          await revalidateInterviewsAfterExport();
           router.refresh();
           close(toastId);
           add({
