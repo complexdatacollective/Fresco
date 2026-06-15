@@ -5,10 +5,12 @@ import { addEvent } from '~/actions/activityFeed';
 import { requireApiAuth } from '~/lib/auth/guards';
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
+import { getParticipantIdsMatching } from '~/queries/participants';
 import {
   participantListInputSchema,
   updateSchema,
 } from '~/schemas/participant';
+import type { ParticipantsSearchParams } from '~/app/dashboard/_components/ParticipantsTable/searchParams';
 
 export async function deleteParticipants(participantIds: string[]) {
   const session = await requireApiAuth();
@@ -28,6 +30,77 @@ export async function deleteParticipants(participantIds: string[]) {
   safeUpdateTag('getInterviews');
   safeUpdateTag('summaryStatistics');
   safeUpdateTag('activityFeed');
+}
+
+export async function resolveParticipantIds(
+  searchParams: ParticipantsSearchParams,
+): Promise<{ error: string | null; ids: string[] }> {
+  await requireApiAuth();
+  try {
+    const ids = await getParticipantIdsMatching(searchParams);
+    return { error: null, ids };
+  } catch {
+    return { error: 'Failed to resolve participants', ids: [] };
+  }
+}
+
+export type ParticipantExportRow = {
+  id: string;
+  identifier: string;
+  label: string | null;
+};
+
+export async function getParticipantsForExport(ids: string[]): Promise<{
+  error: string | null;
+  data: ParticipantExportRow[];
+}> {
+  await requireApiAuth();
+  try {
+    const uniqueIds = [...new Set(ids)];
+    const participants = await prisma.participant.findMany({
+      where: { id: { in: uniqueIds } },
+      select: { id: true, identifier: true, label: true },
+    });
+    return { error: null, data: participants };
+  } catch {
+    return { error: 'Failed to resolve participants', data: [] };
+  }
+}
+
+export type ParticipantDeletionInfo = {
+  id: string;
+  hasInterviews: boolean;
+  hasUnexportedInterviews: boolean;
+};
+
+export async function getParticipantDeletionInfo(ids: string[]): Promise<{
+  error: string | null;
+  data: ParticipantDeletionInfo[];
+}> {
+  await requireApiAuth();
+  try {
+    const uniqueIds = [...new Set(ids)];
+    const participants = await prisma.participant.findMany({
+      where: { id: { in: uniqueIds } },
+      select: {
+        id: true,
+        _count: { select: { interviews: true } },
+        interviews: { select: { exportTime: true } },
+      },
+    });
+    return {
+      error: null,
+      data: participants.map((participant) => ({
+        id: participant.id,
+        hasInterviews: participant._count.interviews > 0,
+        hasUnexportedInterviews: participant.interviews.some(
+          (interview) => !interview.exportTime,
+        ),
+      })),
+    };
+  } catch {
+    return { error: 'Failed to resolve participants', data: [] };
+  }
 }
 
 export async function importParticipants(rawInput: unknown) {

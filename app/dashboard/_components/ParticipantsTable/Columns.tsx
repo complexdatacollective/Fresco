@@ -6,11 +6,11 @@ import { SelectAllHeader } from '@codaco/fresco-ui/DataTable/SelectAllHeader';
 import { Badge } from '@codaco/fresco-ui/Badge';
 import type { ProtocolWithInterviews } from '../ProtocolsTable/ProtocolsTableClient';
 import { GenerateParticipationURLButton } from './GenerateParticipantURLButton';
-import type { ParticipantWithInterviews } from './ParticipantsTableClient';
+import type { ParticipantRow } from './ParticipantsTableClient';
 
 export function getParticipantColumns(
   protocols: ProtocolWithInterviews[],
-): StrictColumnDef<ParticipantWithInterviews>[] {
+): StrictColumnDef<ParticipantRow>[] {
   return [
     {
       id: 'select',

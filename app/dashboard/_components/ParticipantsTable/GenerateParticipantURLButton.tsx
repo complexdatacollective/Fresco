@@ -10,7 +10,7 @@ import {
   PopoverTrigger,
 } from '@codaco/fresco-ui/Popover';
 import { useToast } from '@codaco/fresco-ui/Toast';
-import type { Participant, Protocol } from '~/lib/db/generated/client';
+import type { Protocol } from '~/lib/db/generated/client';
 import SelectField from '@codaco/fresco-ui/form/fields/Select/Native';
 import type { ProtocolWithInterviews } from '../ProtocolsTable/ProtocolsTableClient';
 
@@ -19,7 +19,7 @@ export const GenerateParticipationURLButton = memo(
     participant,
     protocols,
   }: {
-    participant: Participant;
+    participant: { identifier: string };
     protocols: ProtocolWithInterviews[];
   }) {
     const [open, setOpen] = useState(false);

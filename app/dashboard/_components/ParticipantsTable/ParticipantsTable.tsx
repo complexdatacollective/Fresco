@@ -1,11 +1,20 @@
 import { Suspense } from 'react';
 import { DataTableSkeleton } from '@codaco/fresco-ui/DataTable/DataTableSkeleton';
-import { getParticipants } from '~/queries/participants';
+import {
+  getParticipants,
+  getParticipantsForSelect,
+} from '~/queries/participants';
 import { getProtocols } from '~/queries/protocols';
 import { ParticipantsTableClient } from './ParticipantsTableClient';
+import type { ParticipantsSearchParams } from './searchParams';
 
-export default function ParticipantsTable() {
-  const participantsPromise = getParticipants();
+export default function ParticipantsTable({
+  searchParams,
+}: {
+  searchParams: ParticipantsSearchParams;
+}) {
+  const participantsPromise = getParticipants(searchParams);
+  const allParticipantsPromise = getParticipantsForSelect();
   const protocolsPromise = getProtocols();
 
   return (
@@ -20,7 +29,9 @@ export default function ParticipantsTable() {
     >
       <ParticipantsTableClient
         participantsPromise={participantsPromise}
+        allParticipantsPromise={allParticipantsPromise}
         protocolsPromise={protocolsPromise}
+        searchParams={searchParams}
       />
     </Suspense>
   );
