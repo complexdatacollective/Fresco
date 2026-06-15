@@ -8,9 +8,11 @@ import { prisma } from '~/lib/db';
 import { createInitialNetwork } from '@codaco/interview';
 import { captureException, shutdownPostHog } from '~/lib/posthog-server';
 import { getAppSetting } from '~/queries/appSettings';
+import { getInterviewIdsMatching } from '~/queries/interviews';
 import type { CreateInterview, DeleteInterviews } from '~/schemas/interviews';
 import { ensureError } from '~/utils/ensureError';
 import { addEvent } from './activityFeed';
+import type { InterviewsSearchParams } from '~/app/dashboard/_components/InterviewsTable/searchParams';
 
 export async function deleteInterviews(data: DeleteInterviews) {
   const session = await requireApiAuth();
@@ -54,6 +56,19 @@ export async function revalidateInterviewsAfterExport() {
   await requireApiAuth();
   safeUpdateTag('getInterviews');
   safeUpdateTag('activityFeed');
+}
+
+export async function resolveInterviewIds(
+  searchParams: InterviewsSearchParams,
+  extra?: { onlyUnexported?: boolean; onlyCompleted?: boolean },
+): Promise<{ error: string | null; ids: string[] }> {
+  await requireApiAuth();
+  try {
+    const ids = await getInterviewIdsMatching(searchParams, extra);
+    return { error: null, ids };
+  } catch {
+    return { error: 'Failed to resolve interviews', ids: [] };
+  }
 }
 
 export async function createInterview(data: CreateInterview) {
