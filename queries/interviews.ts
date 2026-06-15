@@ -149,7 +149,6 @@ export async function getInterviews(searchParams: InterviewsSearchParams) {
   };
 }
 
-export type GetInterviewsResult = Awaited<ReturnType<typeof getInterviews>>;
 export type GetInterviewsReturnType = ReturnType<typeof getInterviews>;
 
 export async function getInterviewFilterOptions() {
