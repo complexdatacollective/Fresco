@@ -4,21 +4,10 @@ import { Badge } from '@codaco/fresco-ui/Badge';
 import Checkbox from '@codaco/fresco-ui/form/fields/Checkbox';
 import ProgressBar from '@codaco/fresco-ui/ProgressBar';
 import TimeAgo from '@codaco/fresco-ui/TimeAgo';
-import { type FilterFn } from '@tanstack/react-table';
 import Image from 'next/image';
 import { DataTableColumnHeader } from '@codaco/fresco-ui/DataTable/ColumnHeader';
-import {
-  booleanFilterFn,
-  dateFilterFn,
-  facetedFilterFn,
-  operatorFilterFn,
-  rangeFilterFn,
-} from '@codaco/fresco-ui/DataTable/filters/filterFns';
 import { SelectAllHeader } from '@codaco/fresco-ui/DataTable/SelectAllHeader';
-import {
-  type Option,
-  type StrictColumnDef,
-} from '@codaco/fresco-ui/DataTable/types';
+import { type StrictColumnDef } from '@codaco/fresco-ui/DataTable/types';
 import type { GetInterviewsQuery } from '~/queries/interviews';
 import NetworkSummary from './NetworkSummary';
 
@@ -81,21 +70,6 @@ export const InterviewColumns = (): StrictColumnDef<InterviewRow>[] => [
     id: 'protocolName',
     accessorKey: 'protocol.name',
     sortingFn: 'text',
-    meta: {
-      filterType: 'faceted' as const,
-      filterConfig: {
-        type: 'faceted' as const,
-        options: (data: unknown[]) => {
-          const rows = data as GetInterviewsQuery;
-          const names = [...new Set(rows.map((r) => r.protocol.name))];
-          return names.map((name) => ({
-            label: name.replace(/\.netcanvas$/, ''),
-            value: name,
-          }));
-        },
-      },
-    },
-    filterFn: facetedFilterFn,
     header: ({ column, table }) => {
       return (
         <DataTableColumnHeader
@@ -133,11 +107,6 @@ export const InterviewColumns = (): StrictColumnDef<InterviewRow>[] => [
     id: 'startTime',
     accessorKey: 'startTime',
     sortingFn: 'datetime',
-    meta: {
-      filterType: 'date' as const,
-      filterConfig: { type: 'date' as const },
-    },
-    filterFn: dateFilterFn,
     header: ({ column, table }) => {
       return (
         <DataTableColumnHeader column={column} table={table} title="Started" />
@@ -151,11 +120,6 @@ export const InterviewColumns = (): StrictColumnDef<InterviewRow>[] => [
     id: 'lastUpdated',
     accessorKey: 'lastUpdated',
     sortingFn: 'datetime',
-    meta: {
-      filterType: 'date' as const,
-      filterConfig: { type: 'date' as const },
-    },
-    filterFn: dateFilterFn,
     header: ({ column, table }) => {
       return (
         <DataTableColumnHeader column={column} table={table} title="Updated" />
@@ -172,22 +136,6 @@ export const InterviewColumns = (): StrictColumnDef<InterviewRow>[] => [
       const stageCount = row.protocol.stageCount;
       return stageCount > 0 ? (row.currentStep / stageCount) * 100 : 0;
     },
-    meta: {
-      filterType: 'range' as const,
-      filterConfig: {
-        type: 'range' as const,
-        min: 0,
-        max: 100,
-        step: 1,
-        presets: [
-          { label: 'Not Started', min: 0, max: 0 },
-          { label: 'In Progress', min: 1, max: 99 },
-          { label: 'Complete', min: 100, max: 100 },
-        ],
-        formatLabel: (v: number) => `${String(v)}%`,
-      },
-    },
-    filterFn: rangeFilterFn,
     header: ({ column, table }) => {
       return (
         <DataTableColumnHeader column={column} table={table} title="Progress" />
@@ -218,36 +166,6 @@ export const InterviewColumns = (): StrictColumnDef<InterviewRow>[] => [
       const edgeCount = network.edges.reduce((sum, e) => sum + e.count, 0);
       return nodeCount + edgeCount;
     },
-    meta: {
-      filterType: 'operator' as const,
-      filterConfig: {
-        type: 'operator' as const,
-        operators: ['eq', 'gt', 'lt', 'gte', 'lte'] as const,
-        entitySelector: {
-          label: 'Entity Type',
-          getOptions: (data: unknown[]) => {
-            const rows = data as GetInterviewsQuery;
-            const types = new Map<string, Option>();
-            for (const row of rows) {
-              for (const node of row.network.nodes) {
-                types.set(`nodes.${node.type}`, {
-                  label: `${node.name} (nodes)`,
-                  value: `nodes.${node.type}`,
-                });
-              }
-              for (const edge of row.network.edges) {
-                types.set(`edges.${edge.type}`, {
-                  label: `${edge.name} (edges)`,
-                  value: `edges.${edge.type}`,
-                });
-              }
-            }
-            return Array.from(types.values());
-          },
-        },
-      },
-    },
-    filterFn: operatorFilterFn as FilterFn<InterviewRow>,
     header: ({ column, table }) => {
       return (
         <DataTableColumnHeader column={column} table={table} title="Network" />
@@ -261,15 +179,6 @@ export const InterviewColumns = (): StrictColumnDef<InterviewRow>[] => [
     id: 'exportTime',
     accessorKey: 'exportTime',
     sortingFn: 'datetime',
-    meta: {
-      filterType: 'boolean' as const,
-      filterConfig: {
-        type: 'boolean' as const,
-        trueLabel: 'Exported',
-        falseLabel: 'Not Exported',
-      },
-    },
-    filterFn: booleanFilterFn,
     header: ({ column, table }) => {
       return (
         <DataTableColumnHeader

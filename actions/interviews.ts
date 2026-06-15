@@ -71,6 +71,38 @@ export async function resolveInterviewIds(
   }
 }
 
+export type IncompleteInterviewUrlData = {
+  id: string;
+  identifier: string;
+};
+
+/**
+ * Returns the minimal data needed to build incomplete-interview URL CSVs for a
+ * single protocol: the interview id (for the URL) and participant identifier.
+ * Scoped to incomplete interviews (no finishTime) so the client no longer needs
+ * the full interview list to generate these URLs.
+ */
+export async function getIncompleteInterviewUrlData(
+  protocolId: string,
+): Promise<{ error: string | null; data: IncompleteInterviewUrlData[] }> {
+  await requireApiAuth();
+  try {
+    const interviews = await prisma.interview.findMany({
+      where: { protocolId, finishTime: null },
+      select: { id: true, participant: { select: { identifier: true } } },
+    });
+    return {
+      error: null,
+      data: interviews.map((interview) => ({
+        id: interview.id,
+        identifier: interview.participant.identifier,
+      })),
+    };
+  } catch {
+    return { error: 'Failed to load incomplete interviews', data: [] };
+  }
+}
+
 export async function createInterview(data: CreateInterview) {
   const { participantIdentifier, protocolId } = data;
 

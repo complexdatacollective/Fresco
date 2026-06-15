@@ -1,7 +1,6 @@
 import { useExportProgress } from '~/components/ExportProgressProvider';
 import { Button } from '@codaco/fresco-ui/Button';
 import useSafeLocalStorage from '@codaco/fresco-ui/hooks/useSafeLocalStorage';
-import type { GetInterviewsQuery } from '~/queries/interviews';
 import Dialog from '@codaco/fresco-ui/dialogs/Dialog';
 import { ExportOptionsSchema } from '@codaco/network-exporters/options';
 import ExportOptionsView from './ExportOptionsView';
@@ -9,11 +8,11 @@ import ExportOptionsView from './ExportOptionsView';
 export const ExportInterviewsDialog = ({
   open,
   handleCancel,
-  interviewsToExport,
+  interviewIds,
 }: {
   open: boolean;
   handleCancel: () => void;
-  interviewsToExport: GetInterviewsQuery;
+  interviewIds: string[];
 }) => {
   const { startExport } = useExportProgress();
 
@@ -32,7 +31,6 @@ export const ExportInterviewsDialog = ({
   );
 
   const handleConfirm = () => {
-    const interviewIds = interviewsToExport.map((interview) => interview.id);
     startExport(interviewIds, exportOptions);
     handleCancel();
   };
