@@ -1,11 +1,24 @@
 import { describe, expect, it } from 'vitest';
 import {
+  consumeExportStream,
   decodeBase64Chunk,
   encodeExportEvent,
+  type ExportStreamEvent,
   parseExportEventBuffer,
 } from '~/lib/export/streamProtocol';
 
 const decoder = new TextDecoder();
+
+function streamOf(events: ExportStreamEvent[]): ReadableStream<Uint8Array> {
+  return new ReadableStream({
+    start(controller) {
+      for (const event of events) controller.enqueue(encodeExportEvent(event));
+      controller.close();
+    },
+  });
+}
+
+const b64 = (bytes: number[]) => Buffer.from(bytes).toString('base64');
 
 describe('encodeExportEvent', () => {
   it('encodes an event as a single SSE data frame', () => {
@@ -43,7 +56,56 @@ describe('parseExportEventBuffer', () => {
 describe('decodeBase64Chunk', () => {
   it('round-trips bytes encoded by encodeExportEvent data frames', () => {
     const original = new Uint8Array([0, 1, 2, 253, 254, 255]);
-    const b64 = Buffer.from(original).toString('base64');
-    expect(Array.from(decodeBase64Chunk(b64))).toEqual(Array.from(original));
+    expect(
+      Array.from(decodeBase64Chunk(b64([0, 1, 2, 253, 254, 255]))),
+    ).toEqual(Array.from(original));
+  });
+});
+
+describe('consumeExportStream', () => {
+  it('collects zip chunks and reports progress when the stream completes', async () => {
+    const progress: ExportStreamEvent[] = [];
+    const chunks = await consumeExportStream(
+      streamOf([
+        { type: 'stage', stage: 'generating', message: 'x' },
+        { type: 'data', b64: b64([1, 2, 3, 4]) },
+        { type: 'complete' },
+      ]),
+      (event) => progress.push(event),
+    );
+
+    expect(chunks.flatMap((chunk) => Array.from(chunk))).toEqual([1, 2, 3, 4]);
+    expect(progress).toEqual([
+      { type: 'stage', stage: 'generating', message: 'x' },
+    ]);
+  });
+
+  it('throws when the stream ends without a complete event (interrupted)', async () => {
+    // Simulates a serverless function killed mid-export (timeout/OOM): the
+    // socket closes after partial data but the `complete` event never arrives.
+    await expect(
+      consumeExportStream(
+        streamOf([
+          { type: 'stage', stage: 'generating', message: 'x' },
+          { type: 'data', b64: b64([1, 2, 3]) },
+        ]),
+        () => undefined,
+      ),
+    ).rejects.toThrow(/interrupted/i);
+  });
+
+  it('throws when the stream is empty (killed before any output)', async () => {
+    await expect(
+      consumeExportStream(streamOf([]), () => undefined),
+    ).rejects.toThrow(/interrupted/i);
+  });
+
+  it('throws the server message when an error event arrives', async () => {
+    await expect(
+      consumeExportStream(
+        streamOf([{ type: 'error', message: 'boom' }]),
+        () => undefined,
+      ),
+    ).rejects.toThrow('boom');
   });
 });

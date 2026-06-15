@@ -15,10 +15,7 @@ import { revalidateInterviewsAfterExport } from '~/actions/interviews';
 import ExportToastContent from '~/components/ExportProgress/ExportToastContent';
 import { calculateExportProgress } from '~/components/ExportProgress/calculateExportProgress';
 import { useDownload } from '~/hooks/useDownload';
-import {
-  decodeBase64Chunk,
-  parseExportEventBuffer,
-} from '~/lib/export/streamProtocol';
+import { consumeExportStream } from '~/lib/export/streamProtocol';
 import { ensureError } from '~/utils/ensureError';
 
 type ExportContextValue = {
@@ -100,7 +97,6 @@ export function ExportProgressProvider({
       });
 
       void (async () => {
-        const zipChunks: Uint8Array<ArrayBuffer>[] = [];
         try {
           const ticketRes = await fetch('/api/export-interviews', {
             method: 'POST',
@@ -133,33 +129,13 @@ export function ExportProgressProvider({
             );
           }
 
-          const reader = res.body.getReader();
-          const decoder = new TextDecoder();
-          let buffer = '';
-          let streamError: string | null = null;
-
-          for (;;) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            buffer += decoder.decode(value, { stream: true });
-            const { events, rest } = parseExportEventBuffer(buffer);
-            buffer = rest;
-            for (const event of events) {
-              if (event.type === 'stage' || event.type === 'progress') {
-                renderProgress(toastId, {
-                  stage: event.stage,
-                  current: 'current' in event ? event.current : undefined,
-                  total: 'total' in event ? event.total : undefined,
-                });
-              } else if (event.type === 'data') {
-                zipChunks.push(decodeBase64Chunk(event.b64));
-              } else if (event.type === 'error') {
-                streamError = event.message;
-              }
-            }
-          }
-
-          if (streamError) throw new Error(streamError);
+          const zipChunks = await consumeExportStream(res.body, (event) => {
+            renderProgress(toastId, {
+              stage: event.stage,
+              current: 'current' in event ? event.current : undefined,
+              total: 'total' in event ? event.total : undefined,
+            });
+          });
 
           const blob = new Blob(zipChunks, { type: 'application/zip' });
           const date = new Date().toISOString().slice(0, 10);
