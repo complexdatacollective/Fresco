@@ -58,7 +58,7 @@ export default function ExportToastContent({
         color="dynamic"
         icon={<X />}
         size="sm"
-        className="mb-1"
+        className="mb-1 w-fit"
       >
         Cancel
       </Button>
