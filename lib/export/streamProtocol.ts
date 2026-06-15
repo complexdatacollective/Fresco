@@ -3,7 +3,6 @@ import { type ExportEvent } from '@codaco/network-exporters/events';
 
 export type ExportStreamEvent =
   | ExportEvent
-  | { type: 'data'; b64: string }
   | { type: 'file-open'; name: string }
   | { type: 'file-chunk'; b64: string }
   | { type: 'file-close' }
@@ -22,7 +21,6 @@ const exportStreamEventSchema = z.discriminatedUnion('type', [
     current: z.number(),
     total: z.number(),
   }),
-  z.object({ type: z.literal('data'), b64: z.string() }),
   z.object({ type: z.literal('file-open'), name: z.string() }),
   z.object({ type: z.literal('file-chunk'), b64: z.string() }),
   z.object({ type: z.literal('file-close') }),
@@ -71,65 +69,6 @@ type ExportProgressEvent = Extract<
   ExportStreamEvent,
   { type: 'stage' | 'progress' }
 >;
-
-/**
- * Reads the export SSE stream to completion, forwarding progress events and
- * accumulating the base64 zip chunks.
- *
- * The `complete` event is the server's authoritative success signal (it is only
- * sent after the entire zip has been written). If the stream ends without it —
- * e.g. a serverless function killed by a timeout or memory limit mid-export —
- * the accumulated chunks are partial or empty, so we throw rather than hand back
- * a truncated/0-byte download that looks successful.
- */
-export async function consumeExportStream(
-  body: ReadableStream<Uint8Array>,
-  onProgress: (event: ExportProgressEvent) => void,
-): Promise<Uint8Array<ArrayBuffer>[]> {
-  const reader = body.getReader();
-  const decoder = new TextDecoder();
-  const zipChunks: Uint8Array<ArrayBuffer>[] = [];
-  let buffer = '';
-  let streamError: string | null = null;
-  let completed = false;
-
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    buffer += decoder.decode(value, { stream: true });
-    const { events, rest } = parseExportEventBuffer(buffer);
-    buffer = rest;
-    for (const event of events) {
-      switch (event.type) {
-        case 'stage':
-        case 'progress':
-          onProgress(event);
-          break;
-        case 'data':
-          zipChunks.push(decodeBase64Chunk(event.b64));
-          break;
-        case 'error':
-          streamError = event.message;
-          break;
-        case 'complete':
-          completed = true;
-          break;
-        case 'file-open':
-        case 'file-chunk':
-        case 'file-close':
-          break;
-      }
-    }
-  }
-
-  if (streamError) throw new Error(streamError);
-  if (!completed) {
-    throw new Error(
-      'The export was interrupted before it finished, so no file was downloaded. This can happen when exporting a very large number of interviews exceeds the server time limit — try exporting in smaller batches.',
-    );
-  }
-  return zipChunks;
-}
 
 function concatChunks(
   chunks: Uint8Array<ArrayBuffer>[],
@@ -204,8 +143,6 @@ export async function consumeBatchStream(
         case 'complete':
           completed = true;
           failedSessionIds = event.failedSessionIds ?? [];
-          break;
-        case 'data':
           break;
       }
     }

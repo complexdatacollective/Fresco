@@ -19,7 +19,6 @@ model User {
   totpCredential      TotpCredential?
   recoveryCodes       RecoveryCode[]
   webAuthnCredentials WebAuthnCredential[]
-  exportTickets       ExportTicket[]
 }
 
 model Session {
@@ -148,18 +147,6 @@ model Events {
   timestamp DateTime @default(now())
   type      String
   message   String
-}
-
-model ExportTicket {
-  id        String   @id @default(cuid())
-  params    Json
-  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
-  userId    String
-  createdAt DateTime @default(now())
-  expiresAt DateTime
-
-  @@index([userId])
-  @@index([expiresAt])
 }
 
 model ApiToken {

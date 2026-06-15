@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
   consumeBatchStream,
-  consumeExportStream,
   decodeBase64Chunk,
   encodeExportEvent,
   type ExportStreamEvent,
@@ -39,12 +38,12 @@ describe('parseExportEventBuffer', () => {
   it('parses whole frames and returns the trailing partial', () => {
     const buffer =
       'data: {"type":"stage","stage":"generating","message":"x"}\n\n' +
-      'data: {"type":"data","b64":"AAEC"}\n\n' +
+      'data: {"type":"file-open","name":"a.csv"}\n\n' +
       'data: {"type":"progr';
     const { events, rest } = parseExportEventBuffer(buffer);
     expect(events).toEqual([
       { type: 'stage', stage: 'generating', message: 'x' },
-      { type: 'data', b64: 'AAEC' },
+      { type: 'file-open', name: 'a.csv' },
     ]);
     expect(rest).toBe('data: {"type":"progr');
   });
@@ -60,54 +59,6 @@ describe('decodeBase64Chunk', () => {
     expect(
       Array.from(decodeBase64Chunk(b64([0, 1, 2, 253, 254, 255]))),
     ).toEqual(Array.from(original));
-  });
-});
-
-describe('consumeExportStream', () => {
-  it('collects zip chunks and reports progress when the stream completes', async () => {
-    const progress: ExportStreamEvent[] = [];
-    const chunks = await consumeExportStream(
-      streamOf([
-        { type: 'stage', stage: 'generating', message: 'x' },
-        { type: 'data', b64: b64([1, 2, 3, 4]) },
-        { type: 'complete' },
-      ]),
-      (event) => progress.push(event),
-    );
-
-    expect(chunks.flatMap((chunk) => Array.from(chunk))).toEqual([1, 2, 3, 4]);
-    expect(progress).toEqual([
-      { type: 'stage', stage: 'generating', message: 'x' },
-    ]);
-  });
-
-  it('throws when the stream ends without a complete event (interrupted)', async () => {
-    // Simulates a serverless function killed mid-export (timeout/OOM): the
-    // socket closes after partial data but the `complete` event never arrives.
-    await expect(
-      consumeExportStream(
-        streamOf([
-          { type: 'stage', stage: 'generating', message: 'x' },
-          { type: 'data', b64: b64([1, 2, 3]) },
-        ]),
-        () => undefined,
-      ),
-    ).rejects.toThrow(/interrupted/i);
-  });
-
-  it('throws when the stream is empty (killed before any output)', async () => {
-    await expect(
-      consumeExportStream(streamOf([]), () => undefined),
-    ).rejects.toThrow(/interrupted/i);
-  });
-
-  it('throws the server message when an error event arrives', async () => {
-    await expect(
-      consumeExportStream(
-        streamOf([{ type: 'error', message: 'boom' }]),
-        () => undefined,
-      ),
-    ).rejects.toThrow('boom');
   });
 });
 

@@ -4,7 +4,7 @@ import type { ExportOptions } from '@codaco/network-exporters/options';
 import { consumeBatchStream } from '~/lib/export/streamProtocol';
 
 export const EXPORT_BATCH_SIZE = 200;
-export const EXPORT_CONCURRENCY = 3;
+const EXPORT_CONCURRENCY = 3;
 export const EXPORT_BATCH_RETRIES = 2;
 
 const BATCH_ENDPOINT = '/api/export-interviews/batch';

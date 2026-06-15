@@ -44,21 +44,6 @@ export async function deleteInterviews(data: DeleteInterviews) {
 }
 
 /**
- * Read-your-own-writes refresh of the interviews list after an export.
- *
- * The export runs in a route handler, which can only `safeRevalidateTag`
- * (stale-while-revalidate) — so a client `router.refresh()` after the export
- * still renders the pre-export status. A server action can `safeUpdateTag`,
- * which expires the cache so the next read (the refresh) is fresh. The route
- * has already committed `exportTime` by the time the client calls this.
- */
-export async function revalidateInterviewsAfterExport() {
-  await requireApiAuth();
-  safeUpdateTag('getInterviews');
-  safeUpdateTag('activityFeed');
-}
-
-/**
  * Marks interviews exported after the browser has assembled and downloaded the
  * complete zip. This is the single commit point for a (possibly batched)
  * export: it sets exportTime, logs one activity event, and — because it is a
