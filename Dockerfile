@@ -87,11 +87,14 @@ COPY --from=builder --chown=nextjs:nodejs /app/tsconfig.json ./
 # Install ONLY the deps the startup scripts need (prisma CLI, tsx, and the
 # packages the .ts scripts import), pinned to the app's versions, into
 # scripts/node_modules. Node resolution walks up from scripts/, so the scripts
-# see both this tree and the standalone node_modules. Caches are removed in the
-# same layer so nothing is baked in. (Replaces a `pnpm add --force` that baked a
-# 3.6GB pnpm store + a redundant 1.7GB node_modules copy into the image.)
+# see both this tree and the standalone node_modules. The npm download cache is a
+# BuildKit cache mount (persists across builds, not baked into the image), so
+# repeat rebuilds skip re-downloading; only /tmp scratch is removed in-layer.
+# (Replaces a `pnpm add --force` that baked a 3.6GB pnpm store + a redundant
+# 1.7GB node_modules copy into the image.)
 COPY --from=builder /app/package.json /tmp/package.json
-RUN set -e; \
+RUN --mount=type=cache,target=/root/.npm \
+    set -e; \
     V() { node -p "require('/tmp/package.json').dependencies?.['$1'] || require('/tmp/package.json').devDependencies?.['$1']"; }; \
     mkdir -p /tmp/runtime && cd /tmp/runtime; \
     printf '{"name":"fresco-runtime-deps","private":true}\n' > package.json; \
@@ -106,7 +109,7 @@ RUN set -e; \
       "@codaco/protocol-validation@$(V @codaco/protocol-validation)"; \
     ( cd /tmp/runtime/node_modules && tar cf - . ) | ( cd /app/node_modules && tar xf - ); \
     chown -R nextjs:nodejs /app/node_modules; \
-    cd /app && rm -rf /tmp/runtime /root/.npm /root/.cache /tmp/package.json
+    cd /app && rm -rf /tmp/runtime /root/.cache /tmp/package.json
 
 # Switch to non-root user
 USER nextjs
