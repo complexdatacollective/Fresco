@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import posthog from 'posthog-js';
 import {
   createContext,
@@ -54,7 +53,6 @@ export function ExportProgressProvider({
 }) {
   const { add, update, close } = useToast();
   const download = useDownload();
-  const router = useRouter();
 
   // Tracks whether an export is in flight, so the beforeunload warning can
   // reflect it without re-registering the listener per render.
@@ -169,14 +167,12 @@ export function ExportProgressProvider({
           download(objectUrl, `fresco-export-${date}.zip`);
           setTimeout(() => URL.revokeObjectURL(objectUrl), 10_000);
 
-          // The server action's safeUpdateTag (read-your-own-writes) EXPIRES
-          // the getInterviews cache; router.refresh() then re-fetches it fresh.
-          // Both are needed here: the route can only stale-while-revalidate (so
-          // refresh alone reads stale), and this action runs in a detached
-          // streaming context where Next's post-action auto-revalidation that
-          // covers direct-handler actions (e.g. deleteInterviews) does not fire.
+          // Refresh the interviews list so exported rows show their new export
+          // status. The server action's safeUpdateTag (read-your-own-writes)
+          // expires the getInterviews cache, and invoking a server action from
+          // the client triggers Next's automatic revalidation of the current
+          // route — so no explicit router.refresh() is needed.
           await revalidateInterviewsAfterExport();
-          router.refresh();
           close(toastId);
           add({
             title: 'Export complete',
@@ -208,7 +204,7 @@ export function ExportProgressProvider({
         }
       })();
     },
-    [add, update, close, download, router],
+    [add, update, close, download],
   );
 
   return (
