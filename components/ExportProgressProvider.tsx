@@ -8,27 +8,16 @@ import {
   useEffect,
   useRef,
 } from 'react';
-import { z } from 'zod/mini';
 import { useToast } from '@codaco/fresco-ui/Toast';
 import type { ExportOptions } from '@codaco/network-exporters/options';
-import { revalidateInterviewsAfterExport } from '~/actions/interviews';
+import { commitInterviewExport } from '~/actions/interviews';
 import ExportToastContent from '~/components/ExportProgress/ExportToastContent';
-import { calculateExportProgress } from '~/components/ExportProgress/calculateExportProgress';
 import { useDownload } from '~/hooks/useDownload';
-import {
-  decodeBase64Chunk,
-  parseExportEventBuffer,
-} from '~/lib/export/streamProtocol';
+import { runBatchedExport } from '~/lib/export/runBatchedExport';
 import { ensureError } from '~/utils/ensureError';
 
 type ExportContextValue = {
   startExport: (interviewIds: string[], exportOptions: ExportOptions) => void;
-};
-
-type ExportToastStage = {
-  stage: 'fetching' | 'formatting' | 'generating' | 'outputting';
-  current?: number;
-  total?: number;
 };
 
 const ExportContext = createContext<ExportContextValue | null>(null);
@@ -42,9 +31,6 @@ export function useExportProgress() {
   }
   return ctx;
 }
-
-const ticketResponseSchema = z.object({ ticketId: z.string() });
-const errorResponseSchema = z.object({ error: z.string() });
 
 export function ExportProgressProvider({
   children,
@@ -73,26 +59,12 @@ export function ExportProgressProvider({
       const controller = new AbortController();
       exportingRef.current = true;
 
-      const renderProgress = (toastId: string, stage: ExportToastStage) => {
-        update(toastId, {
-          description: (
-            <ExportToastContent
-              stage={stage.stage}
-              current={stage.current}
-              total={stage.total}
-              progress={calculateExportProgress(stage)}
-              onCancel={() => controller.abort()}
-            />
-          ),
-        });
-      };
-
       const toastId = add({
         title: 'Exporting interviews',
         description: (
           <ExportToastContent
             stage="fetching"
-            progress={calculateExportProgress({ stage: 'fetching' })}
+            progress={0}
             onCancel={() => controller.abort()}
           />
         ),
@@ -100,86 +72,53 @@ export function ExportProgressProvider({
       });
 
       void (async () => {
-        const zipChunks: Uint8Array<ArrayBuffer>[] = [];
         try {
-          const ticketRes = await fetch('/api/export-interviews', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ interviewIds, exportOptions }),
-            signal: controller.signal,
-          });
-          if (!ticketRes.ok) {
-            const raw: unknown = await ticketRes.json().catch(() => ({}));
-            const parsed = errorResponseSchema.safeParse(raw);
-            throw new Error(
-              parsed.success
-                ? parsed.data.error
-                : `Export request failed with status ${String(ticketRes.status)}`,
-            );
-          }
-          const ticketRaw: unknown = await ticketRes.json();
-          const ticket = ticketResponseSchema.safeParse(ticketRaw);
-          if (!ticket.success) {
-            throw new Error('Unexpected response from export server');
-          }
-
-          const res = await fetch(
-            `/api/export-interviews/download?ticket=${ticket.data.ticketId}`,
-            { signal: controller.signal },
+          const { blob, exportedIds, failedIds } = await runBatchedExport(
+            interviewIds,
+            exportOptions,
+            controller.signal,
+            (completed, total) => {
+              update(toastId, {
+                description: (
+                  <ExportToastContent
+                    stage="generating"
+                    current={completed}
+                    total={total}
+                    progress={total > 0 ? (completed / total) * 100 : 0}
+                    onCancel={() => controller.abort()}
+                  />
+                ),
+              });
+            },
           );
-          if (!res.ok || !res.body) {
-            throw new Error(
-              `Export download failed with status ${String(res.status)}`,
-            );
-          }
 
-          const reader = res.body.getReader();
-          const decoder = new TextDecoder();
-          let buffer = '';
-          let streamError: string | null = null;
-
-          for (;;) {
-            const { done, value } = await reader.read();
-            if (done) break;
-            buffer += decoder.decode(value, { stream: true });
-            const { events, rest } = parseExportEventBuffer(buffer);
-            buffer = rest;
-            for (const event of events) {
-              if (event.type === 'stage' || event.type === 'progress') {
-                renderProgress(toastId, {
-                  stage: event.stage,
-                  current: 'current' in event ? event.current : undefined,
-                  total: 'total' in event ? event.total : undefined,
-                });
-              } else if (event.type === 'data') {
-                zipChunks.push(decodeBase64Chunk(event.b64));
-              } else if (event.type === 'error') {
-                streamError = event.message;
-              }
-            }
-          }
-
-          if (streamError) throw new Error(streamError);
-
-          const blob = new Blob(zipChunks, { type: 'application/zip' });
           const date = new Date().toISOString().slice(0, 10);
           const objectUrl = URL.createObjectURL(blob);
           download(objectUrl, `fresco-export-${date}.zip`);
           setTimeout(() => URL.revokeObjectURL(objectUrl), 10_000);
 
-          // Refresh the interviews list so exported rows show their new export
-          // status. The server action's safeUpdateTag (read-your-own-writes)
-          // expires the getInterviews cache, and invoking a server action from
-          // the client triggers Next's automatic revalidation of the current
-          // route — so no explicit router.refresh() is needed.
-          await revalidateInterviewsAfterExport();
+          // Mark exported only after the user has the complete file.
+          const commit = await commitInterviewExport(exportedIds);
+
           close(toastId);
-          add({
-            title: 'Export complete',
-            description: 'Your export has downloaded.',
-            variant: 'success',
-            timeout: 8000,
-          });
+          if (commit.error) {
+            add({
+              title: 'Export downloaded',
+              description:
+                'Your export downloaded, but its status could not be updated. Refresh to see the latest.',
+              timeout: 8000,
+            });
+          } else {
+            add({
+              title: 'Export complete',
+              description:
+                failedIds.length > 0
+                  ? `Your export has downloaded. ${String(failedIds.length)} interview(s) could not be exported.`
+                  : 'Your export has downloaded.',
+              variant: 'success',
+              timeout: 8000,
+            });
+          }
         } catch (error) {
           if (controller.signal.aborted) {
             close(toastId);

@@ -1,8 +1,8 @@
 'use client';
 
-import { Database, FileSearch, FileUp, Package, X } from 'lucide-react';
+import Button from '@codaco/fresco-ui/Button';
 import ProgressBar from '@codaco/fresco-ui/ProgressBar';
-import { cx } from '@codaco/fresco-ui/utils/cva';
+import { Database, FileSearch, FileUp, Package, X } from 'lucide-react';
 
 type ExportStage = 'fetching' | 'formatting' | 'generating' | 'outputting';
 
@@ -53,17 +53,15 @@ export default function ExportToastContent({
         />
         <span className="text-xs tabular-nums">{Math.round(progress)}%</span>
       </div>
-      <button
+      <Button
         onClick={onCancel}
-        className={cx(
-          'bg-surface-contrast/10 hover:bg-surface-contrast/20',
-          'flex w-fit items-center gap-1.5 rounded px-2 py-1 text-xs font-medium',
-          'transition-colors',
-        )}
+        color="dynamic"
+        icon={<X aria-hidden />}
+        size="sm"
+        className="mb-1 w-fit"
       >
-        <X className="size-3" />
         Cancel
-      </button>
+      </Button>
     </div>
   );
 }

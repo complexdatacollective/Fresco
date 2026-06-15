@@ -2,66 +2,74 @@ import { after } from 'next/server';
 import { Effect, Fiber, Layer, Queue, Ref } from 'effect';
 import { type ExportEvent } from '@codaco/network-exporters/events';
 import { exportPipeline } from '@codaco/network-exporters/pipeline';
-import { addEvent } from '~/actions/activityFeed';
 import { requireApiAuth } from '~/lib/auth/guards';
-import { safeRevalidateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
+import { makeFileStreamOutputLayer } from '~/lib/export/FileStreamOutput';
 import { PrismaInterviewRepository } from '~/lib/export/InterviewRepository';
-import { makeHttpOutputLayer } from '~/lib/export/Output';
 import { PrismaProtocolRepository } from '~/lib/export/ProtocolRepository';
 import { encodeExportEvent } from '~/lib/export/streamProtocol';
-import { consumeExportTicket } from '~/lib/export/tickets';
-import {
-  captureEvent,
-  captureException,
-  shutdownPostHog,
-} from '~/lib/posthog-server';
+import { captureException, shutdownPostHog } from '~/lib/posthog-server';
+import { exportInterviewsSchema } from '~/schemas/export';
 
-export async function GET(request: Request) {
-  let username: string;
-  let userId: string;
+export async function POST(request: Request) {
   try {
-    const session = await requireApiAuth();
-    username = session.user.username;
-    userId = session.user.userId;
+    await requireApiAuth();
   } catch {
     return Response.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const ticketId = new URL(request.url).searchParams.get('ticket');
-  if (!ticketId) {
-    return Response.json({ error: 'Missing ticket' }, { status: 400 });
+  let body: unknown;
+  try {
+    body = await request.json();
+  } catch {
+    return Response.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
 
-  const params = await consumeExportTicket(ticketId, userId);
-  if (!params) {
+  const parsed = exportInterviewsSchema.safeParse(body);
+  if (!parsed.success) {
+    return Response.json({ error: 'Invalid request body' }, { status: 400 });
+  }
+
+  const interviewIds = [...new Set(parsed.data.interviewIds)];
+  const { exportOptions } = parsed.data;
+
+  // Defense-in-depth: the client orchestrator batches at EXPORT_BATCH_SIZE
+  // (200). Reject an oversized direct request so a single invocation can't
+  // recreate the serverless time/memory failure this batching design avoids.
+  const MAX_BATCH_INTERVIEWS = 500;
+  if (interviewIds.length > MAX_BATCH_INTERVIEWS) {
     return Response.json(
-      { error: 'Invalid or expired export ticket' },
+      {
+        error: `Too many interviews in one batch (max ${String(MAX_BATCH_INTERVIEWS)})`,
+      },
+      { status: 413 },
+    );
+  }
+
+  const count = await prisma.interview.count({
+    where: { id: { in: interviewIds } },
+  });
+  if (count !== interviewIds.length) {
+    return Response.json(
+      { error: 'One or more interviews not found' },
       { status: 404 },
     );
   }
 
-  const { interviewIds, exportOptions } = params;
   const { readable, writable } = new TransformStream<Uint8Array, Uint8Array>();
   const writer = writable.getWriter();
 
   const exportLayer = Layer.mergeAll(
     PrismaInterviewRepository,
     PrismaProtocolRepository,
-    makeHttpOutputLayer(writer),
+    makeFileStreamOutputLayer(writer),
   );
 
   const program = Effect.gen(function* () {
     const queue = yield* Queue.unbounded<ExportEvent>();
 
-    // Drain progress events to the client concurrently with the zip data.
-    // Each event is one writer.write() call, so the shared writer serializes
-    // progress and data frames without interleaving.
-    //
-    // Coalesce `progress` events: a large export emits one per item (17k+
-    // files), which would flood the stream and re-render the client toast
-    // hundreds of times a second. Forward a `progress` only when its integer
-    // percentage changes; always forward `stage` events.
+    // Coalesce progress to one frame per integer percent (a large batch emits
+    // one per file); always forward stage events.
     const lastPct = yield* Ref.make(-1);
     const progressFiber = yield* Effect.fork(
       Effect.forever(
@@ -90,36 +98,25 @@ export async function GET(request: Request) {
       ),
     );
 
-    yield* exportPipeline(interviewIds, exportOptions, queue);
+    const result = yield* exportPipeline(interviewIds, exportOptions, queue);
 
-    // Stop draining, then flush any progress events buffered after the last take.
     yield* Fiber.interrupt(progressFiber);
     const remaining = yield* Queue.takeAll(queue);
     yield* Effect.forEach(remaining, (event) =>
       Effect.promise(() => writer.write(encodeExportEvent(event))),
     );
+
+    return result;
   }).pipe(
-    Effect.tap(() =>
+    Effect.tap((result) =>
       Effect.promise(async () => {
-        // Commit the export status BEFORE signalling completion: the client
-        // calls router.refresh() when it receives `complete`, so exportTime and
-        // the cache revalidation must already be in place for that refresh to
-        // show fresh data (fixes the previous live-refresh race).
-        await prisma.interview.updateMany({
-          where: { id: { in: interviewIds } },
-          data: { exportTime: new Date() },
-        });
-        safeRevalidateTag(['getInterviews', 'activityFeed']);
-        await writer.write(encodeExportEvent({ type: 'complete' }));
-        await writer.close();
-        await addEvent(
-          'Data Exported',
-          `User ${username} exported data for ${String(interviewIds.length)} interview(s)`,
+        const failedSessionIds = [
+          ...new Set(result.failedExports.map((failure) => failure.sessionId)),
+        ];
+        await writer.write(
+          encodeExportEvent({ type: 'complete', failedSessionIds }),
         );
-        await captureEvent('Data Exported', {
-          interviewCount: interviewIds.length,
-        });
-        await shutdownPostHog();
+        await writer.close();
       }),
     ),
     Effect.tapError((error) =>
@@ -140,15 +137,12 @@ export async function GET(request: Request) {
 
   const fiber = Effect.runFork(program);
 
-  // If the client aborts (cancel button or navigation), interrupt the run and
-  // close the stream; exportTime is never set, so a cancelled export is not
-  // marked exported.
   request.signal.addEventListener('abort', () => {
     Effect.runFork(Fiber.interrupt(fiber));
     void writer.close().catch(() => undefined);
   });
 
-  // Keep the function alive on Vercel until post-success side effects finish.
+  // Keep the function alive on the platform until the run settles.
   after(() => Fiber.await(fiber).pipe(Effect.runPromise));
 
   return new Response(readable, {
