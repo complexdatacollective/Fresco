@@ -33,6 +33,19 @@ export async function POST(request: Request) {
   const interviewIds = [...new Set(parsed.data.interviewIds)];
   const { exportOptions } = parsed.data;
 
+  // Defense-in-depth: the client orchestrator batches at EXPORT_BATCH_SIZE
+  // (200). Reject an oversized direct request so a single invocation can't
+  // recreate the serverless time/memory failure this batching design avoids.
+  const MAX_BATCH_INTERVIEWS = 500;
+  if (interviewIds.length > MAX_BATCH_INTERVIEWS) {
+    return Response.json(
+      {
+        error: `Too many interviews in one batch (max ${String(MAX_BATCH_INTERVIEWS)})`,
+      },
+      { status: 413 },
+    );
+  }
+
   const count = await prisma.interview.count({
     where: { id: { in: interviewIds } },
   });

@@ -120,6 +120,11 @@ export async function consumeBatchStream(
           onProgress(event);
           break;
         case 'file-open':
+          if (openName !== null) {
+            throw new Error(
+              'Received file-open before the previous file was closed',
+            );
+          }
           openName = event.name;
           openChunks = [];
           break;
@@ -151,6 +156,9 @@ export async function consumeBatchStream(
   if (streamError) throw new Error(streamError);
   if (!completed) {
     throw new Error('The export batch was interrupted before it finished.');
+  }
+  if (openName !== null) {
+    throw new Error('The export stream ended with an unfinished file.');
   }
   return { files, failedSessionIds };
 }

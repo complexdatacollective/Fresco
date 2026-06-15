@@ -131,4 +131,29 @@ describe('consumeBatchStream', () => {
       ),
     ).rejects.toThrow(/file-open/);
   });
+
+  it('throws on file-open before the previous file is closed', async () => {
+    await expect(
+      consumeBatchStream(
+        streamOf([
+          { type: 'file-open', name: 'a.csv' },
+          { type: 'file-open', name: 'b.csv' },
+        ]),
+        () => undefined,
+      ),
+    ).rejects.toThrow(/before the previous file was closed/);
+  });
+
+  it('throws when complete arrives with a file still open', async () => {
+    await expect(
+      consumeBatchStream(
+        streamOf([
+          { type: 'file-open', name: 'a.csv' },
+          { type: 'file-chunk', b64: b64([1]) },
+          { type: 'complete', failedSessionIds: [] },
+        ]),
+        () => undefined,
+      ),
+    ).rejects.toThrow(/unfinished file/);
+  });
 });

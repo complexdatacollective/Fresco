@@ -19,6 +19,10 @@ function abortError(): DOMException {
   return new DOMException('The export was aborted.', 'AbortError');
 }
 
+function isAbortError(error: unknown): boolean {
+  return error instanceof DOMException && error.name === 'AbortError';
+}
+
 function backoffDelay(attempt: number, signal: AbortSignal): Promise<void> {
   const ms = 500 * 2 ** attempt;
   return new Promise((resolve, reject) => {
@@ -128,7 +132,11 @@ export async function runBatchedExport(
 
   try {
     const workerCount = Math.min(EXPORT_CONCURRENCY, batches.length || 1);
-    await Promise.all(
+    // First failure aborts the siblings. Collect every outcome (rather than
+    // Promise.all, which rejects with whichever rejection lands first) so we can
+    // surface the genuine batch error instead of a sibling's by-product
+    // AbortError.
+    const outcomes = await Promise.allSettled(
       Array.from({ length: workerCount }, () =>
         worker().catch((error: unknown) => {
           internal.abort();
@@ -136,6 +144,17 @@ export async function runBatchedExport(
         }),
       ),
     );
+    if (signal.aborted) throw abortError();
+    const genuineFailure = outcomes.find(
+      (outcome): outcome is PromiseRejectedResult =>
+        outcome.status === 'rejected' && !isAbortError(outcome.reason),
+    );
+    if (genuineFailure) throw genuineFailure.reason;
+    const aborted = outcomes.find(
+      (outcome): outcome is PromiseRejectedResult =>
+        outcome.status === 'rejected',
+    );
+    if (aborted) throw aborted.reason;
   } finally {
     signal.removeEventListener('abort', onExternalAbort);
   }
