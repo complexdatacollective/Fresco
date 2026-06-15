@@ -6,7 +6,13 @@ import { prisma } from '~/lib/db';
 async function prisma_getProtocols() {
   return prisma.protocol.findMany({
     include: {
-      interviews: true,
+      // Only the interview fields consumers actually read (DeleteProtocolsDialog
+      // uses the count + export status). Including full interviews pulls every
+      // network blob (~37MB at 3k interviews), exceeding the cache item size
+      // limit — which makes this query uncacheable and re-run on every render.
+      interviews: {
+        select: { exportTime: true },
+      },
     },
   });
 }
