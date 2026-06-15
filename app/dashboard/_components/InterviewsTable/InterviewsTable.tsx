@@ -25,6 +25,8 @@ import { InterviewColumns } from '~/app/dashboard/_components/InterviewsTable/Co
 import { DeleteInterviewsDialog } from '~/app/dashboard/interviews/_components/DeleteInterviewsDialog';
 import { ExportInterviewsDialog } from '~/app/dashboard/interviews/_components/ExportInterviewsDialog';
 import { GenerateInterviewURLs } from '~/app/dashboard/interviews/_components/GenerateInterviewURLs';
+import NuqsClearFilters from '~/components/DataTable/nuqs/NuqsClearFilters';
+import NuqsSearchFilter from '~/components/DataTable/nuqs/NuqsSearchFilter';
 import {
   NuqsTableProvider,
   useNuqsTable,
@@ -36,8 +38,17 @@ import type {
 } from '~/queries/interviews';
 import type { GetProtocolsReturnType } from '~/queries/protocols';
 import InterviewsTableRows from './InterviewsTableRows';
-import InterviewsToolbar from './InterviewsToolbar';
 import { INTERVIEWS_PREFIX, type InterviewsSearchParams } from './searchParams';
+
+const clearableFilters = [
+  'q',
+  'protocol',
+  'started',
+  'updated',
+  'progress',
+  'exported',
+  'network',
+] as const;
 
 type InterviewRow = GetInterviewsQuery[number];
 
@@ -93,8 +104,8 @@ const InterviewsTableInner = ({
         <ActionsDropdown row={row} />
       ),
     };
-    return [...InterviewColumns(), actionsColumn];
-  }, []);
+    return [...InterviewColumns(filterOptions), actionsColumn];
+  }, [filterOptions]);
 
   const handleDeleteSelected = () => {
     startDeleteResolving(async () => {
@@ -225,13 +236,18 @@ const InterviewsTableInner = ({
             onSelectAllMatching={handleSelectAllMatching}
             onDeselectAll={handleDeselectAll}
             toolbar={
-              <InterviewsToolbar filterOptions={filterOptions}>
+              <div className="tablet-landscape:flex-row tablet-landscape:flex-wrap flex w-full flex-col items-center gap-2">
+                <NuqsSearchFilter
+                  paramKey="q"
+                  placeholder="Filter by identifier..."
+                />
                 {exportDropdown}
                 <GenerateInterviewURLs
                   protocolsPromise={protocolsPromise}
                   className="tablet-landscape:w-auto w-full"
                 />
-              </InterviewsToolbar>
+                <NuqsClearFilters paramKeys={clearableFilters} />
+              </div>
             }
           />
         </div>

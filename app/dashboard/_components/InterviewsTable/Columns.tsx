@@ -7,13 +7,25 @@ import TimeAgo from '@codaco/fresco-ui/TimeAgo';
 import Image from 'next/image';
 import { DataTableColumnHeader } from '@codaco/fresco-ui/DataTable/ColumnHeader';
 import { SelectAllHeader } from '@codaco/fresco-ui/DataTable/SelectAllHeader';
+import {
+  booleanFilterFn,
+  dateFilterFn,
+  facetedFilterFn,
+  operatorFilterFn,
+  rangeFilterFn,
+} from '@codaco/fresco-ui/DataTable/filters/filterFns';
 import { type StrictColumnDef } from '@codaco/fresco-ui/DataTable/types';
-import type { GetInterviewsQuery } from '~/queries/interviews';
+import type {
+  GetInterviewsQuery,
+  InterviewFilterOptions,
+} from '~/queries/interviews';
 import NetworkSummary from './NetworkSummary';
 
 type InterviewRow = GetInterviewsQuery[number];
 
-export const InterviewColumns = (): StrictColumnDef<InterviewRow>[] => [
+export const InterviewColumns = (
+  filterOptions: InterviewFilterOptions,
+): StrictColumnDef<InterviewRow>[] => [
   {
     id: 'select',
     meta: {
@@ -70,6 +82,18 @@ export const InterviewColumns = (): StrictColumnDef<InterviewRow>[] => [
     id: 'protocolName',
     accessorKey: 'protocol.name',
     sortingFn: 'text',
+    meta: {
+      filterType: 'faceted',
+      filterConfig: {
+        type: 'faceted',
+        options: () =>
+          filterOptions.protocolNames.map((name) => ({
+            value: name,
+            label: name.replace(/\.netcanvas$/, ''),
+          })),
+      },
+    },
+    filterFn: facetedFilterFn,
     header: ({ column, table }) => {
       return (
         <DataTableColumnHeader
@@ -107,6 +131,11 @@ export const InterviewColumns = (): StrictColumnDef<InterviewRow>[] => [
     id: 'startTime',
     accessorKey: 'startTime',
     sortingFn: 'datetime',
+    meta: {
+      filterType: 'date',
+      filterConfig: { type: 'date' },
+    },
+    filterFn: dateFilterFn,
     header: ({ column, table }) => {
       return (
         <DataTableColumnHeader column={column} table={table} title="Started" />
@@ -120,6 +149,11 @@ export const InterviewColumns = (): StrictColumnDef<InterviewRow>[] => [
     id: 'lastUpdated',
     accessorKey: 'lastUpdated',
     sortingFn: 'datetime',
+    meta: {
+      filterType: 'date',
+      filterConfig: { type: 'date' },
+    },
+    filterFn: dateFilterFn,
     header: ({ column, table }) => {
       return (
         <DataTableColumnHeader column={column} table={table} title="Updated" />
@@ -136,6 +170,22 @@ export const InterviewColumns = (): StrictColumnDef<InterviewRow>[] => [
       const stageCount = row.protocol.stageCount;
       return stageCount > 0 ? (row.currentStep / stageCount) * 100 : 0;
     },
+    meta: {
+      filterType: 'range',
+      filterConfig: {
+        type: 'range',
+        min: 0,
+        max: 100,
+        step: 1,
+        presets: [
+          { label: 'Not Started', min: 0, max: 0 },
+          { label: 'In Progress', min: 1, max: 99 },
+          { label: 'Complete', min: 100, max: 100 },
+        ],
+        formatLabel: (v: number) => `${String(v)}%`,
+      },
+    },
+    filterFn: rangeFilterFn,
     header: ({ column, table }) => {
       return (
         <DataTableColumnHeader column={column} table={table} title="Progress" />
@@ -166,6 +216,27 @@ export const InterviewColumns = (): StrictColumnDef<InterviewRow>[] => [
       const edgeCount = network.edges.reduce((sum, e) => sum + e.count, 0);
       return nodeCount + edgeCount;
     },
+    meta: {
+      filterType: 'operator',
+      filterConfig: {
+        type: 'operator',
+        operators: ['eq', 'gt', 'lt', 'gte', 'lte'],
+        entitySelector: {
+          label: 'Entity Type',
+          getOptions: () => [
+            ...filterOptions.nodeTypes.map((t) => ({
+              value: `nodes.${t.value}`,
+              label: `${t.label} (nodes)`,
+            })),
+            ...filterOptions.edgeTypes.map((t) => ({
+              value: `edges.${t.value}`,
+              label: `${t.label} (edges)`,
+            })),
+          ],
+        },
+      },
+    },
+    filterFn: operatorFilterFn,
     header: ({ column, table }) => {
       return (
         <DataTableColumnHeader column={column} table={table} title="Network" />
@@ -179,6 +250,15 @@ export const InterviewColumns = (): StrictColumnDef<InterviewRow>[] => [
     id: 'exportTime',
     accessorKey: 'exportTime',
     sortingFn: 'datetime',
+    meta: {
+      filterType: 'boolean',
+      filterConfig: {
+        type: 'boolean',
+        trueLabel: 'Exported',
+        falseLabel: 'Not Exported',
+      },
+    },
+    filterFn: booleanFilterFn,
     header: ({ column, table }) => {
       return (
         <DataTableColumnHeader
