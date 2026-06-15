@@ -4,9 +4,9 @@ import { Badge } from '@codaco/fresco-ui/Badge';
 import Checkbox from '@codaco/fresco-ui/form/fields/Checkbox';
 import ProgressBar from '@codaco/fresco-ui/ProgressBar';
 import TimeAgo from '@codaco/fresco-ui/TimeAgo';
-import { type FilterFn } from '@tanstack/react-table';
 import Image from 'next/image';
 import { DataTableColumnHeader } from '@codaco/fresco-ui/DataTable/ColumnHeader';
+import { SelectAllHeader } from '@codaco/fresco-ui/DataTable/SelectAllHeader';
 import {
   booleanFilterFn,
   dateFilterFn,
@@ -14,17 +14,18 @@ import {
   operatorFilterFn,
   rangeFilterFn,
 } from '@codaco/fresco-ui/DataTable/filters/filterFns';
-import { SelectAllHeader } from '@codaco/fresco-ui/DataTable/SelectAllHeader';
-import {
-  type Option,
-  type StrictColumnDef,
-} from '@codaco/fresco-ui/DataTable/types';
-import type { GetInterviewsQuery } from '~/queries/interviews';
+import { type StrictColumnDef } from '@codaco/fresco-ui/DataTable/types';
+import type {
+  GetInterviewsQuery,
+  InterviewFilterOptions,
+} from '~/queries/interviews';
 import NetworkSummary from './NetworkSummary';
 
 type InterviewRow = GetInterviewsQuery[number];
 
-export const InterviewColumns = (): StrictColumnDef<InterviewRow>[] => [
+export const InterviewColumns = (
+  filterOptions: InterviewFilterOptions,
+): StrictColumnDef<InterviewRow>[] => [
   {
     id: 'select',
     meta: {
@@ -82,17 +83,14 @@ export const InterviewColumns = (): StrictColumnDef<InterviewRow>[] => [
     accessorKey: 'protocol.name',
     sortingFn: 'text',
     meta: {
-      filterType: 'faceted' as const,
+      filterType: 'faceted',
       filterConfig: {
-        type: 'faceted' as const,
-        options: (data: unknown[]) => {
-          const rows = data as GetInterviewsQuery;
-          const names = [...new Set(rows.map((r) => r.protocol.name))];
-          return names.map((name) => ({
-            label: name.replace(/\.netcanvas$/, ''),
+        type: 'faceted',
+        options: () =>
+          filterOptions.protocolNames.map((name) => ({
             value: name,
-          }));
-        },
+            label: name.replace(/\.netcanvas$/, ''),
+          })),
       },
     },
     filterFn: facetedFilterFn,
@@ -134,8 +132,8 @@ export const InterviewColumns = (): StrictColumnDef<InterviewRow>[] => [
     accessorKey: 'startTime',
     sortingFn: 'datetime',
     meta: {
-      filterType: 'date' as const,
-      filterConfig: { type: 'date' as const },
+      filterType: 'date',
+      filterConfig: { type: 'date' },
     },
     filterFn: dateFilterFn,
     header: ({ column, table }) => {
@@ -152,8 +150,8 @@ export const InterviewColumns = (): StrictColumnDef<InterviewRow>[] => [
     accessorKey: 'lastUpdated',
     sortingFn: 'datetime',
     meta: {
-      filterType: 'date' as const,
-      filterConfig: { type: 'date' as const },
+      filterType: 'date',
+      filterConfig: { type: 'date' },
     },
     filterFn: dateFilterFn,
     header: ({ column, table }) => {
@@ -173,9 +171,9 @@ export const InterviewColumns = (): StrictColumnDef<InterviewRow>[] => [
       return stageCount > 0 ? (row.currentStep / stageCount) * 100 : 0;
     },
     meta: {
-      filterType: 'range' as const,
+      filterType: 'range',
       filterConfig: {
-        type: 'range' as const,
+        type: 'range',
         min: 0,
         max: 100,
         step: 1,
@@ -219,35 +217,26 @@ export const InterviewColumns = (): StrictColumnDef<InterviewRow>[] => [
       return nodeCount + edgeCount;
     },
     meta: {
-      filterType: 'operator' as const,
+      filterType: 'operator',
       filterConfig: {
-        type: 'operator' as const,
-        operators: ['eq', 'gt', 'lt', 'gte', 'lte'] as const,
+        type: 'operator',
+        operators: ['eq', 'gt', 'lt', 'gte', 'lte'],
         entitySelector: {
           label: 'Entity Type',
-          getOptions: (data: unknown[]) => {
-            const rows = data as GetInterviewsQuery;
-            const types = new Map<string, Option>();
-            for (const row of rows) {
-              for (const node of row.network.nodes) {
-                types.set(`nodes.${node.type}`, {
-                  label: `${node.name} (nodes)`,
-                  value: `nodes.${node.type}`,
-                });
-              }
-              for (const edge of row.network.edges) {
-                types.set(`edges.${edge.type}`, {
-                  label: `${edge.name} (edges)`,
-                  value: `edges.${edge.type}`,
-                });
-              }
-            }
-            return Array.from(types.values());
-          },
+          getOptions: () => [
+            ...filterOptions.nodeTypes.map((t) => ({
+              value: `nodes.${t.value}`,
+              label: `${t.label} (nodes)`,
+            })),
+            ...filterOptions.edgeTypes.map((t) => ({
+              value: `edges.${t.value}`,
+              label: `${t.label} (edges)`,
+            })),
+          ],
         },
       },
     },
-    filterFn: operatorFilterFn as FilterFn<InterviewRow>,
+    filterFn: operatorFilterFn,
     header: ({ column, table }) => {
       return (
         <DataTableColumnHeader column={column} table={table} title="Network" />
@@ -262,9 +251,9 @@ export const InterviewColumns = (): StrictColumnDef<InterviewRow>[] => [
     accessorKey: 'exportTime',
     sortingFn: 'datetime',
     meta: {
-      filterType: 'boolean' as const,
+      filterType: 'boolean',
       filterConfig: {
-        type: 'boolean' as const,
+        type: 'boolean',
         trueLabel: 'Exported',
         falseLabel: 'Not Exported',
       },

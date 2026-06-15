@@ -1,21 +1,21 @@
 import { invariant } from 'es-toolkit';
 import { type NextRequest } from 'next/server';
 import { createRouteHandler } from 'uploadthing/next';
-import { getAppSetting } from '~/queries/appSettings';
+import { getStorageConfig } from '~/lib/storage/config';
 import { getBaseUrl } from '~/utils/getBaseUrl';
 import { ourFileRouter } from './core';
 
 /**
- * getAppSetting uses 'use cache', which can't be called at the top level of
- * a route handler. We wrap the route handler in a function that calls
- * getAppSetting to work around this limitation.
+ * getStorageConfig reads cached app settings ('use cache'), which can't be
+ * called at the top level of a route handler. We wrap the route handler in a
+ * function that resolves the config to work around this limitation.
  */
 const routeHandler = async () => {
-  const uploadThingToken = await getAppSetting('uploadThingToken');
+  const config = await getStorageConfig();
 
   invariant(
-    uploadThingToken,
-    'UploadThing token is not set. Please set it in the app settings.',
+    config.provider === 'uploadthing',
+    'UploadThing is not the configured storage provider',
   );
 
   const handler = createRouteHandler({
@@ -26,7 +26,7 @@ const routeHandler = async () => {
       // However, the automatic detection fails in docker deployments
       // docs: https://docs.uploadthing.com/api-reference/server#config
       callbackUrl: `${getBaseUrl()}/api/uploadthing`,
-      token: uploadThingToken ?? undefined,
+      token: config.token,
     },
   });
 

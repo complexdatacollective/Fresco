@@ -18,21 +18,30 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
   const steps = [
     {
       label: 'Create Account',
-      component: CreateAccount,
+      content: <CreateAccount />,
     },
     {
       label: 'Configure Storage',
-      component: ConfigureStorage,
+      content: (
+        <ConfigureStorage
+          storageEnv={setupData.storageEnv}
+          s3EnvValues={setupData.s3EnvValues}
+        />
+      ),
     },
     {
       label: 'Upload Protocol',
-      component: UploadProtocol,
+      content: <UploadProtocol />,
     },
     {
       label: 'Documentation',
-      component: Documentation,
+      content: <Documentation />,
     },
   ];
+
+  // The step comes from the URL, so out-of-range values (?step=0, ?step=99)
+  // must be clamped before indexing into the steps array.
+  const clampedStep = Math.min(Math.max(step, 1), steps.length);
 
   const cardClasses = cx(
     containerClasses,
@@ -53,13 +62,11 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
     }
   }, [step, setStep, setupData]);
 
-  const StepComponent = steps[step - 1]!.component;
-
   return (
     <div className={cardClasses}>
       <OnboardSteps steps={steps.map((step) => step.label)} />
       <Surface noContainer className="w-full max-w-4xl">
-        <StepComponent />
+        {steps[clampedStep - 1]?.content}
       </Surface>
     </div>
   );

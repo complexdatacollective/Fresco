@@ -5,13 +5,14 @@ import { after } from 'next/server';
 import { requireApiAuth } from '~/lib/auth/guards';
 import { safeRevalidateTag, safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
-import { type Interview } from '~/lib/db/generated/client';
 import { createInitialNetwork } from '@codaco/interview';
 import { captureException, shutdownPostHog } from '~/lib/posthog-server';
 import { getAppSetting } from '~/queries/appSettings';
+import { getInterviewIdsMatching } from '~/queries/interviews';
 import type { CreateInterview, DeleteInterviews } from '~/schemas/interviews';
 import { ensureError } from '~/utils/ensureError';
 import { addEvent } from './activityFeed';
+import type { InterviewsSearchParams } from '~/app/dashboard/_components/InterviewsTable/searchParams';
 
 export async function deleteInterviews(data: DeleteInterviews) {
   const session = await requireApiAuth();
@@ -42,27 +43,82 @@ export async function deleteInterviews(data: DeleteInterviews) {
   }
 }
 
-export const updateExportTime = async (interviewIds: Interview['id'][]) => {
+/**
+ * Read-your-own-writes refresh of the interviews list after an export.
+ *
+ * The export runs in a route handler, which can only `safeRevalidateTag`
+ * (stale-while-revalidate) — so a client `router.refresh()` after the export
+ * still renders the pre-export status. A server action can `safeUpdateTag`,
+ * which expires the cache so the next read (the refresh) is fresh. The route
+ * has already committed `exportTime` by the time the client calls this.
+ */
+export async function revalidateInterviewsAfterExport() {
+  await requireApiAuth();
+  safeUpdateTag('getInterviews');
+  safeUpdateTag('activityFeed');
+}
+
+export async function resolveInterviewIds(
+  searchParams: InterviewsSearchParams,
+  extra?: { onlyUnexported?: boolean; onlyCompleted?: boolean },
+): Promise<{ error: string | null; ids: string[] }> {
   await requireApiAuth();
   try {
-    const updatedInterviews = await prisma.interview.updateMany({
-      where: {
-        id: {
-          in: interviewIds,
-        },
-      },
-      data: {
-        exportTime: new Date(),
-      },
-    });
-
-    safeUpdateTag('getInterviews');
-
-    return { error: null, interview: updatedInterviews };
-  } catch (error) {
-    return { error: 'Failed to update interviews', interview: null };
+    const ids = await getInterviewIdsMatching(searchParams, extra);
+    return { error: null, ids };
+  } catch {
+    return { error: 'Failed to resolve interviews', ids: [] };
   }
+}
+
+export async function getInterviewDeletionInfo(ids: string[]): Promise<{
+  error: string | null;
+  data: { id: string; exportTime: Date | null }[];
+}> {
+  await requireApiAuth();
+  try {
+    const uniqueIds = [...new Set(ids)];
+    const interviews = await prisma.interview.findMany({
+      where: { id: { in: uniqueIds } },
+      select: { id: true, exportTime: true },
+    });
+    return { error: null, data: interviews };
+  } catch {
+    return { error: 'Failed to resolve interviews', data: [] };
+  }
+}
+
+export type IncompleteInterviewUrlData = {
+  id: string;
+  identifier: string;
 };
+
+/**
+ * Returns the minimal data needed to build incomplete-interview URL CSVs for a
+ * single protocol: the interview id (for the URL) and participant identifier.
+ * Scoped to incomplete interviews (no finishTime) so the client no longer needs
+ * the full interview list to generate these URLs.
+ */
+export async function getIncompleteInterviewUrlData(
+  protocolId: string,
+): Promise<{ error: string | null; data: IncompleteInterviewUrlData[] }> {
+  await requireApiAuth();
+  try {
+    const interviews = await prisma.interview.findMany({
+      where: { protocolId, finishTime: null },
+      select: { id: true, participant: { select: { identifier: true } } },
+    });
+    return {
+      error: null,
+      data: interviews.map((interview) => ({
+        id: interview.id,
+        identifier: interview.participant.identifier,
+      })),
+    };
+  } catch {
+    return { error: 'Failed to load incomplete interviews', data: [] };
+  }
+}
 
 export async function createInterview(data: CreateInterview) {
   const { participantIdentifier, protocolId } = data;

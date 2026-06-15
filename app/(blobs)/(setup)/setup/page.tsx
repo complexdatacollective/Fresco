@@ -1,12 +1,15 @@
 import { Loader2 } from 'lucide-react';
 import { Suspense } from 'react';
+import { env } from '~/env';
 import { getServerSession } from '~/lib/auth/guards';
 import { prisma } from '~/lib/db';
+import { getStorageEnvStatus } from '~/lib/storage/config';
 import {
   getAppSetting,
   requireAppNotConfigured,
   requireAppNotExpired,
 } from '~/queries/appSettings';
+import { type S3EnvValues } from '~/schemas/s3Settings';
 import Setup from './Setup';
 
 async function getSetupData() {
@@ -20,7 +23,18 @@ async function getSetupData() {
     prisma.participant.count(),
   ]);
 
-  const uploadThingToken = await getAppSetting('uploadThingToken');
+  const storageEnv = getStorageEnvStatus();
+
+  const s3EnvValues: S3EnvValues | null = storageEnv.s3EnvManaged
+    ? {
+        s3Endpoint: env.S3_ENDPOINT ?? '',
+        s3PublicUrl: env.S3_PUBLIC_URL ?? '',
+        s3Bucket: env.S3_BUCKET ?? '',
+        s3Region: env.S3_REGION ?? '',
+        s3AccessKeyId: env.S3_ACCESS_KEY_ID ?? '',
+        s3SecretAccessKey: env.S3_SECRET_ACCESS_KEY ? '••••••••' : '',
+      }
+    : null;
 
   return {
     hasAuth: !!session,
@@ -28,7 +42,8 @@ async function getSetupData() {
     limitInterviews,
     hasProtocol: otherData[0] > 0,
     hasParticipants: otherData[1] > 0,
-    hasUploadThingToken: !!uploadThingToken,
+    storageEnv,
+    s3EnvValues,
   };
 }
 

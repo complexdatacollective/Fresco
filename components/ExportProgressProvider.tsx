@@ -1,20 +1,34 @@
 'use client';
 
-import { Loader2 } from 'lucide-react';
 import posthog from 'posthog-js';
-import { createContext, useCallback, useContext, useRef } from 'react';
-import { updateExportTime } from '~/actions/interviews';
-import { deleteZipFromStorage } from '~/actions/uploadThing';
-import type { ExportSseEvent } from '~/lib/export/sseEvents';
-import ProgressBar from '@codaco/fresco-ui/ProgressBar';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+} from 'react';
+import { z } from 'zod/mini';
 import { useToast } from '@codaco/fresco-ui/Toast';
-import { useDownload } from '~/hooks/useDownload';
 import type { ExportOptions } from '@codaco/network-exporters/options';
+import { revalidateInterviewsAfterExport } from '~/actions/interviews';
+import ExportToastContent from '~/components/ExportProgress/ExportToastContent';
+import { calculateExportProgress } from '~/components/ExportProgress/calculateExportProgress';
+import { useDownload } from '~/hooks/useDownload';
+import {
+  decodeBase64Chunk,
+  parseExportEventBuffer,
+} from '~/lib/export/streamProtocol';
 import { ensureError } from '~/utils/ensureError';
-import Spinner from '@codaco/fresco-ui/Spinner';
 
 type ExportContextValue = {
   startExport: (interviewIds: string[], exportOptions: ExportOptions) => void;
+};
+
+type ExportToastStage = {
+  stage: 'fetching' | 'formatting' | 'generating' | 'outputting';
+  current?: number;
+  total?: number;
 };
 
 const ExportContext = createContext<ExportContextValue | null>(null);
@@ -29,47 +43,8 @@ export function useExportProgress() {
   return ctx;
 }
 
-function ExportProgressDescription({
-  stage,
-  message,
-  current,
-  total,
-}: {
-  stage: string;
-  message: string;
-  current?: number;
-  total?: number;
-}) {
-  const progressStages = ['generating', 'outputting'];
-  const showProgress =
-    progressStages.includes(stage) && total !== undefined && total > 0;
-  const percent =
-    showProgress && current !== undefined
-      ? Math.round((current / total) * 100)
-      : 0;
-
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2 text-sm opacity-60">
-        <Loader2 className="size-3.5 animate-spin" aria-hidden="true" />
-        <p>
-          {showProgress
-            ? `${message} ${String(current)} / ${String(total)}`
-            : message}
-        </p>
-      </div>
-      {showProgress && (
-        <ProgressBar
-          orientation="horizontal"
-          percentProgress={percent}
-          nudge={false}
-          label="Export progress"
-          className="h-1.5"
-        />
-      )}
-    </div>
-  );
-}
+const ticketResponseSchema = z.object({ ticketId: z.string() });
+const errorResponseSchema = z.object({ error: z.string() });
 
 export function ExportProgressProvider({
   children,
@@ -78,161 +53,163 @@ export function ExportProgressProvider({
 }) {
   const { add, update, close } = useToast();
   const download = useDownload();
-  const abortControllers = useRef(new Map<string, AbortController>());
 
-  const abortExport = useCallback((toastId: string) => {
-    const controller = abortControllers.current.get(toastId);
-    controller?.abort();
-    abortControllers.current.delete(toastId);
+  // Tracks whether an export is in flight, so the beforeunload warning can
+  // reflect it without re-registering the listener per render.
+  const exportingRef = useRef(false);
+
+  useEffect(() => {
+    const handler = (event: BeforeUnloadEvent) => {
+      if (!exportingRef.current) return;
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
   }, []);
 
   const startExport = useCallback(
     (interviewIds: string[], exportOptions: ExportOptions) => {
       const controller = new AbortController();
+      exportingRef.current = true;
+
+      const renderProgress = (toastId: string, stage: ExportToastStage) => {
+        update(toastId, {
+          description: (
+            <ExportToastContent
+              stage={stage.stage}
+              current={stage.current}
+              total={stage.total}
+              progress={calculateExportProgress(stage)}
+              onCancel={() => controller.abort()}
+            />
+          ),
+        });
+      };
 
       const toastId = add({
-        icon: <Spinner size="xs" aria-hidden="true" />,
         title: 'Exporting interviews',
         description: (
-          <ExportProgressDescription
+          <ExportToastContent
             stage="fetching"
-            message="Starting export..."
+            progress={calculateExportProgress({ stage: 'fetching' })}
+            onCancel={() => controller.abort()}
           />
         ),
         timeout: 0,
-        onClose: () => abortExport(toastId),
-        onCancel: () => {
-          abortExport(toastId);
-          close(toastId);
-        },
       });
 
-      abortControllers.current.set(toastId, controller);
-
       void (async () => {
+        const zipChunks: Uint8Array<ArrayBuffer>[] = [];
         try {
-          const response = await fetch('/api/export-interviews', {
+          const ticketRes = await fetch('/api/export-interviews', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ interviewIds, exportOptions }),
             signal: controller.signal,
           });
-
-          if (!response.ok || !response.body) {
+          if (!ticketRes.ok) {
+            const raw: unknown = await ticketRes.json().catch(() => ({}));
+            const parsed = errorResponseSchema.safeParse(raw);
             throw new Error(
-              `Export request failed with status ${String(response.status)}`,
+              parsed.success
+                ? parsed.data.error
+                : `Export request failed with status ${String(ticketRes.status)}`,
+            );
+          }
+          const ticketRaw: unknown = await ticketRes.json();
+          const ticket = ticketResponseSchema.safeParse(ticketRaw);
+          if (!ticket.success) {
+            throw new Error('Unexpected response from export server');
+          }
+
+          const res = await fetch(
+            `/api/export-interviews/download?ticket=${ticket.data.ticketId}`,
+            { signal: controller.signal },
+          );
+          if (!res.ok || !res.body) {
+            throw new Error(
+              `Export download failed with status ${String(res.status)}`,
             );
           }
 
-          const reader = response.body.getReader();
+          const reader = res.body.getReader();
           const decoder = new TextDecoder();
           let buffer = '';
+          let streamError: string | null = null;
 
           for (;;) {
             const { done, value } = await reader.read();
             if (done) break;
-
             buffer += decoder.decode(value, { stream: true });
-            const events = buffer.split('\n\n');
-            buffer = events.pop() ?? '';
-
+            const { events, rest } = parseExportEventBuffer(buffer);
+            buffer = rest;
             for (const event of events) {
-              const dataLine = event
-                .split('\n')
-                .find((line) => line.startsWith('data: '));
-              if (!dataLine) continue;
-
-              let data: ExportSseEvent;
-              try {
-                data = JSON.parse(dataLine.slice(6)) as ExportSseEvent;
-              } catch {
-                continue;
-              }
-
-              if (data.type === 'stage' || data.type === 'progress') {
-                update(toastId, {
-                  description: (
-                    <ExportProgressDescription
-                      stage={data.stage}
-                      message={
-                        data.type === 'stage'
-                          ? data.message
-                          : data.stage === 'outputting'
-                            ? 'Creating archive...'
-                            : 'Generating files...'
-                      }
-                      current={'current' in data ? data.current : undefined}
-                      total={'total' in data ? data.total : undefined}
-                    />
-                  ),
+              if (event.type === 'stage' || event.type === 'progress') {
+                renderProgress(toastId, {
+                  stage: event.stage,
+                  current: 'current' in event ? event.current : undefined,
+                  total: 'total' in event ? event.total : undefined,
                 });
-              } else if (data.type === 'complete') {
-                const responseAsBlob = await fetch(data.zipUrl).then((res) => {
-                  if (!res.ok)
-                    throw new Error('HTTP error ' + String(res.status));
-                  return res.blob();
-                });
-
-                const url = URL.createObjectURL(responseAsBlob);
-                download(url, 'Network Canvas Export.zip');
-                URL.revokeObjectURL(url);
-
-                await updateExportTime(interviewIds);
-
-                close(toastId);
-
-                add({
-                  title: 'Export complete!',
-                  description: 'Your download should start automatically.',
-                  variant: 'success',
-                  timeout: 5000,
-                });
-
-                void deleteZipFromStorage(data.zipKey).catch(
-                  (error: unknown) => {
-                    const e = ensureError(error);
-                    posthog.captureException(e);
-
-                    add({
-                      timeout: Infinity,
-                      variant: 'destructive',
-                      title: 'Could not delete temporary file',
-                      description:
-                        'We were unable to delete the temporary file containing your exported data, which is stored on your UploadThing account. Although extremely unlikely, it is possible that this file could be accessed by someone else. You can delete the file manually by visiting uploadthing.com and logging in with your GitHub account. Please contact us to report this issue.',
-                    });
-                  },
-                );
-              } else if (data.type === 'error') {
-                update(toastId, {
-                  title: 'Export failed',
-                  description: data.message,
-                  variant: 'destructive',
-                  timeout: 0,
-                });
-
-                posthog.captureException(new Error(data.message));
+              } else if (event.type === 'data') {
+                zipChunks.push(decodeBase64Chunk(event.b64));
+              } else if (event.type === 'error') {
+                streamError = event.message;
               }
             }
           }
-        } catch (error) {
-          if (controller.signal.aborted) return;
 
+          if (streamError) throw new Error(streamError);
+
+          const blob = new Blob(zipChunks, { type: 'application/zip' });
+          const date = new Date().toISOString().slice(0, 10);
+          const objectUrl = URL.createObjectURL(blob);
+          download(objectUrl, `fresco-export-${date}.zip`);
+          setTimeout(() => URL.revokeObjectURL(objectUrl), 10_000);
+
+          // Refresh the interviews list so exported rows show their new export
+          // status. The server action's safeUpdateTag (read-your-own-writes)
+          // expires the getInterviews cache, and invoking a server action from
+          // the client triggers Next's automatic revalidation of the current
+          // route — so no explicit router.refresh() is needed.
+          await revalidateInterviewsAfterExport();
+          close(toastId);
+          add({
+            title: 'Export complete',
+            description: 'Your export has downloaded.',
+            variant: 'success',
+            timeout: 8000,
+          });
+        } catch (error) {
+          if (controller.signal.aborted) {
+            close(toastId);
+            add({
+              title: 'Export cancelled',
+              description: 'The export was cancelled.',
+              timeout: 5000,
+            });
+            return;
+          }
           const e = ensureError(error);
-          update(toastId, {
+          posthog.captureException(e);
+          close(toastId);
+          add({
+            variant: 'destructive',
             title: 'Export failed',
             description: e.message,
-            variant: 'destructive',
             timeout: 0,
           });
-
-          posthog.captureException(e);
         } finally {
-          abortControllers.current.delete(toastId);
+          exportingRef.current = false;
         }
       })();
     },
-    [add, update, close, download, abortExport],
+    [add, update, close, download],
   );
 
-  return <ExportContext value={{ startExport }}>{children}</ExportContext>;
+  return (
+    <ExportContext.Provider value={{ startExport }}>
+      {children}
+    </ExportContext.Provider>
+  );
 }

@@ -5,16 +5,18 @@ import { unparse } from 'papaparse';
 import { useState } from 'react';
 import { Button } from '@codaco/fresco-ui/Button';
 import { useToast } from '@codaco/fresco-ui/Toast';
+import type { IncompleteInterviewUrlData } from '~/actions/interviews';
 import { useDownload } from '~/hooks/useDownload';
-import type { GetInterviewsQuery } from '~/queries/interviews';
 import type { ProtocolWithInterviews } from '../../_components/ProtocolsTable/ProtocolsTableClient';
 
 function ExportCSVInterviewURLs({
   protocol,
   interviews,
+  disabled = false,
 }: {
   protocol?: ProtocolWithInterviews;
-  interviews: Awaited<GetInterviewsQuery>;
+  interviews: IncompleteInterviewUrlData[];
+  disabled?: boolean;
 }) {
   const download = useDownload();
   const [isExporting, setIsExporting] = useState(false);
@@ -26,7 +28,7 @@ function ExportCSVInterviewURLs({
       if (!protocol?.id) return;
 
       const csvData = interviews.map((interview) => ({
-        identifier: interview.participant.identifier,
+        identifier: interview.identifier,
         interview_url: `${window.location.origin}/interview/${interview.id}`,
       }));
 
@@ -64,7 +66,7 @@ function ExportCSVInterviewURLs({
   return (
     <Button
       size="sm"
-      disabled={!protocol || isExporting}
+      disabled={!protocol || isExporting || disabled}
       onClick={handleExport}
       icon={<Download />}
       color="primary"

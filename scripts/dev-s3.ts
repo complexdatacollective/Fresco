@@ -4,7 +4,6 @@ import process from 'node:process';
 import {
   CreateBucketCommand,
   ListBucketsCommand,
-  PutBucketPolicyCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
 
@@ -145,6 +144,7 @@ async function ensureBucket(client: S3Client): Promise<void> {
 function printBanner(): void {
   console.log(`MinIO ready — bucket '${BUCKET}' available`);
   console.log(`  Endpoint:          http://localhost:${HOST_PORT}`);
+  console.log(`  Public URL:        http://localhost:${HOST_PORT}`);
   console.log(`  Bucket:            ${BUCKET}`);
   console.log(`  Region:            ${REGION}`);
   console.log(`  Access Key ID:     ${ACCESS_KEY_ID}`);
@@ -174,27 +174,6 @@ function followLogs(): void {
   });
 }
 
-async function applyPublicReadPolicy(client: S3Client): Promise<void> {
-  const policy = {
-    Version: '2012-10-17',
-    Statement: [
-      {
-        Effect: 'Allow',
-        Principal: '*',
-        Action: 's3:GetObject',
-        Resource: `arn:aws:s3:::${BUCKET}/*`,
-      },
-    ],
-  };
-  await client.send(
-    new PutBucketPolicyCommand({
-      Bucket: BUCKET,
-      Policy: JSON.stringify(policy),
-    }),
-  );
-  console.log(`Applied public-read policy to '${BUCKET}'`);
-}
-
 async function main(): Promise<void> {
   const alreadyRunning = containerExists() && containerIsRunning();
 
@@ -215,7 +194,6 @@ async function main(): Promise<void> {
   console.log('Waiting for MinIO to become ready...');
   await waitForReady(s3);
   await ensureBucket(s3);
-  await applyPublicReadPolicy(s3);
 
   if (!alreadyRunning) printBanner();
   followLogs();

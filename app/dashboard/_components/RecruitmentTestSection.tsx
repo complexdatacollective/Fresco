@@ -7,8 +7,8 @@ import { Button } from '@codaco/fresco-ui/Button';
 import type { Participant, Protocol } from '~/lib/db/generated/client';
 import SelectField from '@codaco/fresco-ui/form/fields/Select/Styled';
 import {
-  type GetParticipantsQuery,
-  type GetParticipantsReturnType,
+  type GetParticipantsForSelectQuery,
+  type GetParticipantsForSelectReturnType,
 } from '~/queries/participants';
 import {
   type GetProtocolsQuery,
@@ -21,13 +21,14 @@ export default function RecruitmentTestSection({
   allowAnonymousRecruitmentPromise,
 }: {
   protocolsPromise: GetProtocolsReturnType;
-  participantsPromise: GetParticipantsReturnType;
+  participantsPromise: GetParticipantsForSelectReturnType;
   allowAnonymousRecruitmentPromise: Promise<boolean>;
 }) {
   const rawProtocols = use(protocolsPromise);
   const protocols = SuperJSON.parse<GetProtocolsQuery>(rawProtocols);
   const rawParticipants = use(participantsPromise);
-  const participants = SuperJSON.parse<GetParticipantsQuery>(rawParticipants);
+  const participants =
+    SuperJSON.parse<GetParticipantsForSelectQuery>(rawParticipants);
   const allowAnonymousRecruitment = use(allowAnonymousRecruitmentPromise);
 
   const [selectedProtocol, setSelectedProtocol] = useState<Partial<Protocol>>();

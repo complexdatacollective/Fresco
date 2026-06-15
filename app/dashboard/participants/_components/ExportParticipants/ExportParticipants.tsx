@@ -1,11 +1,9 @@
 'use client';
 
-import { FileUp } from 'lucide-react';
 import { unparse } from 'papaparse';
 import { useCallback } from 'react';
-import type { ParticipantWithInterviews } from '~/app/dashboard/_components/ParticipantsTable/ParticipantsTableClient';
+import type { ParticipantExportRow } from '~/actions/participants';
 import type { ProtocolWithInterviews } from '~/app/dashboard/_components/ProtocolsTable/ProtocolsTableClient';
-import { Button } from '@codaco/fresco-ui/Button';
 import { useToast } from '@codaco/fresco-ui/Toast';
 import { useDownload } from '~/hooks/useDownload';
 
@@ -14,7 +12,7 @@ export function useExportParticipants(protocols: ProtocolWithInterviews[]) {
   const { add } = useToast();
 
   return useCallback(
-    (participants: ParticipantWithInterviews[]) => {
+    (participants: ParticipantExportRow[]) => {
       try {
         const csvData = participants.map((participant) => {
           const row: Record<string, string> = {
@@ -54,26 +52,3 @@ export function useExportParticipants(protocols: ProtocolWithInterviews[]) {
     [protocols, download, add],
   );
 }
-
-function ExportParticipants({
-  participants,
-  protocols,
-}: {
-  participants: ParticipantWithInterviews[];
-  protocols: ProtocolWithInterviews[];
-}) {
-  const exportParticipants = useExportParticipants(protocols);
-
-  return (
-    <Button
-      disabled={participants.length === 0}
-      onClick={() => exportParticipants(participants)}
-      icon={<FileUp />}
-      data-testid="export-participants-button"
-    >
-      Export Participants
-    </Button>
-  );
-}
-
-export default ExportParticipants;

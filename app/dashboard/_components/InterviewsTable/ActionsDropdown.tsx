@@ -52,7 +52,9 @@ export const ActionsDropdown = ({ row }: { row: Row<InterviewRow> }) => {
         key={objectHash(selectedInterviews)}
         open={showExportModal}
         handleCancel={handleResetExport}
-        interviewsToExport={selectedInterviews!}
+        interviewIds={(selectedInterviews ?? []).map(
+          (interview) => interview.id,
+        )}
       />
       <DeleteInterviewsDialog
         open={showDeleteModal}

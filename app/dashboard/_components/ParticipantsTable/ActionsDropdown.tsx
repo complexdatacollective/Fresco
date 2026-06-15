@@ -9,16 +9,16 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from '@codaco/fresco-ui/DropdownMenu';
-import type { ParticipantWithInterviews } from './ParticipantsTableClient';
+import type { ParticipantRow } from './ParticipantsTableClient';
 
 export function ActionsDropdown({
   row,
   onEdit,
   onDelete,
 }: {
-  row: Row<ParticipantWithInterviews>;
-  onEdit: (participant: ParticipantWithInterviews) => void;
-  onDelete: (participant: ParticipantWithInterviews) => void;
+  row: Row<ParticipantRow>;
+  onEdit: (participant: ParticipantRow) => void;
+  onDelete: (participant: ParticipantRow) => void;
 }) {
   return (
     <DropdownMenu>

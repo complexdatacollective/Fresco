@@ -1,0 +1,95 @@
+# Fresco deployment using UploadThing (cloud) for asset storage.
+#
+# No storage runs on this host — assets are uploaded by browsers directly to
+# UploadThing and served from its CDN. Note that protocol assets are stored
+# off-host on UploadThing's infrastructure; check that this is compatible with
+# your data-governance requirements before choosing this option.
+#
+# Required .env variables for this deployment:
+#
+#   FRESCO_DOMAIN  - the public domain for this deployment (e.g. study.example.com)
+#   ACME_EMAIL     - email for Let's Encrypt certificate notifications
+#
+# PUBLIC_URL is derived from FRESCO_DOMAIN automatically (see the fresco
+# service's `environment:` block) — you do not set it separately.
+#
+# Storage configuration — either paste your UploadThing token during Fresco
+# setup, or set these env variables (env wins over values entered in the
+# dashboard and locks the storage settings UI):
+#
+#   STORAGE_PROVIDER=uploadthing
+#   UPLOADTHING_TOKEN  - from https://uploadthing.com/dashboard (API Keys)
+
+services:
+  # Bundled reverse proxy: terminates TLS (automatic Let's Encrypt
+  # certificates) and routes the app on your domain.
+  #
+  # DNS for FRESCO_DOMAIN must point at this host, with ports 80/443 reachable.
+  traefik:
+    image: traefik:v3.4
+    restart: always
+    command:
+      - '--providers.docker=true'
+      - '--providers.docker.exposedbydefault=false'
+      - '--entrypoints.web.address=:80'
+      - '--entrypoints.websecure.address=:443'
+      - '--entrypoints.web.http.redirections.entrypoint.to=websecure'
+      - '--entrypoints.web.http.redirections.entrypoint.scheme=https'
+      - '--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:?Set ACME_EMAIL in .env (Lets Encrypt contact email)}'
+      - '--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json'
+      - '--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web'
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - letsencrypt:/letsencrypt
+    networks:
+      - fresco_network
+
+  fresco:
+    image: 'ghcr.io/complexdatacollective/fresco:latest'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app/next-app
+    restart: always
+    networks:
+      - fresco_network
+    env_file:
+      - .env
+    environment:
+      # FRESCO_DOMAIN is the only place the deployment domain is set; the app's
+      # public URL is derived from it here (overrides any PUBLIC_URL in .env).
+      PUBLIC_URL: https://${FRESCO_DOMAIN}
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.fresco.rule=Host(`${FRESCO_DOMAIN:?Set FRESCO_DOMAIN in .env (public domain for this deployment)}`)'
+      - 'traefik.http.routers.fresco.entrypoints=websecure'
+      - 'traefik.http.routers.fresco.tls.certresolver=letsencrypt'
+      - 'traefik.http.services.fresco.loadbalancer.server.port=3000'
+
+  postgres:
+    env_file:
+      - .env
+    image: postgres:17-alpine
+    restart: always
+    volumes:
+      - postgres:/var/lib/postgresql/data:Z
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'postgres']
+      interval: 5s
+      timeout: 10s
+      retries: 5
+    networks:
+      - fresco_network
+
+volumes:
+  postgres:
+  letsencrypt:
+
+# Define a network, which allows containers to communicate
+# with each other, by using their container name as a hostname
+networks:
+  fresco_network:

@@ -1,11 +1,30 @@
-import { type Layer } from 'effect';
+import { Effect, type Layer } from 'effect';
+import { OutputError } from '@codaco/network-exporters/errors';
 import { makeZipOutput } from '@codaco/network-exporters/layers/ZipOutput';
 import type { Output } from '@codaco/network-exporters/services/Output';
-import { makeS3Sink } from '~/lib/storage/layers/S3FileStorage';
-import { makeUploadThingSink } from '~/lib/storage/layers/UploadThingFileStorage';
-import type { StorageProvider } from '~/queries/storageProvider';
+import { encodeExportEvent } from '~/lib/export/streamProtocol';
 
-export const makeProductionOutputLayer = (
-  provider: StorageProvider,
-): Layer.Layer<Output> =>
-  makeZipOutput(provider === 's3' ? makeS3Sink : makeUploadThingSink);
+type ZipSink = Parameters<typeof makeZipOutput>[0];
+
+/**
+ * Writes each zip chunk as a base64 `data` event through the shared writer.
+ * Does NOT close the writer — the route owns the writer lifecycle so it can
+ * append `complete`/`error` events after the zip finishes.
+ */
+export const makeHttpOutputLayer = (
+  writer: WritableStreamDefaultWriter<Uint8Array>,
+): Layer.Layer<Output> => {
+  const sink: ZipSink = (zipStream) =>
+    Effect.tryPromise({
+      try: async () => {
+        for await (const chunk of zipStream) {
+          const b64 = Buffer.from(chunk).toString('base64');
+          await writer.write(encodeExportEvent({ type: 'data', b64 }));
+        }
+        return {};
+      },
+      catch: (cause) => new OutputError({ cause }),
+    });
+
+  return makeZipOutput(sink);
+};

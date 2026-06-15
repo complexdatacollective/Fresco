@@ -13,12 +13,14 @@ export default function UpdateSettingsValue({
   readOnly,
   schema,
   suffixComponent,
+  placeholder,
 }: {
   settingsKey: AppSetting;
   initialValue?: string;
   readOnly?: boolean;
   schema: z.ZodMiniType<string>;
   suffixComponent?: ReactNode;
+  placeholder?: string;
 }) {
   const [newValue, setNewValue] = useState(initialValue);
   const [error, setError] = useState<string | null>(null);
@@ -49,8 +51,16 @@ export default function UpdateSettingsValue({
     if (!newValue) return;
 
     setSaving(true);
-    await setAppSetting(settingsKey, newValue);
-    setSaving(false);
+    setError(null);
+    try {
+      await setAppSetting(settingsKey, newValue);
+    } catch (caught) {
+      setError(
+        caught instanceof Error ? caught.message : 'Failed to save setting',
+      );
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -62,6 +72,7 @@ export default function UpdateSettingsValue({
         onFocus={(event) => event.target.select()}
         type="text"
         className="w-full"
+        placeholder={placeholder}
         disabled={readOnly ?? isSaving}
         suffixComponent={suffixComponent}
       />
@@ -69,7 +80,11 @@ export default function UpdateSettingsValue({
       {newValue !== initialValue && (
         <div className="mt-4 flex justify-end gap-2">
           {!isSaving && <Button onClick={handleReset}>Reset</Button>}
-          <Button disabled={!!error} onClick={handleSave} color="primary">
+          <Button
+            disabled={!!error || !newValue}
+            onClick={handleSave}
+            color="primary"
+          >
             {isSaving && <Loader2 className="mr-2 animate-spin" />}
             {isSaving ? 'Saving...' : 'Save'}
           </Button>

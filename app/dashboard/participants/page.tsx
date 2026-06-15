@@ -1,12 +1,18 @@
+import { type SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
 import ParticipantsTable from '~/app/dashboard/_components/ParticipantsTable/ParticipantsTable';
+import { searchParamsCache } from '~/app/dashboard/_components/ParticipantsTable/searchParams';
 import { DataTableSkeleton } from '@codaco/fresco-ui/DataTable/DataTableSkeleton';
 import ResponsiveContainer from '@codaco/fresco-ui/layout/ResponsiveContainer';
 import PageHeader from '@codaco/fresco-ui/typography/PageHeader';
 import { requirePageAuth } from '~/lib/auth/guards';
 import { requireAppNotExpired } from '~/queries/appSettings';
 
-export default function ParticipantPage() {
+export default function ParticipantPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
   return (
     <>
       <PageHeader
@@ -29,18 +35,23 @@ export default function ParticipantPage() {
           </ResponsiveContainer>
         }
       >
-        <AuthenticatedParticipants />
+        <AuthenticatedParticipants searchParams={searchParams} />
       </Suspense>
     </>
   );
 }
 
-async function AuthenticatedParticipants() {
+async function AuthenticatedParticipants({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
   await requireAppNotExpired();
   await requirePageAuth();
+  const parsed = await searchParamsCache.parse(searchParams);
   return (
     <ResponsiveContainer maxWidth="6xl" baseSize="content" container={false}>
-      <ParticipantsTable />
+      <ParticipantsTable searchParams={parsed} />
     </ResponsiveContainer>
   );
 }

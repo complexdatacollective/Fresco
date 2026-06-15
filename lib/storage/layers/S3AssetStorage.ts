@@ -1,26 +1,30 @@
 import { DeleteObjectsCommand, PutObjectCommand } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import { Effect, Layer } from 'effect';
+import { extname } from 'node:path';
+import { randomUUID } from 'node:crypto';
 import { AssetStorageError } from '~/lib/storage/errors';
 import { AssetStorage } from '~/lib/storage/services/AssetStorage';
 import {
   getS3Bucket,
-  getS3Client,
-  getS3PublicBaseUrl,
+  getS3PublicClient,
+  getS3ServerClient,
 } from '~/lib/storage/layers/S3Client';
 
 function generateS3Key(fileName: string): string {
-  const timestamp = Date.now();
-  const random = Math.random().toString(36).slice(2, 10);
-  return `assets/${timestamp}-${random}-${fileName}`;
+  // The key is embedded in /api/assets/{key} URLs, so strip any
+  // URL-significant characters (#, ?, etc.) the user's filename may carry.
+  const ext = extname(fileName)
+    .toLowerCase()
+    .replace(/[^.a-z0-9]/g, '');
+  return `${randomUUID()}${ext}`;
 }
 
 export const S3AssetStorage = Layer.succeed(AssetStorage, {
   generatePresignedUploadUrls: (files) =>
     Effect.gen(function* () {
-      const [client, bucket, baseUrl] = yield* Effect.tryPromise({
-        try: () =>
-          Promise.all([getS3Client(), getS3Bucket(), getS3PublicBaseUrl()]),
+      const [client, bucket] = yield* Effect.tryPromise({
+        try: () => Promise.all([getS3PublicClient(), getS3Bucket()]),
         catch: (error) =>
           new AssetStorageError({
             cause: error,
@@ -50,7 +54,7 @@ export const S3AssetStorage = Layer.succeed(AssetStorage, {
           return {
             uploadUrl,
             fileKey,
-            publicUrl: `${baseUrl}/${fileKey}`,
+            publicUrl: `/api/assets/${fileKey}`,
           };
         }),
       );
@@ -63,7 +67,7 @@ export const S3AssetStorage = Layer.succeed(AssetStorage, {
       if (keys.length === 0) return;
 
       const [client, bucket] = yield* Effect.tryPromise({
-        try: () => Promise.all([getS3Client(), getS3Bucket()]),
+        try: () => Promise.all([getS3ServerClient(), getS3Bucket()]),
         catch: (error) =>
           new AssetStorageError({
             cause: error,

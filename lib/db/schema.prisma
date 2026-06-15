@@ -19,6 +19,7 @@ model User {
   totpCredential      TotpCredential?
   recoveryCodes       RecoveryCode[]
   webAuthnCredentials WebAuthnCredential[]
+  exportTickets       ExportTicket[]
 }
 
 model Session {
@@ -60,18 +61,18 @@ model WebAuthnCredential {
 }
 
 model Protocol {
-  id            String      @id @default(cuid())
-  hash          String      @unique
-  name          String
-  schemaVersion Int
-  description   String?
-  importedAt    DateTime    @default(now())
-  lastModified  DateTime
-  stages        Json
-  codebook      Json
-  assets        Asset[]
-  interviews    Interview[]
-  experiments   Json?
+  id              String      @id @default(cuid())
+  hash            String      @unique
+  name            String
+  schemaVersion   Int
+  description     String?
+  importedAt      DateTime    @default(now())
+  lastModified    DateTime
+  stages          Json
+  codebook        Json
+  assets          Asset[]
+  interviews      Interview[]
+  experiments     Json?
   originalFileKey String?
   originalFileUrl String?
 }
@@ -130,6 +131,7 @@ enum AppSetting {
   enableInterviewDataApi
   storageProvider
   s3Endpoint
+  s3PublicUrl
   s3Bucket
   s3Region
   s3AccessKeyId
@@ -146,6 +148,18 @@ model Events {
   timestamp DateTime @default(now())
   type      String
   message   String
+}
+
+model ExportTicket {
+  id        String   @id @default(cuid())
+  params    Json
+  user      User     @relation(references: [id], fields: [userId], onDelete: Cascade)
+  userId    String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model ApiToken {

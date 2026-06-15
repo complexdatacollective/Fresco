@@ -1,4 +1,50 @@
+# Fresco deployment with SELF-HOSTED storage (bundled MinIO).
+#
+# Alternative storage scenarios live in sibling files:
+#   docker-compose.external-s3.yml  - external S3-compatible service (AWS S3, R2, ...)
+#   docker-compose.uploadthing.yml  - UploadThing (cloud)
+#
+# Required .env variables for this deployment:
+#
+#   FRESCO_DOMAIN  - the public domain for this deployment (e.g. study.example.com)
+#   ACME_EMAIL     - email for Let's Encrypt certificate notifications
+#
+# FRESCO_DOMAIN is the single source of truth for this deployment's domain: the
+# app's PUBLIC_URL is derived from it automatically (see the fresco service's
+# `environment:` block), so you do not set PUBLIC_URL yourself. During Fresco
+# setup, set the storage "Public URL" to https://<FRESCO_DOMAIN> as well.
+
 services:
+  # Bundled reverse proxy: terminates TLS (automatic Let's Encrypt
+  # certificates) and routes both the app and MinIO on one domain.
+  #
+  # Required deployer configuration (set in .env):
+  #   FRESCO_DOMAIN  - the public domain for this deployment (e.g. study.example.com)
+  #   ACME_EMAIL     - email for Let's Encrypt certificate notifications
+  #
+  # DNS for FRESCO_DOMAIN must point at this host, with ports 80/443 reachable.
+  traefik:
+    image: traefik:v3.4
+    restart: always
+    command:
+      - '--providers.docker=true'
+      - '--providers.docker.exposedbydefault=false'
+      - '--entrypoints.web.address=:80'
+      - '--entrypoints.websecure.address=:443'
+      - '--entrypoints.web.http.redirections.entrypoint.to=websecure'
+      - '--entrypoints.web.http.redirections.entrypoint.scheme=https'
+      - '--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:?Set ACME_EMAIL in .env (Lets Encrypt contact email)}'
+      - '--certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json'
+      - '--certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web'
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - letsencrypt:/letsencrypt
+    networks:
+      - fresco_network
+
   fresco:
     image: 'ghcr.io/complexdatacollective/fresco:latest'
     depends_on:
@@ -9,12 +55,20 @@ services:
     volumes:
       - .:/app/next-app
     restart: always
-    ports:
-      - 3000:3000
     networks:
       - fresco_network
     env_file:
       - .env
+    environment:
+      # FRESCO_DOMAIN is the only place the deployment domain is set; the app's
+      # public URL is derived from it here (overrides any PUBLIC_URL in .env).
+      PUBLIC_URL: https://${FRESCO_DOMAIN}
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.fresco.rule=Host(`${FRESCO_DOMAIN:?Set FRESCO_DOMAIN in .env (public domain for this deployment)}`)'
+      - 'traefik.http.routers.fresco.entrypoints=websecure'
+      - 'traefik.http.routers.fresco.tls.certresolver=letsencrypt'
+      - 'traefik.http.services.fresco.loadbalancer.server.port=3000'
 
   postgres:
     env_file:
@@ -35,31 +89,46 @@ services:
   # If you prefer UploadThing, remove this service and configure
   # UploadThing during Fresco setup instead.
   #
-  # IMPORTANT: the Endpoint URL is used both by the Fresco server AND by
-  # browsers (researchers upload assets via presigned URLs; participants
-  # download assets directly). It must therefore be a URL that is reachable
-  # from outside the Docker network — `http://minio:9000` only resolves
-  # between containers and will NOT work.
+  # MinIO stays PRIVATE: no published ports, no anonymous bucket access.
+  # Browsers reach it through the bundled Traefik reverse proxy via a path
+  # route on your Fresco domain: /assets/* -> minio:9000 (the bucket is named
+  # 'assets'; path-style S3 URLs put the bucket name in the path). The path
+  # and Host header are preserved - required for signature validation.
   #
-  # In production, route a public hostname to minio:9000 via your reverse
-  # proxy (e.g. https://assets.example.com) and use that as the Endpoint URL.
-  # For local single-machine testing, http://localhost:9000 works because
-  # port 9000 is published to the host.
+  # Using your own reverse proxy instead of the bundled Traefik?
+  # Caddy example:
+  #   app.example.com {
+  #     handle /assets/* {
+  #       reverse_proxy minio:9000
+  #     }
+  #     handle {
+  #       reverse_proxy fresco:3000
+  #     }
+  #   }
+  # nginx example:
+  #   location /assets/ {
+  #     proxy_set_header Host $host;
+  #     proxy_pass http://minio:9000;
+  #   }
   #
   # During Fresco setup, select "S3 / S3-Compatible" and use:
-  #   Endpoint URL:      https://assets.example.com (see above)
-  #   Bucket Name:       fresco
+  #   Endpoint URL:      http://minio:9000        (internal - containers only)
+  #   Public URL:        https://<your domain>    (your Fresco domain)
+  #   Bucket Name:       assets
   #   Region:            us-east-1
   #   Access Key ID:     value of MINIO_ROOT_USER (default: minioadmin)
   #   Secret Access Key: value of MINIO_ROOT_PASSWORD (default: minioadmin)
   #
-  # MinIO console is available at http://localhost:9001
+  # Note: the bucket name occupies /<bucket>/ on your domain - keep the
+  # default 'assets' (verified collision-free) or pick a name that cannot
+  # collide with app routes. If you change the bucket name, set S3_BUCKET in
+  # .env so the Traefik route and bucket creation stay in sync with the
+  # bucket name you enter during Fresco setup.
   minio:
     image: minio/minio:latest
     restart: always
-    ports:
-      - 9000:9000
-      - 9001:9001
+    # ports:
+    #   - '9001:9001'  # Uncomment to expose the MinIO admin console for debugging only.
     volumes:
       - minio:/data
     environment:
@@ -73,6 +142,14 @@ services:
       retries: 5
     networks:
       - fresco_network
+    # Traefik rule-length priority makes the PathPrefix rule win for /assets/*;
+    # Host and path are preserved — required for SigV4 signature validation.
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.http.routers.minio.rule=Host(`${FRESCO_DOMAIN}`) && PathPrefix(`/${S3_BUCKET:-assets}`)'
+      - 'traefik.http.routers.minio.entrypoints=websecure'
+      - 'traefik.http.routers.minio.tls.certresolver=letsencrypt'
+      - 'traefik.http.services.minio.loadbalancer.server.port=9000'
 
   # One-shot container that creates the default bucket after MinIO starts.
   # Runs once and exits — it does not stay running.
@@ -86,8 +163,7 @@ services:
       - -c
       - |
         mc alias set minio http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD}
-        mc mb --ignore-existing minio/fresco
-        mc anonymous set download minio/fresco
+        mc mb --ignore-existing minio/${S3_BUCKET:-assets}
     environment:
       MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
       MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
@@ -97,6 +173,7 @@ services:
 volumes:
   postgres:
   minio:
+  letsencrypt:
 
 # Define a network, which allows containers to communicate
 # with each other, by using their container name as a hostname

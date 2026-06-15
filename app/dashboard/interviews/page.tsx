@@ -1,12 +1,18 @@
+import { type SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
 import { DataTableSkeleton } from '@codaco/fresco-ui/DataTable/DataTableSkeleton';
 import ResponsiveContainer from '@codaco/fresco-ui/layout/ResponsiveContainer';
 import PageHeader from '@codaco/fresco-ui/typography/PageHeader';
 import { requirePageAuth } from '~/lib/auth/guards';
 import { requireAppNotExpired } from '~/queries/appSettings';
+import { searchParamsCache } from '../_components/InterviewsTable/searchParams';
 import InterviewsTableServer from '../_components/InterviewsTable/InterviewsTableServer';
 
-export default function InterviewPage() {
+export default function InterviewPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
   return (
     <>
       <PageHeader
@@ -24,15 +30,20 @@ export default function InterviewPage() {
             />
           }
         >
-          <AuthenticatedInterviews />
+          <AuthenticatedInterviews searchParams={searchParams} />
         </Suspense>
       </ResponsiveContainer>
     </>
   );
 }
 
-async function AuthenticatedInterviews() {
+async function AuthenticatedInterviews({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
   await requireAppNotExpired();
   await requirePageAuth();
-  return <InterviewsTableServer />;
+  const parsed = await searchParamsCache.parse(searchParams);
+  return <InterviewsTableServer searchParams={parsed} />;
 }

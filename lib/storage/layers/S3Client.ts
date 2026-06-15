@@ -1,46 +1,44 @@
 import { S3Client } from '@aws-sdk/client-s3';
-import { getAppSetting } from '~/queries/appSettings';
+import { getStorageConfig, type S3StorageConfig } from '~/lib/storage/config';
 
-export async function getS3Client(): Promise<S3Client> {
-  const [endpoint, region, accessKeyId, secretAccessKey] = await Promise.all([
-    getAppSetting('s3Endpoint'),
-    getAppSetting('s3Region'),
-    getAppSetting('s3AccessKeyId'),
-    getAppSetting('s3SecretAccessKey'),
-  ]);
-
-  if (!endpoint || !region || !accessKeyId || !secretAccessKey) {
-    throw new Error('S3 credentials are not configured');
+async function getS3Config(): Promise<S3StorageConfig> {
+  const config = await getStorageConfig();
+  if (config.provider !== 's3') {
+    throw new Error('S3 is not the configured storage provider');
   }
+  return config;
+}
 
+function makeClient(endpoint: string, config: S3StorageConfig): S3Client {
   return new S3Client({
     endpoint,
-    region,
+    region: config.region,
     credentials: {
-      accessKeyId,
-      secretAccessKey,
+      accessKeyId: config.accessKeyId,
+      secretAccessKey: config.secretAccessKey,
     },
+    // Required for MinIO and for bucket-in-path URLs that the reverse-proxy
+    // path route depends on.
     forcePathStyle: true,
   });
 }
 
-export async function getS3Bucket(): Promise<string> {
-  const bucket = await getAppSetting('s3Bucket');
-  if (!bucket) {
-    throw new Error('S3 bucket is not configured');
-  }
-  return bucket;
+/** Sends requests to the (possibly internal) S3 endpoint. */
+export async function getS3ServerClient(): Promise<S3Client> {
+  const config = await getS3Config();
+  return makeClient(config.endpoint, config);
 }
 
-export async function getS3PublicBaseUrl(): Promise<string> {
-  const [endpoint, bucket] = await Promise.all([
-    getAppSetting('s3Endpoint'),
-    getAppSetting('s3Bucket'),
-  ]);
+/**
+ * Never sends requests — used only to SIGN browser-facing presigned URLs.
+ * SigV4 binds host and path, so signing must happen against the public URL.
+ */
+export async function getS3PublicClient(): Promise<S3Client> {
+  const config = await getS3Config();
+  return makeClient(config.publicUrl, config);
+}
 
-  if (!endpoint || !bucket) {
-    throw new Error('S3 configuration is incomplete');
-  }
-
-  return `${endpoint.replace(/\/$/, '')}/${bucket}`;
+export async function getS3Bucket(): Promise<string> {
+  const config = await getS3Config();
+  return config.bucket;
 }

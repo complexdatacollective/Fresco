@@ -83,9 +83,17 @@ export const useProtocolImport = () => {
   const updateToastPhase = (
     toastId: string,
     phase: ImportPhase,
-    phaseProgress = 0,
-    error?: string | null,
-    onRetry?: () => void,
+    {
+      phaseProgress = 0,
+      error,
+      onRetry,
+      displayName,
+    }: {
+      phaseProgress?: number;
+      error?: string | null;
+      onRetry?: () => void;
+      displayName?: string;
+    } = {},
   ) => {
     const progress = calculateImportProgress(phase, phaseProgress);
     const { update: toastUpdate } = toastRef.current;
@@ -94,7 +102,9 @@ export const useProtocolImport = () => {
       toastUpdate(toastId, {
         variant: 'success',
         title: 'Protocol imported successfully',
-        description: `Protocol ${toastId} has been imported.`,
+        description: displayName
+          ? `${displayName} has been imported.`
+          : 'Import completed!',
         icon: null,
         timeout: 2000,
       });
@@ -131,6 +141,7 @@ export const useProtocolImport = () => {
     toastId: string;
   }) => {
     const fileName = file.name;
+    const protocolName = fileName.replace(/\.netcanvas$/i, '');
 
     const retryThisFile = () => {
       importProtocols([file]);
@@ -157,7 +168,7 @@ export const useProtocolImport = () => {
         );
         for (const dep of migrationInfo.dependencies) {
           if (dep === 'name') {
-            dependencies.name = fileName.replace(/\.netcanvas$/i, '');
+            dependencies.name = protocolName;
           }
         }
       }
@@ -171,7 +182,10 @@ export const useProtocolImport = () => {
 
       if (!validationResult.success) {
         const errorMessage = getValidationErrorMessage(validationResult);
-        updateToastPhase(toastId, 'error', 0, errorMessage, retryThisFile);
+        updateToastPhase(toastId, 'error', {
+          error: errorMessage,
+          onRetry: retryThisFile,
+        });
         return;
       }
 
@@ -182,13 +196,11 @@ export const useProtocolImport = () => {
       const protocolHash = hashProtocol(validatedProtocol);
       const exists = await getProtocolByHash(protocolHash);
       if (exists) {
-        updateToastPhase(
-          toastId,
-          'error',
-          0,
-          'Protocol already exists. Delete the existing protocol first before importing again.',
-          retryThisFile,
-        );
+        updateToastPhase(toastId, 'error', {
+          error:
+            'Protocol already exists. Delete the existing protocol first before importing again.',
+          onRetry: retryThisFile,
+        });
         return;
       }
 
@@ -236,7 +248,9 @@ export const useProtocolImport = () => {
       updateToastPhase(toastId, 'uploading-protocol');
 
       const [uploadedOriginalFile] = await uploadAssets([file], (progress) => {
-        updateToastPhase(toastId, 'uploading-protocol', progress);
+        updateToastPhase(toastId, 'uploading-protocol', {
+          phaseProgress: progress,
+        });
       });
 
       if (uploadedOriginalFile) {
@@ -254,7 +268,9 @@ export const useProtocolImport = () => {
         ? await uploadAssets(
             newAssets.map((asset) => asset.file),
             (progress) => {
-              updateToastPhase(toastId, 'uploading-assets', progress);
+              updateToastPhase(toastId, 'uploading-assets', {
+                phaseProgress: progress,
+              });
             },
           )
         : [];
@@ -304,7 +320,7 @@ export const useProtocolImport = () => {
       });
 
       // Phase: Complete
-      updateToastPhase(toastId, 'complete');
+      updateToastPhase(toastId, 'complete', { displayName: protocolName });
 
       return;
     } catch (e) {
@@ -318,7 +334,10 @@ export const useProtocolImport = () => {
         void cleanupUploadedFiles(uploadedKeys);
       }
 
-      updateToastPhase(toastId, 'error', 0, error.message, retryThisFile);
+      updateToastPhase(toastId, 'error', {
+        error: error.message,
+        onRetry: retryThisFile,
+      });
 
       return;
     } finally {
