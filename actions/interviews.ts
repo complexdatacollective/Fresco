@@ -71,6 +71,23 @@ export async function resolveInterviewIds(
   }
 }
 
+export async function getInterviewDeletionInfo(ids: string[]): Promise<{
+  error: string | null;
+  data: { id: string; exportTime: Date | null }[];
+}> {
+  await requireApiAuth();
+  try {
+    const uniqueIds = [...new Set(ids)];
+    const interviews = await prisma.interview.findMany({
+      where: { id: { in: uniqueIds } },
+      select: { id: true, exportTime: true },
+    });
+    return { error: null, data: interviews };
+  } catch {
+    return { error: 'Failed to resolve interviews', data: [] };
+  }
+}
+
 export type IncompleteInterviewUrlData = {
   id: string;
   identifier: string;

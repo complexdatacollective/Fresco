@@ -1,5 +1,3 @@
-'use client';
-
 import {
   getCoreRowModel,
   getPaginationRowModel,
@@ -11,18 +9,16 @@ import {
   type RowSelectionState,
   type SortingState,
 } from '@tanstack/react-table';
-import { FileUp, Trash } from 'lucide-react';
 import { parseAsInteger, parseAsStringLiteral, useQueryStates } from 'nuqs';
 import { use, useMemo, type ReactNode } from 'react';
 import superjson from 'superjson';
-import { Button } from '@codaco/fresco-ui/Button';
 import { DataTable } from '@codaco/fresco-ui/DataTable/DataTable';
-import { DataTableFloatingBar } from '@codaco/fresco-ui/DataTable/DataTableFloatingBar';
 import { useNuqsTable } from '~/components/DataTable/nuqs/NuqsTableProvider';
 import type {
   GetInterviewsQuery,
   GetInterviewsReturnType,
 } from '~/queries/interviews';
+import { InterviewsSelectionBar } from './InterviewsSelectionBar';
 import { searchParamsUrlKeys, sortableFields, sortOrder } from './searchParams';
 
 type InterviewRow = GetInterviewsQuery[number];
@@ -33,16 +29,22 @@ export default function InterviewsTableRows({
   onRowSelectionChange,
   columns,
   toolbar,
+  isBusy,
   onDeleteSelected,
   onExportSelected,
+  onSelectAllMatching,
+  onDeselectAll,
 }: {
   interviewsPromise: GetInterviewsReturnType;
   rowSelection: RowSelectionState;
   onRowSelectionChange: OnChangeFn<RowSelectionState>;
   columns: ColumnDef<InterviewRow, unknown>[];
   toolbar: ReactNode;
-  onDeleteSelected: (interviews: InterviewRow[]) => void;
-  onExportSelected: (interviewIds: string[]) => void;
+  isBusy: boolean;
+  onDeleteSelected: () => void;
+  onExportSelected: () => void;
+  onSelectAllMatching: () => void;
+  onDeselectAll: () => void;
 }) {
   // TanStack Table returns a mutable ref with stable identity, defeating React Compiler memoization.
   'use no memo';
@@ -117,31 +119,22 @@ export default function InterviewsTableRows({
     manualFiltering: true,
   });
 
+  const selectedCount = Object.keys(rowSelection).filter(
+    (id) => rowSelection[id],
+  ).length;
+
   return (
-    <DataTable
-      table={table}
-      toolbar={toolbar}
-      floatingBar={
-        <DataTableFloatingBar table={table}>
-          <Button
-            onClick={() =>
-              onDeleteSelected(
-                table.getSelectedRowModel().rows.map((r) => r.original),
-              )
-            }
-            color="destructive"
-            icon={<Trash className="size-4" />}
-          >
-            Delete Selected
-          </Button>
-          <Button
-            onClick={() => onExportSelected(Object.keys(rowSelection))}
-            icon={<FileUp className="size-4" />}
-          >
-            Export Selected
-          </Button>
-        </DataTableFloatingBar>
-      }
-    />
+    <>
+      <DataTable table={table} toolbar={toolbar} />
+      <InterviewsSelectionBar
+        selectedCount={selectedCount}
+        totalCount={data.totalCount}
+        isBusy={isBusy}
+        onSelectAllMatching={onSelectAllMatching}
+        onDeselectAll={onDeselectAll}
+        onDeleteSelected={onDeleteSelected}
+        onExportSelected={onExportSelected}
+      />
+    </>
   );
 }

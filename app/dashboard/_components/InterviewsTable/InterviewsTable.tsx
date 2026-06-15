@@ -16,7 +16,10 @@ import {
   DropdownMenuTrigger,
 } from '@codaco/fresco-ui/DropdownMenu';
 import { useToast } from '@codaco/fresco-ui/Toast';
-import { resolveInterviewIds } from '~/actions/interviews';
+import {
+  getInterviewDeletionInfo,
+  resolveInterviewIds,
+} from '~/actions/interviews';
 import { ActionsDropdown } from '~/app/dashboard/_components/InterviewsTable/ActionsDropdown';
 import { InterviewColumns } from '~/app/dashboard/_components/InterviewsTable/Columns';
 import { DeleteInterviewsDialog } from '~/app/dashboard/interviews/_components/DeleteInterviewsDialog';
@@ -66,15 +69,21 @@ const InterviewsTableInner = ({
   const filterOptions = use(filterOptionsPromise);
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-  const [interviewsToDelete, setInterviewsToDelete] = useState<InterviewRow[]>(
-    [],
-  );
+  const [interviewsToDelete, setInterviewsToDelete] = useState<
+    { id: string; exportTime: Date | null }[]
+  >([]);
   const [selectedInterviewIds, setSelectedInterviewIds] = useState<string[]>(
     [],
   );
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
   const [isResolving, startResolving] = useTransition();
+  const [isSelecting, startSelecting] = useTransition();
+  const [isDeleteResolving, startDeleteResolving] = useTransition();
+
+  const selectedIds = Object.keys(rowSelection).filter(
+    (id) => rowSelection[id],
+  );
 
   const columns = useMemo<ColumnDef<InterviewRow, unknown>[]>(() => {
     const actionsColumn: ColumnDef<InterviewRow> = {
@@ -87,14 +96,44 @@ const InterviewsTableInner = ({
     return [...InterviewColumns(), actionsColumn];
   }, []);
 
-  const handleDeleteSelected = (interviews: InterviewRow[]) => {
-    setInterviewsToDelete(interviews);
-    setShowDeleteModal(true);
+  const handleDeleteSelected = () => {
+    startDeleteResolving(async () => {
+      const result = await getInterviewDeletionInfo(selectedIds);
+      if (result.error) {
+        add({
+          title: 'Error',
+          description: result.error,
+          variant: 'destructive',
+        });
+        return;
+      }
+      setInterviewsToDelete(result.data);
+      setShowDeleteModal(true);
+    });
   };
 
-  const handleExportSelected = (interviewIds: string[]) => {
-    setSelectedInterviewIds(interviewIds);
+  const handleExportSelected = () => {
+    setSelectedInterviewIds(selectedIds);
     setShowExportModal(true);
+  };
+
+  const handleSelectAllMatching = () => {
+    startSelecting(async () => {
+      const result = await resolveInterviewIds(searchParams);
+      if (result.error) {
+        add({
+          title: 'Error',
+          description: result.error,
+          variant: 'destructive',
+        });
+        return;
+      }
+      setRowSelection(Object.fromEntries(result.ids.map((id) => [id, true])));
+    });
+  };
+
+  const handleDeselectAll = () => {
+    setRowSelection({});
   };
 
   const resolveAndExport = (extra?: {
@@ -180,8 +219,11 @@ const InterviewsTableInner = ({
             rowSelection={rowSelection}
             onRowSelectionChange={setRowSelection}
             columns={columns}
+            isBusy={isSelecting || isDeleteResolving}
             onDeleteSelected={handleDeleteSelected}
             onExportSelected={handleExportSelected}
+            onSelectAllMatching={handleSelectAllMatching}
+            onDeselectAll={handleDeselectAll}
             toolbar={
               <InterviewsToolbar filterOptions={filterOptions}>
                 {exportDropdown}
