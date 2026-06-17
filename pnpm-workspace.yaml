@@ -18,7 +18,6 @@ allowBuilds:
   unrs-resolver: true
 
 patchedDependencies:
-  '@codaco/network-exporters@1.0.3': patches/@codaco__network-exporters@1.0.3.patch
   react-best-merge-refs@1.0.2: patches/react-best-merge-refs@1.0.2.patch
 
 # Force the transitive `effect` (pulled by uploadthing at the vulnerable 3.17.7,

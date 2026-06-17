@@ -8,7 +8,6 @@ overrides:
   effect: ^3.21.3
 
 patchedDependencies:
-  '@codaco/network-exporters@1.0.3': fa2a19ff9cd946a74d3fc565eb45d209ee85c44e63a8d8a8471562cb20fdbca9
   react-best-merge-refs@1.0.2: 469dfbaa03c158d70d3588a72c8d8cd96e54c22d37f6fe62535c0b33fd21adc8
 
 importers:
@@ -32,7 +31,7 @@ importers:
         version: 1.0.1(dd9ec96e0023f7ec0f33bb20963f8bbd)
       '@codaco/network-exporters':
         specifier: ^1.0.3
-        version: 1.0.3(patch_hash=fa2a19ff9cd946a74d3fc565eb45d209ee85c44e63a8d8a8471562cb20fdbca9)
+        version: 1.0.3
       '@codaco/protocol-utilities':
         specifier: ^1.0.0
         version: 1.0.0
@@ -7526,7 +7525,7 @@ snapshots:
       - redux
       - use-sync-external-store
 
-  '@codaco/network-exporters@1.0.3(patch_hash=fa2a19ff9cd946a74d3fc565eb45d209ee85c44e63a8d8a8471562cb20fdbca9)':
+  '@codaco/network-exporters@1.0.3':
     dependencies:
       '@codaco/protocol-validation': 11.6.1
       '@codaco/shared-consts': 5.1.0
