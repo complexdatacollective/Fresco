@@ -24,8 +24,9 @@ function checkBasicHealth(): HealthCheck {
   const start = performance.now();
 
   try {
-    // Basic health check - just verify the service is running
-    const nodeVersion = process.version;
+    // Basic health check - just verify the service is running. Deliberately
+    // does NOT expose Node.js version or NODE_ENV to unauthenticated callers
+    // (information disclosure that aids CVE targeting).
     const duration = performance.now() - start;
 
     return {
@@ -33,8 +34,6 @@ function checkBasicHealth(): HealthCheck {
       status: 'healthy',
       duration: Math.round(duration),
       details: {
-        nodeVersion,
-        environment: env.NODE_ENV,
         uptime: Math.round(process.uptime()),
       },
     };

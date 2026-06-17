@@ -7,6 +7,7 @@ import { getActivitiesForExport } from '~/actions/activityFeed';
 import { Button } from '@codaco/fresco-ui/Button';
 import { useToast } from '@codaco/fresco-ui/Toast';
 import { useDownload } from '~/hooks/useDownload';
+import { escapeCsvFormula } from '~/utils/escapeCsvFormula';
 
 export default function ExportActivityFeed() {
   const download = useDownload();
@@ -20,8 +21,8 @@ export default function ExportActivityFeed() {
 
         const csvData = activities.map((activity) => ({
           timestamp: activity.timestamp.toISOString(),
-          type: activity.type,
-          details: activity.message,
+          type: escapeCsvFormula(activity.type),
+          details: escapeCsvFormula(activity.message),
         }));
 
         const csv = unparse(csvData, { header: true });

@@ -14,6 +14,7 @@ import { randomBytes } from 'node:crypto';
 import { env } from '~/env';
 import { requireApiAuth } from '~/lib/auth/guards';
 import { createSessionCookie } from '~/lib/auth/session';
+import { isAppConfigured } from '~/queries/appSettings';
 import { getAuthenticatorName } from '~/lib/auth/utils/getAuthenticatorName';
 import {
   createChallengeCookie,
@@ -160,6 +161,11 @@ export async function verifyRegistration(data: {
 // --- Signup with Passkey (atomic: no session until passkey is verified) ---
 
 export async function generateSignupRegistrationOptions(username: string) {
+  // Passkey account creation is also blocked once the app is configured.
+  if (await isAppConfigured()) {
+    return { error: 'Setup is already complete.', data: null };
+  }
+
   if (!username || username.length < 4) {
     return { error: 'Username must be at least 4 characters.', data: null };
   }
@@ -184,6 +190,10 @@ export async function signupWithPasskey(data: {
   credential: RegistrationResponseJSON;
 }) {
   const { username, credential } = data;
+
+  if (await isAppConfigured()) {
+    return { error: 'Setup is already complete.', data: null };
+  }
 
   if (!username || username.length < 4) {
     return { error: 'Username must be at least 4 characters.', data: null };
@@ -361,7 +371,7 @@ export async function verifyAuthentication(data: {
   });
 
   if (!storedCredential) {
-    void recordLoginAttempt(null, ipAddress, false);
+    await recordLoginAttempt(null, ipAddress, false);
     return { error: 'Passkey not recognized.', data: null };
   }
 
@@ -381,12 +391,12 @@ export async function verifyAuthentication(data: {
       },
     });
   } catch {
-    void recordLoginAttempt(storedCredential.user.username, ipAddress, false);
+    await recordLoginAttempt(storedCredential.user.username, ipAddress, false);
     return { error: 'Authentication failed.', data: null };
   }
 
   if (!verification.verified) {
-    void recordLoginAttempt(storedCredential.user.username, ipAddress, false);
+    await recordLoginAttempt(storedCredential.user.username, ipAddress, false);
     return { error: 'Authentication failed.', data: null };
   }
 

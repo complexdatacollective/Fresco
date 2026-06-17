@@ -46,8 +46,27 @@ const config: NextConfig = {
     APP_VERSION: `v${pkg.version}`,
     COMMIT_HASH: commitHash,
   },
-  typescript: {
-    ignoreBuildErrors: true,
+  headers() {
+    const securityHeaders = [
+      { key: 'X-Content-Type-Options', value: 'nosniff' },
+      { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+      { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+      {
+        key: 'Strict-Transport-Security',
+        value: 'max-age=63072000; includeSubDomains',
+      },
+    ];
+
+    // Interview/onboard URLs carry the interview id, which is the
+    // unauthenticated participant access capability. Send no Referer from these
+    // routes so the id can never leak to third-party sub-resources.
+    const noReferrer = [{ key: 'Referrer-Policy', value: 'no-referrer' }];
+
+    return Promise.resolve([
+      { source: '/:path*', headers: securityHeaders },
+      { source: '/interview/:path*', headers: noReferrer },
+      { source: '/onboard/:path*', headers: noReferrer },
+    ]);
   },
 };
 

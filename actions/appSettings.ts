@@ -194,6 +194,11 @@ export async function regenerateInstallationId() {
 }
 
 export async function completeSetup() {
+  // Only an authenticated user (the admin account created in step 1 of setup)
+  // may finalize configuration. Without this, an unauthenticated caller could
+  // mark a fresh instance as configured and lock out the real operator.
+  await requireApiAuth();
+
   const installationId = await getInstallationId();
   if (!installationId) {
     await setAppSetting('installationId', createId());

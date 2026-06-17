@@ -1,6 +1,6 @@
 'use server';
 
-import { randomBytes } from 'crypto';
+import { createHash, randomBytes } from 'crypto';
 import { requireApiAuth } from '~/lib/auth/guards';
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
@@ -16,6 +16,13 @@ function generateToken(): string {
   return randomBytes(32).toString('base64url');
 }
 
+// Tokens are stored only as a SHA-256 hash so a database read (backup, replica,
+// dump) does not expose usable credentials. The plaintext is shown to the
+// operator exactly once, at creation time.
+function hashApiToken(token: string): string {
+  return createHash('sha256').update(token).digest('hex');
+}
+
 export async function createApiToken(data: unknown) {
   const session = await requireApiAuth();
 
@@ -25,7 +32,7 @@ export async function createApiToken(data: unknown) {
   try {
     const apiToken = await prisma.apiToken.create({
       data: {
-        token,
+        token: hashApiToken(token),
         description,
       },
     });
@@ -104,7 +111,7 @@ export async function verifyApiToken(
 ): Promise<{ valid: boolean }> {
   try {
     const apiToken = await prisma.apiToken.findUnique({
-      where: { token, isActive: true },
+      where: { token: hashApiToken(token), isActive: true },
     });
 
     if (!apiToken) {

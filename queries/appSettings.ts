@@ -87,6 +87,18 @@ export async function requireAppNotConfigured() {
   return;
 }
 
+/**
+ * Server-side guard for account-creation server actions. Unlike
+ * `requireAppNotConfigured` (which gates page renders and has a development
+ * convenience bypass), this is enforced in ALL environments: Server Actions are
+ * directly-invokable POST endpoints, so the "no new accounts once the app is
+ * configured" invariant must be checked inside the action itself, not only in
+ * the page that happens to render the signup form.
+ */
+export async function isAppConfigured(): Promise<boolean> {
+  return (await getAppSetting('configured')) === true;
+}
+
 // Unique fetcher for installationID, which defers to the environment variable
 // if set, and otherwise fetches from the database
 export async function getInstallationId() {

@@ -79,7 +79,7 @@ export async function verifyTwoFactor(
 
   if (isTotpCode) {
     if (!verifyTotpCode(credential.secret, code)) {
-      void recordLoginAttempt(user.username, ipAddress, false);
+      await recordLoginAttempt(user.username, ipAddress, false);
       return { success: false, formErrors: ['Invalid verification code'] };
     }
 
@@ -104,7 +104,7 @@ export async function verifyTwoFactor(
     });
 
     if (count === 0) {
-      void recordLoginAttempt(user.username, ipAddress, false);
+      await recordLoginAttempt(user.username, ipAddress, false);
       return { success: false, formErrors: ['Invalid recovery code'] };
     }
 

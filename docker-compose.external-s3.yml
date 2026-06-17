@@ -67,8 +67,6 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    volumes:
-      - .:/app/next-app
     restart: always
     networks:
       - fresco_network

@@ -17,6 +17,10 @@ export async function createSessionCookie(userId: string) {
     data: {
       id: sessionId,
       user_id: userId,
+      // NOTE: sessions currently have a fixed lifetime. getServerSession
+      // (lib/auth/guards.ts) only checks idle_expires (a fixed 14 days from
+      // issuance) and does not slide it on activity, so active_expires is
+      // retained for the Lucia-compatible schema but is not yet enforced.
       active_expires: BigInt(now + SESSION_ACTIVE_PERIOD_MS),
       idle_expires: BigInt(now + SESSION_IDLE_PERIOD_MS),
     },

@@ -35,16 +35,15 @@ const routeHandler = async (
       await shutdownPostHog();
     });
 
+    // Return a generic message rather than the full Zod error, which would
+    // otherwise disclose the accepted schema shape to unauthenticated callers.
     return NextResponse.json(
-      {
-        error: validatedRequest.error,
-      },
+      { error: 'Invalid request body' },
       { status: 400 },
     );
   }
 
-  const { network, currentStep, stageMetadata, lastUpdated } =
-    validatedRequest.data;
+  const { network, currentStep, stageMetadata } = validatedRequest.data;
 
   const freezeEnabled = await getAppSetting('freezeInterviewsAfterCompletion');
 
@@ -68,7 +67,10 @@ const routeHandler = async (
         network,
         currentStep,
         stageMetadata: stageMetadata ?? undefined,
-        lastUpdated: new Date(lastUpdated),
+        // `lastUpdated` is intentionally NOT taken from the client. Prisma's
+        // @updatedAt sets it server-side; trusting the client value let a
+        // participant backdate it (overwriting newer data) and corrupt the
+        // dashboard sort/filter/export ordering, which keys on this column.
       },
     });
 

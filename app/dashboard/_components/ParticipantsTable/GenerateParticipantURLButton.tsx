@@ -73,7 +73,9 @@ export const GenerateParticipationURLButton = memo(
 
               setSelectedProtocol(protocol);
               handleCopy(
-                `${window.location.origin}/onboard/${protocol?.id}/?participantIdentifier=${participant.identifier}`,
+                `${window.location.origin}/onboard/${protocol?.id}/?participantIdentifier=${encodeURIComponent(
+                  participant.identifier,
+                )}`,
               );
 
               setSelectedProtocol(null);

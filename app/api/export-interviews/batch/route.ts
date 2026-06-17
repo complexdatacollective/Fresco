@@ -33,6 +33,21 @@ export async function POST(request: Request) {
   const interviewIds = [...new Set(parsed.data.interviewIds)];
   const { exportOptions } = parsed.data;
 
+  // Clamp client-supplied concurrency: ExportOptionsSchema leaves it unbounded,
+  // so a caller could request a huge (or negative/non-integer) fan-out and
+  // exhaust the function's memory/CPU. Undefined keeps the library's default.
+  const MAX_EXPORT_CONCURRENCY = 8;
+  const safeExportOptions =
+    typeof exportOptions.concurrency === 'number'
+      ? {
+          ...exportOptions,
+          concurrency: Math.min(
+            Math.max(1, Math.floor(exportOptions.concurrency)),
+            MAX_EXPORT_CONCURRENCY,
+          ),
+        }
+      : exportOptions;
+
   // Defense-in-depth: the client orchestrator batches at EXPORT_BATCH_SIZE
   // (200). Reject an oversized direct request so a single invocation can't
   // recreate the serverless time/memory failure this batching design avoids.
@@ -98,7 +113,11 @@ export async function POST(request: Request) {
       ),
     );
 
-    const result = yield* exportPipeline(interviewIds, exportOptions, queue);
+    const result = yield* exportPipeline(
+      interviewIds,
+      safeExportOptions,
+      queue,
+    );
 
     yield* Fiber.interrupt(progressFiber);
     const remaining = yield* Queue.takeAll(queue);
