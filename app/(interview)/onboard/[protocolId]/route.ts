@@ -73,12 +73,9 @@ const handler = async (
     return NextResponse.redirect(url);
   }
 
-  // eslint-disable-next-line no-console
-  console.log(
-    `🚀 Created interview with ID ${createdInterviewId} using protocol ${protocolId} for participant ${
-      participantIdentifier ?? 'Anonymous'
-    }...`,
-  );
+  // Note: the interview id is the unauthenticated access capability for the
+  // participant flow, so it must never be written to logs (where it could leak
+  // and let a third party read or tamper with the interview).
 
   after(async () => {
     await captureEvent('InterviewStarted', {

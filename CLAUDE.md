@@ -47,15 +47,16 @@ components/            # React components
 
 lib/                   # Core business logic
 ├── interviewer/      # Interview session management (Redux)
-├── network-exporters/ # Data export functionality
-└── network-query/    # Network analysis utilities
+├── auth/             # Sessions, guards, password, WebAuthn, TOTP
+├── storage/          # S3 / UploadThing storage layers
+├── export/           # Export orchestration (uses @codaco/network-exporters)
+└── db/               # Prisma schema (lib/db/schema.prisma), client, migrations
 
 hooks/                 # Custom React hooks
 queries/               # Database query functions
 schemas/               # Zod validation schemas
 types/                 # TypeScript type definitions
 utils/                 # Utility functions
-prisma/                # Database schema
 styles/                # Global CSS/SCSS
 ```
 
@@ -132,7 +133,7 @@ Located in `/actions/`. Pattern:
 
 import { requireApiAuth } from '~/utils/auth';
 import { safeUpdateTag } from '~/lib/cache';
-import { prisma } from '~/utils/db';
+import { prisma } from '~/lib/db';
 
 export async function deleteItem(id: string) {
   await requireApiAuth();
@@ -229,13 +230,13 @@ function MyForm() {
 
 ### Database (Prisma)
 
-- Schema at `prisma/schema.prisma`
-- Client imported from `~/utils/db`
+- Schema at `lib/db/schema.prisma`
+- Client imported from `~/lib/db`
 - Uses connection pooling (DATABASE_URL) and direct connection (DATABASE_URL_UNPOOLED)
 - Key models: User, Protocol, Interview, Participant, AppSettings, Events
 
 ```typescript
-import { prisma } from '~/utils/db';
+import { prisma } from '~/lib/db';
 
 const interviews = await prisma.interview.findMany({
   where: { protocolId },

@@ -10,6 +10,7 @@ import { captureException, shutdownPostHog } from '~/lib/posthog-server';
 import { getAppSetting } from '~/queries/appSettings';
 import { getInterviewIdsMatching } from '~/queries/interviews';
 import type { CreateInterview, DeleteInterviews } from '~/schemas/interviews';
+import { participantIdentifierSchema } from '~/schemas/participant';
 import { ensureError } from '~/utils/ensureError';
 import { addEvent } from '~/actions/activityFeed';
 import type { InterviewsSearchParams } from '~/app/dashboard/_components/InterviewsTable/searchParams';
@@ -140,8 +141,24 @@ export async function getIncompleteInterviewUrlData(
 export async function createInterview(data: CreateInterview) {
   const { participantIdentifier, protocolId } = data;
 
+  // The participant identifier may arrive unauthenticated via /onboard, so
+  // validate it (length, trim, non-whitespace) before it is persisted and
+  // later embedded in activity-feed messages and CSV exports.
+  let validatedIdentifier: string | undefined;
+  if (participantIdentifier !== undefined && participantIdentifier !== '') {
+    const parsed = participantIdentifierSchema.safeParse(participantIdentifier);
+    if (!parsed.success) {
+      return {
+        errorType: 'invalid-identifier',
+        error: 'Invalid participant identifier',
+        createdInterviewId: null,
+      };
+    }
+    validatedIdentifier = parsed.data;
+  }
+
   try {
-    if (!participantIdentifier) {
+    if (!validatedIdentifier) {
       const allowAnonymousRecruitment = await getAppSetting(
         'allowAnonymousRecruitment',
       );
@@ -159,14 +176,14 @@ export async function createInterview(data: CreateInterview) {
      * or create a new one with that identifier. If no participant identifier is provided,
      * we create a new anonymous participant with a generated identifier.
      */
-    const participantStatement = participantIdentifier
+    const participantStatement = validatedIdentifier
       ? {
           connectOrCreate: {
             create: {
-              identifier: participantIdentifier,
+              identifier: validatedIdentifier,
             },
             where: {
-              identifier: participantIdentifier,
+              identifier: validatedIdentifier,
             },
           },
         }

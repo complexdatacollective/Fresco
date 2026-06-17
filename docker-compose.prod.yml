@@ -6,8 +6,10 @@
 #
 # Required .env variables for this deployment:
 #
-#   FRESCO_DOMAIN  - the public domain for this deployment (e.g. study.example.com)
-#   ACME_EMAIL     - email for Let's Encrypt certificate notifications
+#   FRESCO_DOMAIN        - the public domain for this deployment (e.g. study.example.com)
+#   ACME_EMAIL           - email for Let's Encrypt certificate notifications
+#   MINIO_ROOT_USER      - MinIO access key (choose a non-default value)
+#   MINIO_ROOT_PASSWORD  - MinIO secret key (use a long random value)
 #
 # FRESCO_DOMAIN is the single source of truth for this deployment's domain: the
 # app's PUBLIC_URL is derived from it automatically (see the fresco service's
@@ -52,8 +54,6 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
-    volumes:
-      - .:/app/next-app
     restart: always
     networks:
       - fresco_network
@@ -116,8 +116,8 @@ services:
   #   Public URL:        https://<your domain>    (your Fresco domain)
   #   Bucket Name:       assets
   #   Region:            us-east-1
-  #   Access Key ID:     value of MINIO_ROOT_USER (default: minioadmin)
-  #   Secret Access Key: value of MINIO_ROOT_PASSWORD (default: minioadmin)
+  #   Access Key ID:     value of MINIO_ROOT_USER (set in .env; no default)
+  #   Secret Access Key: value of MINIO_ROOT_PASSWORD (set in .env; no default)
   #
   # Note: the bucket name occupies /<bucket>/ on your domain - keep the
   # default 'assets' (verified collision-free) or pick a name that cannot
@@ -132,8 +132,8 @@ services:
     volumes:
       - minio:/data
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?Set MINIO_ROOT_USER in .env}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Set a strong MINIO_ROOT_PASSWORD in .env}
     command: server /data --console-address ":9001"
     healthcheck:
       test: ['CMD', 'mc', 'ready', 'local']
@@ -165,8 +165,8 @@ services:
         mc alias set minio http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD}
         mc mb --ignore-existing minio/${S3_BUCKET:-assets}
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?Set MINIO_ROOT_USER in .env}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Set a strong MINIO_ROOT_PASSWORD in .env}
     networks:
       - fresco_network
 

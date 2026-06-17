@@ -20,5 +20,10 @@ allowBuilds:
 patchedDependencies:
   react-best-merge-refs@1.0.2: patches/react-best-merge-refs@1.0.2.patch
 
+# Force the transitive `effect` (pulled by uploadthing at the vulnerable 3.17.7,
+# GHSA-38f7-945m-qr2g) onto the patched line we already depend on directly.
+overrides:
+  effect: '^3.21.3'
+
 minimumReleaseAgeExclude:
   - '@codaco/*'

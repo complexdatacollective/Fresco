@@ -11,7 +11,7 @@ import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { type FormSubmissionResult } from '@codaco/fresco-ui/form/store/types';
 import { checkRateLimit, recordLoginAttempt } from '~/lib/rateLimit';
-import { getInstallationId } from '~/queries/appSettings';
+import { getInstallationId, isAppConfigured } from '~/queries/appSettings';
 import { createUserSchema, loginSchema } from '~/schemas/auth';
 import { getClientIp } from '~/utils/getClientIp';
 import { hashPassword, verifyPassword } from '~/utils/password';
@@ -34,7 +34,23 @@ export type LoginResult =
   | RateLimited
   | TwoFactorRequired;
 
+// Precomputed lazily once per server instance. Used to equalize login response
+// time on the "no such user / passkey-only" path, preventing timing-based
+// username enumeration.
+let dummyPasswordHash: string | null = null;
+async function getDummyPasswordHash(): Promise<string> {
+  dummyPasswordHash ??= await hashPassword('fresco-dummy-password-do-not-use');
+  return dummyPasswordHash;
+}
+
 export async function signup(formData: unknown) {
+  // Account creation must be impossible once the app is configured. This is
+  // enforced here (not only in the setup page) because Server Actions are
+  // directly-invokable endpoints reachable regardless of which page rendered.
+  if (await isAppConfigured()) {
+    return { success: false, error: 'Setup is already complete.' };
+  }
+
   const data = formData as Record<string, unknown>;
   const password = data.password;
 
@@ -131,7 +147,10 @@ export const login = async (data: unknown): Promise<LoginResult> => {
   });
 
   if (!key?.hashed_password) {
-    void recordLoginAttempt(username, ipAddress, false);
+    // Run a dummy verification so this path takes the same time as a wrong
+    // password, preventing username enumeration via response timing.
+    await verifyPassword(password, await getDummyPasswordHash());
+    await recordLoginAttempt(username, ipAddress, false);
     return {
       success: false,
       formErrors: ['Incorrect username or password'],
@@ -141,7 +160,7 @@ export const login = async (data: unknown): Promise<LoginResult> => {
   const validPassword = await verifyPassword(password, key.hashed_password);
 
   if (!validPassword) {
-    void recordLoginAttempt(username, ipAddress, false);
+    await recordLoginAttempt(username, ipAddress, false);
     return {
       success: false,
       formErrors: ['Incorrect username or password'],
@@ -200,7 +219,7 @@ export async function recoveryCodeLogin(data: {
   });
 
   if (!user) {
-    void recordLoginAttempt(data.username, ipAddress, false);
+    await recordLoginAttempt(data.username, ipAddress, false);
     return {
       success: false,
       formErrors: ['Invalid username or recovery code'],
@@ -219,7 +238,7 @@ export async function recoveryCodeLogin(data: {
   });
 
   if (count === 0) {
-    void recordLoginAttempt(data.username, ipAddress, false);
+    await recordLoginAttempt(data.username, ipAddress, false);
     return {
       success: false,
       formErrors: ['Invalid username or recovery code'],

@@ -55,6 +55,8 @@ const {
   mockAddEvent,
   mockLoginSchemaSafeParse,
   mockGetInstallationId,
+  mockIsAppConfigured,
+  mockUserCreate,
 } = vi.hoisted(() => ({
   mockPrismaKeyFindUnique: vi.fn(),
   mockPrismaTotpCredentialFindFirst: vi.fn(),
@@ -68,6 +70,8 @@ const {
   mockAddEvent: vi.fn(),
   mockLoginSchemaSafeParse: vi.fn(),
   mockGetInstallationId: vi.fn(),
+  mockIsAppConfigured: vi.fn(),
+  mockUserCreate: vi.fn(),
 }));
 
 vi.mock('~/lib/db', () => ({
@@ -82,7 +86,7 @@ vi.mock('~/lib/db', () => ({
       delete: vi.fn(),
     },
     user: {
-      create: vi.fn(),
+      create: mockUserCreate,
     },
   },
 }));
@@ -135,6 +139,7 @@ vi.mock('~/actions/activityFeed', () => ({
 
 vi.mock('~/queries/appSettings', () => ({
   getInstallationId: mockGetInstallationId,
+  isAppConfigured: mockIsAppConfigured,
 }));
 
 vi.mock('~/schemas/auth', () => ({
@@ -146,7 +151,7 @@ vi.mock('~/schemas/auth', () => ({
   },
 }));
 
-import { login } from '../auth';
+import { login, signup } from '../auth';
 
 describe('login', () => {
   beforeEach(() => {
@@ -431,5 +436,26 @@ describe('login', () => {
 
       expect(mockCreateSessionCookie).not.toHaveBeenCalled();
     });
+  });
+});
+
+describe('signup', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('refuses to create an account once the app is configured', async () => {
+    mockIsAppConfigured.mockResolvedValue(true);
+
+    const result = await signup({
+      username: 'attacker',
+      password: 'Sup3rSecret!',
+    });
+
+    expect(result).toEqual({
+      success: false,
+      error: 'Setup is already complete.',
+    });
+    expect(mockUserCreate).not.toHaveBeenCalled();
   });
 });

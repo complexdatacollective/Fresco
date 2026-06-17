@@ -50,7 +50,9 @@ export default function RecruitmentTestSection({
       return `/onboard/${selectedProtocol?.id}` as Route;
     }
 
-    return `/onboard/${selectedProtocol?.id}/?participantIdentifier=${selectedParticipant?.identifier}` as Route;
+    return `/onboard/${selectedProtocol?.id}/?participantIdentifier=${encodeURIComponent(
+      selectedParticipant.identifier,
+    )}` as Route;
   };
 
   return (
