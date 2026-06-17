@@ -4,7 +4,7 @@ import { ExportOptionsSchema } from '@codaco/network-exporters/options';
 // Bound the optional export concurrency so a request cannot fan out unboundedly
 // and exhaust the export function's memory/CPU. An out-of-range value is
 // rejected as a validation error rather than silently clamped.
-export const MAX_EXPORT_CONCURRENCY = 8;
+const MAX_EXPORT_CONCURRENCY = 8;
 
 export const exportInterviewsSchema = z.object({
   interviewIds: z.array(z.string()).check(z.minLength(1)),
