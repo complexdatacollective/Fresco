@@ -10,7 +10,7 @@ Fresco is a **single-tenant, single-trust-level** application. Understanding thi
 
 - **Administrators** authenticate (password, with optional TOTP or passkey two-factor) and are all fully trusted — there is no role hierarchy. Anyone who can sign in can manage every protocol, participant, and interview. "Any logged-in user can do X" is therefore by design, not a privilege-escalation flaw.
 - **Participants** take interviews **without authenticating**. A participant is authorized purely by possession of their interview URL, which contains an unguessable interview id. **Treat interview URLs as secrets**: do not post them publicly, and Fresco does not write them to logs.
-- **Account creation** is only possible during initial setup. Once the app is configured, the signup actions reject all new accounts (the check is enforced inside the actions, not only on the setup page).
+- **Account creation** has two paths. The **unauthenticated setup signup** is only available before the app is configured — once configured, the signup actions reject new accounts (the check is enforced inside the actions, not only on the setup page). Separately, **authenticated administrators can create additional accounts** at any time from the dashboard settings (User Management).
 
 ## Data at rest
 
