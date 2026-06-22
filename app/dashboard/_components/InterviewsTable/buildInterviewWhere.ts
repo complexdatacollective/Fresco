@@ -26,6 +26,15 @@ function operatorSql(op: NetworkCondition['operator']): Prisma.Sql {
 }
 
 /**
+ * Progress percentage expression mirroring `computeInterviewProgress`: a
+ * finished interview (finishTime set) is 100%, otherwise progress is derived
+ * from currentStep / protocol stage count. Assumes the aliases `i` (Interview)
+ * and `p` (Protocol).
+ */
+const PROGRESS_SQL =
+  '(CASE WHEN i."finishTime" IS NOT NULL THEN 100 WHEN COALESCE(jsonb_array_length(p."stages"::jsonb),0) > 0 THEN (i."currentStep"::float / jsonb_array_length(p."stages"::jsonb)) * 100 ELSE 0 END)';
+
+/**
  * Builds the WHERE predicate (without the `WHERE` keyword) for the interview
  * list. Returns `Prisma.empty` when no filters are active. Column references
  * assume the aliases `i` (Interview), `p` (Protocol), `par` (Participant).
@@ -66,9 +75,7 @@ export function buildInterviewWhere(
     const min = Number(progress.lo);
     const max = Number(progress.hi);
     conditions.push(
-      Prisma.sql`(CASE WHEN COALESCE(jsonb_array_length(p."stages"::jsonb),0) > 0
-        THEN (i."currentStep"::float / jsonb_array_length(p."stages"::jsonb)) * 100
-        ELSE 0 END) BETWEEN ${min} AND ${max}`,
+      Prisma.sql`${Prisma.raw(PROGRESS_SQL)} BETWEEN ${min} AND ${max}`,
     );
   }
 
@@ -103,8 +110,7 @@ const SORT_COLUMN: Record<string, string | undefined> = {
   startTime: 'i."startTime"',
   lastUpdated: 'i."lastUpdated"',
   exportTime: 'i."exportTime"',
-  progress:
-    '(CASE WHEN COALESCE(jsonb_array_length(p."stages"::jsonb),0) > 0 THEN (i."currentStep"::float / jsonb_array_length(p."stages"::jsonb)) * 100 ELSE 0 END)',
+  progress: PROGRESS_SQL,
 };
 
 export function buildInterviewOrderBy(
