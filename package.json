@@ -59,7 +59,7 @@
     "otpauth": "^9.5.1",
     "papaparse": "^5.5.3",
     "postcss": "^8.5.15",
-    "posthog-js": "^1.386.6",
+    "posthog-js": "^1.391.9",
     "posthog-node": "^5.37.0",
     "qrcode": "^1.5.4",
     "react": "19.2.7",
