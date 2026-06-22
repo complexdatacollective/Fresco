@@ -5,10 +5,15 @@ type InterviewProgressInput = {
 };
 
 /**
- * Completion is determined by finishTime, not currentStep. A finished interview
- * never advances currentStep to stageCount because the finish screen is an
- * appended stage that isn't counted and the finish flow only records finishTime,
- * so deriving progress from currentStep alone caps it below 100%.
+ * Progress for an interview row, kept in step with @codaco/interview.
+ *
+ * Completion is determined by finishTime, not currentStep: the finish flow
+ * records finishTime but does not reliably advance currentStep to the end.
+ *
+ * For in-progress interviews the denominator is stageCount + 1, because the
+ * package indexes currentStep against [...protocolStages, finishStage] — the
+ * appended finish screen makes the true step total one greater than the
+ * protocol's stage count.
  */
 export function computeInterviewProgress({
   finishTime,
@@ -16,5 +21,5 @@ export function computeInterviewProgress({
   stageCount,
 }: InterviewProgressInput): number {
   if (finishTime) return 100;
-  return stageCount > 0 ? (currentStep / stageCount) * 100 : 0;
+  return (currentStep / (stageCount + 1)) * 100;
 }

@@ -27,12 +27,14 @@ function operatorSql(op: NetworkCondition['operator']): Prisma.Sql {
 
 /**
  * Progress percentage expression mirroring `computeInterviewProgress`: a
- * finished interview (finishTime set) is 100%, otherwise progress is derived
- * from currentStep / protocol stage count. Assumes the aliases `i` (Interview)
- * and `p` (Protocol).
+ * finished interview (finishTime set) is 100%, otherwise progress is
+ * currentStep / (protocol stage count + 1). The +1 accounts for the finish
+ * stage that @codaco/interview appends to the stage list, against which
+ * currentStep is indexed. Assumes the aliases `i` (Interview) and `p`
+ * (Protocol).
  */
 const PROGRESS_SQL =
-  '(CASE WHEN i."finishTime" IS NOT NULL THEN 100 WHEN COALESCE(jsonb_array_length(p."stages"::jsonb),0) > 0 THEN (i."currentStep"::float / jsonb_array_length(p."stages"::jsonb)) * 100 ELSE 0 END)';
+  '(CASE WHEN i."finishTime" IS NOT NULL THEN 100 ELSE (i."currentStep"::float / (COALESCE(jsonb_array_length(p."stages"::jsonb),0) + 1)) * 100 END)';
 
 /**
  * Builds the WHERE predicate (without the `WHERE` keyword) for the interview
