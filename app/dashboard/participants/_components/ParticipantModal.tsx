@@ -143,7 +143,7 @@ function ParticipantModal({
 }
 
 // Separate component to handle the identifier field with generate button
-function IdentifierField({
+export function IdentifierField({
   existingParticipants,
   editingParticipant,
   initialValue,
@@ -153,6 +153,7 @@ function IdentifierField({
   initialValue?: string;
 }) {
   const setFieldValue = useFormStore((state) => state.setFieldValue);
+  const validateField = useFormStore((state) => state.validateField);
 
   // Create validation that includes the uniqueness check
   const identifierValidation = participantIdentifierSchema.check(
@@ -212,8 +213,14 @@ function IdentifierField({
           type="button"
           variant="link"
           size="sm"
+          // Prevent the click from blurring the input: a blur validates the
+          // (still empty) value and leaves a "cannot be empty" error that the
+          // programmatic value change below does not clear on its own.
+          onMouseDown={(e) => e.preventDefault()}
           onClick={() => {
             setFieldValue('identifier', `p-${createId()}`);
+            // Re-validate with the generated value so any prior error clears.
+            void validateField('identifier');
           }}
           icon={<WandSparkles />}
         >
