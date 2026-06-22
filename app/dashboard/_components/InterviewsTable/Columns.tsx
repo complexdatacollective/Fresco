@@ -19,6 +19,7 @@ import type {
   GetInterviewsQuery,
   InterviewFilterOptions,
 } from '~/queries/interviews';
+import { computeInterviewProgress } from './computeInterviewProgress';
 import NetworkSummary from './NetworkSummary';
 
 type InterviewRow = GetInterviewsQuery[number];
@@ -166,10 +167,12 @@ export const InterviewColumns = (
   {
     id: 'progress',
     sortingFn: 'basic',
-    accessorFn: (row) => {
-      const stageCount = row.protocol.stageCount;
-      return stageCount > 0 ? (row.currentStep / stageCount) * 100 : 0;
-    },
+    accessorFn: (row) =>
+      computeInterviewProgress({
+        finishTime: row.finishTime,
+        currentStep: row.currentStep,
+        stageCount: row.protocol.stageCount,
+      }),
     meta: {
       filterType: 'range',
       filterConfig: {
@@ -192,9 +195,11 @@ export const InterviewColumns = (
       );
     },
     cell: ({ row }) => {
-      const stageCount = row.original.protocol.stageCount;
-      const progress =
-        stageCount > 0 ? (row.original.currentStep / stageCount) * 100 : 0;
+      const progress = computeInterviewProgress({
+        finishTime: row.original.finishTime,
+        currentStep: row.original.currentStep,
+        stageCount: row.original.protocol.stageCount,
+      });
       return (
         <div className="flex items-center whitespace-nowrap">
           <ProgressBar
