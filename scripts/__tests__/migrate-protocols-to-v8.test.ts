@@ -1,6 +1,9 @@
 import { hashProtocol, migrateProtocol } from '@codaco/protocol-validation';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { migrateProtocolsToV8 } from '~/scripts/migrate-protocols-to-v8';
+import {
+  buildAssetManifest,
+  migrateProtocolsToV8,
+} from '~/scripts/migrate-protocols-to-v8';
 
 /**
  * A minimal v7 protocol JSON containing the fields the v7→v8 migration
@@ -85,6 +88,7 @@ describe('migrateProtocolsToV8', () => {
     prisma.protocol.findMany.mockResolvedValue([
       {
         id: 'cm-protocol-1',
+        assets: [],
         name: 'Test Protocol.netcanvas',
         schemaVersion: 7,
         stages: v7.stages,
@@ -146,6 +150,7 @@ describe('migrateProtocolsToV8', () => {
     prisma.protocol.findMany.mockResolvedValue([
       {
         id: 'cm-x',
+        assets: [],
         name: 'My Protocol.netcanvas',
         schemaVersion: 7,
         stages: v7.stages,
@@ -181,6 +186,7 @@ describe('migrateProtocolsToV8', () => {
     prisma.protocol.findMany.mockResolvedValue([
       {
         id: 'cm-broken',
+        assets: [],
         name: 'Broken Protocol.netcanvas',
         schemaVersion: 7,
         // `stages` is required to be an array — passing a non-array makes
@@ -212,6 +218,7 @@ describe('migrateProtocolsToV8', () => {
     prisma.protocol.findMany.mockResolvedValue([
       {
         id: 'cm-collide',
+        assets: [],
         name: 'Colliding.netcanvas',
         schemaVersion: 7,
         stages: v7.stages,
@@ -246,5 +253,52 @@ describe('migrateProtocolsToV8', () => {
     expect(message).toMatch(/Colliding\.netcanvas/);
     expect(message).toMatch(/cm-existing/);
     expect(message).toMatch(/Existing\.netcanvas/);
+  });
+});
+
+describe('buildAssetManifest', () => {
+  it('reconstructs a file-asset manifest entry from a stored Asset row', () => {
+    const manifest = buildAssetManifest([
+      {
+        assetId: 'asset-network-1',
+        name: 'roster-source.csv',
+        type: 'network',
+        value: null,
+      },
+    ]);
+
+    expect(manifest['asset-network-1']).toEqual({
+      id: 'asset-network-1',
+      name: 'roster-source.csv',
+      type: 'network',
+      source: 'roster-source.csv',
+    });
+  });
+
+  it('reconstructs an apikey manifest entry using value, not source', () => {
+    const manifest = buildAssetManifest([
+      {
+        assetId: 'asset-key-1',
+        name: 'Mapbox token',
+        type: 'apikey',
+        value: 'pk.secret',
+      },
+    ]);
+
+    expect(manifest['asset-key-1']).toEqual({
+      id: 'asset-key-1',
+      name: 'Mapbox token',
+      type: 'apikey',
+      value: 'pk.secret',
+    });
+  });
+
+  it('keys every asset by its assetId', () => {
+    const manifest = buildAssetManifest([
+      { assetId: 'a', name: 'a.png', type: 'image', value: null },
+      { assetId: 'b', name: 'b.geojson', type: 'geojson', value: null },
+    ]);
+
+    expect(Object.keys(manifest)).toEqual(['a', 'b']);
   });
 });

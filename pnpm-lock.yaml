@@ -24,23 +24,23 @@ importers:
         specifier: ^1.5.0
         version: 1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@codaco/fresco-ui':
-        specifier: ^2.13.0
-        version: 2.13.0(@base-ui/react@1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@codaco/shared-consts@5.2.0)(@codaco/tailwind-config@1.0.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.1))(@floating-ui/dom@1.7.6)(@tanstack/react-table@8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tiptap/extension-list@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(motion@12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.1)(typescript@6.0.3)(zod@4.4.3)(zustand@5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))
+        specifier: ^2.14.0
+        version: 2.14.0(@base-ui/react@1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@codaco/shared-consts@5.3.0)(@codaco/tailwind-config@1.0.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.1))(@floating-ui/dom@1.7.6)(@tanstack/react-table@8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tiptap/extension-list@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(motion@12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.1)(typescript@6.0.3)(zod@4.4.3)(zustand@5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))
       '@codaco/interview':
-        specifier: ^1.0.1
-        version: 1.0.1(dd9ec96e0023f7ec0f33bb20963f8bbd)
+        specifier: ^1.2.0
+        version: 1.2.0(1b402db64fdf29c167eb1ba29139ca9d)
       '@codaco/network-exporters':
-        specifier: ^1.0.3
-        version: 1.0.3
+        specifier: ^1.1.0
+        version: 1.1.0
       '@codaco/protocol-utilities':
-        specifier: ^1.0.0
-        version: 1.0.0
+        specifier: ^2.0.0
+        version: 2.0.0
       '@codaco/protocol-validation':
-        specifier: ^11.6.1
-        version: 11.6.1
+        specifier: ^11.7.0
+        version: 11.7.0
       '@codaco/shared-consts':
-        specifier: 5.2.0
-        version: 5.2.0
+        specifier: 5.3.0
+        version: 5.3.0
       '@codaco/tailwind-config':
         specifier: ^1.0.1
         version: 1.0.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.1)
@@ -574,11 +574,11 @@ packages:
     peerDependencies:
       storybook: ^0.0.0-0 || ^10.1.0 || ^10.1.0-0 || ^10.2.0-0 || ^10.3.0-0 || ^10.4.0-0 || ^10.5.0-0 || ^10.6.0-0
 
-  '@codaco/fresco-ui@2.13.0':
-    resolution: {integrity: sha512-RuPz395kZiN7ic41EPk9R7NC8aUXXFDVOOr4KGu7qTuG14UnbjWpB8YLISdG13PdslviMUsN7x/QT9sbaYQKVQ==}
+  '@codaco/fresco-ui@2.14.0':
+    resolution: {integrity: sha512-X2ntMiYwQRccMsW79bENOmsKMoV187crAn7G9jqZjv/SOneNAskNEX8QW/YWkbBYK7Dwi2dSVoL6JxVPcPMjMw==}
     peerDependencies:
       '@base-ui/react': ^1.4.0
-      '@codaco/shared-consts': ^5.2.0
+      '@codaco/shared-consts': ^5.3.0
       '@codaco/tailwind-config': ^1.0.1
       '@tanstack/react-table': ^8.21.3
       motion: ^12.40.0
@@ -588,45 +588,33 @@ packages:
       zod: ^4.4.3
       zustand: ^5.0.14
 
-  '@codaco/interview@1.0.1':
-    resolution: {integrity: sha512-wIKKaaI2fq2GAAURSano+63oMIIQvC90XzB31EdFgmNWL5WTNylHkh2j8APkS2WzTl3+FPdUWVBtkpch6aatKA==}
+  '@codaco/interview@1.2.0':
+    resolution: {integrity: sha512-flUTBDbSAIrlACJzZPALf+2XE0NPJOVIS4zUOnD18nT1ET8eqEhQyXaOAFWhTwhBrGEvIrjF//e/jmSZmU9Orw==}
     peerDependencies:
-      '@codaco/fresco-ui': ^2.13.0
-      '@codaco/protocol-validation': ^11.6.1
-      '@codaco/shared-consts': ^5.2.0
+      '@codaco/fresco-ui': ^2.14.0
+      '@codaco/protocol-validation': ^11.7.0
+      '@codaco/shared-consts': ^5.3.0
       '@codaco/tailwind-config': ^1.0.1
       motion: ^12.40.0
       react: ^19.2.6
       react-dom: ^19.2.6
       tailwindcss: ^4.3.0
 
-  '@codaco/network-exporters@1.0.3':
-    resolution: {integrity: sha512-1r72LZ6aKikWr2ZH+8bPwr4/uII7f6tlLGaZS10q/AbPRp2DY0SyvbTmOKv8cJ0Pis4RqjIQWOjYhEk0J8wl3A==}
+  '@codaco/network-exporters@1.1.0':
+    resolution: {integrity: sha512-83KFLiD/0+xb9Ikzmc/OjuUi5ChC0o6lTWYg1dLwojixGYYOdZWfmPIL7RrFHrJsYKGq/AtWIovHEbJrynLTWg==}
 
-  '@codaco/network-query@1.0.1':
-    resolution: {integrity: sha512-v93+t6ZM3HykaN9MjsFQc4abUlQPJ5gEgGxpa5XAaE6ZCKoJG95EKBI1llBTvwid25FfTSWAZYgHYY036i2CUA==}
+  '@codaco/network-query@1.1.0':
+    resolution: {integrity: sha512-EBG+unaiH56RdpJQMgyXxbekCzL5vJXJsCVzMmoX6D2+BU91G78LTsIb+JnG2b9QCOktYqa6eTwYATcXpDKCXA==}
 
-  '@codaco/protocol-utilities@1.0.0':
-    resolution: {integrity: sha512-S2A+ZXXLnGR4hsuxLd02u+uo3duyagsD0jn+RMGRIo+CtnimFIxX5FDEQyYQKOkRRtvbWkcwr0z20JerY2df0A==}
+  '@codaco/protocol-utilities@2.0.0':
+    resolution: {integrity: sha512-31vh5/Gt9N93Djf1XIr+8elF60ixl+k+45T5vFIQ/fbNH5VE3RkTdsR2s8AZCPHC6SnKuZGSS+lRZqxvLaiLDg==}
 
-  '@codaco/protocol-validation@11.4.0':
-    resolution: {integrity: sha512-mfoZqpPc9YW+qk9rPULrkyrUNlgJnaOgDBCb9gPzklpgV6NQDazala9DUvneBHTuBFlGq0hIfrIKBwkkyxNC2A==}
+  '@codaco/protocol-validation@11.7.0':
+    resolution: {integrity: sha512-MSSoo+vp9Kfysg2hvU9rU/gjKo2MPJbTYtSCUz52dNVMjtsOdiEM4ii/RcwJhbOZi0lnOJoXZdzW116CqqvkuQ==}
     hasBin: true
 
-  '@codaco/protocol-validation@11.6.1':
-    resolution: {integrity: sha512-Vbj9BBlL4GrtBzrvfkkuvGYdZue2s4xuSI35Ejn50riEYKasS2ADm+EuUqklVVd6V4qagG5DQf0cPd7hDlgI9w==}
-    hasBin: true
-
-  '@codaco/shared-consts@5.0.0':
-    resolution: {integrity: sha512-7neTWHNjw6Y7FdVOU8htO2OshADlpS9vI+5mQEDWOdtlL8BdHmBflqQlZE8lFjzBin8tUI9jIlxsLlMYOpjm/w==}
-    engines: {node: '>=20.0.0'}
-
-  '@codaco/shared-consts@5.1.0':
-    resolution: {integrity: sha512-lPWbwcsaGKUUe3grkhk2USdA7dMZGiEgGxef0SwgTsXCVGyNxyBPWq6Vgt+w2HSU2X317aqcUwQBtXXs9BAXOQ==}
-    engines: {node: '>=20.0.0'}
-
-  '@codaco/shared-consts@5.2.0':
-    resolution: {integrity: sha512-N1GZ8nDqW0jxICp6QeNLc8tA8Yley4GtZ1xLoH5qNqJM1dm7VCbKjPBhYcCquS0rJqUw5+gRdzWCE7Vm2XESrA==}
+  '@codaco/shared-consts@5.3.0':
+    resolution: {integrity: sha512-lZMGWKLI1d7OxNZSA3GzkgmNJupAB13nfeq0G27yxF4eJrEKmmUHUGT0fX9evcrrK4VJZKr/gD4aOQruIPY+cQ==}
     engines: {node: '>=20.0.0'}
 
   '@codaco/tailwind-config@1.0.1':
@@ -5062,6 +5050,9 @@ packages:
   mapbox-gl@3.24.0:
     resolution: {integrity: sha512-R+FdFUB3DnoE5FYASV7lGSiRyMkSblcZ2UEy7b2pt7s5ZbCxFIUPXd0E6iAFd8OdvdA2VtbvZZVylzAZNaurjA==}
 
+  markdown-table@3.0.4:
+    resolution: {integrity: sha512-wiYz4+JrLyb/DqW2hkFJxP7Vd7JuTDm77fvbM8VfEQdmSMqcImWeeRbHwZjBjIFki/VaMK2BhFi7oUUZeM5bqw==}
+
   martinez-polygon-clipping@0.8.1:
     resolution: {integrity: sha512-9PLLMzMPI6ihHox4Ns6LpVBLpRc7sbhULybZ/wyaY8sY3ECNe2+hxm1hA2/9bEEpRrdpjoeduBuZLg2aq1cSIQ==}
 
@@ -5074,6 +5065,24 @@ packages:
 
   mdast-util-from-markdown@2.0.3:
     resolution: {integrity: sha512-W4mAWTvSlKvf8L6J+VN9yLSqQ9AOAAvHuoDAmPkz4dHf553m5gVj2ejadHJhoJmcmxEnOv6Pa8XJhpxE93kb8Q==}
+
+  mdast-util-gfm-autolink-literal@2.0.1:
+    resolution: {integrity: sha512-5HVP2MKaP6L+G6YaxPNjuL0BPrq9orG3TsrZ9YXbA3vDw/ACI4MEsnoDpn6ZNm7GnZgtAcONJyPhOP8tNJQavQ==}
+
+  mdast-util-gfm-footnote@2.1.0:
+    resolution: {integrity: sha512-sqpDWlsHn7Ac9GNZQMeUzPQSMzR6Wv0WKRNvQRg0KqHh02fpTz69Qc1QSseNX29bhz1ROIyNyxExfawVKTm1GQ==}
+
+  mdast-util-gfm-strikethrough@2.0.0:
+    resolution: {integrity: sha512-mKKb915TF+OC5ptj5bJ7WFRPdYtuHv0yTRxK2tJvi+BDqbkiG7h7u/9SI89nRAYcmap2xHQL9D+QG/6wSrTtXg==}
+
+  mdast-util-gfm-table@2.0.0:
+    resolution: {integrity: sha512-78UEvebzz/rJIxLvE7ZtDd/vIQ0RHv+3Mh5DR96p7cS7HsBhYIICDBCu8csTNWNO6tBWfqXPWekRuj2FNOGOZg==}
+
+  mdast-util-gfm-task-list-item@2.0.0:
+    resolution: {integrity: sha512-IrtvNvjxC1o06taBAVJznEnkiHxLFTzgonUdy8hzFVeDun0uTjxxrRGVaNFqkU1wJR3RBPEfsxmU6jDWPofrTQ==}
+
+  mdast-util-gfm@3.1.0:
+    resolution: {integrity: sha512-0ulfdQOM3ysHhCJ1p06l0b0VKlhU0wuQs3thxZQagjcjPrlFRqY215uZGHHJan9GEAXd9MbfPjFJz+qMkVR6zQ==}
 
   mdast-util-mdx-expression@2.0.1:
     resolution: {integrity: sha512-J6f+9hUp+ldTZqKRSg7Vw5V6MqjATc+3E4gf3CFNcuZNWD8XdyI6zQ8GqH7f8169MM6P7hMBRDVGnn7oHB9kXQ==}
@@ -5111,6 +5120,27 @@ packages:
 
   micromark-core-commonmark@2.0.3:
     resolution: {integrity: sha512-RDBrHEMSxVFLg6xvnXmb1Ayr2WzLAWjeSATAoxwKYJV94TeNavgoIdA0a9ytzDSVzBy2YKFK+emCPOEibLeCrg==}
+
+  micromark-extension-gfm-autolink-literal@2.1.0:
+    resolution: {integrity: sha512-oOg7knzhicgQ3t4QCjCWgTmfNhvQbDDnJeVu9v81r7NltNCVmhPy1fJRX27pISafdjL+SVc4d3l48Gb6pbRypw==}
+
+  micromark-extension-gfm-footnote@2.1.0:
+    resolution: {integrity: sha512-/yPhxI1ntnDNsiHtzLKYnE3vf9JZ6cAisqVDauhp4CEHxlb4uoOTxOCJ+9s51bIB8U1N1FJ1RXOKTIlD5B/gqw==}
+
+  micromark-extension-gfm-strikethrough@2.1.0:
+    resolution: {integrity: sha512-ADVjpOOkjz1hhkZLlBiYA9cR2Anf8F4HqZUO6e5eDcPQd0Txw5fxLzzxnEkSkfnD0wziSGiv7sYhk/ktvbf1uw==}
+
+  micromark-extension-gfm-table@2.1.1:
+    resolution: {integrity: sha512-t2OU/dXXioARrC6yWfJ4hqB7rct14e8f7m0cbI5hUmDyyIlwv5vEtooptH8INkbLzOatzKuVbQmAYcbWoyz6Dg==}
+
+  micromark-extension-gfm-tagfilter@2.0.0:
+    resolution: {integrity: sha512-xHlTOmuCSotIA8TW1mDIM6X2O1SiX5P9IuDtqGonFhEK0qgRI4yeC6vMxEV2dgyr2TiD+2PQ10o+cOhdVAcwfg==}
+
+  micromark-extension-gfm-task-list-item@2.1.0:
+    resolution: {integrity: sha512-qIBZhqxqI6fjLDYFTBIa4eivDMnP+OZqsNwmQ3xNLE4Cxwc+zfQEfbs6tzAo2Hjq+bh6q5F+Z8/cksrLFYWQQw==}
+
+  micromark-extension-gfm@3.0.0:
+    resolution: {integrity: sha512-vsKArQsicm7t0z2GugkCKtZehqUm31oeGBV/KVSorWSy8ZlNAv7ytjFhvaryUiCUJYqs+NoE6AFhpQvBTM6Q4w==}
 
   micromark-factory-destination@2.0.1:
     resolution: {integrity: sha512-Xe6rDdJlkmbFRExpTOmRj9N3MaWmbAgdpSrBQvCFqhezUn4AHqJHbaEnfbVYYiexVSs//tqOdY/DxhjdCiJnIA==}
@@ -5882,11 +5912,17 @@ packages:
   remark-gemoji@8.0.0:
     resolution: {integrity: sha512-/fL9rc72FYwFGtOKcT+QeQdx9Q9t5v4N6KLXSDOTEgaedzK85I9judBqB2eqz+g4b0ERMejlwSOuPK+wket6aA==}
 
+  remark-gfm@4.0.1:
+    resolution: {integrity: sha512-1quofZ2RQ9EWdeN34S79+KExV1764+wCUGop5CPL1WGdD0ocPpu91lzPGbwWMECpEpd42kJGQwzRfyov9j4yNg==}
+
   remark-parse@11.0.0:
     resolution: {integrity: sha512-FCxlKLNGknS5ba/1lmpYijMUzX2esxW5xQqjWxw2eHFfS2MSdaHVINFmhjo+qN1WhZhNimq0dZATN9pH0IDrpA==}
 
   remark-rehype@11.1.2:
     resolution: {integrity: sha512-Dh7l57ianaEoIpzbp0PC9UKAdCSVklD8E5Rpw7ETfbTl3FqcOOgq5q2LVDhgGCkaBv7p24JXikPdvhhmHvKMsw==}
+
+  remark-stringify@11.0.0:
+    resolution: {integrity: sha512-1OSmLd3awB/t8qdoEOMazZkNsfVTeY4fTsgzcQFdXNq8ToTN4ZGwrMnlda4K6smTFKD+GRV6O48i6Z4iKgPPpw==}
 
   remeda@2.33.4:
     resolution: {integrity: sha512-ygHswjlc/opg2VrtiYvUOPLjxjtdKvjGz1/plDhkG66hjNjFr1xmfrs2ClNFo/E6TyUFiwYNh53bKV26oBoMGQ==}
@@ -7445,10 +7481,10 @@ snapshots:
       - '@chromatic-com/playwright'
       - '@chromatic-com/vitest'
 
-  '@codaco/fresco-ui@2.13.0(@base-ui/react@1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@codaco/shared-consts@5.2.0)(@codaco/tailwind-config@1.0.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.1))(@floating-ui/dom@1.7.6)(@tanstack/react-table@8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tiptap/extension-list@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(motion@12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.1)(typescript@6.0.3)(zod@4.4.3)(zustand@5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))':
+  '@codaco/fresco-ui@2.14.0(@base-ui/react@1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@codaco/shared-consts@5.3.0)(@codaco/tailwind-config@1.0.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.1))(@floating-ui/dom@1.7.6)(@tanstack/react-table@8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tiptap/extension-list@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(motion@12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.1)(typescript@6.0.3)(zod@4.4.3)(zustand@5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))':
     dependencies:
       '@base-ui/react': 1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@codaco/shared-consts': 5.2.0
+      '@codaco/shared-consts': 5.3.0
       '@codaco/tailwind-config': 1.0.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.1)
       '@radix-ui/react-slot': 1.2.4(@types/react@19.2.17)(react@19.2.7)
       '@tanstack/react-table': 8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -7476,6 +7512,7 @@ snapshots:
       rehype-raw: 7.0.0
       rehype-sanitize: 6.0.0
       remark-gemoji: 8.0.0
+      remark-gfm: 4.0.1
       tailwind-merge: 3.6.0
       tailwindcss: 4.3.1
       usehooks-ts: 3.1.1(react@19.2.7)
@@ -7489,13 +7526,13 @@ snapshots:
       - supports-color
       - typescript
 
-  '@codaco/interview@1.0.1(dd9ec96e0023f7ec0f33bb20963f8bbd)':
+  '@codaco/interview@1.2.0(1b402db64fdf29c167eb1ba29139ca9d)':
     dependencies:
       '@base-ui/react': 1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@codaco/fresco-ui': 2.13.0(@base-ui/react@1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@codaco/shared-consts@5.2.0)(@codaco/tailwind-config@1.0.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.1))(@floating-ui/dom@1.7.6)(@tanstack/react-table@8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tiptap/extension-list@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(motion@12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.1)(typescript@6.0.3)(zod@4.4.3)(zustand@5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))
-      '@codaco/network-query': 1.0.1
-      '@codaco/protocol-validation': 11.6.1
-      '@codaco/shared-consts': 5.2.0
+      '@codaco/fresco-ui': 2.14.0(@base-ui/react@1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@codaco/shared-consts@5.3.0)(@codaco/tailwind-config@1.0.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.1))(@floating-ui/dom@1.7.6)(@tanstack/react-table@8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tiptap/extension-list@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(motion@12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.1)(typescript@6.0.3)(zod@4.4.3)(zustand@5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))
+      '@codaco/network-query': 1.1.0
+      '@codaco/protocol-validation': 11.7.0
+      '@codaco/shared-consts': 5.3.0
       '@codaco/tailwind-config': 1.0.1(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.1)
       '@faker-js/faker': 10.4.0
       '@mapbox/search-js-react': 1.5.1(mapbox-gl@3.24.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -7525,10 +7562,10 @@ snapshots:
       - redux
       - use-sync-external-store
 
-  '@codaco/network-exporters@1.0.3':
+  '@codaco/network-exporters@1.1.0':
     dependencies:
-      '@codaco/protocol-validation': 11.6.1
-      '@codaco/shared-consts': 5.1.0
+      '@codaco/protocol-validation': 11.7.0
+      '@codaco/shared-consts': 5.3.0
       '@xmldom/xmldom': 0.9.10
       effect: 3.21.3
       es-toolkit: 1.47.1
@@ -7537,43 +7574,28 @@ snapshots:
       sanitize-filename: 1.6.4
       zod: 4.4.3
 
-  '@codaco/network-query@1.0.1':
+  '@codaco/network-query@1.1.0':
     dependencies:
-      '@codaco/protocol-validation': 11.4.0
-      '@codaco/shared-consts': 5.0.0
+      '@codaco/protocol-validation': 11.7.0
+      '@codaco/shared-consts': 5.3.0
       es-toolkit: 1.47.1
 
-  '@codaco/protocol-utilities@1.0.0':
+  '@codaco/protocol-utilities@2.0.0':
     dependencies:
-      '@codaco/network-query': 1.0.1
-      '@codaco/protocol-validation': 11.6.1
-      '@codaco/shared-consts': 5.2.0
+      '@codaco/network-query': 1.1.0
+      '@codaco/protocol-validation': 11.7.0
+      '@codaco/shared-consts': 5.3.0
       '@faker-js/faker': 10.4.0
       es-toolkit: 1.47.1
       uuid: 14.0.0
 
-  '@codaco/protocol-validation@11.4.0':
+  '@codaco/protocol-validation@11.7.0':
     dependencies:
-      '@codaco/shared-consts': 5.0.0
-      '@faker-js/faker': 10.4.0
-      zod: 4.4.3
-
-  '@codaco/protocol-validation@11.6.1':
-    dependencies:
-      '@codaco/shared-consts': 5.1.0
-      '@faker-js/faker': 10.4.0
+      '@codaco/shared-consts': 5.3.0
       ohash: 2.0.11
       zod: 4.4.3
 
-  '@codaco/shared-consts@5.0.0':
-    dependencies:
-      zod: 4.4.3
-
-  '@codaco/shared-consts@5.1.0':
-    dependencies:
-      zod: 4.4.3
-
-  '@codaco/shared-consts@5.2.0':
+  '@codaco/shared-consts@5.3.0':
     dependencies:
       zod: 4.4.3
 
@@ -11777,6 +11799,8 @@ snapshots:
       supercluster: 8.0.1
       tinyqueue: 3.0.0
 
+  markdown-table@3.0.4: {}
+
   martinez-polygon-clipping@0.8.1:
     dependencies:
       robust-predicates: 2.0.4
@@ -11806,6 +11830,63 @@ snapshots:
       micromark-util-symbol: 2.0.1
       micromark-util-types: 2.0.2
       unist-util-stringify-position: 4.0.0
+    transitivePeerDependencies:
+      - supports-color
+
+  mdast-util-gfm-autolink-literal@2.0.1:
+    dependencies:
+      '@types/mdast': 4.0.4
+      ccount: 2.0.1
+      devlop: 1.1.0
+      mdast-util-find-and-replace: 3.0.2
+      micromark-util-character: 2.1.1
+
+  mdast-util-gfm-footnote@2.1.0:
+    dependencies:
+      '@types/mdast': 4.0.4
+      devlop: 1.1.0
+      mdast-util-from-markdown: 2.0.3
+      mdast-util-to-markdown: 2.1.2
+      micromark-util-normalize-identifier: 2.0.1
+    transitivePeerDependencies:
+      - supports-color
+
+  mdast-util-gfm-strikethrough@2.0.0:
+    dependencies:
+      '@types/mdast': 4.0.4
+      mdast-util-from-markdown: 2.0.3
+      mdast-util-to-markdown: 2.1.2
+    transitivePeerDependencies:
+      - supports-color
+
+  mdast-util-gfm-table@2.0.0:
+    dependencies:
+      '@types/mdast': 4.0.4
+      devlop: 1.1.0
+      markdown-table: 3.0.4
+      mdast-util-from-markdown: 2.0.3
+      mdast-util-to-markdown: 2.1.2
+    transitivePeerDependencies:
+      - supports-color
+
+  mdast-util-gfm-task-list-item@2.0.0:
+    dependencies:
+      '@types/mdast': 4.0.4
+      devlop: 1.1.0
+      mdast-util-from-markdown: 2.0.3
+      mdast-util-to-markdown: 2.1.2
+    transitivePeerDependencies:
+      - supports-color
+
+  mdast-util-gfm@3.1.0:
+    dependencies:
+      mdast-util-from-markdown: 2.0.3
+      mdast-util-gfm-autolink-literal: 2.0.1
+      mdast-util-gfm-footnote: 2.1.0
+      mdast-util-gfm-strikethrough: 2.0.0
+      mdast-util-gfm-table: 2.0.0
+      mdast-util-gfm-task-list-item: 2.0.0
+      mdast-util-to-markdown: 2.1.2
     transitivePeerDependencies:
       - supports-color
 
@@ -11906,6 +11987,64 @@ snapshots:
       micromark-util-resolve-all: 2.0.1
       micromark-util-subtokenize: 2.1.0
       micromark-util-symbol: 2.0.1
+      micromark-util-types: 2.0.2
+
+  micromark-extension-gfm-autolink-literal@2.1.0:
+    dependencies:
+      micromark-util-character: 2.1.1
+      micromark-util-sanitize-uri: 2.0.1
+      micromark-util-symbol: 2.0.1
+      micromark-util-types: 2.0.2
+
+  micromark-extension-gfm-footnote@2.1.0:
+    dependencies:
+      devlop: 1.1.0
+      micromark-core-commonmark: 2.0.3
+      micromark-factory-space: 2.0.1
+      micromark-util-character: 2.1.1
+      micromark-util-normalize-identifier: 2.0.1
+      micromark-util-sanitize-uri: 2.0.1
+      micromark-util-symbol: 2.0.1
+      micromark-util-types: 2.0.2
+
+  micromark-extension-gfm-strikethrough@2.1.0:
+    dependencies:
+      devlop: 1.1.0
+      micromark-util-chunked: 2.0.1
+      micromark-util-classify-character: 2.0.1
+      micromark-util-resolve-all: 2.0.1
+      micromark-util-symbol: 2.0.1
+      micromark-util-types: 2.0.2
+
+  micromark-extension-gfm-table@2.1.1:
+    dependencies:
+      devlop: 1.1.0
+      micromark-factory-space: 2.0.1
+      micromark-util-character: 2.1.1
+      micromark-util-symbol: 2.0.1
+      micromark-util-types: 2.0.2
+
+  micromark-extension-gfm-tagfilter@2.0.0:
+    dependencies:
+      micromark-util-types: 2.0.2
+
+  micromark-extension-gfm-task-list-item@2.1.0:
+    dependencies:
+      devlop: 1.1.0
+      micromark-factory-space: 2.0.1
+      micromark-util-character: 2.1.1
+      micromark-util-symbol: 2.0.1
+      micromark-util-types: 2.0.2
+
+  micromark-extension-gfm@3.0.0:
+    dependencies:
+      micromark-extension-gfm-autolink-literal: 2.1.0
+      micromark-extension-gfm-footnote: 2.1.0
+      micromark-extension-gfm-strikethrough: 2.1.0
+      micromark-extension-gfm-table: 2.1.1
+      micromark-extension-gfm-tagfilter: 2.0.0
+      micromark-extension-gfm-task-list-item: 2.1.0
+      micromark-util-combine-extensions: 2.0.1
       micromark-util-types: 2.0.2
 
   micromark-factory-destination@2.0.1:
@@ -12817,6 +12956,17 @@ snapshots:
       gemoji: 8.1.0
       mdast-util-find-and-replace: 3.0.2
 
+  remark-gfm@4.0.1:
+    dependencies:
+      '@types/mdast': 4.0.4
+      mdast-util-gfm: 3.1.0
+      micromark-extension-gfm: 3.0.0
+      remark-parse: 11.0.0
+      remark-stringify: 11.0.0
+      unified: 11.0.5
+    transitivePeerDependencies:
+      - supports-color
+
   remark-parse@11.0.0:
     dependencies:
       '@types/mdast': 4.0.4
@@ -12833,6 +12983,12 @@ snapshots:
       mdast-util-to-hast: 13.2.1
       unified: 11.0.5
       vfile: 6.0.3
+
+  remark-stringify@11.0.0:
+    dependencies:
+      '@types/mdast': 4.0.4
+      mdast-util-to-markdown: 2.1.2
+      unified: 11.0.5
 
   remeda@2.33.4: {}
 

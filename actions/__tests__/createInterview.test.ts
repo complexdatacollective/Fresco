@@ -87,7 +87,7 @@ vi.mock('~/lib/posthog-server', () => ({
   shutdownPostHog: vi.fn(),
 }));
 
-vi.mock('@codaco/interview', () => ({
+vi.mock('@codaco/interview/contract', () => ({
   createInitialNetwork: vi.fn(() => ({
     nodes: [],
     edges: [],
