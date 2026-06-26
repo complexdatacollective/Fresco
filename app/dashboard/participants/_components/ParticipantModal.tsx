@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useState, type Dispatch, type SetStateAction } from 'react';
 import { createParticipant, updateParticipant } from '~/actions/participants';
 import ActionError from '~/components/ActionError';
+import { FieldGenerateButton } from '~/components/FieldGenerateButton';
 import InfoTooltip from '~/components/InfoTooltip';
 import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
 import { Button } from '@codaco/fresco-ui/Button';
@@ -15,7 +16,6 @@ import Field from '@codaco/fresco-ui/form/Field/Field';
 import { FormWithoutProvider } from '@codaco/fresco-ui/form/Form';
 import SubmitButton from '@codaco/fresco-ui/form/SubmitButton';
 import InputField from '@codaco/fresco-ui/form/fields/InputField';
-import useFormStore from '@codaco/fresco-ui/form/hooks/useFormStore';
 import FormStoreProvider from '@codaco/fresco-ui/form/store/formStoreProvider';
 import { z } from 'zod/mini';
 import {
@@ -152,9 +152,6 @@ export function IdentifierField({
   editingParticipant?: Participant | null;
   initialValue?: string;
 }) {
-  const setFieldValue = useFormStore((state) => state.setFieldValue);
-  const validateField = useFormStore((state) => state.validateField);
-
   // Create validation that includes the uniqueness check
   const identifierValidation = participantIdentifierSchema.check(
     z.refine(
@@ -209,23 +206,15 @@ export function IdentifierField({
       type="text"
       component={InputField}
       suffixComponent={
-        <Button
-          type="button"
+        <FieldGenerateButton
+          fieldName="identifier"
+          generate={() => `p-${createId()}`}
           variant="link"
           size="sm"
-          // Prevent the click from blurring the input: a blur validates the
-          // (still empty) value and leaves a "cannot be empty" error that the
-          // programmatic value change below does not clear on its own.
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={() => {
-            setFieldValue('identifier', `p-${createId()}`);
-            // Re-validate with the generated value so any prior error clears.
-            void validateField('identifier');
-          }}
           icon={<WandSparkles />}
         >
           Generate
-        </Button>
+        </FieldGenerateButton>
       }
       initialValue={initialValue}
     />
