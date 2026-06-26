@@ -67,7 +67,7 @@ export async function POST(request: Request) {
 
         for (let i = 0; i < count; i++) {
           const { network, stageMetadata, currentStep, droppedOut } =
-            generateNetwork(typedCodebook, typedStages, undefined, genOptions);
+            generateNetwork(typedCodebook, typedStages, genOptions);
 
           const isCompleted = !droppedOut;
           if (isCompleted) {
@@ -133,7 +133,6 @@ export async function POST(request: Request) {
               const { network, stageMetadata, currentStep } = generateNetwork(
                 typedCodebook,
                 typedStages,
-                undefined,
                 {
                   ...genOptions,
                   simulateDropOut: false,

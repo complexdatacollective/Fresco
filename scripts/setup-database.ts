@@ -6,6 +6,7 @@ dotenv.config();
 import { PrismaPg } from '@prisma/adapter-pg';
 import { execSync, spawnSync } from 'child_process';
 import { PrismaClient } from '~/lib/db/generated/client';
+import { migrateInterviewCategoricals } from './migrate-interview-categoricals';
 import { migrateProtocolsToV8 } from './migrate-protocols-to-v8';
 
 // CLI scripts must use the PG adapter directly because the Neon serverless
@@ -110,6 +111,7 @@ async function handleMigrations(): Promise<void> {
 try {
   await handleMigrations();
   await migrateProtocolsToV8(prisma);
+  await migrateInterviewCategoricals(prisma);
 } catch (error) {
   console.error('Error during database setup:', error);
   process.exit(1);
