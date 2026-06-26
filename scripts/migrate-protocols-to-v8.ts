@@ -2,6 +2,47 @@
 import { hashProtocol, migrateProtocol } from '@codaco/protocol-validation';
 import { Prisma } from '~/lib/db/generated/client';
 
+type ProtocolAssetRow = {
+  assetId: string;
+  name: string;
+  type: string;
+  value: string | null;
+};
+
+/**
+ * Rebuild a protocol's `assetManifest` from its linked Asset rows. Fresco stores
+ * assets in a separate table rather than inline on the protocol, but v8 validation
+ * resolves NameGeneratorRoster/Geospatial asset references against the manifest, so
+ * it must be present for migration to validate. The manifest is excluded from the
+ * protocol hash, so reconstructing it here does not affect the computed hash.
+ */
+export function buildAssetManifest(assets: ProtocolAssetRow[]) {
+  const manifest: Record<
+    string,
+    | { id: string; name: string; type: string; source: string }
+    | { id: string; name: string; type: 'apikey'; value: string }
+  > = {};
+
+  for (const asset of assets) {
+    manifest[asset.assetId] =
+      asset.type === 'apikey'
+        ? {
+            id: asset.assetId,
+            name: asset.name,
+            type: 'apikey',
+            value: asset.value ?? '',
+          }
+        : {
+            id: asset.assetId,
+            name: asset.name,
+            type: asset.type,
+            source: asset.name,
+          };
+  }
+
+  return manifest;
+}
+
 async function migrateOneProtocol(
   prisma: Prisma.TransactionClient,
   row: {
@@ -10,6 +51,7 @@ async function migrateOneProtocol(
     schemaVersion: number;
     stages: unknown;
     codebook: unknown;
+    assets: ProtocolAssetRow[];
   },
 ): Promise<void> {
   const cleanName = row.name.replace(/\.netcanvas$/i, '');
@@ -19,6 +61,7 @@ async function migrateOneProtocol(
     schemaVersion: row.schemaVersion,
     stages: row.stages,
     codebook: row.codebook,
+    assetManifest: buildAssetManifest(row.assets),
   };
 
   let migrated: ReturnType<typeof migrateProtocol>;
@@ -81,6 +124,9 @@ export async function migrateProtocolsToV8(
       schemaVersion: true,
       stages: true,
       codebook: true,
+      assets: {
+        select: { assetId: true, name: true, type: true, value: true },
+      },
     },
   });
 
