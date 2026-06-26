@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
 import { hashProtocol, migrateProtocol } from '@codaco/protocol-validation';
-import { Prisma, type PrismaClient } from '~/lib/db/generated/client';
+import { Prisma } from '~/lib/db/generated/client';
 
 async function migrateOneProtocol(
-  prisma: PrismaClient,
+  prisma: Prisma.TransactionClient,
   row: {
     id: string;
     name: string;
@@ -71,7 +71,7 @@ async function migrateOneProtocol(
  * Idempotent. Hard-fails per protocol on migration errors.
  */
 export async function migrateProtocolsToV8(
-  prisma: PrismaClient,
+  prisma: Prisma.TransactionClient,
 ): Promise<void> {
   const v7Protocols = await prisma.protocol.findMany({
     where: { schemaVersion: { lt: 8 } },

@@ -9,7 +9,7 @@ import {
   NcNetworkSchema,
   type VariableValue,
 } from '@codaco/shared-consts';
-import { type PrismaClient } from '~/lib/db/generated/client';
+import { type Prisma } from '~/lib/db/generated/client';
 
 /**
  * `@codaco/interview` >= 1.1.0 stores categorical attribute values as arrays of
@@ -101,7 +101,7 @@ const BATCH_SIZE = 200;
  * single malformed row can't block a deploy.
  */
 export async function migrateInterviewCategoricals(
-  prisma: PrismaClient,
+  prisma: Prisma.TransactionClient,
 ): Promise<void> {
   const codebookCache = new Map<string, Codebook | null>();
 

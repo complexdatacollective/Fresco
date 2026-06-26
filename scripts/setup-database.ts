@@ -108,10 +108,26 @@ async function handleMigrations(): Promise<void> {
   }
 }
 
+// Generous ceiling for the one-time data migrations, which run at deploy time
+// with no concurrent app traffic. If a deployment exceeds it, raise this rather
+// than splitting the migrations across transactions.
+const DATA_MIGRATION_TIMEOUT_MS = 1000 * 60 * 30;
+
 try {
   await handleMigrations();
-  await migrateProtocolsToV8(prisma);
-  await migrateInterviewCategoricals(prisma);
+
+  // Run the in-place data migrations together in a single transaction so a
+  // failure rolls them all back. A partially-migrated database is dangerous:
+  // when the deploy aborts, the previous Fresco version keeps serving and would
+  // read half-converted protocols/networks written for the new interview
+  // module. All-or-nothing keeps the old version working on the old data.
+  await prisma.$transaction(
+    async (tx) => {
+      await migrateProtocolsToV8(tx);
+      await migrateInterviewCategoricals(tx);
+    },
+    { timeout: DATA_MIGRATION_TIMEOUT_MS },
+  );
 } catch (error) {
   console.error('Error during database setup:', error);
   process.exit(1);
