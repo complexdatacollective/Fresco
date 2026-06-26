@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 import { useState, type Dispatch, type SetStateAction } from 'react';
 import { createParticipant, updateParticipant } from '~/actions/participants';
 import ActionError from '~/components/ActionError';
-import { FieldGenerateButton } from '~/components/FieldGenerateButton';
 import InfoTooltip from '~/components/InfoTooltip';
 import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
 import { Button } from '@codaco/fresco-ui/Button';
@@ -143,7 +142,7 @@ function ParticipantModal({
 }
 
 // Separate component to handle the identifier field with generate button
-export function IdentifierField({
+function IdentifierField({
   existingParticipants,
   editingParticipant,
   initialValue,
@@ -205,17 +204,21 @@ export function IdentifierField({
       }}
       type="text"
       component={InputField}
-      suffixComponent={
-        <FieldGenerateButton
-          fieldName="identifier"
-          generate={() => `p-${createId()}`}
+      // The field controller's setValue routes through the field's change
+      // handler (set + revalidate), and fresco-ui keeps focus within the field
+      // when the button is pressed — so generating no longer leaves a stale
+      // "cannot be empty" error.
+      suffixComponent={(field) => (
+        <Button
+          type="button"
           variant="link"
           size="sm"
           icon={<WandSparkles />}
+          onClick={() => field.setValue(`p-${createId()}`)}
         >
           Generate
-        </FieldGenerateButton>
-      }
+        </Button>
+      )}
       initialValue={initialValue}
     />
   );
