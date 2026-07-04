@@ -5,7 +5,7 @@ import { after } from 'next/server';
 import { requireApiAuth } from '~/lib/auth/guards';
 import { safeRevalidateTag, safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
-import { createInitialNetwork } from '@codaco/interview';
+import { createInitialNetwork } from '@codaco/interview/contract';
 import { captureException, shutdownPostHog } from '~/lib/posthog-server';
 import { getAppSetting } from '~/queries/appSettings';
 import { getInterviewIdsMatching } from '~/queries/interviews';

@@ -2,7 +2,7 @@ import {
   isValidAssetType,
   type InterviewPayload,
   type ResolvedAsset,
-} from '@codaco/interview';
+} from '@codaco/interview/contract';
 import type { GetInterviewByIdQuery } from '~/queries/interviews';
 
 export function mapInterviewPayload(

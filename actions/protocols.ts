@@ -226,7 +226,10 @@ export async function insertProtocol(
         lastModified: protocol.lastModified ?? new Date(),
         name: protocolName,
         schemaVersion: protocol.schemaVersion,
-        stages: protocol.stages,
+        // protocol-validation v11.7 brands variable-reference fields
+        // (EntityAttributeReference); the brand is compile-time-only, so erase
+        // it at the Prisma JSON boundary.
+        stages: protocol.stages as Prisma.InputJsonValue,
         codebook: protocol.codebook,
         description: protocol.description,
         originalFileKey: originalFile.key,

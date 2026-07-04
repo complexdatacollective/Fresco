@@ -1,3 +1,7 @@
+import {
+  entityAttributesProperty,
+  entityPrimaryKeyProperty,
+} from '@codaco/shared-consts';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock server-only first to prevent import errors
@@ -380,10 +384,15 @@ describe('createInterview', () => {
           };
         },
       ];
+      // createInitialNetwork seeds the ego entity with a generated primary key
+      // and empty attributes (per @codaco/interview's network contract).
       expect(createArgs[0].data.network).toEqual({
         nodes: [],
         edges: [],
-        ego: {},
+        ego: {
+          [entityPrimaryKeyProperty]: expect.any(String) as string,
+          [entityAttributesProperty]: {},
+        },
       });
     });
   });

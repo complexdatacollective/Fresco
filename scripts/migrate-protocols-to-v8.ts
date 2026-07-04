@@ -37,7 +37,9 @@ async function migrateOneProtocol(
       where: { id: row.id },
       data: {
         schemaVersion: 8,
-        stages: migrated.stages,
+        // Branded EntityAttributeReference fields are compile-time-only; erase
+        // the brand at the Prisma JSON boundary.
+        stages: migrated.stages as Prisma.InputJsonValue,
         codebook: migrated.codebook,
         experiments: migrated.experiments ?? Prisma.JsonNull,
         hash: newHash,
