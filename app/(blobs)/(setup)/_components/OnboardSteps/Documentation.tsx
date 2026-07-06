@@ -23,7 +23,7 @@ export default function Documentation() {
           href="https://documentation.networkcanvas.com/en/fresco"
           target="_blank"
         >
-          <Surface className="flex gap-8" level={1}>
+          <Surface className="flex gap-8">
             <div className="flex-1">
               <Heading level="h4" variant="all-caps" className="mb-2">
                 About Fresco
@@ -39,7 +39,7 @@ export default function Documentation() {
           href="https://documentation.networkcanvas.com/en/fresco/using-fresco"
           target="_blank"
         >
-          <Surface className="flex gap-10" level={1}>
+          <Surface className="flex gap-10">
             <div className="flex-1">
               <Heading level="h4" variant="all-caps" className="mb-2">
                 Using Fresco

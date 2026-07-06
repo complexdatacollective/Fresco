@@ -29,7 +29,7 @@ export const ParticipantsSelectionBar = ({
     <AnimatePresence>
       {selectedCount > 0 && (
         <MotionSurface
-          level="popover"
+          floating
           spacing="sm"
           shadow="md"
           initial={{ y: 100, opacity: 0 }}

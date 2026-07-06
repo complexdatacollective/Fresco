@@ -494,7 +494,6 @@ export default function UserManagement({
   return (
     <div className="space-y-6">
       <Surface
-        level={1}
         className="mt-2 divide-y divide-current/10 p-6"
         spacing="sm"
       >
@@ -609,7 +608,6 @@ export default function UserManagement({
 
         <DataTable
           table={table}
-          surfaceLevel={1}
           emptyText="No users created yet."
           showPagination={false}
           floatingBar={

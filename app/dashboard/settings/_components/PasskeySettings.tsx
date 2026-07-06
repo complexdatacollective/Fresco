@@ -136,7 +136,6 @@ export default function PasskeySettings({
         <div className="flex flex-col gap-2">
           {passkeys.map((passkey) => (
             <Surface
-              level={2}
               spacing="xs"
               key={passkey.id}
               data-testid="passkey-item"

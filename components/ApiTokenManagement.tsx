@@ -200,7 +200,6 @@ export default function ApiTokenManagement({
       </Button>
       <DataTable
         table={table}
-        surfaceLevel={1}
         emptyText="No API tokens created yet."
         showPagination={false}
       />
