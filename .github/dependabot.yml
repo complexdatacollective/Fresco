@@ -5,3 +5,15 @@ updates:
     target-branch: 'next'
     schedule:
       interval: 'weekly'
+    # Align Dependabot with pnpm's minimumReleaseAge gate (24h — see
+    # pnpm-workspace.yaml): hold routine version-update PRs until the release
+    # is at least a day old, by which point the pnpm age gate also accepts
+    # it, so the PR's CI is green on arrival instead of failing the frozen
+    # install.
+    # NOTE: cooldown applies to VERSION updates only — it does NOT delay
+    # security (CVE) updates, which still open immediately against a freshly
+    # published fix. Those are handled by the dependabot age-gate exempt
+    # workflows, which add a narrow, version-pinned minimumReleaseAgeExclude
+    # entry.
+    cooldown:
+      default-days: 1
