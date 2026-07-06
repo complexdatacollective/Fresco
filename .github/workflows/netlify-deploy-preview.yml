@@ -14,6 +14,8 @@ permissions:
 jobs:
   deploy-preview:
     runs-on: ubuntu-latest
+    # Dependabot PRs don't have access to repository secrets, so skip the job
+    if: github.actor != 'dependabot[bot]'
     env:
       NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
       NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
