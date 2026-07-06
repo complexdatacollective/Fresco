@@ -1,0 +1,56 @@
+name: Dependabot age-gate exempt (apply)
+
+# Stage 2 of 2 (PRIVILEGED). Triggered by the completion of the compute stage
+# via `workflow_run`, so it always runs from the DEFAULT branch — trusted
+# code only. It downloads the compute stage's data-only artifact, strictly
+# validates it, and pushes the minimumReleaseAgeExclude entry to the
+# Dependabot branch. No PR-authored code is checked out for execution here.
+#
+# NOTE: for the pushed commit to RE-TRIGGER the PR's CI, provide a PAT/App
+# token in the DEPENDABOT_AUTOFIX_TOKEN secret — commits pushed with the
+# default GITHUB_TOKEN do not start new workflow runs. Without it the
+# exemption still lands; nudge CI by closing/reopening the PR.
+
+on:
+  workflow_run:
+    workflows: ['Dependabot age-gate exempt (compute)']
+    types: [completed]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dependabot-age-apply-${{ github.event.workflow_run.id }}
+  cancel-in-progress: false
+
+jobs:
+  apply:
+    # Only for a successful compute run that was itself a Dependabot PR.
+    if: >-
+      github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion == 'success' &&
+      github.event.workflow_run.actor.login == 'dependabot[bot]' &&
+      github.event.workflow_run.head_repository.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # Trusted checkout of the default branch (source of this script + a
+      # git context to push from). Uses the optional PAT so the push
+      # re-triggers CI.
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.DEPENDABOT_AUTOFIX_TOKEN || github.token }}
+
+      - name: Download exemption request
+        id: download
+        uses: actions/download-artifact@v4
+        with:
+          name: age-exempt-request
+          path: age-exempt
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+        continue-on-error: true # no artifact => compute found nothing to do
+
+      - name: Apply exemption to the Dependabot branch
+        if: steps.download.outcome == 'success'
+        run: node .github/scripts/dependabot-age-apply.mjs
