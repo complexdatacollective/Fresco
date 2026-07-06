@@ -95,7 +95,10 @@ vi.mock('@codaco/interview/contract', () => ({
   createInitialNetwork: vi.fn(() => ({
     nodes: [],
     edges: [],
-    ego: {},
+    ego: {
+      [entityPrimaryKeyProperty]: 'ego-uid',
+      [entityAttributesProperty]: {},
+    },
   })),
 }));
 
