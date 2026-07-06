@@ -3,6 +3,8 @@
 # explicitly here so the policy is visible and consistent across machines and
 # CI rather than riding on a framework default that could change between pnpm
 # versions.
+packages:
+  - '.'
 minimumReleaseAge: 1440
 # Preserve pnpm's default *non-strict* resolution — fall back to an older
 # in-range version rather than failing resolution. (Setting minimumReleaseAge
