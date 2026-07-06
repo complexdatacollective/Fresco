@@ -98,7 +98,7 @@
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "^6.0.2",
     "@vitest/browser": "4.1.9",
-    "@vitest/browser-playwright": "^4.1.8",
+    "@vitest/browser-playwright": "^4.1.9",
     "@vitest/coverage-v8": "^4.1.9",
     "babel-plugin-react-compiler": "^1.0.0",
     "chromatic": "^17.4.1",
