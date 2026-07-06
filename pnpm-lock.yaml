@@ -84,8 +84,8 @@ importers:
         specifier: ^3.21.3
         version: 3.21.4
       es-toolkit:
-        specifier: ^1.47.1
-        version: 1.47.1
+        specifier: ^1.49.0
+        version: 1.49.0
       immer:
         specifier: ^11.1.8
         version: 11.1.8
@@ -4262,8 +4262,8 @@ packages:
     resolution: {integrity: sha512-w+5mJ3GuFL+NjVtJlvydShqE1eN3h3PbI7/5LAsYJP/2qtuMXjfL2LpHSRqo4b4eSF5K/DH1JXKUAHSB2UW50g==}
     engines: {node: '>= 0.4'}
 
-  es-toolkit@1.47.1:
-    resolution: {integrity: sha512-5RAqEwf4P4E17p+W75KLOWw/nOvKZzSQpxM32IpI2KZLaVonjTrZ0Ai5ghMaVI9eKC2p8eoQgcBdkEDgzFk6+Q==}
+  es-toolkit@1.49.0:
+    resolution: {integrity: sha512-G5iZ6Pc/FNRY/soKZHC+TxGDD83rHUDXxzaWhGCX44vAv/tMs56WMusnm/KMNK+luUPsgA9U28cGr4RDlSzL2g==}
 
   esbuild@0.27.7:
     resolution: {integrity: sha512-IxpibTjyVnmrIQo5aqNpCgoACA/dTKLTlhMHihVHhdkxKyPO1uBBthumT0rdHmcsk9uMonIWS0m4FljWzILh3w==}
@@ -7690,7 +7690,7 @@ snapshots:
       '@tiptap/starter-kit': 3.24.0
       comlink: 4.4.2
       cva: 1.0.0-beta.4(typescript@6.0.3)
-      es-toolkit: 1.47.1
+      es-toolkit: 1.49.0
       fuse.js: 7.4.0
       immer: 11.1.8
       lucide-react: 1.23.0(react@19.2.7)
@@ -7732,7 +7732,7 @@ snapshots:
       concaveman: 2.0.0
       csvtojson: 2.0.14
       d3-force: 3.0.0
-      es-toolkit: 1.47.1
+      es-toolkit: 1.49.0
       immer: 11.1.8
       lucide-react: 1.23.0(react@19.2.7)
       mapbox-gl: 3.24.0
@@ -7760,7 +7760,7 @@ snapshots:
       '@codaco/shared-consts': 5.3.0
       '@xmldom/xmldom': 0.9.10
       effect: 3.21.4
-      es-toolkit: 1.47.1
+      es-toolkit: 1.49.0
       fflate: 0.8.3
       ohash: 2.0.11
       sanitize-filename: 1.6.4
@@ -7770,7 +7770,7 @@ snapshots:
     dependencies:
       '@codaco/protocol-validation': 11.7.0
       '@codaco/shared-consts': 5.3.0
-      es-toolkit: 1.47.1
+      es-toolkit: 1.49.0
 
   '@codaco/protocol-utilities@2.0.0':
     dependencies:
@@ -7778,7 +7778,7 @@ snapshots:
       '@codaco/protocol-validation': 11.7.0
       '@codaco/shared-consts': 5.3.0
       '@faker-js/faker': 10.4.0
-      es-toolkit: 1.47.1
+      es-toolkit: 1.49.0
       uuid: 14.0.0
 
   '@codaco/protocol-validation@11.7.0':
@@ -11042,7 +11042,7 @@ snapshots:
       is-date-object: 1.1.0
       is-symbol: 1.1.1
 
-  es-toolkit@1.47.1: {}
+  es-toolkit@1.49.0: {}
 
   esbuild@0.27.7:
     optionalDependencies:
