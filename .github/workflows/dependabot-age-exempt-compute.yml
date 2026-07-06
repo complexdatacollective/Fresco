@@ -1,0 +1,60 @@
+name: Dependabot age-gate exempt (compute)
+
+# Stage 1 of 2 (UNPRIVILEGED). Runs in the `pull_request` context — read-only
+# token, no secrets — so it is safe to execute against the PR-authored
+# lockfile. It decides whether pnpm's minimumReleaseAge gate (24h — see
+# pnpm-workspace.yaml) blocks a frozen install for this Dependabot PR and, if
+# so, computes and verifies the exact name@version entries to exempt,
+# publishing them as an artifact for the privileged apply stage
+# (dependabot-age-exempt-apply.yml).
+#
+# This split is deliberate: the untrusted code runs here without write
+# access, and only a validated, data-only artifact crosses into the
+# privileged stage.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - 'pnpm-lock.yaml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dependabot-age-compute-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  compute:
+    if: github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # full history so we can diff against the PR base
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Compute age-gate exemption
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_REF: ${{ github.event.pull_request.head.ref }}
+        run: node .github/scripts/dependabot-age-compute.mjs
+
+      - name: Upload exemption request
+        if: ${{ hashFiles('age-exempt/additions.txt') != '' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: age-exempt-request
+          path: age-exempt/
+          retention-days: 1
+          if-no-files-found: ignore
