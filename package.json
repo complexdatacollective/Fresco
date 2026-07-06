@@ -51,7 +51,7 @@
     "es-toolkit": "^1.47.1",
     "immer": "^11.1.8",
     "jszip": "^3.10.1",
-    "lucide-react": "^1.18.0",
+    "lucide-react": "^1.23.0",
     "motion": "^12.40.0",
     "next": "16.2.9",
     "nuqs": "^2.8.9",
