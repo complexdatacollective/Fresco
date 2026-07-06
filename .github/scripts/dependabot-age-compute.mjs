@@ -27,8 +27,17 @@ const WORKSPACE = 'pnpm-workspace.yaml';
 const baseSha = process.env.BASE_SHA;
 const prNumber = process.env.PR_NUMBER;
 const headRef = process.env.HEAD_REF;
-if (!baseSha || !prNumber || !headRef) {
-  console.error('BASE_SHA, PR_NUMBER and HEAD_REF must be set.');
+const missing = Object.entries({
+  BASE_SHA: baseSha,
+  PR_NUMBER: prNumber,
+  HEAD_REF: headRef,
+})
+  .filter(([, value]) => !value)
+  .map(([name]) => name);
+if (missing.length > 0) {
+  console.error(
+    `Missing required environment variable(s): ${missing.join(', ')}`,
+  );
   process.exit(1);
 }
 if (!/^[0-9a-f]{7,40}$/.test(baseSha)) {

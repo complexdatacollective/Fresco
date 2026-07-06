@@ -32,10 +32,12 @@ const { number, headRef } = JSON.parse(
   readFileSync(`${REQUEST_DIR}/pr.json`, 'utf8'),
 );
 
-// Strict allow-list: scoped or unscoped npm name, '@', then a version.
-// Anything with whitespace, quotes, or shell metacharacters is rejected
-// outright — the data came from an unprivileged stage and is treated as
-// untrusted.
+// Strict allow-list matching valid npm `name@version` entries only, e.g.
+// `lodash@4.17.21` or `@babel/core@7.24.0`: an optional `@scope/` prefix,
+// an npm-legal package name, `@`, then a version starting with an
+// alphanumeric character. Anything with whitespace, quotes, or shell
+// metacharacters is rejected outright — the data came from an unprivileged
+// stage and is treated as untrusted.
 const ENTRY =
   /^(?:@[a-z0-9-~][a-z0-9-._~]*\/)?[a-z0-9-~][a-z0-9-._~]*@[A-Za-z0-9][A-Za-z0-9-._+]*$/;
 const invalid = requested.filter((entry) => !ENTRY.test(entry));
