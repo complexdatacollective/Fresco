@@ -1,54 +1,15 @@
 import {
+  CodebookSchema,
   type CurrentProtocol,
-  CurrentProtocolSchema,
+  ExperimentsSchema,
+  stageSchema,
 } from '@codaco/protocol-validation';
 import { NcNetworkSchema, StageMetadataSchema } from '@codaco/shared-consts';
 import { PrismaNeon } from '@prisma/adapter-neon';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { env } from '~/env';
 import { PrismaClient } from '~/lib/db/generated/client';
-import { captureException } from '../posthog-server';
-
-/**
- * Safely parse data with a Zod schema. On failure:
- * - Development: logs a warning and returns the fallback so the app stays usable
- * - Production: captures the exception to PostHog and throws, which is caught
- *   by the nearest error.tsx boundary rather than crashing the entire app
- */
-function safeParseField<T>(
-  schema: {
-    safeParse: (data: unknown) => {
-      success: boolean;
-      data?: T;
-      error?: unknown;
-    };
-  },
-  data: unknown,
-  fieldName: string,
-  fallback: T,
-): T {
-  const result = schema.safeParse(data);
-
-  if (result.success && result.data !== undefined) {
-    return result.data;
-  }
-
-  const parseError = result.error;
-
-  if (env.NODE_ENV === 'development') {
-    // eslint-disable-next-line no-console
-    console.warn(`[Prisma] Failed to parse "${fieldName}" field:`, parseError);
-    return fallback;
-  }
-
-  void captureException(parseError, {
-    context: `prisma.result.${fieldName}`,
-  });
-
-  throw new Error(
-    `Failed to parse "${fieldName}" from database. This is likely a data integrity issue.`,
-  );
-}
+import { safeParseField } from '~/lib/db/safeParseField';
 
 const createPrismaClient = () => {
   const adapter = env.USE_NEON_POSTGRES_ADAPTER
@@ -139,88 +100,64 @@ const createPrismaClient = () => {
   });
 };
 
+const StagesSchema = stageSchema.array();
+
 /**
- * Returns the result-extension config that parses Protocol's JSON fields
- * (stages, codebook, experiments) into structured types using
- * CurrentProtocolSchema. Protocols are stored as schema-8.
+ * Result-extension config that structurally parses Protocol's JSON fields
+ * (stages, codebook, experiments) into typed values.
+ *
+ * Each field is validated against its own schema rather than the whole-protocol
+ * CurrentProtocolSchema. That whole-protocol schema cross-references the
+ * `assetManifest` (to check roster/geospatial asset references), but Fresco
+ * stores assets in a separate table and a Prisma result extension cannot reach
+ * that relation — so the manifest is never available here. Cross-reference
+ * validation already runs at import time (validateAndMigrateProtocol); at read
+ * time we only need structural typing, which these per-field schemas provide
+ * without requiring the manifest.
+ *
+ * safeParseField returns the fallback on failure rather than throwing, so a
+ * single malformed field never crashes a page.
  */
 function protocolJsonExtensions() {
   const modelName = 'protocol';
   return {
     stages: {
       needs: {
-        name: true,
-        schemaVersion: true,
         stages: true,
-        codebook: true,
       },
-      compute: ({
-        name,
-        schemaVersion,
-        stages,
-        codebook,
-      }: {
-        name: string;
-        schemaVersion: number;
-        stages: unknown;
-        codebook: unknown;
-      }): CurrentProtocol['stages'] => {
-        const parsed = safeParseField(
-          CurrentProtocolSchema,
-          { name, schemaVersion, stages, codebook, experiments: {} },
-          `${modelName}.stages`,
-          null,
-        );
-        return parsed?.stages ?? [];
-      },
+      compute: ({ stages }: { stages: unknown }): CurrentProtocol['stages'] =>
+        safeParseField(StagesSchema, stages, `${modelName}.stages`, []),
     },
     codebook: {
       needs: {
-        name: true,
-        schemaVersion: true,
         codebook: true,
       },
       compute: ({
-        name,
-        schemaVersion,
         codebook,
       }: {
-        name: string;
-        schemaVersion: number;
         codebook: unknown;
-      }): CurrentProtocol['codebook'] => {
-        const parsed = safeParseField(
-          CurrentProtocolSchema,
-          { name, schemaVersion, stages: [], codebook, experiments: {} },
-          `${modelName}.codebook`,
-          null,
-        );
-        return parsed?.codebook ?? { edge: {}, node: {} };
-      },
+      }): CurrentProtocol['codebook'] =>
+        safeParseField(CodebookSchema, codebook, `${modelName}.codebook`, {
+          edge: {},
+          node: {},
+        }),
     },
     experiments: {
       needs: {
-        name: true,
-        schemaVersion: true,
         experiments: true,
       },
       compute: ({
-        name,
-        schemaVersion,
         experiments,
       }: {
-        name: string;
-        schemaVersion: number;
         experiments: unknown;
       }): CurrentProtocol['experiments'] => {
         if (!experiments) return {};
-        const parsed = safeParseField(
-          CurrentProtocolSchema,
-          { name, schemaVersion, stages: [], codebook: {}, experiments },
+        return safeParseField(
+          ExperimentsSchema,
+          experiments,
           `${modelName}.experiments`,
-          null,
+          {},
         );
-        return parsed?.experiments ?? {};
       },
     },
   };

@@ -212,6 +212,116 @@ describe('migrateProtocolsToV8', () => {
     ).rejects.toThrow(/cm-broken/);
   });
 
+  it('normalizes a schemaVersion-8 protocol that is not conformant with the strict v8 schema', async () => {
+    // A protocol stored as schemaVersion 8 but still carrying pre-v8 field
+    // shapes (iconVariant, Toggle options). These slip past the `schemaVersion
+    // < 8` filter yet fail the strict read-time CurrentProtocolSchema, so they
+    // must be re-normalized through the v7→v8 migration.
+    const legacyShaped = makeV7Protocol();
+    const prisma = makeMockPrisma();
+    prisma.protocol.findMany.mockResolvedValue([
+      {
+        id: 'cm-mislabelled-v8',
+        assets: [],
+        name: 'Mislabelled.netcanvas',
+        schemaVersion: 8,
+        stages: legacyShaped.stages,
+        codebook: legacyShaped.codebook,
+        experiments: null,
+        description: legacyShaped.description,
+        lastModified: new Date(legacyShaped.lastModified),
+      },
+    ]);
+
+    await migrateProtocolsToV8(
+      prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
+    );
+
+    expect(prisma.protocol.update).toHaveBeenCalledTimes(1);
+
+    type UpdateCallArg = {
+      where: { id: string };
+      data: {
+        schemaVersion: number;
+        codebook: { node: { person: Record<string, unknown> } };
+        hash: string;
+      };
+    };
+    const call = prisma.protocol.update.mock.calls[0]?.[0] as UpdateCallArg;
+
+    expect(call.where).toEqual({ id: 'cm-mislabelled-v8' });
+    expect(call.data.schemaVersion).toBe(8);
+    // iconVariant → icon proves the v7→v8 migration actually ran on the
+    // mislabelled protocol rather than leaving its legacy shape untouched.
+    expect(call.data.codebook.node.person.icon).toBe('add-a-person');
+    expect(call.data.codebook.node.person).not.toHaveProperty('iconVariant');
+  });
+
+  it('conformant schemaVersion-8 protocols are left untouched', async () => {
+    // Start from a fully-migrated v8 protocol so it already satisfies the strict
+    // schema; the migration must skip it (no re-write, no hash churn).
+    const v7 = makeV7Protocol();
+    const conformant = migrateProtocol({ ...v7, name: 'Clean' }, 8, {
+      name: 'Clean',
+    });
+
+    const prisma = makeMockPrisma();
+    prisma.protocol.findMany.mockResolvedValue([
+      {
+        id: 'cm-clean-v8',
+        assets: [],
+        name: 'Clean.netcanvas',
+        schemaVersion: 8,
+        stages: conformant.stages,
+        codebook: conformant.codebook,
+        experiments: conformant.experiments ?? null,
+        description: null,
+        lastModified: new Date('2024-01-01T00:00:00.000Z'),
+      },
+    ]);
+
+    await migrateProtocolsToV8(
+      prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
+    );
+
+    expect(prisma.protocol.update).not.toHaveBeenCalled();
+  });
+
+  it('leaves a non-normalizable schemaVersion-8 protocol in place without throwing', async () => {
+    const warnSpy = vi
+      .spyOn(console, 'warn')
+      .mockImplementation(() => undefined);
+    const prisma = makeMockPrisma();
+    prisma.protocol.findMany.mockResolvedValue([
+      {
+        id: 'cm-unfixable',
+        assets: [],
+        name: 'Unfixable.netcanvas',
+        schemaVersion: 8,
+        // Not an array: fails the strict schema AND cannot be migrated, so the
+        // normalization attempt throws internally. It must be logged and left
+        // in place rather than aborting the whole deploy transaction.
+        stages: 'not-an-array',
+        codebook: { node: {}, edge: {}, ego: { variables: {} } },
+        experiments: null,
+        description: null,
+        lastModified: new Date('2024-01-01T00:00:00.000Z'),
+      },
+    ]);
+
+    await expect(
+      migrateProtocolsToV8(
+        prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
+      ),
+    ).resolves.toBeUndefined();
+
+    expect(prisma.protocol.update).not.toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalledWith(
+      expect.stringContaining('Unfixable.netcanvas'),
+    );
+    warnSpy.mockRestore();
+  });
+
   it('wraps a P2002 hash collision with both protocol ids and names', async () => {
     const v7 = makeV7Protocol();
     const prisma = makeMockPrisma();
