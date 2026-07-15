@@ -238,8 +238,8 @@ importers:
         specifier: ^1.0.0
         version: 1.0.0
       chromatic:
-        specifier: ^17.4.1
-        version: 17.4.1
+        specifier: ^18.0.1
+        version: 18.0.1
       concurrently:
         specifier: ^10.0.3
         version: 10.0.3
@@ -3876,8 +3876,8 @@ packages:
       '@chromatic-com/vitest':
         optional: true
 
-  chromatic@17.4.1:
-    resolution: {integrity: sha512-qL1f0IhOBi0Z6kpQZGR62fJzzCOdjFJLHrJw3QL9YNktj2Kl3+adlU+6psqNGfZUycKF7+pizCSbhsUQNIS/uQ==}
+  chromatic@18.0.1:
+    resolution: {integrity: sha512-GlTYrZ4ui5ZW8Jzut6SAo5bMH3sIugYZ37Nq2DyVHBfPINeEzGA8eG5xNo4N/I2aRdM9Xnqw0SCls7wgf2llvA==}
     engines: {node: '>=22.0.0'}
     hasBin: true
     peerDependencies:
@@ -10574,9 +10574,9 @@ snapshots:
     dependencies:
       semver: 7.8.5
 
-  chromatic@17.4.1:
+  chromatic@18.0.1:
     dependencies:
-      semver: 7.8.4
+      semver: 7.8.5
 
   chrome-trace-event@1.0.4: {}
 
