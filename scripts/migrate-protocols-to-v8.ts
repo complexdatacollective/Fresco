@@ -69,6 +69,11 @@ function isConformantV8(row: ProtocolRow): boolean {
     stages: row.stages,
     codebook: row.codebook,
     experiments: row.experiments ?? {},
+    // The whole-protocol schema cross-references stage asset ids (roster,
+    // geospatial) against the manifest, so it must be reconstructed here or
+    // every asset-referencing protocol would fail and be re-normalized on
+    // each deploy.
+    assetManifest: buildAssetManifest(row.assets),
   }).success;
 }
 
@@ -152,10 +157,16 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 /**
- * Copy the original `validation.required` state (including its absence) back
- * onto migrated variables. The v7→v8 migration adds `required: true` to any
- * variable carrying a min* rule without an explicit `required`, which is a
- * v8-legal authored configuration that must survive re-normalization.
+ * Copy the original `validation.required` state back onto migrated variables.
+ * The v7→v8 migration adds `required: true` to any variable carrying a min*
+ * rule without an explicit `required`, because pre-v8 runtimes coupled the
+ * two. Fresco's legacy form engine only actually coupled `minLength` and
+ * `minSelected` (an empty value failed those validators); `minValue` passed
+ * empty values, so a min-valued variable without `required` behaved as
+ * optional. Restore the stored state exactly where it matches the behaviour
+ * participants observed: explicit `required` values are always restored, and
+ * the migration-added `required: true` is removed only when the variable's
+ * min validators are limited to `minValue`.
  */
 function restoreRequiredFlags(origVars: unknown, candVars: unknown): void {
   if (!isRecord(origVars) || !isRecord(candVars)) return;
@@ -170,7 +181,10 @@ function restoreRequiredFlags(origVars: unknown, candVars: unknown): void {
 
     if ('required' in origValidation) {
       candValidation.required = origValidation.required;
-    } else {
+    } else if (
+      !('minLength' in origValidation) &&
+      !('minSelected' in origValidation)
+    ) {
       delete candValidation.required;
     }
   }
@@ -264,6 +278,9 @@ async function normalizeMislabelledV8(
       stages: candidate.stages,
       codebook: candidate.codebook,
       experiments: row.experiments ?? {},
+      // Required for asset-referencing stages; without it the restored body
+      // would always fail this parse and needlessly discard authored state.
+      assetManifest: buildAssetManifest(row.assets),
     });
 
     if (reparsed.success) {
