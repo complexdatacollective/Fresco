@@ -43,7 +43,8 @@ export default function SettingsCard({
           level="h4"
           variant="all-caps"
           margin="none"
-          className={cx(divideChildren ? 'mb-4' : 'mb-2')}
+          // margin="none" applies m-0! (important), so spacing must use padding
+          className={cx(divideChildren ? 'pb-4' : 'pb-2')}
         >
           {title}
         </Heading>
