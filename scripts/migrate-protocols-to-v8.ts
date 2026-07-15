@@ -152,92 +152,13 @@ async function migrateOneProtocol(
   );
 }
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
-}
-
-/**
- * Copy the original `validation.required` state back onto migrated variables.
- * The v7→v8 migration adds `required: true` to any variable carrying a min*
- * rule without an explicit `required`, because pre-v8 runtimes coupled the
- * two. Fresco's legacy form engine only actually coupled `minLength` and
- * `minSelected` (an empty value failed those validators); `minValue` passed
- * empty values, so a min-valued variable without `required` behaved as
- * optional. Restore the stored state exactly where it matches the behaviour
- * participants observed: explicit `required` values are always restored, and
- * the migration-added `required: true` is removed only when the variable's
- * min validators are limited to `minValue`.
- */
-function restoreRequiredFlags(origVars: unknown, candVars: unknown): void {
-  if (!isRecord(origVars) || !isRecord(candVars)) return;
-
-  for (const [varId, candVar] of Object.entries(candVars)) {
-    const origVar = origVars[varId];
-    if (!isRecord(origVar) || !isRecord(candVar)) continue;
-
-    const origValidation = origVar.validation;
-    const candValidation = candVar.validation;
-    if (!isRecord(origValidation) || !isRecord(candValidation)) continue;
-
-    if ('required' in origValidation) {
-      candValidation.required = origValidation.required;
-    } else if (
-      !('minLength' in origValidation) &&
-      !('minSelected' in origValidation)
-    ) {
-      delete candValidation.required;
-    }
-  }
-}
-
-/**
- * Re-running the v7→v8 migration on a body that is already v8-authored is not
- * idempotent: it unconditionally resets every node type's `shape` config to
- * `{ default: 'circle' }` and adds `required: true` next to min* validators.
- * On a mislabelled-v8 row those are authored v8 values, not legacy shapes, so
- * copy them back from the stored codebook. Original values are only restored
- * where they are structurally plausible (object shape configs, existing
- * validation objects); the caller re-parses the result against the strict
- * schema before persisting, so a bad restoration can never be written.
- */
-function restoreAuthoredV8State(
-  origCodebook: Record<string, unknown>,
-  candCodebook: Record<string, unknown>,
-): void {
-  for (const entity of ['node', 'edge'] as const) {
-    const origEntity = origCodebook[entity];
-    const candEntity = candCodebook[entity];
-    if (!isRecord(origEntity) || !isRecord(candEntity)) continue;
-
-    for (const [typeId, candType] of Object.entries(candEntity)) {
-      const origType = origEntity[typeId];
-      if (!isRecord(origType) || !isRecord(candType)) continue;
-
-      if (entity === 'node' && isRecord(origType.shape)) {
-        candType.shape = origType.shape;
-      }
-
-      restoreRequiredFlags(origType.variables, candType.variables);
-    }
-  }
-
-  const origEgo = origCodebook.ego;
-  const candEgo = candCodebook.ego;
-  if (isRecord(origEgo) && isRecord(candEgo)) {
-    restoreRequiredFlags(origEgo.variables, candEgo.variables);
-  }
-}
-
 /**
  * Normalize a protocol stored as schemaVersion 8 whose body fails the strict
- * read-time schema — either because it still carries pre-v8 field shapes
- * (e.g. object-form `automaticLayout`) or because it was imported under a
- * laxer historical validator (e.g. out-of-palette OrdinalBin colors or an
- * orphaned CategoricalBin `otherOptionLabel`, both tightened in
- * protocol-validation 11.9.0). Re-running the v7→v8 migration rewrites those
- * shapes; authored v8-only state the re-migration would destroy (node shape
- * configs, optional-field semantics, `experiments`) is preserved from the
- * stored row. Throws if the content is genuinely invalid and cannot be
+ * read-time schema (e.g. dev-era rows still carrying pre-v8 field shapes such
+ * as object-form `automaticLayout`). Schema 8 was never released, so the
+ * current schema is the only schema 8 that exists; a non-conformant row is
+ * simply invalid data and is mechanically coerced by re-running the v7→v8
+ * migration. Throws if the content is genuinely invalid and cannot be
  * migrated.
  */
 async function normalizeMislabelledV8(
@@ -245,11 +166,6 @@ async function normalizeMislabelledV8(
   row: ProtocolRow,
 ): Promise<void> {
   const cleanName = row.name.replace(/\.netcanvas$/i, '');
-
-  // migrateProtocol shares nested objects with its input and mutates some of
-  // them in place (e.g. setting `required` on a variable's validation), so
-  // snapshot the stored codebook before migrating to keep a true original.
-  const origCodebook: unknown = structuredClone(row.codebook);
 
   const asV7 = {
     name: cleanName,
@@ -261,49 +177,17 @@ async function normalizeMislabelledV8(
 
   const migrated = migrateProtocol(asV7, 8, { name: cleanName });
 
-  // Restore authored v8 state onto a clone of the migration output, then keep
-  // the restored body only if it still satisfies the strict schema.
-  let finalProtocol: Pick<typeof migrated, 'stages' | 'codebook'> = migrated;
-  const candidate: unknown = structuredClone(migrated);
-  if (
-    isRecord(candidate) &&
-    isRecord(candidate.codebook) &&
-    isRecord(origCodebook)
-  ) {
-    restoreAuthoredV8State(origCodebook, candidate.codebook);
-
-    const reparsed = CurrentProtocolSchema.safeParse({
-      name: cleanName,
-      schemaVersion: 8,
-      stages: candidate.stages,
-      codebook: candidate.codebook,
-      experiments: row.experiments ?? {},
-      // Required for asset-referencing stages; without it the restored body
-      // would always fail this parse and needlessly discard authored state.
-      assetManifest: buildAssetManifest(row.assets),
-    });
-
-    if (reparsed.success) {
-      finalProtocol = reparsed.data;
-    } else {
-      console.warn(
-        `Could not preserve authored v8 state while normalizing "${row.name}" ` +
-          `(id=${row.id}); persisting the plain re-migration output instead.`,
-      );
-    }
-  }
-
   // The hash is derived from stages + codebook only, so re-normalizing to v8
   // gives the same hash the import flow would now compute for this protocol.
-  const newHash = hashProtocol({ ...migrated, ...finalProtocol });
+  const newHash = hashProtocol(migrated);
 
   await writeMigratedProtocol(
     prisma,
     row,
     {
       schemaVersion: 8,
-      stages: finalProtocol.stages as Prisma.InputJsonValue,
-      codebook: finalProtocol.codebook,
+      stages: migrated.stages as Prisma.InputJsonValue,
+      codebook: migrated.codebook,
       // Preserve the protocol's existing v8-only experiments; a v7→v8 migration
       // has no knowledge of them and would otherwise reset them to its default.
       experiments: row.experiments ?? Prisma.JsonNull,
@@ -324,11 +208,12 @@ async function normalizeMislabelledV8(
  * Two classes of protocol need work:
  * - schemaVersion < 8: migrated up to v8 (hard-fails the deploy on error, since
  *   the new interview module cannot read pre-v8 data at all).
- * - schemaVersion 8 but non-conformant: imported under a laxer historical
- *   validator, these are labelled v8 while still carrying pre-v8 field shapes.
- *   They are re-normalized. If a protocol's content is genuinely invalid and
- *   cannot be migrated, it is logged and left in place — the read path degrades
- *   gracefully rather than crashing, so one bad protocol must not abort the deploy.
+ * - schemaVersion 8 but non-conformant: schema 8 was never released, so these
+ *   are invalid dev-era rows (e.g. still carrying pre-v8 field shapes) that
+ *   are mechanically re-normalized through the v7→v8 migration. If a
+ *   protocol's content is genuinely invalid and cannot be migrated, it is
+ *   logged and left in place — the read path degrades gracefully rather than
+ *   crashing, so one bad protocol must not abort the deploy.
  *
  * Idempotent: conformant v8 protocols are skipped.
  */

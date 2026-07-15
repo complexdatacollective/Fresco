@@ -257,113 +257,11 @@ describe('migrateProtocolsToV8', () => {
     expect(call.data.codebook.node.person).not.toHaveProperty('iconVariant');
   });
 
-  it('preserves authored v8 state (node shape, required semantics) when normalizing', async () => {
-    // A mislabelled-v8 body: legacy pre-v8 field shapes (iconVariant, Toggle
-    // options) force re-normalization, but the row ALSO carries authored v8
-    // state the v7→v8 migration would destroy. Since protocol-validation
-    // 11.9.0 tightened CurrentProtocolSchema, rows like this can newly fail
-    // conformance, and normalization must not corrupt the authored values.
-    //
-    // Required-flag semantics mirror what Fresco's legacy form engine
-    // actually did: minLength/minSelected failed empty values (so the
-    // migration's required:true preserves observed behaviour and must stay),
-    // while minValue passed empty values (so a min-valued variable without
-    // `required` was optional and must remain so). Explicit `required` values
-    // are always restored.
+  it('normalizes non-conformant asset-referencing protocols', async () => {
+    // The re-migration input must include the manifest reconstructed from the
+    // Asset rows, or migration of any asset-referencing protocol would fail
+    // its output validation.
     const mixed = makeV7Protocol();
-    const personNode = mixed.codebook.node.person as Record<string, unknown>;
-    personNode.shape = { default: 'square' };
-    Object.assign(personNode.variables as Record<string, unknown>, {
-      nickname: {
-        name: 'nickname',
-        type: 'text',
-        component: 'Text',
-        validation: { minLength: 2 },
-      },
-      age: {
-        name: 'age',
-        type: 'number',
-        component: 'Number',
-        validation: { minValue: 1 },
-      },
-      bio: {
-        name: 'bio',
-        type: 'text',
-        component: 'TextArea',
-        validation: { minLength: 5, required: false },
-      },
-    });
-
-    const prisma = makeMockPrisma();
-    prisma.protocol.findMany.mockResolvedValue([
-      {
-        id: 'cm-authored-v8',
-        assets: [],
-        name: 'Authored.netcanvas',
-        schemaVersion: 8,
-        stages: mixed.stages,
-        codebook: mixed.codebook,
-        experiments: null,
-        description: mixed.description,
-        lastModified: new Date(mixed.lastModified),
-      },
-    ]);
-
-    await migrateProtocolsToV8(
-      prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
-    );
-
-    expect(prisma.protocol.update).toHaveBeenCalledTimes(1);
-
-    type UpdateCallArg = {
-      data: {
-        codebook: {
-          node: {
-            person: {
-              icon: string;
-              shape: Record<string, unknown>;
-              variables: Record<
-                string,
-                { validation?: Record<string, unknown> }
-              >;
-            };
-          };
-        };
-      };
-    };
-    const call = prisma.protocol.update.mock.calls[0]?.[0] as UpdateCallArg;
-    const person = call.data.codebook.node.person;
-
-    // Legacy shapes were still normalized...
-    expect(person.icon).toBe('add-a-person');
-    expect(person).not.toHaveProperty('iconVariant');
-    // ...but the authored shape config survives instead of being reset to
-    // { default: 'circle' }...
-    expect(person.shape).toEqual({ default: 'square' });
-    // ...minLength keeps the migration's required:true (legacy engine failed
-    // empty values, so the field was effectively required)...
-    expect(person.variables.nickname?.validation).toEqual({
-      minLength: 2,
-      required: true,
-    });
-    // ...minValue-only stays optional (legacy engine passed empty values)...
-    expect(person.variables.age?.validation).toEqual({ minValue: 1 });
-    // ...and an explicit required value is restored verbatim.
-    expect(person.variables.bio?.validation).toEqual({
-      minLength: 5,
-      required: false,
-    });
-  });
-
-  it('normalizes asset-referencing protocols without discarding authored state', async () => {
-    // The whole-protocol schema cross-references roster/geospatial dataSource
-    // ids against the asset manifest. Both the conformance check and the
-    // restored-body re-parse must reconstruct the manifest from the Asset
-    // rows, or every asset-referencing protocol would re-normalize on each
-    // deploy and lose its authored state to the fallback path.
-    const mixed = makeV7Protocol();
-    const personNode = mixed.codebook.node.person as Record<string, unknown>;
-    personNode.shape = { default: 'square' };
     mixed.stages.push({
       id: 'stage-roster',
       type: 'NameGeneratorRoster',
@@ -400,18 +298,6 @@ describe('migrateProtocolsToV8', () => {
     );
 
     expect(prisma.protocol.update).toHaveBeenCalledTimes(1);
-
-    type UpdateCallArg = {
-      data: {
-        codebook: { node: { person: { shape: Record<string, unknown> } } };
-      };
-    };
-    const call = prisma.protocol.update.mock.calls[0]?.[0] as UpdateCallArg;
-    // Restoration succeeded (no fallback to the shape-resetting plain output)
-    // even though the protocol references a stored asset.
-    expect(call.data.codebook.node.person.shape).toEqual({
-      default: 'square',
-    });
   });
 
   it('skips conformant asset-referencing protocols instead of re-normalizing them each deploy', async () => {
@@ -468,55 +354,6 @@ describe('migrateProtocolsToV8', () => {
     );
 
     expect(prisma.protocol.update).not.toHaveBeenCalled();
-  });
-
-  it('falls back to the plain re-migration output when authored state cannot be restored', async () => {
-    const warnSpy = vi
-      .spyOn(console, 'warn')
-      .mockImplementation(() => undefined);
-
-    // The authored shape config is invalid v8, so restoring it would produce
-    // a body that fails the strict schema; normalization must persist the
-    // valid migration output instead of writing a broken body back.
-    const mixed = makeV7Protocol();
-    (mixed.codebook.node.person as Record<string, unknown>).shape = {
-      default: 'not-a-real-shape',
-    };
-
-    const prisma = makeMockPrisma();
-    prisma.protocol.findMany.mockResolvedValue([
-      {
-        id: 'cm-bad-authored',
-        assets: [],
-        name: 'BadAuthored.netcanvas',
-        schemaVersion: 8,
-        stages: mixed.stages,
-        codebook: mixed.codebook,
-        experiments: null,
-        description: mixed.description,
-        lastModified: new Date(mixed.lastModified),
-      },
-    ]);
-
-    await migrateProtocolsToV8(
-      prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
-    );
-
-    expect(prisma.protocol.update).toHaveBeenCalledTimes(1);
-
-    type UpdateCallArg = {
-      data: {
-        codebook: { node: { person: { shape: Record<string, unknown> } } };
-      };
-    };
-    const call = prisma.protocol.update.mock.calls[0]?.[0] as UpdateCallArg;
-    expect(call.data.codebook.node.person.shape).toEqual({
-      default: 'circle',
-    });
-    expect(warnSpy).toHaveBeenCalledWith(
-      expect.stringContaining('BadAuthored.netcanvas'),
-    );
-    warnSpy.mockRestore();
   });
 
   it('conformant schemaVersion-8 protocols are left untouched', async () => {
