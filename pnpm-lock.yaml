@@ -24,26 +24,26 @@ importers:
         specifier: ^1.5.0
         version: 1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@codaco/fresco-ui':
-        specifier: ^3.0.1
-        version: 3.0.1(@base-ui/react@1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@codaco/shared-consts@5.4.0)(@codaco/tailwind-config@1.0.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.1))(@floating-ui/dom@1.7.6)(@tanstack/react-table@8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tiptap/extension-list@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(motion@12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.1)(typescript@6.0.3)(zod@4.4.3)(zustand@5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))
+        specifier: ^4.0.0
+        version: 4.0.0(@base-ui/react@1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@codaco/shared-consts@5.5.0)(@codaco/tailwind-config@1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2))(@floating-ui/dom@1.7.6)(@tanstack/react-table@8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tiptap/extension-list@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@tiptap/extensions@3.27.4(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(motion@12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)(typescript@6.0.3)(zod@4.4.3)(zustand@5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))
       '@codaco/interview':
-        specifier: ^2.0.1
-        version: 2.0.1(a81bf49c747984e2c7ef6be5d53be250)
+        specifier: ^3.0.0
+        version: 3.0.0(8ef844fe2bc6798fb744dabbfb4411e1)
       '@codaco/network-exporters':
-        specifier: ^1.1.2
-        version: 1.1.2
+        specifier: ^1.1.3
+        version: 1.1.3
       '@codaco/protocol-utilities':
-        specifier: ^2.1.1
-        version: 2.1.1
+        specifier: ^2.2.0
+        version: 2.2.0
       '@codaco/protocol-validation':
-        specifier: ^11.8.1
-        version: 11.8.1
+        specifier: ^11.9.0
+        version: 11.9.0
       '@codaco/shared-consts':
-        specifier: 5.4.0
-        version: 5.4.0
+        specifier: 5.5.0
+        version: 5.5.0
       '@codaco/tailwind-config':
-        specifier: ^1.0.2
-        version: 1.0.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.1)
+        specifier: ^1.1.0
+        version: 1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)
       '@paralleldrive/cuid2':
         specifier: ^3.3.0
         version: 3.3.0
@@ -148,7 +148,7 @@ importers:
         version: 2.2.6
       uploadthing:
         specifier: ^7.7.4
-        version: 7.7.4(next@16.2.9(@babel/core@7.29.7)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.101.0))(tailwindcss@4.3.1)
+        version: 7.7.4(next@16.2.9(@babel/core@7.29.7)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.101.0))(tailwindcss@4.3.2)
       usehooks-ts:
         specifier: ^3.1.1
         version: 3.1.1(react@19.2.7)
@@ -188,7 +188,7 @@ importers:
         version: 0.13.11(typescript@6.0.3)(valibot@1.4.1(typescript@6.0.3))(zod@4.4.3)
       '@tailwindcss/forms':
         specifier: ^0.5.11
-        version: 0.5.11(tailwindcss@4.3.1)
+        version: 0.5.11(tailwindcss@4.3.2)
       '@tailwindcss/postcss':
         specifier: 4.3.1
         version: 4.3.1
@@ -257,7 +257,7 @@ importers:
         version: 4.4.5(eslint-plugin-import@2.32.0)(eslint@9.39.4(jiti@2.7.0))
       eslint-plugin-better-tailwindcss:
         specifier: ^4.6.0
-        version: 4.6.0(eslint@9.39.4(jiti@2.7.0))(tailwindcss@4.3.1)(typescript@6.0.3)
+        version: 4.6.0(eslint@9.39.4(jiti@2.7.0))(tailwindcss@4.3.2)(typescript@6.0.3)
       eslint-plugin-import:
         specifier: ^2.32.0
         version: 2.32.0(@typescript-eslint/parser@8.61.0(eslint@9.39.4(jiti@2.7.0))(typescript@6.0.3))(eslint-import-resolver-typescript@4.4.5)(eslint@9.39.4(jiti@2.7.0))
@@ -304,11 +304,11 @@ importers:
         specifier: ^10.4.4
         version: 10.4.4(@testing-library/dom@10.4.1)(@types/react@19.2.17)(prettier@3.9.4)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       tailwindcss:
-        specifier: 4.3.1
-        version: 4.3.1
+        specifier: 4.3.2
+        version: 4.3.2
       tailwindcss-animate:
         specifier: ^1.0.7
-        version: 1.0.7(tailwindcss@4.3.1)
+        version: 1.0.7(tailwindcss@4.3.2)
       tsx:
         specifier: ^4.22.4
         version: 4.22.4
@@ -574,53 +574,53 @@ packages:
     peerDependencies:
       storybook: ^0.0.0-0 || ^10.1.0 || ^10.1.0-0 || ^10.2.0-0 || ^10.3.0-0 || ^10.4.0-0 || ^10.5.0-0 || ^10.6.0-0
 
-  '@codaco/fresco-ui@3.0.1':
-    resolution: {integrity: sha512-ZmAk3VXlskACFwDO6OTvF8pUIM95cqmNCuobxC3q2jtL6avw+shCMJTsOYHHb1n80vgWmA2TWQG0EsznUX+kVA==}
+  '@codaco/fresco-ui@4.0.0':
+    resolution: {integrity: sha512-a2EM+PDuXNZfA59zm0jg5WwvNj2Hfx9DotuygWjOjVpLuZB+q53LqyJfTV1wlisWBzfkcvoe/XSEAj3t3mqfOQ==}
     peerDependencies:
       '@base-ui/react': ^1.4.0
-      '@codaco/shared-consts': ^5.4.0
-      '@codaco/tailwind-config': ^1.0.2
+      '@codaco/shared-consts': 5.5.0
+      '@codaco/tailwind-config': 1.1.0
       '@tanstack/react-table': ^8.21.3
       motion: ^12.40.0
-      react: ^19.2.6
-      react-dom: ^19.2.6
-      tailwindcss: ^4.3.0
+      react: ^19.2.7
+      react-dom: ^19.2.7
+      tailwindcss: ^4.3.2
       zod: ^4.4.3
       zustand: ^5.0.14
 
-  '@codaco/interview@2.0.1':
-    resolution: {integrity: sha512-ln8az1MxtbJKkpaiMNSIVY7iED0uveDYAVXqtzY5DIS/icMbiKaKZ9afSSIcST50qkx+2xNwVkNPNxFTwnG7RQ==}
+  '@codaco/interview@3.0.0':
+    resolution: {integrity: sha512-whvbubscPb2o9fJL6rmDm4mRQzKc0ZY11D1PitftDCeQ/Djq9vnlpw9DLguofyGqLosJuJAiN+fXBS8EeHbmMQ==}
     peerDependencies:
-      '@codaco/fresco-ui': ^3.0.1
-      '@codaco/protocol-validation': ^11.8.1
-      '@codaco/shared-consts': ^5.4.0
-      '@codaco/tailwind-config': ^1.0.2
+      '@codaco/fresco-ui': 4.0.0
+      '@codaco/protocol-validation': 11.9.0
+      '@codaco/shared-consts': 5.5.0
+      '@codaco/tailwind-config': 1.1.0
       motion: ^12.40.0
-      react: ^19.2.6
-      react-dom: ^19.2.6
-      tailwindcss: ^4.3.0
+      react: ^19.2.7
+      react-dom: ^19.2.7
+      tailwindcss: ^4.3.2
 
-  '@codaco/network-exporters@1.1.2':
-    resolution: {integrity: sha512-4qP+1mAy+pxpPHpWRvPcrfUlmPJRHhIr/f4SijiYAm+B3DmjL8XfpKu489/PpOl8XZyx2AnjatkoQJHt1xYXhA==}
+  '@codaco/network-exporters@1.1.3':
+    resolution: {integrity: sha512-f7ar+UFPkT9BDN9N+tlIir2Hvbu4uEjmMNrjE7uEbtfvieCdfuIJmlx1joHE/960QZYu96+NEOSNpt9L/sAfBA==}
 
-  '@codaco/network-query@1.1.2':
-    resolution: {integrity: sha512-QbxxHHA1a/1yOjaMmVinHei/TG8K3AhDgLlKxX9VyWzV4x5OsooNDU6ot6BhFaoKu1m9Uduci+XyB+Y3NaDS7A==}
+  '@codaco/network-query@1.2.0':
+    resolution: {integrity: sha512-1r7hQVTBma3/TYG6wPLtztuSbu7oJXbmm7e8BEvBhsUGHAjB3RsSWZw5DbyfXxagiz3vSiCe6Oq1uBydA5GGrQ==}
 
-  '@codaco/protocol-utilities@2.1.1':
-    resolution: {integrity: sha512-bmq48EPGFol+07gzFttJACdELOU27ssf4eZDEYApbS03iiDKgmadmZxC2oHctPJCL6DhOw4+QbEZjKUd0M+9cw==}
+  '@codaco/protocol-utilities@2.2.0':
+    resolution: {integrity: sha512-nnqZ+YUYTpMBCy5nigS6EAO7XWRVsqJAFqL69Nd23DQA78diRdlZMnVuteHBCI9y/wCUEMFr8g/amTJ33BXfkg==}
 
-  '@codaco/protocol-validation@11.8.1':
-    resolution: {integrity: sha512-/RFzS6QZfDUPOXJSY6/3YK0UE6iu+5jndtp/Fn3YrMgHyr02j2/pvnBK/h6++7B3UP/EQAjSc1rQ0svE6S/lkg==}
+  '@codaco/protocol-validation@11.9.0':
+    resolution: {integrity: sha512-AMSU9nf3Bf8bxvPNW0BdxGVmE5t0vNpnGc5XuWr6OldCUxMUqDponO/YiY+x/AYnE/6KdQDQHvYgYk8nk502Iw==}
     hasBin: true
 
-  '@codaco/shared-consts@5.4.0':
-    resolution: {integrity: sha512-9hkmhvYooSIC2RrAKl5uq+9PbvuXV9ZWIWBxyAxg08Oresu3EP1o0t/liKskewLrsgwRxU5fXlDPuvgpNiybsg==}
+  '@codaco/shared-consts@5.5.0':
+    resolution: {integrity: sha512-n2GJiGcZm8X+ZAtU27RY07zKL2l5nLakdoT+3kX/jnDw+E8JGSOAB+/RdqkAzbihFgi2272eWBwvHpsho6v4dg==}
     engines: {node: '>=20.0.0'}
 
-  '@codaco/tailwind-config@1.0.2':
-    resolution: {integrity: sha512-NynBL9n5rENcxb//7PeudvxvugvdhuGqLIyvF8q35/SHyHEy1U6+HeXpNewBBY8ryUJ6QYiqcfUDOcQwd7Ug7A==}
+  '@codaco/tailwind-config@1.1.0':
+    resolution: {integrity: sha512-w682gp5R+xB8jGOAKiUhgrHlFh3pw9AYtvRGCPc5rexepUNaH38sesA1i6YDzVVycF+duzxBjGHUbxHmVdJy0Q==}
     peerDependencies:
-      tailwindcss: ^4.3.0
+      tailwindcss: ^4.3.2
 
   '@csstools/color-helpers@6.0.2':
     resolution: {integrity: sha512-LMGQLS9EuADloEFkcTBR3BwV/CGHV7zyDxVRtVDTwdI2Ca4it0CCVTT9wCkxSgokjE5Ho41hEPgb8OEUwoXr6Q==}
@@ -2947,11 +2947,11 @@ packages:
     peerDependencies:
       '@tiptap/core': 3.24.0
 
-  '@tiptap/extension-bubble-menu@3.24.0':
-    resolution: {integrity: sha512-jRXD+JPu9ayvq78g8hsCxx4q/qUFtrdfIYirRSf5YUseuuUbtfrq83AsGabcygpUTefjJkMQoXNITkh6294Ggw==}
+  '@tiptap/extension-bubble-menu@3.27.4':
+    resolution: {integrity: sha512-Poy7xwcD3POG5ew/TW7mYXv7m++vCchvHxPUqIfnTxBxvvvqDZkPYFWZS1lvPrSBtm1DcfUTQAgVutM5NDZ99Q==}
     peerDependencies:
-      '@tiptap/core': 3.24.0
-      '@tiptap/pm': 3.24.0
+      '@tiptap/core': 3.27.4
+      '@tiptap/pm': 3.27.4
 
   '@tiptap/extension-bullet-list@3.24.0':
     resolution: {integrity: sha512-IOpAm5c4XVVVvkOef+V9XYMVpea+3MgBpCQgn83UQRlwO9eIMwmcyxOznu7gQPQVShTEpkt4T6uK+ZN9o8meIA==}
@@ -2979,12 +2979,12 @@ packages:
     peerDependencies:
       '@tiptap/extensions': 3.24.0
 
-  '@tiptap/extension-floating-menu@3.24.0':
-    resolution: {integrity: sha512-7QEbf3mUzFAkejjQGX9f0L507oMtnOBRwHt2skUTR+9yXgudsN8zaDBSSRHLeMWGk9b7L293ZMA6zCRrZaHrfA==}
+  '@tiptap/extension-floating-menu@3.27.4':
+    resolution: {integrity: sha512-tnZywwoNDuEcUZmYYIztXl3PpIKUq+gKeaYPuZhpYEVTThU44tzK3ZuFOmd+qf2aAa1MQwxKWqUuLpNK77bwNw==}
     peerDependencies:
       '@floating-ui/dom': ^1.0.0
-      '@tiptap/core': 3.24.0
-      '@tiptap/pm': 3.24.0
+      '@tiptap/core': 3.27.4
+      '@tiptap/pm': 3.27.4
 
   '@tiptap/extension-gapcursor@3.24.0':
     resolution: {integrity: sha512-CzCP5/jni5RFwW9jCfBO6auh83GbaioMTpSk6tyR3sd+CbwlBcUdsJFGJkbaRdiSS9dgIyi+6hRbhjpYdHcp+w==}
@@ -3044,6 +3044,11 @@ packages:
     peerDependencies:
       '@tiptap/core': 3.24.0
 
+  '@tiptap/extension-placeholder@3.27.4':
+    resolution: {integrity: sha512-7hBoFLeddCv1WzkqB0x3coZ1Hp9WZ9wLoRXIUtUhRKMpzFq2IlTtW1iw88g9pTJnL98bCCElN4DZ4mYtaQvmgA==}
+    peerDependencies:
+      '@tiptap/extensions': 3.27.4
+
   '@tiptap/extension-strike@3.24.0':
     resolution: {integrity: sha512-sfN1iQs6Fdlorrfe8wipDkTPwu/Egx3s2fkY7TAWusTGFHwlovuRUGFKqCL9dI4N3u6uqUMpEuWmQNgv+aQGjQ==}
     peerDependencies:
@@ -3065,14 +3070,20 @@ packages:
       '@tiptap/core': 3.24.0
       '@tiptap/pm': 3.24.0
 
+  '@tiptap/extensions@3.27.4':
+    resolution: {integrity: sha512-d8opkg2iGtVwJmNGIqv0blfRxnvWOJp1brz+Z8CsP4ojSS2ZtaE46d6JSQ5OeJ7nMpjhT+9wh4UQcA7OSEO59w==}
+    peerDependencies:
+      '@tiptap/core': 3.27.4
+      '@tiptap/pm': 3.27.4
+
   '@tiptap/pm@3.24.0':
     resolution: {integrity: sha512-QQP/78ryOZDN99gNBV7dgh69/8AYaOYQYFklq/iR+ZRFaaL3+qqHFvPVJapGkzPdymBgNJ34xjFM8n5pJ4QmMg==}
 
-  '@tiptap/react@3.24.0':
-    resolution: {integrity: sha512-KxnrlQbzOgA02EMsfuGGHtNhfkJQGqVlQttmQctI9DOl/F3gcaRqg+wNTBY1Fof8yDaZ8Z1LL1F0C05W0o3vUw==}
+  '@tiptap/react@3.27.4':
+    resolution: {integrity: sha512-rTY1V9Y1jzwmo5ItRi3v2Og/mbcYsr9AjUvGoqpXzR9Z31WhXYphw0y05aYzryh0MHXYzkiE+gbGvrbg+cjwEg==}
     peerDependencies:
-      '@tiptap/core': 3.24.0
-      '@tiptap/pm': 3.24.0
+      '@tiptap/core': 3.27.4
+      '@tiptap/pm': 3.27.4
       '@types/react': ^17.0.0 || ^18.0.0 || ^19.0.0
       '@types/react-dom': ^17.0.0 || ^18.0.0 || ^19.0.0
       react: ^17.0.0 || ^18.0.0 || ^19.0.0
@@ -4567,8 +4578,8 @@ packages:
   functions-have-names@1.2.3:
     resolution: {integrity: sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==}
 
-  fuse.js@7.4.0:
-    resolution: {integrity: sha512-3UqmoSFwzX1sNB1YSk+Co0EdH29XCW2p9g48OAiy93cjKqzuABsqw2VIgSN3CmsT/wo6pIJ3F0Jxeiiby8rhIQ==}
+  fuse.js@7.5.0:
+    resolution: {integrity: sha512-sQtrEfA+ez/3G0cCZecF70oqpCRttCexYUG4mUrtWL49ULUzUyxokt5kyqwtKzj1270RaKih+hcP3qLcumccow==}
     engines: {node: '>=10'}
 
   gemoji@8.1.0:
@@ -5419,8 +5430,8 @@ packages:
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
-  nanoid@5.1.11:
-    resolution: {integrity: sha512-v+KEsUv2ps74PaSKv0gHTxTCgMXOIfBEbaqa6w6ISIGC7ZsvHN4N9oJ8d4cmf0n5oTzQz2SLmThbQWhjd/8eKg==}
+  nanoid@5.1.16:
+    resolution: {integrity: sha512-kVrnsrJqMR8+oLJnGEmSWw9BivK5mt7H3FZatVRjrc5wGqFYuBxX1yG7+A7Gi5AefkX6t/oCkizcQgpu0cY1dQ==}
     engines: {node: ^18 || >=20}
     hasBin: true
 
@@ -6583,6 +6594,9 @@ packages:
   tailwindcss@4.3.1:
     resolution: {integrity: sha512-hk+TB1m+K8CYNrP6rjQaq/Y+4Zylwpa87mLYBKCunwnnQ9p+fHb7kmSfGqyEJoxF/O6CDyABWVFEafNSYKll+Q==}
 
+  tailwindcss@4.3.2:
+    resolution: {integrity: sha512-WtctNNSH8A9jlMIqxzuYumOHU5uGZyRv0Q5svQl+oEPy5w84YpBxdb7MdqyiSPQge5jTJ6zFQLq0PFygdccSBA==}
+
   tapable@2.3.3:
     resolution: {integrity: sha512-uxc/zpqFg6x7C8vOE7lh6Lbda8eEL9zmVm/PLeTPBRhh1xCgdWaQ+J1CUieGpIfm2HdtsUpRv+HshiasBMcc6A==}
     engines: {node: '>=6'}
@@ -7606,11 +7620,11 @@ snapshots:
       - '@chromatic-com/playwright'
       - '@chromatic-com/vitest'
 
-  '@codaco/fresco-ui@3.0.1(@base-ui/react@1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@codaco/shared-consts@5.4.0)(@codaco/tailwind-config@1.0.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.1))(@floating-ui/dom@1.7.6)(@tanstack/react-table@8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tiptap/extension-list@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(motion@12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.1)(typescript@6.0.3)(zod@4.4.3)(zustand@5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))':
+  '@codaco/fresco-ui@4.0.0(@base-ui/react@1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@codaco/shared-consts@5.5.0)(@codaco/tailwind-config@1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2))(@floating-ui/dom@1.7.6)(@tanstack/react-table@8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tiptap/extension-list@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@tiptap/extensions@3.27.4(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(motion@12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)(typescript@6.0.3)(zod@4.4.3)(zustand@5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))':
     dependencies:
       '@base-ui/react': 1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@codaco/shared-consts': 5.4.0
-      '@codaco/tailwind-config': 1.0.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.1)
+      '@codaco/shared-consts': 5.5.0
+      '@codaco/tailwind-config': 1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)
       '@radix-ui/react-slot': 1.2.4(@types/react@19.2.17)(react@19.2.7)
       '@tanstack/react-table': 8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@tiptap/core': 3.24.0(@tiptap/pm@3.24.0)
@@ -7618,17 +7632,18 @@ snapshots:
       '@tiptap/extension-heading': 3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))
       '@tiptap/extension-ordered-list': 3.24.0(@tiptap/extension-list@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))
       '@tiptap/extension-paragraph': 3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))
+      '@tiptap/extension-placeholder': 3.27.4(@tiptap/extensions@3.27.4(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))
       '@tiptap/pm': 3.24.0
-      '@tiptap/react': 3.24.0(@floating-ui/dom@1.7.6)(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
+      '@tiptap/react': 3.27.4(@floating-ui/dom@1.7.6)(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@tiptap/starter-kit': 3.24.0
       comlink: 4.4.2
       cva: 1.0.0-beta.4(typescript@6.0.3)
       es-toolkit: 1.49.0
-      fuse.js: 7.4.0
+      fuse.js: 7.5.0
       immer: 11.1.8
       lucide-react: 1.23.0(react@19.2.7)
       motion: 12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      nanoid: 5.1.11
+      nanoid: 5.1.16
       react: 19.2.7
       react-aria-components: 1.18.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react-best-merge-refs: 1.0.2(patch_hash=469dfbaa03c158d70d3588a72c8d8cd96e54c22d37f6fe62535c0b33fd21adc8)(react@19.2.7)
@@ -7639,26 +7654,27 @@ snapshots:
       remark-gemoji: 8.0.0
       remark-gfm: 4.0.1
       tailwind-merge: 3.6.0
-      tailwindcss: 4.3.1
+      tailwindcss: 4.3.2
       usehooks-ts: 3.1.1(react@19.2.7)
       zod: 4.4.3
       zustand: 5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7))
     transitivePeerDependencies:
       - '@floating-ui/dom'
       - '@tiptap/extension-list'
+      - '@tiptap/extensions'
       - '@types/react'
       - '@types/react-dom'
       - supports-color
       - typescript
 
-  '@codaco/interview@2.0.1(a81bf49c747984e2c7ef6be5d53be250)':
+  '@codaco/interview@3.0.0(8ef844fe2bc6798fb744dabbfb4411e1)':
     dependencies:
       '@base-ui/react': 1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@codaco/fresco-ui': 3.0.1(@base-ui/react@1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@codaco/shared-consts@5.4.0)(@codaco/tailwind-config@1.0.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.1))(@floating-ui/dom@1.7.6)(@tanstack/react-table@8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tiptap/extension-list@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(motion@12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.1)(typescript@6.0.3)(zod@4.4.3)(zustand@5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))
-      '@codaco/network-query': 1.1.2
-      '@codaco/protocol-validation': 11.8.1
-      '@codaco/shared-consts': 5.4.0
-      '@codaco/tailwind-config': 1.0.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.1)
+      '@codaco/fresco-ui': 4.0.0(@base-ui/react@1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@codaco/shared-consts@5.5.0)(@codaco/tailwind-config@1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2))(@floating-ui/dom@1.7.6)(@tanstack/react-table@8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tiptap/extension-list@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@tiptap/extensions@3.27.4(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(motion@12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)(typescript@6.0.3)(zod@4.4.3)(zustand@5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))
+      '@codaco/network-query': 1.2.0
+      '@codaco/protocol-validation': 11.9.0
+      '@codaco/shared-consts': 5.5.0
+      '@codaco/tailwind-config': 1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)
       '@faker-js/faker': 10.4.0
       '@mapbox/search-js-react': 1.5.1(mapbox-gl@3.25.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@reduxjs/toolkit': 2.12.0(react-redux@9.3.0(@types/react@19.2.17)(react@19.2.7)(redux@5.0.1))(react@19.2.7)
@@ -7678,7 +7694,7 @@ snapshots:
       react-redux: 9.3.0(@types/react@19.2.17)(react@19.2.7)(redux@5.0.1)
       redux-logger: 3.0.6
       redux-thunk: 3.1.0(redux@5.0.1)
-      tailwindcss: 4.3.1
+      tailwindcss: 4.3.2
       uuid: 14.0.1
       zustand: 5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7))
     transitivePeerDependencies:
@@ -7688,10 +7704,10 @@ snapshots:
       - redux
       - use-sync-external-store
 
-  '@codaco/network-exporters@1.1.2':
+  '@codaco/network-exporters@1.1.3':
     dependencies:
-      '@codaco/protocol-validation': 11.8.1
-      '@codaco/shared-consts': 5.4.0
+      '@codaco/protocol-validation': 11.9.0
+      '@codaco/shared-consts': 5.5.0
       '@xmldom/xmldom': 0.9.10
       effect: 3.21.4
       es-toolkit: 1.49.0
@@ -7700,37 +7716,37 @@ snapshots:
       sanitize-filename: 1.6.4
       zod: 4.4.3
 
-  '@codaco/network-query@1.1.2':
+  '@codaco/network-query@1.2.0':
     dependencies:
-      '@codaco/protocol-validation': 11.8.1
-      '@codaco/shared-consts': 5.4.0
+      '@codaco/protocol-validation': 11.9.0
+      '@codaco/shared-consts': 5.5.0
       es-toolkit: 1.49.0
 
-  '@codaco/protocol-utilities@2.1.1':
+  '@codaco/protocol-utilities@2.2.0':
     dependencies:
-      '@codaco/network-query': 1.1.2
-      '@codaco/protocol-validation': 11.8.1
-      '@codaco/shared-consts': 5.4.0
+      '@codaco/network-query': 1.2.0
+      '@codaco/protocol-validation': 11.9.0
+      '@codaco/shared-consts': 5.5.0
       '@faker-js/faker': 10.4.0
       es-toolkit: 1.49.0
       uuid: 14.0.1
 
-  '@codaco/protocol-validation@11.8.1':
+  '@codaco/protocol-validation@11.9.0':
     dependencies:
-      '@codaco/shared-consts': 5.4.0
+      '@codaco/shared-consts': 5.5.0
       ohash: 2.0.11
       zod: 4.4.3
 
-  '@codaco/shared-consts@5.4.0':
+  '@codaco/shared-consts@5.5.0':
     dependencies:
       zod: 4.4.3
 
-  '@codaco/tailwind-config@1.0.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.1)':
+  '@codaco/tailwind-config@1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)':
     dependencies:
       '@fontsource-variable/inclusive-sans': 5.2.8
       '@fontsource-variable/nunito': 5.2.7
       motion: 12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      tailwindcss: 4.3.1
+      tailwindcss: 4.3.2
     transitivePeerDependencies:
       - '@emotion/is-prop-valid'
       - react
@@ -9421,10 +9437,10 @@ snapshots:
       valibot: 1.4.1(typescript@6.0.3)
       zod: 4.4.3
 
-  '@tailwindcss/forms@0.5.11(tailwindcss@4.3.1)':
+  '@tailwindcss/forms@0.5.11(tailwindcss@4.3.2)':
     dependencies:
       mini-svg-data-uri: 1.4.4
-      tailwindcss: 4.3.1
+      tailwindcss: 4.3.2
 
   '@tailwindcss/node@4.3.1':
     dependencies:
@@ -9549,7 +9565,7 @@ snapshots:
     dependencies:
       '@tiptap/core': 3.24.0(@tiptap/pm@3.24.0)
 
-  '@tiptap/extension-bubble-menu@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)':
+  '@tiptap/extension-bubble-menu@3.27.4(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)':
     dependencies:
       '@floating-ui/dom': 1.7.6
       '@tiptap/core': 3.24.0(@tiptap/pm@3.24.0)
@@ -9577,7 +9593,7 @@ snapshots:
     dependencies:
       '@tiptap/extensions': 3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)
 
-  '@tiptap/extension-floating-menu@3.24.0(@floating-ui/dom@1.7.6)(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)':
+  '@tiptap/extension-floating-menu@3.27.4(@floating-ui/dom@1.7.6)(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)':
     dependencies:
       '@floating-ui/dom': 1.7.6
       '@tiptap/core': 3.24.0(@tiptap/pm@3.24.0)
@@ -9632,6 +9648,10 @@ snapshots:
     dependencies:
       '@tiptap/core': 3.24.0(@tiptap/pm@3.24.0)
 
+  '@tiptap/extension-placeholder@3.27.4(@tiptap/extensions@3.27.4(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))':
+    dependencies:
+      '@tiptap/extensions': 3.27.4(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)
+
   '@tiptap/extension-strike@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))':
     dependencies:
       '@tiptap/core': 3.24.0(@tiptap/pm@3.24.0)
@@ -9645,6 +9665,11 @@ snapshots:
       '@tiptap/core': 3.24.0(@tiptap/pm@3.24.0)
 
   '@tiptap/extensions@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)':
+    dependencies:
+      '@tiptap/core': 3.24.0(@tiptap/pm@3.24.0)
+      '@tiptap/pm': 3.24.0
+
+  '@tiptap/extensions@3.27.4(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)':
     dependencies:
       '@tiptap/core': 3.24.0(@tiptap/pm@3.24.0)
       '@tiptap/pm': 3.24.0
@@ -9665,7 +9690,7 @@ snapshots:
       prosemirror-transform: 1.12.0
       prosemirror-view: 1.41.8
 
-  '@tiptap/react@3.24.0(@floating-ui/dom@1.7.6)(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
+  '@tiptap/react@3.27.4(@floating-ui/dom@1.7.6)(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)':
     dependencies:
       '@tiptap/core': 3.24.0(@tiptap/pm@3.24.0)
       '@tiptap/pm': 3.24.0
@@ -9677,8 +9702,8 @@ snapshots:
       react-dom: 19.2.7(react@19.2.7)
       use-sync-external-store: 1.6.0(react@19.2.7)
     optionalDependencies:
-      '@tiptap/extension-bubble-menu': 3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)
-      '@tiptap/extension-floating-menu': 3.24.0(@floating-ui/dom@1.7.6)(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)
+      '@tiptap/extension-bubble-menu': 3.27.4(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)
+      '@tiptap/extension-floating-menu': 3.27.4(@floating-ui/dom@1.7.6)(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)
     transitivePeerDependencies:
       - '@floating-ui/dom'
 
@@ -11057,7 +11082,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-better-tailwindcss@4.6.0(eslint@9.39.4(jiti@2.7.0))(tailwindcss@4.3.1)(typescript@6.0.3):
+  eslint-plugin-better-tailwindcss@4.6.0(eslint@9.39.4(jiti@2.7.0))(tailwindcss@4.3.2)(typescript@6.0.3):
     dependencies:
       '@eslint/css-tree': 4.0.4
       '@valibot/to-json-schema': 1.7.1(valibot@1.4.1(typescript@6.0.3))
@@ -11065,7 +11090,7 @@ snapshots:
       jiti: 2.7.0
       synckit: 0.11.13
       tailwind-csstree: 0.3.3
-      tailwindcss: 4.3.1
+      tailwindcss: 4.3.2
       tsconfig-paths-webpack-plugin: 4.2.0
       valibot: 1.4.1(typescript@6.0.3)
     optionalDependencies:
@@ -11385,7 +11410,7 @@ snapshots:
 
   functions-have-names@1.2.3: {}
 
-  fuse.js@7.4.0: {}
+  fuse.js@7.5.0: {}
 
   gemoji@8.1.0: {}
 
@@ -12454,7 +12479,7 @@ snapshots:
 
   nanoid@3.3.12: {}
 
-  nanoid@5.1.11: {}
+  nanoid@5.1.16: {}
 
   napi-postinstall@0.3.4: {}
 
@@ -13790,11 +13815,13 @@ snapshots:
 
   tailwind-merge@3.6.0: {}
 
-  tailwindcss-animate@1.0.7(tailwindcss@4.3.1):
+  tailwindcss-animate@1.0.7(tailwindcss@4.3.2):
     dependencies:
-      tailwindcss: 4.3.1
+      tailwindcss: 4.3.2
 
   tailwindcss@4.3.1: {}
+
+  tailwindcss@4.3.2: {}
 
   tapable@2.3.3: {}
 
@@ -14055,7 +14082,7 @@ snapshots:
       escalade: 3.2.0
       picocolors: 1.1.1
 
-  uploadthing@7.7.4(next@16.2.9(@babel/core@7.29.7)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.101.0))(tailwindcss@4.3.1):
+  uploadthing@7.7.4(next@16.2.9(@babel/core@7.29.7)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.101.0))(tailwindcss@4.3.2):
     dependencies:
       '@effect/platform': 0.90.3(effect@3.21.4)
       '@standard-schema/spec': 1.0.0-beta.4
@@ -14064,7 +14091,7 @@ snapshots:
       effect: 3.21.4
     optionalDependencies:
       next: 16.2.9(@babel/core@7.29.7)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(sass@1.101.0)
-      tailwindcss: 4.3.1
+      tailwindcss: 4.3.2
 
   uri-js@4.4.1:
     dependencies:

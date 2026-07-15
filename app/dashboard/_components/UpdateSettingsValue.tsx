@@ -69,7 +69,11 @@ export default function UpdateSettingsValue({
       <InputField
         value={newValue}
         onChange={handleChange}
-        onFocus={(event) => event.target.select()}
+        onFocus={(event) => {
+          if (event.target instanceof HTMLInputElement) {
+            event.target.select();
+          }
+        }}
         type="text"
         className="w-full"
         placeholder={placeholder}

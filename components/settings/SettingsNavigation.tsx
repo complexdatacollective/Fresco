@@ -42,7 +42,8 @@ export default function SettingsNavigation({
       )}
       noContainer
     >
-      <Heading level="h4" variant="all-caps" margin="none" className="mb-3">
+      {/* margin="none" applies m-0! (important), so spacing must use padding */}
+      <Heading level="h4" variant="all-caps" margin="none" className="pb-3">
         On this page
       </Heading>
       <ul className="space-y-0.5">
