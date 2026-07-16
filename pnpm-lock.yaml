@@ -24,20 +24,20 @@ importers:
         specifier: ^1.5.0
         version: 1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@codaco/fresco-ui':
-        specifier: ^4.0.0
-        version: 4.0.0(@base-ui/react@1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@codaco/shared-consts@5.5.0)(@codaco/tailwind-config@1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2))(@floating-ui/dom@1.7.6)(@tanstack/react-table@8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tiptap/extension-list@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@tiptap/extensions@3.27.4(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(motion@12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)(typescript@6.0.3)(zod@4.4.3)(zustand@5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))
+        specifier: ^4.1.0
+        version: 4.1.0(@base-ui/react@1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@codaco/shared-consts@5.5.0)(@codaco/tailwind-config@1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2))(@floating-ui/dom@1.7.6)(@tanstack/react-table@8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tiptap/extension-list@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@tiptap/extensions@3.27.4(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(motion@12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)(typescript@6.0.3)(zod@4.4.3)(zustand@5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))
       '@codaco/interview':
-        specifier: ^3.0.0
-        version: 3.0.0(8ef844fe2bc6798fb744dabbfb4411e1)
+        specifier: ^4.0.0
+        version: 4.0.0(cedf4072c013809f97095880d28875c6)
       '@codaco/network-exporters':
-        specifier: ^1.1.3
-        version: 1.1.3
+        specifier: ^1.1.4
+        version: 1.1.4
       '@codaco/protocol-utilities':
-        specifier: ^2.2.0
-        version: 2.2.0
+        specifier: ^2.2.1
+        version: 2.2.1
       '@codaco/protocol-validation':
-        specifier: ^11.9.0
-        version: 11.9.0
+        specifier: ^11.10.0
+        version: 11.10.0
       '@codaco/shared-consts':
         specifier: 5.5.0
         version: 5.5.0
@@ -574,8 +574,8 @@ packages:
     peerDependencies:
       storybook: ^0.0.0-0 || ^10.1.0 || ^10.1.0-0 || ^10.2.0-0 || ^10.3.0-0 || ^10.4.0-0 || ^10.5.0-0 || ^10.6.0-0
 
-  '@codaco/fresco-ui@4.0.0':
-    resolution: {integrity: sha512-a2EM+PDuXNZfA59zm0jg5WwvNj2Hfx9DotuygWjOjVpLuZB+q53LqyJfTV1wlisWBzfkcvoe/XSEAj3t3mqfOQ==}
+  '@codaco/fresco-ui@4.1.0':
+    resolution: {integrity: sha512-nRHy2zVvT6YAvsoKUvQTgjdGVeYwnFcvlQ7DUsV1ze93CZUMXG2woMUviC8cNB/rWO/giIn5WwNTV+w/UBWB8g==}
     peerDependencies:
       '@base-ui/react': ^1.4.0
       '@codaco/shared-consts': 5.5.0
@@ -588,11 +588,11 @@ packages:
       zod: ^4.4.3
       zustand: ^5.0.14
 
-  '@codaco/interview@3.0.0':
-    resolution: {integrity: sha512-whvbubscPb2o9fJL6rmDm4mRQzKc0ZY11D1PitftDCeQ/Djq9vnlpw9DLguofyGqLosJuJAiN+fXBS8EeHbmMQ==}
+  '@codaco/interview@4.0.0':
+    resolution: {integrity: sha512-nqALIHAf/Yaks0pHKYmOcmsOsWKJpOMRp60F0Y7wBDbdJp4NERI0Wr/ClB0u21iFuFYUkVhz0LfcsV0N2EoJrg==}
     peerDependencies:
-      '@codaco/fresco-ui': 4.0.0
-      '@codaco/protocol-validation': 11.9.0
+      '@codaco/fresco-ui': 4.1.0
+      '@codaco/protocol-validation': 11.10.0
       '@codaco/shared-consts': 5.5.0
       '@codaco/tailwind-config': 1.1.0
       motion: ^12.40.0
@@ -600,17 +600,17 @@ packages:
       react-dom: ^19.2.7
       tailwindcss: ^4.3.2
 
-  '@codaco/network-exporters@1.1.3':
-    resolution: {integrity: sha512-f7ar+UFPkT9BDN9N+tlIir2Hvbu4uEjmMNrjE7uEbtfvieCdfuIJmlx1joHE/960QZYu96+NEOSNpt9L/sAfBA==}
+  '@codaco/network-exporters@1.1.4':
+    resolution: {integrity: sha512-WLV0KO3M/xZJyVqf400KPNZhTod4bOxT1gW6oD2EkLrA7Oe4H+MSCgQ1RAd4A5ok9q7ZvNqj4VbSEpLR/9lVFw==}
 
-  '@codaco/network-query@1.2.0':
-    resolution: {integrity: sha512-1r7hQVTBma3/TYG6wPLtztuSbu7oJXbmm7e8BEvBhsUGHAjB3RsSWZw5DbyfXxagiz3vSiCe6Oq1uBydA5GGrQ==}
+  '@codaco/network-query@1.2.1':
+    resolution: {integrity: sha512-S0j59u72chOdXG4C5CFGSYk02PJrQWv1yDr6FskdBAiAHdgBMTOihcutXsC+r0xoJWLLUaPaQWy/10jrceKhUA==}
 
-  '@codaco/protocol-utilities@2.2.0':
-    resolution: {integrity: sha512-nnqZ+YUYTpMBCy5nigS6EAO7XWRVsqJAFqL69Nd23DQA78diRdlZMnVuteHBCI9y/wCUEMFr8g/amTJ33BXfkg==}
+  '@codaco/protocol-utilities@2.2.1':
+    resolution: {integrity: sha512-Mn4pM7QLo/hNiMWUe/ItwVlWRd46V4v6mK3Ux/BeeqaeHnT7/HGrBARJ3p61b4PaoH63fsOdoKd3QClJbu7wjQ==}
 
-  '@codaco/protocol-validation@11.9.0':
-    resolution: {integrity: sha512-AMSU9nf3Bf8bxvPNW0BdxGVmE5t0vNpnGc5XuWr6OldCUxMUqDponO/YiY+x/AYnE/6KdQDQHvYgYk8nk502Iw==}
+  '@codaco/protocol-validation@11.10.0':
+    resolution: {integrity: sha512-sxtDdqapeIBkZHXUuHJi+PbUi2S3HnJlrHE0XhMjCX69H3rhe5zX0LK4HBalIrmrbksReY3I5HrnFXGWtEKbUA==}
     hasBin: true
 
   '@codaco/shared-consts@5.5.0':
@@ -3057,12 +3057,6 @@ packages:
     resolution: {integrity: sha512-D4W4X3UMq9dLVIOfPB9+UodQ4eAJ8yDcm8qFWAwq0a15YWH6bnwulCuIdV+U5dEG+yaRxN8haB9GrrID9jmrSA==}
     peerDependencies:
       '@tiptap/core': 3.24.0
-
-  '@tiptap/extensions@3.24.0':
-    resolution: {integrity: sha512-z6gRYzy2ucJp07OQ0F2W07NxyhMTxPYH1ia2eGiQkWax1i56oExpjMsDHP8THWlg8Tb7NnbfKpkfh881EsmofA==}
-    peerDependencies:
-      '@tiptap/core': 3.24.0
-      '@tiptap/pm': 3.24.0
 
   '@tiptap/extensions@3.27.4':
     resolution: {integrity: sha512-d8opkg2iGtVwJmNGIqv0blfRxnvWOJp1brz+Z8CsP4ojSS2ZtaE46d6JSQ5OeJ7nMpjhT+9wh4UQcA7OSEO59w==}
@@ -6585,9 +6579,6 @@ packages:
     peerDependencies:
       tailwindcss: '>=3.0.0 || insiders'
 
-  tailwindcss@4.3.1:
-    resolution: {integrity: sha512-hk+TB1m+K8CYNrP6rjQaq/Y+4Zylwpa87mLYBKCunwnnQ9p+fHb7kmSfGqyEJoxF/O6CDyABWVFEafNSYKll+Q==}
-
   tailwindcss@4.3.2:
     resolution: {integrity: sha512-WtctNNSH8A9jlMIqxzuYumOHU5uGZyRv0Q5svQl+oEPy5w84YpBxdb7MdqyiSPQge5jTJ6zFQLq0PFygdccSBA==}
 
@@ -7614,7 +7605,7 @@ snapshots:
       - '@chromatic-com/playwright'
       - '@chromatic-com/vitest'
 
-  '@codaco/fresco-ui@4.0.0(@base-ui/react@1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@codaco/shared-consts@5.5.0)(@codaco/tailwind-config@1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2))(@floating-ui/dom@1.7.6)(@tanstack/react-table@8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tiptap/extension-list@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@tiptap/extensions@3.27.4(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(motion@12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)(typescript@6.0.3)(zod@4.4.3)(zustand@5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))':
+  '@codaco/fresco-ui@4.1.0(@base-ui/react@1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@codaco/shared-consts@5.5.0)(@codaco/tailwind-config@1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2))(@floating-ui/dom@1.7.6)(@tanstack/react-table@8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tiptap/extension-list@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@tiptap/extensions@3.27.4(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(motion@12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)(typescript@6.0.3)(zod@4.4.3)(zustand@5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))':
     dependencies:
       '@base-ui/react': 1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@codaco/shared-consts': 5.5.0
@@ -7661,12 +7652,12 @@ snapshots:
       - supports-color
       - typescript
 
-  '@codaco/interview@3.0.0(8ef844fe2bc6798fb744dabbfb4411e1)':
+  '@codaco/interview@4.0.0(cedf4072c013809f97095880d28875c6)':
     dependencies:
       '@base-ui/react': 1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@codaco/fresco-ui': 4.0.0(@base-ui/react@1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@codaco/shared-consts@5.5.0)(@codaco/tailwind-config@1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2))(@floating-ui/dom@1.7.6)(@tanstack/react-table@8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tiptap/extension-list@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@tiptap/extensions@3.27.4(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(motion@12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)(typescript@6.0.3)(zod@4.4.3)(zustand@5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))
-      '@codaco/network-query': 1.2.0
-      '@codaco/protocol-validation': 11.9.0
+      '@codaco/fresco-ui': 4.1.0(@base-ui/react@1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@codaco/shared-consts@5.5.0)(@codaco/tailwind-config@1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2))(@floating-ui/dom@1.7.6)(@tanstack/react-table@8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tiptap/extension-list@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@tiptap/extensions@3.27.4(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(motion@12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)(typescript@6.0.3)(zod@4.4.3)(zustand@5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))
+      '@codaco/network-query': 1.2.1
+      '@codaco/protocol-validation': 11.10.0
       '@codaco/shared-consts': 5.5.0
       '@codaco/tailwind-config': 1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)
       '@faker-js/faker': 10.4.0
@@ -7698,9 +7689,9 @@ snapshots:
       - redux
       - use-sync-external-store
 
-  '@codaco/network-exporters@1.1.3':
+  '@codaco/network-exporters@1.1.4':
     dependencies:
-      '@codaco/protocol-validation': 11.9.0
+      '@codaco/protocol-validation': 11.10.0
       '@codaco/shared-consts': 5.5.0
       '@xmldom/xmldom': 0.9.10
       effect: 3.21.4
@@ -7710,22 +7701,22 @@ snapshots:
       sanitize-filename: 1.6.4
       zod: 4.4.3
 
-  '@codaco/network-query@1.2.0':
+  '@codaco/network-query@1.2.1':
     dependencies:
-      '@codaco/protocol-validation': 11.9.0
+      '@codaco/protocol-validation': 11.10.0
       '@codaco/shared-consts': 5.5.0
       es-toolkit: 1.49.0
 
-  '@codaco/protocol-utilities@2.2.0':
+  '@codaco/protocol-utilities@2.2.1':
     dependencies:
-      '@codaco/network-query': 1.2.0
-      '@codaco/protocol-validation': 11.9.0
+      '@codaco/network-query': 1.2.1
+      '@codaco/protocol-validation': 11.10.0
       '@codaco/shared-consts': 5.5.0
       '@faker-js/faker': 10.4.0
       es-toolkit: 1.49.0
       uuid: 14.0.1
 
-  '@codaco/protocol-validation@11.9.0':
+  '@codaco/protocol-validation@11.10.0':
     dependencies:
       '@codaco/shared-consts': 5.5.0
       ohash: 2.0.11
@@ -9577,9 +9568,9 @@ snapshots:
     dependencies:
       '@tiptap/core': 3.24.0(@tiptap/pm@3.24.0)
 
-  '@tiptap/extension-dropcursor@3.24.0(@tiptap/extensions@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))':
+  '@tiptap/extension-dropcursor@3.24.0(@tiptap/extensions@3.27.4(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))':
     dependencies:
-      '@tiptap/extensions': 3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)
+      '@tiptap/extensions': 3.27.4(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)
 
   '@tiptap/extension-floating-menu@3.27.4(@floating-ui/dom@1.7.6)(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)':
     dependencies:
@@ -9588,9 +9579,9 @@ snapshots:
       '@tiptap/pm': 3.24.0
     optional: true
 
-  '@tiptap/extension-gapcursor@3.24.0(@tiptap/extensions@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))':
+  '@tiptap/extension-gapcursor@3.24.0(@tiptap/extensions@3.27.4(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))':
     dependencies:
-      '@tiptap/extensions': 3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)
+      '@tiptap/extensions': 3.27.4(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)
 
   '@tiptap/extension-hard-break@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))':
     dependencies:
@@ -9652,11 +9643,6 @@ snapshots:
     dependencies:
       '@tiptap/core': 3.24.0(@tiptap/pm@3.24.0)
 
-  '@tiptap/extensions@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)':
-    dependencies:
-      '@tiptap/core': 3.24.0(@tiptap/pm@3.24.0)
-      '@tiptap/pm': 3.24.0
-
   '@tiptap/extensions@3.27.4(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)':
     dependencies:
       '@tiptap/core': 3.24.0(@tiptap/pm@3.24.0)
@@ -9704,8 +9690,8 @@ snapshots:
       '@tiptap/extension-code': 3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))
       '@tiptap/extension-code-block': 3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)
       '@tiptap/extension-document': 3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))
-      '@tiptap/extension-dropcursor': 3.24.0(@tiptap/extensions@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))
-      '@tiptap/extension-gapcursor': 3.24.0(@tiptap/extensions@3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))
+      '@tiptap/extension-dropcursor': 3.24.0(@tiptap/extensions@3.27.4(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))
+      '@tiptap/extension-gapcursor': 3.24.0(@tiptap/extensions@3.27.4(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0))
       '@tiptap/extension-hard-break': 3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))
       '@tiptap/extension-heading': 3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))
       '@tiptap/extension-horizontal-rule': 3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)
@@ -9719,7 +9705,7 @@ snapshots:
       '@tiptap/extension-strike': 3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))
       '@tiptap/extension-text': 3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))
       '@tiptap/extension-underline': 3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))
-      '@tiptap/extensions': 3.24.0(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)
+      '@tiptap/extensions': 3.27.4(@tiptap/core@3.24.0(@tiptap/pm@3.24.0))(@tiptap/pm@3.24.0)
       '@tiptap/pm': 3.24.0
 
   '@total-typescript/ts-reset@0.6.1': {}
@@ -13806,8 +13792,6 @@ snapshots:
   tailwindcss-animate@1.0.7(tailwindcss@4.3.2):
     dependencies:
       tailwindcss: 4.3.2
-
-  tailwindcss@4.3.1: {}
 
   tailwindcss@4.3.2: {}
 
