@@ -2,7 +2,10 @@ import { createId } from '@paralleldrive/cuid2';
 import { addEvent } from '~/actions/activityFeed';
 import { requireApiAuth } from '~/lib/auth/guards';
 import { prisma } from '~/lib/db';
-import { generateNetwork } from '@codaco/protocol-utilities';
+import {
+  generateNetwork,
+  type GenerateNetworkParams,
+} from '@codaco/protocol-utilities';
 import { generateSyntheticInterviewsSchema } from '~/schemas/synthetic-interviews';
 
 export async function POST(request: Request) {
@@ -54,20 +57,19 @@ export async function POST(request: Request) {
       };
 
       try {
-        const stages = protocol.stages as { id: string }[];
-        const typedStages = stages as Parameters<typeof generateNetwork>[1];
-        const typedCodebook = protocol.codebook as Parameters<
-          typeof generateNetwork
-        >[0];
-
-        const genOptions = { simulateDropOut, respectSkipLogicAndFiltering };
+        const genParams = {
+          codebook: protocol.codebook as GenerateNetworkParams['codebook'],
+          stages: protocol.stages as GenerateNetworkParams['stages'],
+          simulateDropOut,
+          respectSkipLogicAndFiltering,
+        } satisfies GenerateNetworkParams;
 
         let completedCount = 0;
         const incompleteInterviewIds: string[] = [];
 
         for (let i = 0; i < count; i++) {
           const { network, stageMetadata, currentStep, droppedOut } =
-            generateNetwork(typedCodebook, typedStages, genOptions);
+            generateNetwork(genParams);
 
           const isCompleted = !droppedOut;
           if (isCompleted) {
@@ -130,14 +132,10 @@ export async function POST(request: Request) {
             });
 
             for (const interview of incompleteInterviews) {
-              const { network, stageMetadata, currentStep } = generateNetwork(
-                typedCodebook,
-                typedStages,
-                {
-                  ...genOptions,
-                  simulateDropOut: false,
-                },
-              );
+              const { network, stageMetadata, currentStep } = generateNetwork({
+                ...genParams,
+                simulateDropOut: false,
+              });
 
               await prisma.interview.update({
                 where: { id: interview.id },

@@ -24,20 +24,20 @@ importers:
         specifier: ^1.5.0
         version: 1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@codaco/fresco-ui':
-        specifier: ^4.1.1
-        version: 4.1.1(@base-ui/react@1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@codaco/shared-consts@5.5.0)(@codaco/tailwind-config@1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2))(@floating-ui/dom@1.8.0)(@tanstack/react-table@8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tiptap/extension-list@3.28.0(@tiptap/core@3.28.0(@tiptap/pm@3.28.0))(@tiptap/pm@3.28.0))(@tiptap/extensions@3.28.0(@tiptap/core@3.28.0(@tiptap/pm@3.28.0))(@tiptap/pm@3.28.0))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(motion@12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)(typescript@6.0.3)(zod@4.4.3)(zustand@5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))
+        specifier: ^4.1.2
+        version: 4.1.2(@base-ui/react@1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@codaco/shared-consts@5.5.0)(@codaco/tailwind-config@1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2))(@floating-ui/dom@1.8.0)(@tanstack/react-table@8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tiptap/extension-list@3.28.0(@tiptap/core@3.28.0(@tiptap/pm@3.28.0))(@tiptap/pm@3.28.0))(@tiptap/extensions@3.28.0(@tiptap/core@3.28.0(@tiptap/pm@3.28.0))(@tiptap/pm@3.28.0))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(motion@12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)(typescript@6.0.3)(zod@4.4.3)(zustand@5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))
       '@codaco/interview':
-        specifier: ^4.1.0
-        version: 4.1.0(1cbb94318b6d4f902b69f633edb62589)
+        specifier: ^5.0.0
+        version: 5.0.0(7bf49a53c6badbc8f1d3e422c370223b)
       '@codaco/network-exporters':
         specifier: ^1.1.5
         version: 1.1.5
       '@codaco/protocol-utilities':
-        specifier: ^2.2.2
-        version: 2.2.2
+        specifier: ^3.0.0
+        version: 3.0.0
       '@codaco/protocol-validation':
-        specifier: ^11.11.0
-        version: 11.11.0
+        specifier: ^11.12.0
+        version: 11.12.0
       '@codaco/shared-consts':
         specifier: 5.5.0
         version: 5.5.0
@@ -574,8 +574,8 @@ packages:
     peerDependencies:
       storybook: ^0.0.0-0 || ^10.1.0 || ^10.1.0-0 || ^10.2.0-0 || ^10.3.0-0 || ^10.4.0-0 || ^10.5.0-0 || ^10.6.0-0
 
-  '@codaco/fresco-ui@4.1.1':
-    resolution: {integrity: sha512-5aLN7S8VKK4I8ugA7+bYQF2pFdWS9Xu+LH8YvyRPqBDuU3hckxW/73+RQE/JvGU53mrMaPMJmzEpyJ48L6dzTw==}
+  '@codaco/fresco-ui@4.1.2':
+    resolution: {integrity: sha512-0aSb4fWGYmr7atf5Kum5fWT976GGH4rhA/7sQkGkcMeq3WG0BB4Usc9ryddb0C8fNdT5m8GUmkbMdOUmrBDAbQ==}
     peerDependencies:
       '@base-ui/react': ^1.4.0
       '@codaco/shared-consts': ^5.5.0
@@ -588,11 +588,11 @@ packages:
       zod: ^4.4.3
       zustand: ^5.0.14
 
-  '@codaco/interview@4.1.0':
-    resolution: {integrity: sha512-YH0L3AxhCzZRCywHiHPGAQuoEWvXceKGoKKkq9R5mqzRCWIxcRBqSlYUamhIoSgpJUCQJbX636AurugqxTp9Vw==}
+  '@codaco/interview@5.0.0':
+    resolution: {integrity: sha512-SaT2AVOuk+iA4gnW6sn0ctdZhBnOH8tw9baHF3fL54ZpDquYk4U2SLJRh7BiFUzxqL/2CyQEHNUzt03sTXtmbg==}
     peerDependencies:
-      '@codaco/fresco-ui': ^4.1.1
-      '@codaco/protocol-validation': ^11.11.0
+      '@codaco/fresco-ui': ^4.1.2
+      '@codaco/protocol-validation': ^11.12.0
       '@codaco/shared-consts': ^5.5.0
       '@codaco/tailwind-config': ^1.1.0
       motion: ^12.40.0
@@ -606,11 +606,11 @@ packages:
   '@codaco/network-query@1.2.2':
     resolution: {integrity: sha512-7baZ87QSxY+fpTJooroqh/y3FgIcOJzTwBesXaqOQYWBmmItx35wK2S9Gp/hxc/kMUyS0QvsrmNC3WQ9BFkWyQ==}
 
-  '@codaco/protocol-utilities@2.2.2':
-    resolution: {integrity: sha512-jvz/4x3kg5pOZmoqFLtLxupZ4m6gtKVK/TxNMvIbtZWNfpU7IcBwI/2FDIoXzbd630Q+mRMnzr9JBJhiHmYWxA==}
+  '@codaco/protocol-utilities@3.0.0':
+    resolution: {integrity: sha512-QsgbR3EepVvaaL+3JEBC7gEv3PUPKJnXkz+N9v3NHzCm8IchQV1mFudcM/6k7H6qi2Xy1PExvqM3Qg0SdOFqYQ==}
 
-  '@codaco/protocol-validation@11.11.0':
-    resolution: {integrity: sha512-lLt59rio2jXXKTNv6nM/yH3c9T3depti/oezszLYEuTPNe4YM7yKtnOof5wrWUN125K1O+OEhhAauAqlXyF5XQ==}
+  '@codaco/protocol-validation@11.12.0':
+    resolution: {integrity: sha512-kDeSYJYp1C6NZDwRSbtgFZImFIO86A9MM6jrz1MoK9ZgRciA6OSCvXO4ECiUYxrJsFZuFHQsoeddRdzpJBRtGA==}
     hasBin: true
 
   '@codaco/shared-consts@5.5.0':
@@ -2374,6 +2374,9 @@ packages:
   '@radix-ui/primitive@1.1.3':
     resolution: {integrity: sha512-JTF99U/6XIjCBo0wqkU5sK10glYe27MRRsfwoiq5zzOEZLHU3A3KCMa5X/azekYRCJ0HlwI0crAXS/5dEHTzDg==}
 
+  '@radix-ui/primitive@1.1.7':
+    resolution: {integrity: sha512-rqWnm76nYT8HoNNqEjpgJ7Pw/DrBj5iBTrmEPo6HTX5+VJyBNOqTdv4g89G63HuR5g0AaENoAcH7Is5fF2kZ8Q==}
+
   '@radix-ui/react-compose-refs@1.1.2':
     resolution: {integrity: sha512-z4eqJvfiNnFMHIIvXP3CY57y2WJs5g2v3X0zm9mEJkrkNv4rDxu+sg9Jh8EkXyeqBkB7SOcboo9dMVqhyrACIg==}
     peerDependencies:
@@ -2383,8 +2386,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@radix-ui/react-compose-refs@1.1.3':
-    resolution: {integrity: sha512-rYOP8OMnuuPMQF1uhPVlGNcCDlkokKqGFE3JcxFViIkAXP7EvFWUliJAstrapypaBLJNHbZL6jGhbVDGTwmVhA==}
+  '@radix-ui/react-compose-refs@1.1.4':
+    resolution: {integrity: sha512-pWJo6lQAfR6uy1n7ii7PaCc9dLPwTXDYbQpORZU5B548Aqvl2pP1SM1vJGKyxIFqZMHRopRO4CQYX2iXAIB5jA==}
     peerDependencies:
       '@types/react': '*'
       react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
@@ -2414,8 +2417,8 @@ packages:
       '@types/react':
         optional: true
 
-  '@radix-ui/react-slot@1.3.0':
-    resolution: {integrity: sha512-MojKku4U/miO8Av4Dkb+ctMAQx7JmY96LmtDQlAarCRtd7rN52QCSzBF+XAvr5S6coSVj9HEPBgHAHKEJVk/WA==}
+  '@radix-ui/react-slot@1.3.1':
+    resolution: {integrity: sha512-Bu/aAQHFFh6/QAvXAeUMurJ9fbW0JUIqlojU/yBXZ7cAVqy75Y7JYYyuCr9zLNF0p4WWoJYV54CTUIf4l7FzTw==}
     peerDependencies:
       '@types/react': '*'
       react: ^16.8 || ^17.0 || ^18.0 || ^19.0 || ^19.0.0-rc
@@ -3766,8 +3769,8 @@ packages:
     engines: {node: '>=6.0.0'}
     hasBin: true
 
-  baseline-browser-mapping@2.10.43:
-    resolution: {integrity: sha512-AjYpR78kDWAY3Efj+cDTFH9t9SCoL7OoTp1BOb0mQV7S+6CiLwnWM3FyxhJtdPufDFKzmCSFoUncKjWgJEZTCQ==}
+  baseline-browser-mapping@2.11.1:
+    resolution: {integrity: sha512-HYXq73DDpCtNzOmrFsm9eSwCvWCql0RzqjpDzXN9EadiLJ4DNat0nsZ/Bzmy+Ud12mb4/zKDY0cQ805ZzN+i0A==}
     engines: {node: '>=6.0.0'}
     hasBin: true
 
@@ -3802,8 +3805,8 @@ packages:
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
 
-  browserslist@4.28.6:
-    resolution: {integrity: sha512-FQBYNK15VMslhLHpA7+n+n1GOlF1kId2xcCg7/j95f24AOF6VDYMNH4mFxF7KuaTdv627faazpOAjFzMrfJOUw==}
+  browserslist@4.28.7:
+    resolution: {integrity: sha512-JxV13hNrFxqjOc8alRbq9dK1MM79NEXYpma2B2J4wAtpWS5zIEIKqWPGCl7N4o7Uc7B7itylh7SuDujATRyyTw==}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
 
@@ -4168,8 +4171,8 @@ packages:
   electron-to-chromium@1.5.364:
     resolution: {integrity: sha512-G/dYE3+AYhyHwzTwg8UbnXf7zqMERYh7l2jJ3QujhFsH8agSYwtnGAR2aZ7f0AakIKJXd5En/Hre4igIUrdlYw==}
 
-  electron-to-chromium@1.5.393:
-    resolution: {integrity: sha512-kiDJdIUawuEIcp9XoICKp1iTYDEbgguIPq526N1Q7jIQDeQ3CqoMx71025PI/7E48Ddtw2HuWsVjY7afEgNxmg==}
+  electron-to-chromium@1.5.395:
+    resolution: {integrity: sha512-7zt9Aw+SrmxLWLN0zhaTWZQiCdryLVrYTq5R7iZakLvi2UQPYMMsROYV/2qVCzMeCiSXHwKOU+sZ4zOVVlrtKA==}
 
   emoji-regex@10.6.0:
     resolution: {integrity: sha512-toUI84YS5YmxW219erniWD0CIVOo46xGKColeNQRgOzDorgBi1v4D71/OFzgD9GO2UGKIv1C3Sp8DAn0+j5w7A==}
@@ -4196,8 +4199,8 @@ packages:
     resolution: {integrity: sha512-SkE2t82KlkkxQRVMVLAGKxLfORGQfrkx5dkj+vlgXRVNEdPc4eZcR+J/Fvj8C+yKSFH5L0q3NFlyufOVQnCcYQ==}
     engines: {node: '>=10.13.0'}
 
-  enhanced-resolve@5.24.2:
-    resolution: {integrity: sha512-rpsZEGT1jFuve6QlpyRp9ckQ+kN61hvF9BzCPyMdaKTm8UJce96KBn3sorXOFXlzjPrs3Vc4T1NsSroZ3PxlFw==}
+  enhanced-resolve@5.24.3:
+    resolution: {integrity: sha512-PwKooW9JUzh5chmYfHM3IQl5OkK2u2Nm011MgeZrss3JmFraUx/fqrf78kk8GUMYoibx/14MdwTl/1WKkG7TpQ==}
     engines: {node: '>=10.13.0'}
 
   entities@6.0.1:
@@ -7633,12 +7636,12 @@ snapshots:
       - '@chromatic-com/playwright'
       - '@chromatic-com/vitest'
 
-  '@codaco/fresco-ui@4.1.1(@base-ui/react@1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@codaco/shared-consts@5.5.0)(@codaco/tailwind-config@1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2))(@floating-ui/dom@1.8.0)(@tanstack/react-table@8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tiptap/extension-list@3.28.0(@tiptap/core@3.28.0(@tiptap/pm@3.28.0))(@tiptap/pm@3.28.0))(@tiptap/extensions@3.28.0(@tiptap/core@3.28.0(@tiptap/pm@3.28.0))(@tiptap/pm@3.28.0))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(motion@12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)(typescript@6.0.3)(zod@4.4.3)(zustand@5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))':
+  '@codaco/fresco-ui@4.1.2(@base-ui/react@1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@codaco/shared-consts@5.5.0)(@codaco/tailwind-config@1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2))(@floating-ui/dom@1.8.0)(@tanstack/react-table@8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tiptap/extension-list@3.28.0(@tiptap/core@3.28.0(@tiptap/pm@3.28.0))(@tiptap/pm@3.28.0))(@tiptap/extensions@3.28.0(@tiptap/core@3.28.0(@tiptap/pm@3.28.0))(@tiptap/pm@3.28.0))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(motion@12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)(typescript@6.0.3)(zod@4.4.3)(zustand@5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))':
     dependencies:
       '@base-ui/react': 1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@codaco/shared-consts': 5.5.0
       '@codaco/tailwind-config': 1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)
-      '@radix-ui/react-slot': 1.3.0(@types/react@19.2.17)(react@19.2.7)
+      '@radix-ui/react-slot': 1.3.1(@types/react@19.2.17)(react@19.2.7)
       '@tanstack/react-table': 8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       '@tiptap/core': 3.28.0(@tiptap/pm@3.28.0)
       '@tiptap/extension-bullet-list': 3.28.0(@tiptap/extension-list@3.28.0(@tiptap/core@3.28.0(@tiptap/pm@3.28.0))(@tiptap/pm@3.28.0))
@@ -7680,12 +7683,12 @@ snapshots:
       - supports-color
       - typescript
 
-  '@codaco/interview@4.1.0(1cbb94318b6d4f902b69f633edb62589)':
+  '@codaco/interview@5.0.0(7bf49a53c6badbc8f1d3e422c370223b)':
     dependencies:
       '@base-ui/react': 1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      '@codaco/fresco-ui': 4.1.1(@base-ui/react@1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@codaco/shared-consts@5.5.0)(@codaco/tailwind-config@1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2))(@floating-ui/dom@1.8.0)(@tanstack/react-table@8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tiptap/extension-list@3.28.0(@tiptap/core@3.28.0(@tiptap/pm@3.28.0))(@tiptap/pm@3.28.0))(@tiptap/extensions@3.28.0(@tiptap/core@3.28.0(@tiptap/pm@3.28.0))(@tiptap/pm@3.28.0))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(motion@12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)(typescript@6.0.3)(zod@4.4.3)(zustand@5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))
+      '@codaco/fresco-ui': 4.1.2(@base-ui/react@1.5.0(@types/react@19.2.17)(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@codaco/shared-consts@5.5.0)(@codaco/tailwind-config@1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2))(@floating-ui/dom@1.8.0)(@tanstack/react-table@8.21.3(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(@tiptap/extension-list@3.28.0(@tiptap/core@3.28.0(@tiptap/pm@3.28.0))(@tiptap/pm@3.28.0))(@tiptap/extensions@3.28.0(@tiptap/core@3.28.0(@tiptap/pm@3.28.0))(@tiptap/pm@3.28.0))(@types/react-dom@19.2.3(@types/react@19.2.17))(@types/react@19.2.17)(motion@12.40.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7))(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)(typescript@6.0.3)(zod@4.4.3)(zustand@5.0.14(@types/react@19.2.17)(immer@11.1.8)(react@19.2.7)(use-sync-external-store@1.6.0(react@19.2.7)))
       '@codaco/network-query': 1.2.2
-      '@codaco/protocol-validation': 11.11.0
+      '@codaco/protocol-validation': 11.12.0
       '@codaco/shared-consts': 5.5.0
       '@codaco/tailwind-config': 1.1.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)(tailwindcss@4.3.2)
       '@faker-js/faker': 10.5.0
@@ -7719,7 +7722,7 @@ snapshots:
 
   '@codaco/network-exporters@1.1.5':
     dependencies:
-      '@codaco/protocol-validation': 11.11.0
+      '@codaco/protocol-validation': 11.12.0
       '@codaco/shared-consts': 5.5.0
       '@xmldom/xmldom': 0.9.10
       effect: 3.21.4
@@ -7731,20 +7734,20 @@ snapshots:
 
   '@codaco/network-query@1.2.2':
     dependencies:
-      '@codaco/protocol-validation': 11.11.0
+      '@codaco/protocol-validation': 11.12.0
       '@codaco/shared-consts': 5.5.0
       es-toolkit: 1.49.0
 
-  '@codaco/protocol-utilities@2.2.2':
+  '@codaco/protocol-utilities@3.0.0':
     dependencies:
       '@codaco/network-query': 1.2.2
-      '@codaco/protocol-validation': 11.11.0
+      '@codaco/protocol-validation': 11.12.0
       '@codaco/shared-consts': 5.5.0
       '@faker-js/faker': 10.5.0
       es-toolkit: 1.49.0
       uuid: 14.0.1
 
-  '@codaco/protocol-validation@11.11.0':
+  '@codaco/protocol-validation@11.12.0':
     dependencies:
       '@codaco/shared-consts': 5.5.0
       ohash: 2.0.11
@@ -9092,13 +9095,15 @@ snapshots:
 
   '@radix-ui/primitive@1.1.3': {}
 
+  '@radix-ui/primitive@1.1.7': {}
+
   '@radix-ui/react-compose-refs@1.1.2(@types/react@19.2.17)(react@19.2.7)':
     dependencies:
       react: 19.2.7
     optionalDependencies:
       '@types/react': 19.2.17
 
-  '@radix-ui/react-compose-refs@1.1.3(@types/react@19.2.17)(react@19.2.7)':
+  '@radix-ui/react-compose-refs@1.1.4(@types/react@19.2.17)(react@19.2.7)':
     dependencies:
       react: 19.2.7
     optionalDependencies:
@@ -9120,9 +9125,10 @@ snapshots:
     optionalDependencies:
       '@types/react': 19.2.17
 
-  '@radix-ui/react-slot@1.3.0(@types/react@19.2.17)(react@19.2.7)':
+  '@radix-ui/react-slot@1.3.1(@types/react@19.2.17)(react@19.2.7)':
     dependencies:
-      '@radix-ui/react-compose-refs': 1.1.3(@types/react@19.2.17)(react@19.2.7)
+      '@radix-ui/primitive': 1.1.7
+      '@radix-ui/react-compose-refs': 1.1.4(@types/react@19.2.17)(react@19.2.7)
       react: 19.2.7
     optionalDependencies:
       '@types/react': 19.2.17
@@ -10502,7 +10508,7 @@ snapshots:
 
   baseline-browser-mapping@2.10.37: {}
 
-  baseline-browser-mapping@2.10.43: {}
+  baseline-browser-mapping@2.11.1: {}
 
   better-result@2.9.2: {}
 
@@ -10539,13 +10545,13 @@ snapshots:
       node-releases: 2.0.46
       update-browserslist-db: 1.2.3(browserslist@4.28.2)
 
-  browserslist@4.28.6:
+  browserslist@4.28.7:
     dependencies:
-      baseline-browser-mapping: 2.10.43
+      baseline-browser-mapping: 2.11.1
       caniuse-lite: 1.0.30001806
-      electron-to-chromium: 1.5.393
+      electron-to-chromium: 1.5.395
       node-releases: 2.0.51
-      update-browserslist-db: 1.2.3(browserslist@4.28.6)
+      update-browserslist-db: 1.2.3(browserslist@4.28.7)
 
   buffer-from@1.1.2: {}
 
@@ -10860,7 +10866,7 @@ snapshots:
 
   electron-to-chromium@1.5.364: {}
 
-  electron-to-chromium@1.5.393: {}
+  electron-to-chromium@1.5.395: {}
 
   emoji-regex@10.6.0: {}
 
@@ -10882,7 +10888,7 @@ snapshots:
       graceful-fs: 4.2.11
       tapable: 2.3.3
 
-  enhanced-resolve@5.24.2:
+  enhanced-resolve@5.24.3:
     dependencies:
       graceful-fs: 4.2.11
       tapable: 2.3.3
@@ -14105,9 +14111,9 @@ snapshots:
       escalade: 3.2.0
       picocolors: 1.1.1
 
-  update-browserslist-db@1.2.3(browserslist@4.28.6):
+  update-browserslist-db@1.2.3(browserslist@4.28.7):
     dependencies:
-      browserslist: 4.28.6
+      browserslist: 4.28.7
       escalade: 3.2.0
       picocolors: 1.1.1
 
@@ -14271,9 +14277,9 @@ snapshots:
       '@webassemblyjs/wasm-parser': 1.14.1
       acorn: 8.17.0
       acorn-import-phases: 1.0.4(acorn@8.17.0)
-      browserslist: 4.28.6
+      browserslist: 4.28.7
       chrome-trace-event: 1.0.4
-      enhanced-resolve: 5.24.2
+      enhanced-resolve: 5.24.3
       es-module-lexer: 2.3.1
       eslint-scope: 5.1.1
       events: 3.3.0
