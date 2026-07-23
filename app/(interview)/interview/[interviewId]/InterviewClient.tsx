@@ -12,7 +12,8 @@ import {
 import { useRouter } from 'next/navigation';
 import { parseAsInteger, useQueryState } from 'nuqs';
 import posthog from 'posthog-js';
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import InterviewCompleted from '~/app/(interview)/interview/_components/InterviewCompleted';
 import { env } from '~/env.js';
 import { POSTHOG_APP_NAME } from '~/fresco.config';
 
@@ -68,14 +69,22 @@ export default function InterviewClient({
     if (!response.ok) throw new Error('Sync failed');
   }, []);
 
+  const [finished, setFinished] = useState(false);
+
   const onFinish = useCallback<FinishHandler>(
     async (id, signal) => {
       const response = await fetch(`/api/interviews/${id}/finish`, {
         method: 'POST',
         signal,
       });
-      if (!response.ok) throw new Error('Failed to finish interview');
-      router.push('/interview/finished');
+
+      if (!response.ok) {
+        throw new Error('Your interview could not be submitted.');
+      }
+
+      setFinished(true);
+
+      router.replace('/interview/finished');
     },
     [router],
   );
@@ -100,6 +109,10 @@ export default function InterviewClient({
     }),
     [installationId],
   );
+
+  if (finished) {
+    return <InterviewCompleted />;
+  }
 
   return (
     <Shell
