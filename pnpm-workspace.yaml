@@ -13,9 +13,40 @@ minimumReleaseAge: 1440
 # verification pass still enforces the 24h gate exactly as the implicit
 # default does today.
 minimumReleaseAgeStrict: false
+
+autoInstallPeers: true
+
+publicHoistPattern:
+  - '*tailwind-config*'
+
+allowBuilds:
+  '@parcel/watcher': true
+  '@posthog/cli': false
+  '@prisma/engines': true
+  '@tailwindcss/oxide': true
+  core-js: false
+  core-js-pure: true
+  esbuild: true
+  msgpackr-extract: false
+  prisma: true
+  protobufjs: false
+  sharp: true
+  unrs-resolver: true
+
+patchedDependencies:
+  react-best-merge-refs@1.0.2: patches/react-best-merge-refs@1.0.2.patch
+
+# Force the transitive `effect` (pulled by uploadthing at the vulnerable 3.17.7,
+# GHSA-38f7-945m-qr2g) onto the patched line we already depend on directly.
+overrides:
+  effect: '^3.21.3'
+
 # Security fast-track: the dependabot age-gate exempt workflows append the
 # exact name@version of a Dependabot security bump here when the gate would
 # otherwise block the PR's CI. Each entry pins a single version, so it is
 # inert once that version ages past minimumReleaseAge. Keep this list short;
 # prune aged-out entries periodically.
-minimumReleaseAgeExclude: []
+# '@codaco/*' is a permanent exemption: these are first-party packages whose
+# releases we control, so they should not wait out the cooldown.
+minimumReleaseAgeExclude:
+  - '@codaco/*'

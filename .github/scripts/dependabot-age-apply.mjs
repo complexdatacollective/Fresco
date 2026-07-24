@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 // Stage 2 (PRIVILEGED) of the Dependabot age-gate fast-track.
 //
 // Triggered via `workflow_run` after the unprivileged compute stage succeeds,

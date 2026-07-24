@@ -1,0 +1,116 @@
+name: 'Chromatic'
+permissions:
+  contents: read
+  pull-requests: write
+  statuses: write
+
+on:
+  push:
+  workflow_dispatch:
+  issue_comment:
+    types: [created]
+
+jobs:
+  chromatic:
+    name: Run Chromatic
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issue_comment' &&
+       github.event.issue.pull_request &&
+       startsWith(github.event.comment.body, '/chromatic') &&
+       contains(fromJSON('["OWNER", "MEMBER", "COLLABORATOR"]'), github.event.comment.author_association))
+    steps:
+      - name: Get PR details
+        if: github.event_name == 'issue_comment'
+        id: pr
+        uses: actions/github-script@v9
+        with:
+          script: |
+            const pr = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            core.setOutput('ref', pr.data.head.ref);
+            core.setOutput('sha', pr.data.head.sha);
+
+            await Promise.all([
+              github.rest.reactions.createForIssueComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: context.payload.comment.id,
+                content: 'rocket'
+              }),
+              github.rest.repos.createCommitStatus({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                sha: pr.data.head.sha,
+                state: 'pending',
+                context: 'Chromatic',
+                description: 'Visual tests running...'
+              })
+            ]);
+
+      - name: Setup
+        uses: complexdatacollective/github-actions/setup-pnpm@4d9ebee3e57834a7ac8389a57d0fe1ef3614be14 # v2
+        with:
+          fetch-depth: '0'
+          cache-key-prefix: chromatic-pnpm-store
+
+      - name: Run Chromatic
+        id: chromatic
+        uses: chromaui/action@e3eb8ec36101d8f0253c7c3ae66e5a2b4e2197ba # v16.10.0
+        with:
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          autoAcceptChanges: main
+          onlyChanged: true
+
+      - name: Post links to PR
+        if: github.event_name == 'issue_comment'
+        uses: actions/github-script@v9
+        env:
+          BRANCH: ${{ steps.pr.outputs.ref }}
+        with:
+          script: |
+            const branch = process.env.BRANCH;
+            const encodedBranch = encodeURIComponent(branch);
+            const body = [
+              '### Chromatic',
+              '',
+              `| | |`,
+              `|---|---|`,
+              `| **Storybook** | [View on Chromatic](https://${encodedBranch}--68b1958ee9350657446b5406.chromatic.com) |`,
+              `| **Library** | [View on Chromatic](https://www.chromatic.com/library?appId=68b1958ee9350657446b5406&branch=${encodedBranch}) |`,
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body
+            });
+
+      - name: Update commit status
+        if: github.event_name == 'issue_comment' && always()
+        uses: actions/github-script@v9
+        env:
+          CHROMATIC_OUTCOME: ${{ steps.chromatic.outcome }}
+          PR_SHA: ${{ steps.pr.outputs.sha }}
+          BUILD_URL: ${{ steps.chromatic.outputs.buildUrl }}
+        with:
+          script: |
+            const success = process.env.CHROMATIC_OUTCOME === 'success';
+            await github.rest.repos.createCommitStatus({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              sha: process.env.PR_SHA,
+              state: success ? 'success' : 'failure',
+              context: 'Chromatic',
+              description: success
+                ? 'Visual tests passed'
+                : 'Visual tests failed',
+              target_url: process.env.BUILD_URL || undefined
+            });

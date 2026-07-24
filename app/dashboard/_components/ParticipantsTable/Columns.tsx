@@ -1,30 +1,20 @@
-import { type ColumnDef } from '@tanstack/react-table';
-import { DataTableColumnHeader } from '~/components/DataTable/ColumnHeader';
-import { Checkbox } from '~/components/ui/checkbox';
-import { GenerateParticipationURLButton } from './GenerateParticipantURLButton';
-import { type ParticipantWithInterviews } from '~/types/types';
+import { type StrictColumnDef } from '@codaco/fresco-ui/DataTable/types';
 import Image from 'next/image';
-import InfoTooltip from '~/components/InfoTooltip';
-import { InfoIcon } from 'lucide-react';
-import Heading from '~/components/ui/typography/Heading';
-import Paragraph from '~/components/ui/typography/Paragraph';
-import { buttonVariants } from '~/components/ui/Button';
-import { Badge } from '~/components/ui/badge';
-import type { GetProtocolsReturnType } from '~/queries/protocols';
+import Checkbox from '@codaco/fresco-ui/form/fields/Checkbox';
+import { DataTableColumnHeader } from '@codaco/fresco-ui/DataTable/ColumnHeader';
+import { SelectAllHeader } from '@codaco/fresco-ui/DataTable/SelectAllHeader';
+import { Badge } from '@codaco/fresco-ui/Badge';
+import type { ProtocolWithInterviews } from '../ProtocolsTable/ProtocolsTableClient';
+import { GenerateParticipationURLButton } from './GenerateParticipantURLButton';
+import type { ParticipantRow } from './ParticipantsTableClient';
 
 export function getParticipantColumns(
-  protocols: Awaited<GetProtocolsReturnType>,
-): ColumnDef<ParticipantWithInterviews, unknown>[] {
+  protocols: ProtocolWithInterviews[],
+): StrictColumnDef<ParticipantRow>[] {
   return [
     {
       id: 'select',
-      header: ({ table }) => (
-        <Checkbox
-          checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
+      header: ({ table }) => <SelectAllHeader table={table} />,
       cell: ({ row }) => (
         <Checkbox
           checked={row.getIsSelected()}
@@ -38,6 +28,7 @@ export function getParticipantColumns(
     {
       id: 'identifier',
       accessorKey: 'identifier',
+      sortingFn: 'text',
       header: ({ column }) => {
         return <DataTableColumnHeader column={column} title="Identifier" />;
       },
@@ -65,6 +56,7 @@ export function getParticipantColumns(
     },
     {
       accessorKey: 'label',
+      sortingFn: 'text',
       header: ({ column }) => {
         return <DataTableColumnHeader column={column} title="Label" />;
       },
@@ -74,6 +66,8 @@ export function getParticipantColumns(
     },
     {
       id: 'interviews',
+      accessorFn: (row) => row._count.interviews,
+      sortingFn: 'basic',
       header: ({ column }) => {
         return <DataTableColumnHeader column={column} title="Interviews" />;
       },
@@ -91,32 +85,12 @@ export function getParticipantColumns(
     },
     {
       id: 'participant-url',
-      header: () => {
+      enableSorting: false,
+      header: ({ column }) => {
         return (
-          <InfoTooltip
-            triggerClasses="whitespace-nowrap flex"
-            trigger={
-              <div
-                className={buttonVariants({
-                  variant: 'tableHeader',
-                  size: 'sm',
-                })}
-              >
-                <span>Unique Participant URL</span>
-                <InfoIcon className="mx-2 h-4 w-4" />
-              </div>
-            }
-            content={
-              <>
-                <Heading variant="h4-all-caps">Unique Participant URL</Heading>
-                <Paragraph>
-                  A unique participant URL allows a participant to take an
-                  interview simply by visiting a URL. A participation URL is
-                  specific to each participant, and should only be shared with
-                  them.
-                </Paragraph>
-              </>
-            }
+          <DataTableColumnHeader
+            column={column}
+            title="Unique Participant URL"
           />
         );
       },

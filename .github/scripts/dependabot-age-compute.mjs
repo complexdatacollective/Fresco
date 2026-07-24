@@ -1,3 +1,4 @@
+/* eslint-disable no-console, no-process-env */
 // Stage 1 (UNPRIVILEGED) of the Dependabot age-gate fast-track.
 //
 // pnpm's minimumReleaseAge gate (24h — see pnpm-workspace.yaml) refuses

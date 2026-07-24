@@ -1,122 +1,110 @@
 'use client';
 
 import { FileUp } from 'lucide-react';
-import { use, useEffect, useState } from 'react';
-import { Button } from '~/components/ui/Button';
+import { use, useState, useTransition } from 'react';
+import superjson from 'superjson';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import { Button } from '@codaco/fresco-ui/Button';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '~/components/ui/dialog';
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@codaco/fresco-ui/Popover';
+import { Skeleton } from '@codaco/fresco-ui/Skeleton';
+import SelectField from '@codaco/fresco-ui/form/fields/Select/Native';
+import { useToast } from '@codaco/fresco-ui/Toast';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '~/components/ui/select';
-import { Skeleton } from '~/components/ui/skeleton';
-import type { GetInterviewsReturnType } from '~/queries/interviews';
-import type { GetProtocolsReturnType } from '~/queries/protocols';
+  getIncompleteInterviewUrlData,
+  type IncompleteInterviewUrlData,
+} from '~/actions/interviews';
+import type {
+  GetProtocolsQuery,
+  GetProtocolsReturnType,
+} from '~/queries/protocols';
 import ExportCSVInterviewURLs from './ExportCSVInterviewURLs';
 
 export const GenerateInterviewURLs = ({
-  interviews,
   protocolsPromise,
+  className,
 }: {
-  interviews: Awaited<GetInterviewsReturnType>;
   protocolsPromise: GetProtocolsReturnType;
+  className?: string;
 }) => {
-  const protocols = use(protocolsPromise);
+  const rawProtocols = use(protocolsPromise);
+  const protocols = superjson.parse<GetProtocolsQuery>(rawProtocols);
+  const { add } = useToast();
 
   const [interviewsToExport, setInterviewsToExport] = useState<
-    typeof interviews
+    IncompleteInterviewUrlData[]
   >([]);
 
   const [selectedProtocol, setSelectedProtocol] =
     useState<(typeof protocols)[number]>();
 
-  // Only export interviews that are 1. incomplete and 2. belong to the selected protocol
-  useEffect(() => {
-    if (interviews) {
-      setInterviewsToExport(
-        interviews.filter(
-          (interview) =>
-            !interview.finishTime &&
-            selectedProtocol?.id === interview.protocolId,
-        ),
-      );
-    }
-  }, [interviews, selectedProtocol]);
+  const [isLoading, startLoading] = useTransition();
 
-  const [open, setOpen] = useState(false);
+  const handleSelectProtocol = (protocolId: string | number) => {
+    const protocol = protocols.find((p) => p.id === protocolId);
+    setSelectedProtocol(protocol);
+    setInterviewsToExport([]);
 
-  const handleOpenChange = () => {
-    setOpen(!open);
+    if (!protocol) return;
+
+    startLoading(async () => {
+      const result = await getIncompleteInterviewUrlData(protocol.id);
+      if (result.error) {
+        add({
+          title: 'Error',
+          description: result.error,
+          variant: 'destructive',
+        });
+        return;
+      }
+      setInterviewsToExport(result.data);
+    });
   };
 
   return (
-    <>
-      <Button
-        disabled={interviews?.length === 0}
-        onClick={handleOpenChange}
-        variant="outline"
+    <Popover>
+      <PopoverTrigger
+        render={
+          <Button
+            icon={<FileUp />}
+            className={className}
+            data-testid="export-incomplete-urls-button"
+          />
+        }
       >
-        <FileUp className="mr-2 inline-block h-4 w-4" />
         Export Incomplete Interview URLs
-      </Button>
-      <Dialog open={open} onOpenChange={handleOpenChange}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Generate Incomplete Interview URLs</DialogTitle>
-            <DialogDescription>
-              Generate a CSV that contains unique interview URLs for all{' '}
-              <strong>incomplete interviews </strong> by protocol. These URLs
-              can be shared with participants to allow them to finish their
-              interviews.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex flex-col items-center justify-end gap-4">
-            {!protocols ? (
-              <Skeleton className="h-10 w-full rounded-input" />
-            ) : (
-              <Select
-                onValueChange={(value) => {
-                  const protocol = protocols.find(
-                    (protocol) => protocol.id === value,
-                  );
+      </PopoverTrigger>
+      <PopoverContent className="flex max-w-sm flex-col gap-4">
+        <Paragraph>
+          Generate a CSV that contains unique interview URLs for all incomplete
+          interviews by protocol.
+        </Paragraph>
 
-                  setSelectedProtocol(protocol);
-                }}
-                value={selectedProtocol?.id}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select a Protocol..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {protocols?.map((protocol) => (
-                    <SelectItem key={protocol.id} value={protocol.id}>
-                      {protocol.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          </div>
-          <DialogFooter>
-            <Button onClick={handleOpenChange} variant="outline">
-              Cancel
-            </Button>
-            <ExportCSVInterviewURLs
-              protocol={selectedProtocol}
-              interviews={interviewsToExport}
-            />
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+        {!protocols ? (
+          <Skeleton className="h-10 w-full rounded" />
+        ) : (
+          <SelectField
+            name="Protocol"
+            size="sm"
+            options={protocols.map((p) => ({ value: p.id, label: p.name }))}
+            onChange={(value) => {
+              if (value) handleSelectProtocol(value);
+            }}
+            value={selectedProtocol?.id}
+            placeholder="Select a Protocol..."
+          />
+        )}
+        <div className="flex justify-end">
+          <ExportCSVInterviewURLs
+            protocol={selectedProtocol}
+            interviews={interviewsToExport}
+            disabled={isLoading}
+          />
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 };

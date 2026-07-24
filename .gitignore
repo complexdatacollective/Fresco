@@ -35,7 +35,8 @@ yarn-error.log*
 .pnpm-debug.log*
 
 # local env files
-# do not commit any .env files to git, except for the .env.example file. https://create.t3.gg/en/usage/env-variables#using-environment-variables
+# .env.development is intentionally committed — it contains only dev-time test credentials.
+# Do not commit .env (personal secrets) or any *.local files.
 .env
 .env*.local
 
@@ -47,3 +48,36 @@ yarn-error.log*
 
 *storybook.log
 storybook-static
+
+# e2e testing
+/tests/e2e/playwright-report/
+/tests/e2e/test-results/
+/tests/e2e/test-results-*/
+/tests/e2e/screenshots/
+/tests/e2e/.auth/
+/tests/e2e/.context-data.json
+/tests/e2e/.context/
+/tests/e2e/.db-snapshots/
+/.e2e-assets/
+/playwright-report/
+/test-results/
+/playwright/.cache/
+
+# Serena
+.serena
+
+# playwright MCP
+./playwright-mcp
+
+.pnpm-store
+.pnpm-docker-store
+
+# Local Netlify folder
+.netlify
+
+# Git worktrees
+.worktrees
+
+# plans
+/docs/plans
+/docs/superpowers

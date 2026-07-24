@@ -1,127 +1,326 @@
 'use client';
 
-import { type ColumnDef } from '@tanstack/react-table';
-import { Trash } from 'lucide-react';
-import { use, useCallback, useMemo, useState } from 'react';
 import {
-  deleteAllParticipants,
+  type ColumnDef,
+  type Row,
+  type RowSelectionState,
+} from '@tanstack/react-table';
+import { FileUp } from 'lucide-react';
+import { use, useMemo, useState, useTransition } from 'react';
+import SuperJSON from 'superjson';
+import {
   deleteParticipants,
+  getParticipantDeletionInfo,
+  getParticipantsForExport,
+  resolveParticipantIds,
 } from '~/actions/participants';
 import { ActionsDropdown } from '~/app/dashboard/_components/ParticipantsTable/ActionsDropdown';
 import { getParticipantColumns } from '~/app/dashboard/_components/ParticipantsTable/Columns';
+import AddParticipantButton from '~/app/dashboard/participants/_components/AddParticipantButton';
 import { DeleteParticipantsDialog } from '~/app/dashboard/participants/_components/DeleteParticipantsDialog';
-import { DataTable } from '~/components/DataTable/DataTable';
-import { Button } from '~/components/ui/Button';
-import type { GetParticipantsReturnType } from '~/queries/participants';
-import type { GetProtocolsReturnType } from '~/queries/protocols';
-import type { ParticipantWithInterviews } from '~/types/types';
-import AddParticipantButton from '../../participants/_components/AddParticipantButton';
-import { GenerateParticipantURLs } from '../../participants/_components/ExportParticipants/GenerateParticipantURLsButton';
+import { useExportParticipants } from '~/app/dashboard/participants/_components/ExportParticipants/ExportParticipants';
+import ImportParticipants from '~/app/dashboard/participants/_components/ImportParticipants';
+import ParticipantModal from '~/app/dashboard/participants/_components/ParticipantModal';
+import { Button } from '@codaco/fresco-ui/Button';
+import { cx } from '@codaco/fresco-ui/utils/cva';
+import { useToast } from '@codaco/fresco-ui/Toast';
+import NuqsClearFilters from '~/components/DataTable/nuqs/NuqsClearFilters';
+import NuqsSearchFilter from '~/components/DataTable/nuqs/NuqsSearchFilter';
+import {
+  NuqsTableProvider,
+  useNuqsTable,
+} from '~/components/DataTable/nuqs/NuqsTableProvider';
+import type { Participant } from '~/lib/db/generated/client';
+import type {
+  GetParticipantsForSelectQuery,
+  GetParticipantsForSelectReturnType,
+  GetParticipantsQuery,
+  GetParticipantsReturnType,
+} from '~/queries/participants';
+import type {
+  GetProtocolsQuery,
+  GetProtocolsReturnType,
+} from '~/queries/protocols';
+import ParticipantsTableRows from './ParticipantsTableRows';
+import {
+  PARTICIPANTS_PREFIX,
+  type ParticipantsSearchParams,
+} from './searchParams';
 
-export const ParticipantsTableClient = ({
-  participantsPromise,
-  protocolsPromise,
-}: {
+const clearableFilters = ['q'] as const;
+
+export type ParticipantRow = GetParticipantsQuery[number];
+
+type ParticipantsTableProps = {
   participantsPromise: GetParticipantsReturnType;
+  allParticipantsPromise: GetParticipantsForSelectReturnType;
   protocolsPromise: GetProtocolsReturnType;
-}) => {
-  const participants = use(participantsPromise);
-  const protocols = use(protocolsPromise);
+  searchParams: ParticipantsSearchParams;
+};
 
-  // Memoize the columns so they don't re-render on every render
-  const columns = useMemo<ColumnDef<ParticipantWithInterviews, unknown>[]>(
-    () => getParticipantColumns(protocols),
-    [protocols],
+export const ParticipantsTableClient = (props: ParticipantsTableProps) => {
+  return (
+    <NuqsTableProvider prefix={PARTICIPANTS_PREFIX}>
+      <ParticipantsTableInner {...props} />
+    </NuqsTableProvider>
+  );
+};
+
+const ParticipantsTableInner = ({
+  participantsPromise,
+  allParticipantsPromise,
+  protocolsPromise,
+  searchParams,
+}: ParticipantsTableProps) => {
+  // TanStack Table: consumers must also opt out so React Compiler doesn't memoize JSX that depends on the table ref.
+  'use no memo';
+  const { isPending } = useNuqsTable();
+  const { add } = useToast();
+  const rawAllParticipants = use(allParticipantsPromise);
+  const rawProtocols = use(protocolsPromise);
+  const allParticipants = useMemo(
+    () => SuperJSON.parse<GetParticipantsForSelectQuery>(rawAllParticipants),
+    [rawAllParticipants],
+  );
+  const protocols = useMemo(
+    () => SuperJSON.parse<GetProtocolsQuery>(rawProtocols),
+    [rawProtocols],
   );
 
-  const [participantsToDelete, setParticipantsToDelete] = useState<
-    ParticipantWithInterviews[] | null
-  >(null);
+  const exportParticipants = useExportParticipants(protocols);
+
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteIds, setDeleteIds] = useState<string[]>([]);
+  const [deleteHaveInterviews, setDeleteHaveInterviews] = useState(false);
+  const [deleteHaveUnexported, setDeleteHaveUnexported] = useState(false);
 
-  // Actual delete handler, which handles optimistic updates, etc.
-  const doDelete = async () => {
-    if (!participantsToDelete) {
-      return;
-    }
+  const [editingParticipant, setEditingParticipant] =
+    useState<Participant | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
 
-    // Check if we are deleting all and call the appropriate function
-    if (participantsToDelete.length === participants.length) {
-      await deleteAllParticipants();
-      resetDelete();
-      return;
-    }
+  const [isSelecting, startSelecting] = useTransition();
+  const [isDeleteResolving, startDeleteResolving] = useTransition();
+  const [isExportResolving, startExportResolving] = useTransition();
 
-    await deleteParticipants(participantsToDelete.map((p) => p.id));
+  const selectedIds = Object.keys(rowSelection).filter(
+    (id) => rowSelection[id],
+  );
 
-    resetDelete();
+  const handleEditParticipant = useMemo(
+    () => (participant: ParticipantRow) => {
+      const existing = allParticipants.find((p) => p.id === participant.id);
+      if (!existing) return;
+      setEditingParticipant(existing);
+      setShowEditModal(true);
+    },
+    [allParticipants],
+  );
+
+  const openDeleteDialog = (
+    ids: string[],
+    haveInterviews: boolean,
+    haveUnexported: boolean,
+  ) => {
+    setDeleteIds(ids);
+    setDeleteHaveInterviews(haveInterviews);
+    setDeleteHaveUnexported(haveUnexported);
+    setShowDeleteModal(true);
   };
 
-  // Resets the state when the dialog is closed.
-  const resetDelete = () => {
-    setShowDeleteModal(false);
-    setParticipantsToDelete(null);
-  };
-
-  const handleDeleteItems = useCallback(
-    (items: ParticipantWithInterviews[]) => {
-      // Set state to the items to be deleted
-      setParticipantsToDelete(items);
-
-      // Show the dialog
-      setShowDeleteModal(true);
+  const handleDeleteSingle = useMemo(
+    () => (participant: ParticipantRow) => {
+      openDeleteDialog(
+        [participant.id],
+        participant._count.interviews > 0,
+        participant.interviews.some((interview) => !interview.exportTime),
+      );
     },
     [],
   );
 
-  const handleDeleteAll = useCallback(() => {
-    // Set state to all items
-    setParticipantsToDelete(participants);
+  const columns = useMemo<ColumnDef<ParticipantRow, unknown>[]>(
+    () => [
+      ...getParticipantColumns(protocols),
+      {
+        id: 'actions',
+        enableSorting: false,
+        cell: ({ row }: { row: Row<ParticipantRow> }) => (
+          <ActionsDropdown
+            row={row}
+            onEdit={handleEditParticipant}
+            onDelete={handleDeleteSingle}
+          />
+        ),
+      },
+    ],
+    [protocols, handleEditParticipant, handleDeleteSingle],
+  );
 
-    // Show the dialog
-    setShowDeleteModal(true);
-  }, [participants]);
+  const handleDeleteSelected = () => {
+    startDeleteResolving(async () => {
+      const result = await getParticipantDeletionInfo(selectedIds);
+      if (result.error) {
+        add({
+          title: 'Error',
+          description: result.error,
+          variant: 'destructive',
+        });
+        return;
+      }
+      openDeleteDialog(
+        result.data.map((p) => p.id),
+        result.data.some((p) => p.hasInterviews),
+        result.data.some((p) => p.hasUnexportedInterviews),
+      );
+    });
+  };
+
+  const doDelete = async () => {
+    await deleteParticipants(deleteIds);
+    setRowSelection({});
+    resetDelete();
+  };
+
+  const resetDelete = () => {
+    setShowDeleteModal(false);
+    setDeleteIds([]);
+    setDeleteHaveInterviews(false);
+    setDeleteHaveUnexported(false);
+  };
+
+  const resolveAndExport = (ids: string[]) => {
+    startExportResolving(async () => {
+      const result = await getParticipantsForExport(ids);
+      if (result.error) {
+        add({
+          title: 'Error',
+          description: result.error,
+          variant: 'destructive',
+        });
+        return;
+      }
+      exportParticipants(result.data);
+    });
+  };
+
+  const handleExportSelected = () => {
+    resolveAndExport(selectedIds);
+  };
+
+  const handleExportAll = () => {
+    startExportResolving(async () => {
+      const idsResult = await resolveParticipantIds(searchParams);
+      if (idsResult.error) {
+        add({
+          title: 'Error',
+          description: idsResult.error,
+          variant: 'destructive',
+        });
+        return;
+      }
+      const result = await getParticipantsForExport(idsResult.ids);
+      if (result.error) {
+        add({
+          title: 'Error',
+          description: result.error,
+          variant: 'destructive',
+        });
+        return;
+      }
+      exportParticipants(result.data);
+    });
+  };
+
+  const handleSelectAllMatching = () => {
+    startSelecting(async () => {
+      const result = await resolveParticipantIds(searchParams);
+      if (result.error) {
+        add({
+          title: 'Error',
+          description: result.error,
+          variant: 'destructive',
+        });
+        return;
+      }
+      setRowSelection(Object.fromEntries(result.ids.map((id) => [id, true])));
+    });
+  };
+
+  const handleDeselectAll = () => {
+    setRowSelection({});
+  };
 
   return (
     <>
       <DeleteParticipantsDialog
         open={showDeleteModal}
-        participantCount={participantsToDelete?.length ?? 0}
-        haveInterviews={
-          !!participantsToDelete?.some(
-            (participant) => participant._count.interviews > 0,
-          )
-        }
-        haveUnexportedInterviews={
-          !!participantsToDelete?.some((participant) =>
-            participant.interviews.some((interview) => !interview.exportTime),
-          )
-        }
+        participantCount={deleteIds.length}
+        haveInterviews={deleteHaveInterviews}
+        haveUnexportedInterviews={deleteHaveUnexported}
         onConfirm={doDelete}
         onCancel={resetDelete}
       />
-      <DataTable
-        columns={columns}
-        data={participants}
-        filterColumnAccessorKey="identifier"
-        handleDeleteSelected={handleDeleteItems}
-        actions={ActionsDropdown}
-        headerItems={
-          <>
-            <div className="flex flex-1 justify-start gap-2">
-              <AddParticipantButton existingParticipants={participants} />
-              <GenerateParticipantURLs
-                participants={participants}
-                protocols={protocols}
-              />
-            </div>
-            <Button variant="destructive" onClick={handleDeleteAll}>
-              <Trash className="mr-2 inline-block h-4 w-4" />
-              Delete All
-            </Button>
-          </>
-        }
+      <ParticipantModal
+        open={showEditModal}
+        setOpen={setShowEditModal}
+        existingParticipants={allParticipants}
+        editingParticipant={editingParticipant}
+        setEditingParticipant={setEditingParticipant}
       />
+      <div
+        className={cx(
+          'transition-opacity duration-150',
+          isPending && 'pointer-events-none opacity-60',
+        )}
+        aria-busy={isPending}
+      >
+        <ParticipantsTableRows
+          participantsPromise={participantsPromise}
+          rowSelection={rowSelection}
+          onRowSelectionChange={setRowSelection}
+          columns={columns}
+          isBusy={isSelecting || isDeleteResolving || isExportResolving}
+          onDeleteSelected={handleDeleteSelected}
+          onExportSelected={handleExportSelected}
+          onSelectAllMatching={handleSelectAllMatching}
+          onDeselectAll={handleDeselectAll}
+          toolbar={
+            <Toolbar
+              existingParticipants={allParticipants}
+              isExportResolving={isExportResolving}
+              onExportAll={handleExportAll}
+            />
+          }
+        />
+      </div>
     </>
+  );
+};
+
+const Toolbar = ({
+  existingParticipants,
+  isExportResolving,
+  onExportAll,
+}: {
+  existingParticipants: GetParticipantsForSelectQuery;
+  isExportResolving: boolean;
+  onExportAll: () => void;
+}) => {
+  return (
+    <div className="tablet-landscape:flex-row tablet-landscape:flex-wrap flex w-full flex-col items-center gap-2">
+      <NuqsSearchFilter paramKey="q" placeholder="Filter by identifier..." />
+      <AddParticipantButton existingParticipants={existingParticipants} />
+      <ImportParticipants />
+      <Button
+        onClick={onExportAll}
+        disabled={isExportResolving}
+        icon={<FileUp />}
+        data-testid="export-participants-button"
+      >
+        Export Participants
+      </Button>
+      <NuqsClearFilters paramKeys={clearableFilters} />
+    </div>
   );
 };
