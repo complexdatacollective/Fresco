@@ -76,6 +76,7 @@ export default function InterviewClient({
       const response = await fetch(`/api/interviews/${id}/finish`, {
         method: 'POST',
         signal,
+        keepalive: true,
       });
 
       if (!response.ok) {
