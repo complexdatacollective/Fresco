@@ -37,13 +37,13 @@ jobs:
       # Trusted checkout of the default branch (source of this script + a
       # git context to push from). Uses the optional PAT so the push
       # re-triggers CI.
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           token: ${{ secrets.DEPENDABOT_AUTOFIX_TOKEN || github.token }}
 
       - name: Download exemption request
         id: download
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: age-exempt-request
           path: age-exempt

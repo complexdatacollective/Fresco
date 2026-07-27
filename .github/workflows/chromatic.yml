@@ -62,7 +62,7 @@ jobs:
 
       - name: Run Chromatic
         id: chromatic
-        uses: chromaui/action@e3eb8ec36101d8f0253c7c3ae66e5a2b4e2197ba # v16.10.0
+        uses: chromaui/action@14cfaef73576e69f95f47f60058063f46ca38719 # v18.1.0
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           autoAcceptChanges: main

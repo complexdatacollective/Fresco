@@ -2,7 +2,7 @@
 
 import { FileDown, Upload } from 'lucide-react';
 import { useCallback, useState } from 'react';
-import { useDropzone } from 'react-dropzone';
+import { type FileRejection, useDropzone } from 'react-dropzone';
 import { importParticipants } from '~/actions/participants';
 import Heading from '@codaco/fresco-ui/typography/Heading';
 import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
@@ -16,16 +16,14 @@ import { useToast } from '@codaco/fresco-ui/Toast';
 import { csvDataSchema } from '~/schemas/participant';
 import { cx } from '@codaco/fresco-ui/utils/cva';
 import parseCSV from '~/utils/parseCSV';
+import selectParticipantImportFile from './selectParticipantImportFile';
 
 export default function ImportParticipants() {
   const [open, setOpen] = useState(false);
   const { add } = useToast();
 
-  const handleFilesAccepted = useCallback(
-    async (files: File[]) => {
-      const file = files[0];
-      if (!file) return;
-
+  const handleFileAccepted = useCallback(
+    async (file: File) => {
       try {
         const csvData = await parseCSV(file);
         const parsed = csvDataSchema.safeParse(csvData);
@@ -97,13 +95,27 @@ export default function ImportParticipants() {
     [add],
   );
 
+  const handleDrop = useCallback(
+    (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
+      const file = selectParticipantImportFile(
+        acceptedFiles,
+        rejectedFiles,
+      );
+
+      if (!file) return;
+
+      void handleFileAccepted(file);
+    },
+    [handleFileAccepted],
+  );
+
   const {
     getRootProps,
     getInputProps,
     isDragActive,
     open: openFileDialog,
   } = useDropzone({
-    onDropAccepted: handleFilesAccepted,
+    onDrop: handleDrop,
     accept: {
       'text/csv': [],
       'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': [],

@@ -36,10 +36,15 @@ allowBuilds:
 patchedDependencies:
   react-best-merge-refs@1.0.2: patches/react-best-merge-refs@1.0.2.patch
 
-# Force the transitive `effect` (pulled by uploadthing at the vulnerable 3.17.7,
-# GHSA-38f7-945m-qr2g) onto the patched line we already depend on directly.
+# Keep security-sensitive transitives on patched versions when upstream
+# manifests still pin vulnerable releases.
 overrides:
-  effect: '^3.21.3'
+  effect: '^3.22.0'
+  fast-uri: '^3.1.4'
+  find-my-way: '^9.7.0'
+  postcss: '^8.5.23'
+  sharp: '^0.35.3'
+  valibot: '^1.4.2'
 
 # Security fast-track: the dependabot age-gate exempt workflows append the
 # exact name@version of a Dependabot security bump here when the gate would
