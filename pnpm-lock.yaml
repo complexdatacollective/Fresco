@@ -87,7 +87,7 @@ importers:
         version: 17.4.2
       effect:
         specifier: ^3.22.0
-        version: 3.22.0
+        version: 3.22.1
       es-toolkit:
         specifier: ^1.50.0
         version: 1.50.0
@@ -3729,8 +3729,8 @@ packages:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
     engines: {node: '>= 0.4'}
 
-  effect@3.22.0:
-    resolution: {integrity: sha512-jhYFe0zTlIRqYFrKTS+6luhmS/Tm0f+JLo0K9KUxvtFab1SUGEszQi2ehOP6QzAZvy831lDmTwwzvVDZSPNz3g==}
+  effect@3.22.1:
+    resolution: {integrity: sha512-TNoXushmPOBAjJlthF5d2QwnX2xBPEtcNJr5XKNKbRLbDvBcOYkXlYDfvGfSA0zriwLFuCll5MDtNMAdZL17PQ==}
 
   electron-to-chromium@1.5.395:
     resolution: {integrity: sha512-7zt9Aw+SrmxLWLN0zhaTWZQiCdryLVrYTq5R7iZakLvi2UQPYMMsROYV/2qVCzMeCiSXHwKOU+sZ4zOVVlrtKA==}
@@ -7254,7 +7254,7 @@ snapshots:
       '@codaco/protocol-validation': 12.1.0
       '@codaco/shared-consts': 5.6.0
       '@xmldom/xmldom': 0.9.10
-      effect: 3.22.0
+      effect: 3.22.1
       es-toolkit: 1.50.0
       fflate: 0.8.3
       ohash: 2.0.11
@@ -7321,10 +7321,10 @@ snapshots:
 
   '@csstools/css-tokenizer@4.0.0': {}
 
-  '@effect/platform@0.90.3(effect@3.22.0)':
+  '@effect/platform@0.90.3(effect@3.22.1)':
     dependencies:
       '@opentelemetry/semantic-conventions': 1.41.1
-      effect: 3.22.0
+      effect: 3.22.1
       find-my-way-ts: 0.1.6
       msgpackr: 1.11.12
       multipasta: 0.2.7
@@ -8297,7 +8297,7 @@ snapshots:
     dependencies:
       c12: 3.3.4(magicast@0.5.3)
       deepmerge-ts: 7.1.5
-      effect: 3.22.0
+      effect: 3.22.1
       empathic: 2.0.0
     transitivePeerDependencies:
       - magicast
@@ -9352,7 +9352,7 @@ snapshots:
   '@uploadthing/shared@7.1.10':
     dependencies:
       '@uploadthing/mime-types': 0.3.6
-      effect: 3.22.0
+      effect: 3.22.1
       sqids: 0.3.0
 
   '@valibot/to-json-schema@1.7.1(valibot@1.4.2(typescript@6.0.3))':
@@ -10199,7 +10199,7 @@ snapshots:
       es-errors: 1.3.0
       gopd: 1.2.0
 
-  effect@3.22.0:
+  effect@3.22.1:
     dependencies:
       '@standard-schema/spec': 1.1.0
       fast-check: 3.23.2
@@ -13395,11 +13395,11 @@ snapshots:
 
   uploadthing@7.7.4(next@16.2.12(@babel/core@7.29.7(supports-color@10.2.2))(@types/node@24.13.3)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(sass@1.102.0))(tailwindcss@4.3.3):
     dependencies:
-      '@effect/platform': 0.90.3(effect@3.22.0)
+      '@effect/platform': 0.90.3(effect@3.22.1)
       '@standard-schema/spec': 1.0.0-beta.4
       '@uploadthing/mime-types': 0.3.6
       '@uploadthing/shared': 7.1.10
-      effect: 3.22.0
+      effect: 3.22.1
     optionalDependencies:
       next: 16.2.12(@babel/core@7.29.7(supports-color@10.2.2))(@types/node@24.13.3)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(sass@1.102.0)
       tailwindcss: 4.3.3
