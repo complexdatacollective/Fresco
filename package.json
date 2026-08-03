@@ -122,7 +122,7 @@
     "prisma": "^7.9.0",
     "sass": "^1.102.0",
     "sass-embedded": "^1.100.0",
-    "storybook": "^10.5.4",
+    "storybook": "^10.5.5",
     "tailwindcss": "4.3.3",
     "tailwindcss-animate": "^1.0.7",
     "tsx": "^4.23.1",
