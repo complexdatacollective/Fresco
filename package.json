@@ -25,8 +25,8 @@
     "docker-build": "docker build -t fresco:latest ."
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1095.0",
-    "@aws-sdk/s3-request-presigner": "^3.1095.0",
+    "@aws-sdk/client-s3": "^3.1101.0",
+    "@aws-sdk/s3-request-presigner": "^3.1101.0",
     "@base-ui/react": "^1.6.0",
     "@codaco/fresco-ui": "^5.0.2",
     "@codaco/interview": "^7.0.2",
@@ -59,8 +59,8 @@
     "otpauth": "^9.5.1",
     "papaparse": "^5.5.4",
     "postcss": "^8.5.23",
-    "posthog-js": "^1.407.2",
-    "posthog-node": "^5.46.1",
+    "posthog-js": "^1.409.5",
+    "posthog-node": "^5.47.3",
     "qrcode": "^1.5.4",
     "react": "19.2.8",
     "react-dom": "19.2.8",
