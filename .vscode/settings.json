@@ -1,7 +1,12 @@
 {
-  "css.customData": [
-    "./.vscode/css-data.json"
-  ],
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.quickSuggestions": {
+    "strings": "on"
+  },
+  "css.customData": ["./.vscode/css-data.json"],
   "typescript.tsdk": "node_modules/typescript/lib",
   "typescript.enablePromptUseWorkspaceTsdk": true,
   "editor.codeActionsOnSave": {
@@ -9,6 +14,15 @@
     "source.fixAll": "always",
     "source.fixAll.eslint": "always",
     "source.fixAll.typescript": "always",
+    "source.fixAll.tailwindcss": "always"
   },
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "tailwindCSS.classFunctions": ["cva", "cx"],
+  // Rule is broken: https://github.com/tailwindlabs/tailwindcss-intellisense/issues/1542
+  // Implemented a fixable version using https://github.com/schoero/eslint-plugin-better-tailwindcss
+  // that can also be selectively disabled via eslint-disable-next-line comments
+  "tailwindCSS.lint.suggestCanonicalClasses": "ignore",
+  "files.associations": {
+    "*.css": "tailwindcss"
+  }
 }

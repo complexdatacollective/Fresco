@@ -1,62 +1,55 @@
-import { MoreHorizontal } from 'lucide-react';
-import { Button } from '~/components/ui/Button';
+import type { Row } from '@tanstack/react-table';
+import { DeleteIcon, MoreHorizontal, PencilIcon } from 'lucide-react';
+import { IconButton } from '@codaco/fresco-ui/Button';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
-import type { Row } from '@tanstack/react-table';
-import { useState } from 'react';
-import ParticipantModal from '~/app/dashboard/participants/_components/ParticipantModal';
-import type { ParticipantWithInterviews } from '~/types/types';
-import type { Participant } from '~/lib/db/generated/client';
+} from '@codaco/fresco-ui/DropdownMenu';
+import type { ParticipantRow } from './ParticipantsTableClient';
 
-export const ActionsDropdown = ({
+export function ActionsDropdown({
   row,
-  data,
-  deleteHandler,
+  onEdit,
+  onDelete,
 }: {
-  row: Row<ParticipantWithInterviews>;
-  data: ParticipantWithInterviews[];
-  deleteHandler: (participant: ParticipantWithInterviews) => void;
-}) => {
-  const [selectedParticipant, setSelectedParticipant] =
-    useState<Participant | null>(null);
-  const [showParticipantModal, setShowParticipantModal] = useState(false);
-
-  const editParticipant = (data: Participant) => {
-    setSelectedParticipant(data);
-    setShowParticipantModal(true);
-  };
-
+  row: Row<ParticipantRow>;
+  onEdit: (participant: ParticipantRow) => void;
+  onDelete: (participant: ParticipantRow) => void;
+}) {
   return (
-    <>
-      <ParticipantModal
-        open={showParticipantModal}
-        setOpen={setShowParticipantModal}
-        existingParticipants={data}
-        editingParticipant={selectedParticipant}
-        setEditingParticipant={setSelectedParticipant}
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        render={
+          <IconButton
+            variant="text"
+            aria-label="Open menu"
+            icon={<MoreHorizontal />}
+            size="sm"
+          />
+        }
+        nativeButton
       />
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
+      <DropdownMenuContent align="end">
+        <DropdownMenuGroup>
           <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => editParticipant(row.original)}>
+          <DropdownMenuItem
+            onClick={() => onEdit(row.original)}
+            icon={<PencilIcon />}
+          >
             Edit
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => deleteHandler(row.original)}>
+          <DropdownMenuItem
+            onClick={() => onDelete(row.original)}
+            icon={<DeleteIcon />}
+          >
             Delete
           </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
-    </>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
-};
+}

@@ -1,7 +1,7 @@
 import { z } from 'zod';
-import { zfd } from 'zod-form-data';
+import { z as zm } from 'zod/mini';
 
-export const appSettingsSchema = z
+const appSettingsSchema = z
   .object({
     initializedAt: z.date(),
     configured: z.boolean(),
@@ -11,12 +11,22 @@ export const appSettingsSchema = z
     installationId: z.string(),
     disableAnalytics: z.boolean(),
     disableSmallScreenOverlay: z.boolean(),
+    freezeInterviewsAfterCompletion: z.boolean(),
+    enableInterviewDataApi: z.boolean(),
+    storageProvider: z.enum(['uploadthing', 's3']),
+    s3Endpoint: z.string(),
+    s3PublicUrl: z.url(),
+    s3Bucket: z.string(),
+    s3Region: z.string(),
+    s3AccessKeyId: z.string(),
+    s3SecretAccessKey: z.string(),
   })
   .strict();
 
 export type AppSetting = keyof z.infer<typeof appSettingsSchema>;
 
 const parseBoolean = (value: unknown): boolean | undefined => {
+  if (typeof value === 'boolean') return value;
   if (value === 'true') return true;
   if (value === 'false') return false;
   return undefined;
@@ -24,7 +34,11 @@ const parseBoolean = (value: unknown): boolean | undefined => {
 
 // Variation of the schema that converts the string types in the db to the correct types
 export const appSettingPreprocessedSchema = appSettingsSchema.extend({
-  initializedAt: z.coerce.date(),
+  initializedAt: z.preprocess(
+    (val) =>
+      val == null ? null : new Date(typeof val === 'string' ? val : ''),
+    z.date().nullable().default(null),
+  ),
   configured: z.preprocess(parseBoolean, z.boolean().default(false)),
   allowAnonymousRecruitment: z.preprocess(
     parseBoolean,
@@ -36,6 +50,24 @@ export const appSettingPreprocessedSchema = appSettingsSchema.extend({
     parseBoolean,
     z.boolean().default(false),
   ),
+  freezeInterviewsAfterCompletion: z.preprocess(
+    parseBoolean,
+    z.boolean().default(true),
+  ),
+  enableInterviewDataApi: z.preprocess(
+    parseBoolean,
+    z.boolean().default(false),
+  ),
+  storageProvider: z.preprocess(
+    (val) => (typeof val === 'string' ? val : undefined),
+    z.enum(['uploadthing', 's3']).optional(),
+  ),
+  s3Endpoint: z.string().optional(),
+  s3PublicUrl: z.url().optional(),
+  s3Bucket: z.string().optional(),
+  s3Region: z.string().optional(),
+  s3AccessKeyId: z.string().optional(),
+  s3SecretAccessKey: z.string().optional(),
   uploadThingToken: z.string().optional(),
   installationId: z.string().optional(),
 });
@@ -45,15 +77,16 @@ const parseUploadThingToken = (token: string) => {
   return token.replace(/^(UPLOADTHING_TOKEN=)?['"]?|['"]$/g, '').trim();
 };
 
-export const createUploadThingTokenSchema = z
-  .string()
-  .min(10, {
-    message: 'UPLOADTHING_TOKEN must have at least 10 characters.',
-  })
-  .transform((token) => parseUploadThingToken(token));
-
-export const createUploadThingTokenFormSchema = zfd.formData(
-  z.object({
-    uploadThingToken: createUploadThingTokenSchema,
-  }),
+// Client-side schema using zod/mini for smaller bundle
+export const createUploadThingTokenSchema = zm.pipe(
+  zm
+    .string()
+    .check(
+      zm.minLength(10, 'UPLOADTHING_TOKEN must have at least 10 characters.'),
+    ),
+  zm.transform((token: string) => parseUploadThingToken(token)),
 );
+
+export const createUploadThingTokenFormSchema = zm.object({
+  uploadThingToken: createUploadThingTokenSchema,
+});

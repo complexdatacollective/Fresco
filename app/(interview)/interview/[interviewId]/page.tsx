@@ -1,49 +1,116 @@
 import { cookies } from 'next/headers';
 import { notFound, redirect } from 'next/navigation';
-import { syncInterview } from '~/actions/interviews';
+import { after, connection } from 'next/server';
+import { Suspense } from 'react';
+import SuperJSON from 'superjson';
+import { type ActivityType } from '~/app/dashboard/_components/ActivityFeed/types';
+import Spinner from '@codaco/fresco-ui/Spinner';
+import { getServerSession } from '~/lib/auth/guards';
+import { safeRevalidateTag } from '~/lib/cache';
+import { prisma } from '~/lib/db';
+import { captureEvent, shutdownPostHog } from '~/lib/posthog-server';
 import { getAppSetting } from '~/queries/appSettings';
-import { getInterviewById } from '~/queries/interviews';
-import { getServerSession } from '~/utils/auth';
-import InterviewShell from '../_components/InterviewShell';
+import {
+  getInterviewById,
+  type GetInterviewByIdQuery,
+} from '~/queries/interviews';
+import InterviewClient from './InterviewClient';
+import { mapInterviewPayload } from './mapInterviewPayload';
 
-export const dynamic = 'force-dynamic'; // Force dynamic rendering for this page
-
-export default async function Page({
-  params,
-}: {
-  params: { interviewId: string };
+export default function Page(props: {
+  params: Promise<{ interviewId: string }>;
 }) {
-  const { interviewId } = params;
+  return (
+    <Suspense
+      fallback={
+        <div className="flex h-screen items-center justify-center">
+          <Spinner size="lg" />
+        </div>
+      }
+    >
+      <InterviewContent params={props.params} />
+    </Suspense>
+  );
+}
+
+async function InterviewContent({
+  params: paramsPromise,
+}: {
+  params: Promise<{ interviewId: string }>;
+}) {
+  await connection();
+  const { interviewId } = await paramsPromise;
 
   if (!interviewId) {
     return 'No interview id found';
   }
 
-  const interview = await getInterviewById(interviewId);
-  const session = await getServerSession();
+  const rawInterview = await getInterviewById(interviewId);
 
-  // If the interview is not found, redirect to the 404 page
-  if (!interview) {
+  if (!rawInterview) {
     notFound();
   }
 
-  // if limitInterviews is enabled
-  // Check cookies for interview already completed for this user for this protocol
-  // and redirect to finished page
+  const interview =
+    SuperJSON.parse<NonNullable<GetInterviewByIdQuery>>(rawInterview);
+  const session = await getServerSession();
+
   const limitInterviews = await getAppSetting('limitInterviews');
 
-  if (limitInterviews && cookies().get(interview?.protocol?.id ?? '')) {
+  if (limitInterviews && (await cookies()).get(interview.protocol.id)) {
     redirect('/interview/finished');
   }
 
-  // If the interview is finished and there is no session, redirect to the finish page
-  if (interview?.finishTime && !session) {
+  if (!session && interview?.finishTime) {
     redirect('/interview/finished');
   }
+
+  after(async () => {
+    try {
+      const message = session
+        ? `Interview "${interviewId}" was opened by user "${session.user.username}"`
+        : `Interview "${interviewId}" was opened`;
+
+      const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+
+      const recentEvent = await prisma.events.findFirst({
+        where: {
+          type: 'Interview Opened',
+          message,
+          timestamp: { gte: thirtyMinutesAgo },
+        },
+      });
+
+      if (recentEvent) return;
+
+      await prisma.events.create({
+        data: {
+          type: 'Interview Opened' satisfies ActivityType,
+          message,
+        },
+      });
+
+      safeRevalidateTag('activityFeed');
+
+      await captureEvent('Interview Opened', { message });
+      await shutdownPostHog();
+    } catch {
+      // Non-critical — don't block the interview
+    }
+  });
+
+  const { payload, assetUrls, initialStep } = mapInterviewPayload(interview);
+
+  const installationId = (await getAppSetting('installationId')) ?? 'unknown';
+  const disableAnalytics = (await getAppSetting('disableAnalytics')) ?? false;
 
   return (
-    <>
-      <InterviewShell interview={interview} syncInterview={syncInterview} />
-    </>
+    <InterviewClient
+      payload={payload}
+      assetUrls={assetUrls}
+      initialStep={initialStep}
+      installationId={installationId}
+      disableAnalytics={disableAnalytics}
+    />
   );
 }

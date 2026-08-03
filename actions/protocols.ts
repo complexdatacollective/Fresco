@@ -1,24 +1,61 @@
 'use server';
 
-import { type Protocol } from '@codaco/shared-consts';
-import { Prisma } from '~/lib/db/generated/client';
-import { safeRevalidateTag } from 'lib/cache';
-import { hash } from 'ohash';
+import { Effect } from 'effect';
 import { type z } from 'zod';
-import { getUTApi } from '~/lib/uploadthing-server-helpers';
-import { protocolInsertSchema } from '~/schemas/protocol';
-import { requireApiAuth } from '~/utils/auth';
+import { requireApiAuth } from '~/lib/auth/guards';
+import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
+import { Prisma } from '~/lib/db/generated/client';
+import { hashProtocol } from '@codaco/protocol-validation';
+import { getStorageLayer } from '~/lib/storage/layers/StorageLayer';
+import { AssetStorage } from '~/lib/storage/services/AssetStorage';
+import { selectUnreferencedKeys } from '~/lib/protocol/selectUnreferencedKeys';
+import { type protocolInsertSchema } from '~/schemas/protocol';
 import { addEvent } from './activityFeed';
+
+/**
+ * Check if a protocol with the given hash already exists.
+ * Used during protocol import to detect duplicates.
+ */
+export async function getProtocolByHash(protocolHash: string) {
+  await requireApiAuth();
+
+  return prisma.protocol.findFirst({
+    where: { hash: protocolHash },
+  });
+}
+
+/**
+ * Get asset IDs that don't already exist in the database.
+ * Used during protocol import to determine which assets need uploading.
+ */
+export async function getNewAssetIds(assetIds: string[]) {
+  await requireApiAuth();
+
+  const existingAssets = await prisma.asset.findMany({
+    where: {
+      assetId: {
+        in: assetIds,
+      },
+    },
+    select: {
+      assetId: true,
+    },
+  });
+
+  return assetIds.filter(
+    (assetId) => !existingAssets.some((asset) => asset.assetId === assetId),
+  );
+}
 
 // When deleting protocols we must first delete the assets associated with them
 // from the cloud storage.
 export async function deleteProtocols(hashes: string[]) {
-  await requireApiAuth();
+  const session = await requireApiAuth();
 
   const protocolsToBeDeleted = await prisma.protocol.findMany({
     where: { hash: { in: hashes } },
-    select: { id: true, name: true },
+    select: { id: true, name: true, originalFileKey: true },
   });
 
   // Select assets that are ONLY associated with the protocols to be deleted
@@ -35,13 +72,20 @@ export async function deleteProtocols(hashes: string[]) {
     select: { key: true },
   });
 
-  // We put asset deletion in a separate try/catch because if it fails, we still
+  const originalFileKeysToDelete = protocolsToBeDeleted
+    .map((p) => p.originalFileKey)
+    .filter((k): k is string => !!k);
+
+  // We put file deletion in a separate try/catch because if it fails, we still
   // want to delete the protocol.
   try {
     // eslint-disable-next-line no-console
-    console.log('deleting protocol assets...');
+    console.log('deleting protocol assets and original files...');
 
-    await deleteFilesFromUploadThing(assetKeysToDelete.map((a) => a.key));
+    await deleteFilesFromStorage([
+      ...assetKeysToDelete.map((a) => a.key),
+      ...originalFileKeysToDelete,
+    ]);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log('Error deleting protocol assets!', error);
@@ -75,7 +119,7 @@ export async function deleteProtocols(hashes: string[]) {
     const events = protocolsToBeDeleted.map((p) => {
       return {
         type: 'Protocol Uninstalled',
-        message: `Protocol "${p.name}" uninstalled`,
+        message: `User ${session.user.username} uninstalled protocol "${p.name}"`,
       };
     });
 
@@ -83,11 +127,11 @@ export async function deleteProtocols(hashes: string[]) {
       data: events,
     });
 
-    safeRevalidateTag('activityFeed');
-    safeRevalidateTag('summaryStatistics');
-    safeRevalidateTag('getProtocols');
-    safeRevalidateTag('getInterviews');
-    safeRevalidateTag('getParticipants');
+    safeUpdateTag('activityFeed');
+    safeUpdateTag('summaryStatistics');
+    safeUpdateTag('getProtocols');
+    safeUpdateTag('getInterviews');
+    safeUpdateTag('getParticipants');
 
     return { error: null, deletedProtocols: deletedProtocols };
   } catch (error) {
@@ -100,70 +144,119 @@ export async function deleteProtocols(hashes: string[]) {
   }
 }
 
-async function deleteFilesFromUploadThing(fileKey: string | string[]) {
+/**
+ * Best-effort cleanup of storage blobs that were uploaded during a protocol
+ * import that ultimately failed. Any key still referenced by a stored asset or
+ * protocol original file is skipped, so blobs in use by other protocols are
+ * never deleted. Never throws — cleanup failures must not mask the import error.
+ */
+export async function cleanupUploadedFiles(keys: string[]) {
   await requireApiAuth();
 
-  if (fileKey.length === 0) {
+  const uploadedKeys = keys.filter((key) => key.length > 0);
+  if (uploadedKeys.length === 0) {
+    return { error: null, deletedCount: 0 };
+  }
+
+  try {
+    const [referencedAssets, referencingProtocols] = await Promise.all([
+      prisma.asset.findMany({
+        where: { key: { in: uploadedKeys } },
+        select: { key: true },
+      }),
+      prisma.protocol.findMany({
+        where: { originalFileKey: { in: uploadedKeys } },
+        select: { originalFileKey: true },
+      }),
+    ]);
+
+    const referencedKeys = [
+      ...referencedAssets.map((asset) => asset.key),
+      ...referencingProtocols
+        .map((protocol) => protocol.originalFileKey)
+        .filter((key): key is string => key !== null),
+    ];
+
+    const keysToDelete = selectUnreferencedKeys(uploadedKeys, referencedKeys);
+
+    if (keysToDelete.length > 0) {
+      await deleteFilesFromStorage(keysToDelete);
+    }
+
+    return { error: null, deletedCount: keysToDelete.length };
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log('Error cleaning up uploaded files after failed import:', error);
+    return { error: 'Failed to clean up uploaded files', deletedCount: 0 };
+  }
+}
+
+async function deleteFilesFromStorage(fileKey: string | string[]) {
+  await requireApiAuth();
+
+  const keys = Array.isArray(fileKey) ? fileKey : [fileKey];
+  if (keys.length === 0) {
     // eslint-disable-next-line no-console
     console.log('No assets to delete');
     return;
   }
 
-  const utapi = await getUTApi();
+  const storageLayer = await getStorageLayer();
 
-  const response = await utapi.deleteFiles(fileKey);
-
-  if (!response.success) {
-    throw new Error('Failed to delete files from uploadthing');
-  }
-
-  return;
+  await Effect.gen(function* () {
+    const assetStorage = yield* AssetStorage;
+    yield* assetStorage.deleteAssets(keys);
+  }).pipe(Effect.provide(storageLayer), Effect.runPromise);
 }
 
 export async function insertProtocol(
   input: z.infer<typeof protocolInsertSchema>,
 ) {
-  await requireApiAuth();
+  const session = await requireApiAuth();
 
-  const {
-    protocol: inputProtocol,
-    protocolName,
-    newAssets,
-    existingAssetIds,
-  } = protocolInsertSchema.parse(input);
-
-  const protocol = inputProtocol as Protocol;
+  const { protocol, protocolName, newAssets, existingAssetIds, originalFile } =
+    input;
 
   try {
-    const protocolHash = hash(protocol);
+    const protocolHash = hashProtocol(protocol);
 
     await prisma.protocol.create({
       data: {
         hash: protocolHash,
-        lastModified: protocol.lastModified,
+        lastModified: protocol.lastModified ?? new Date(),
         name: protocolName,
         schemaVersion: protocol.schemaVersion,
-        stages: protocol.stages as unknown as Prisma.JsonArray, // The Stage interface needs to be changed to be a type: https://www.totaltypescript.com/type-vs-interface-which-should-you-use#index-signatures-in-types-vs-interfaces
+        // protocol-validation v11.7 brands variable-reference fields
+        // (EntityAttributeReference); the brand is compile-time-only, so erase
+        // it at the Prisma JSON boundary.
+        stages: protocol.stages as Prisma.InputJsonValue,
         codebook: protocol.codebook,
         description: protocol.description,
+        originalFileKey: originalFile.key,
+        originalFileUrl: originalFile.url,
         assets: {
           create: newAssets,
-          connect: existingAssetIds.map((assetId) => ({ assetId })),
+          connect: existingAssetIds.map((assetId: string) => ({ assetId })),
         },
+        experiments: protocol.experiments ?? Prisma.JsonNull,
       },
     });
 
-    void addEvent('Protocol Installed', `Protocol "${protocolName}" installed`);
+    void addEvent(
+      'Protocol Installed',
+      `User ${session.user.username} installed protocol "${protocolName}"`,
+    );
 
-    safeRevalidateTag('getProtocols');
-    safeRevalidateTag('summaryStatistics');
+    safeUpdateTag('getProtocols');
+    safeUpdateTag('summaryStatistics');
+    safeUpdateTag('activityFeed');
 
     return { error: null, success: true };
   } catch (e) {
-    // Attempt to delete any assets we uploaded to storage
-    if (newAssets.length > 0) {
-      void deleteFilesFromUploadThing(newAssets.map((a) => a.key));
-    }
+    // Storage cleanup of any uploaded blobs is handled by the import caller
+    // (processJob) via cleanupUploadedFiles, which runs for every failure path
+    // and skips keys still referenced by other protocols.
+
     // Check for protocol already existing
     if (e instanceof Prisma.PrismaClientKnownRequestError) {
       if (e.code === 'P2002') {

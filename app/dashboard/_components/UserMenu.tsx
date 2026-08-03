@@ -1,10 +1,10 @@
 import { logout } from '~/actions/auth';
-import SubmitButton from '~/components/ui/SubmitButton';
+import SubmitButton from '~/components/SubmitButton';
 
 const UserMenu = () => {
   return (
     <form action={() => void logout()}>
-      <SubmitButton variant="secondary" size="sm" type="submit">
+      <SubmitButton color="secondary" type="submit">
         Sign out
       </SubmitButton>
     </form>

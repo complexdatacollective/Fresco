@@ -1,56 +1,44 @@
-import { hash } from 'ohash';
+import { cacheLife } from 'next/cache';
 import 'server-only';
-import { createCachedFunction } from '~/lib/cache';
-import { type SearchParams } from '~/lib/data-table/types';
+import { type SearchParams } from '~/app/dashboard/_components/ActivityFeed/types';
+import { safeCacheTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
+import type { Prisma } from '~/lib/db/generated/client';
 
-export const getActivities = (rawSearchParams: unknown) =>
-  createCachedFunction(
-    async (rawSearchParams: unknown) => {
-      // const searchParams = SearchParamsSchema.parse(rawSearchParams);
-      const searchParams = rawSearchParams as SearchParams;
+export async function fetchActivities(rawSearchParams: unknown) {
+  'use cache';
+  cacheLife('max');
+  safeCacheTag('activityFeed');
 
-      const { page, perPage, sort, sortField, filterParams } = searchParams;
+  const searchParams = rawSearchParams as SearchParams;
 
-      // Number of items to skip
-      const offset = page > 0 ? (page - 1) * perPage : 0;
+  const { page, perPage, sort, sortField, q, type } = searchParams;
 
-      // Generate the dynamic filter parameters for the database call from the
-      // input filter params.
-      const queryFilterParams = filterParams
-        ? {
-            OR: [
-              ...filterParams.map(({ id, value }) => {
-                const operator = Array.isArray(value) ? 'in' : 'contains';
-                return {
-                  [id]: { [operator]: value },
-                };
-              }),
-            ],
-          }
-        : {};
+  const offset = page > 0 ? (page - 1) * perPage : 0;
 
-      // Transaction is used to ensure both queries are executed in a single transaction
-      const [count, events] = await prisma.$transaction([
-        prisma.events.count({
-          where: {
-            ...queryFilterParams,
-          },
-        }),
-        prisma.events.findMany({
-          take: perPage,
-          skip: offset,
-          orderBy: { [sortField]: sort },
-          where: {
-            ...queryFilterParams,
-          },
-        }),
-      ]);
+  const where: Prisma.EventsWhereInput = {};
+  if (q) {
+    where.message = { contains: q };
+  }
+  if (type && type.length > 0) {
+    where.type = { in: type };
+  }
 
-      const pageCount = Math.ceil(count / perPage);
-      return { events, pageCount };
-    },
-    ['activityFeed', `activityFeed-${hash(rawSearchParams)}`],
-  )(rawSearchParams);
+  const [count, events] = await Promise.all([
+    prisma.events.count({ where }),
+    prisma.events.findMany({
+      take: perPage,
+      skip: offset,
+      orderBy:
+        sort === 'none'
+          ? [{ timestamp: 'desc' }, { id: 'desc' }]
+          : [{ [sortField]: sort }, { id: sort }],
+      where,
+    }),
+  ]);
 
-export type ActivitiesFeed = ReturnType<typeof getActivities>;
+  const pageCount = Math.ceil(count / perPage);
+  return { events, pageCount };
+}
+
+export type ActivitiesFeed = ReturnType<typeof fetchActivities>;

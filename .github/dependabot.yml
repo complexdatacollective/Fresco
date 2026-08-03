@@ -4,7 +4,7 @@ updates:
     directory: '/'
     target-branch: 'next'
     schedule:
-      interval: "weekly"
+      interval: 'weekly'
     # Align Dependabot with pnpm's minimumReleaseAge gate (24h — see
     # pnpm-workspace.yaml): hold routine version-update PRs until the release
     # is at least a day old, by which point the pnpm age gate also accepts

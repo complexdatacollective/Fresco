@@ -1,0 +1,25 @@
+name: Production Deploy Status
+
+on:
+  push:
+    branches: [next]
+
+permissions:
+  contents: read
+
+jobs:
+  await-production-deploy:
+    runs-on: ubuntu-latest
+    env:
+      NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+      NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+      COMMIT_SHA: ${{ github.sha }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Await Netlify production deploy
+        # Netlify auto-deploys this push; we just observe via the API and
+        # surface the outcome as a real GitHub check (Netlify's own deploy
+        # notifications don't support production-deploy events on this site).
+        run: ./scripts/netlify-await-deploy.sh

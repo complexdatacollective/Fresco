@@ -3,22 +3,24 @@
 import { Download } from 'lucide-react';
 import { unparse } from 'papaparse';
 import { useState } from 'react';
-import { Button } from '~/components/ui/Button';
-import { useToast } from '~/components/ui/use-toast';
+import { Button } from '@codaco/fresco-ui/Button';
+import { useToast } from '@codaco/fresco-ui/Toast';
+import type { IncompleteInterviewUrlData } from '~/actions/interviews';
 import { useDownload } from '~/hooks/useDownload';
-import type { GetInterviewsReturnType } from '~/queries/interviews';
-import type { GetProtocolsReturnType } from '~/queries/protocols';
+import type { ProtocolWithInterviews } from '../../_components/ProtocolsTable/ProtocolsTableClient';
 
 function ExportCSVInterviewURLs({
   protocol,
   interviews,
+  disabled = false,
 }: {
-  protocol?: Awaited<GetProtocolsReturnType>[number];
-  interviews: Awaited<GetInterviewsReturnType>;
+  protocol?: ProtocolWithInterviews;
+  interviews: IncompleteInterviewUrlData[];
+  disabled?: boolean;
 }) {
   const download = useDownload();
   const [isExporting, setIsExporting] = useState(false);
-  const { toast } = useToast();
+  const { add } = useToast();
 
   const handleExport = () => {
     try {
@@ -26,8 +28,7 @@ function ExportCSVInterviewURLs({
       if (!protocol?.id) return;
 
       const csvData = interviews.map((interview) => ({
-        participant_id: interview.participantId,
-        identifier: interview.participant.identifier,
+        identifier: interview.identifier,
         interview_url: `${window.location.origin}/interview/${interview.id}`,
       }));
 
@@ -42,13 +43,13 @@ function ExportCSVInterviewURLs({
       download(url, fileName);
       // Clean up the URL object
       URL.revokeObjectURL(url);
-      toast({
+      add({
+        title: 'Success',
         description: 'Incomplete interview URLs CSV exported successfully',
         variant: 'success',
-        duration: 3000,
       });
     } catch (error) {
-      toast({
+      add({
         title: 'Error',
         description:
           'An error occurred while exporting incomplete interview URLs',
@@ -64,12 +65,13 @@ function ExportCSVInterviewURLs({
 
   return (
     <Button
-      disabled={!protocol || isExporting}
+      size="sm"
+      disabled={!protocol || isExporting || disabled}
       onClick={handleExport}
-      className="w-full"
+      icon={<Download />}
+      color="primary"
     >
-      <Download className="mr-2 h-4 w-4" />
-      {isExporting ? 'Exporting...' : 'Export Incomplete Interview URLs'}
+      {isExporting ? 'Exporting...' : 'Export'}
     </Button>
   );
 }

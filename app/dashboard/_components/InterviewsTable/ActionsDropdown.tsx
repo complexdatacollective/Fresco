@@ -1,33 +1,42 @@
 'use client';
 
-import type { Interview } from '~/lib/db/generated/client';
 import type { Row } from '@tanstack/react-table';
-import { MoreHorizontal } from 'lucide-react';
+import {
+  DeleteIcon,
+  DoorOpenIcon,
+  FileIcon,
+  MoreHorizontal,
+} from 'lucide-react';
 import Link from 'next/link';
 import { hash as objectHash } from 'ohash';
 import { useState } from 'react';
 import { DeleteInterviewsDialog } from '~/app/dashboard/interviews/_components/DeleteInterviewsDialog';
 import { ExportInterviewsDialog } from '~/app/dashboard/interviews/_components/ExportInterviewsDialog';
-import { Button } from '~/components/ui/Button';
+import { IconButton } from '@codaco/fresco-ui/Button';
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuTrigger,
-} from '~/components/ui/dropdown-menu';
+} from '@codaco/fresco-ui/DropdownMenu';
+import type { GetInterviewsQuery } from '~/queries/interviews';
 
-export const ActionsDropdown = ({ row }: { row: Row<Interview> }) => {
+type InterviewRow = GetInterviewsQuery[number];
+
+export const ActionsDropdown = ({ row }: { row: Row<InterviewRow> }) => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showExportModal, setShowExportModal] = useState(false);
-  const [selectedInterviews, setSelectedInterviews] = useState<Interview[]>();
+  const [selectedInterviews, setSelectedInterviews] =
+    useState<InterviewRow[]>();
 
-  const handleDelete = (data: Interview) => {
+  const handleDelete = (data: InterviewRow) => {
     setSelectedInterviews([data]);
     setShowDeleteModal(true);
   };
 
-  const handleExport = (data: Interview) => {
+  const handleExport = (data: InterviewRow) => {
     setSelectedInterviews([data]);
     setShowExportModal(true);
   };
@@ -43,7 +52,9 @@ export const ActionsDropdown = ({ row }: { row: Row<Interview> }) => {
         key={objectHash(selectedInterviews)}
         open={showExportModal}
         handleCancel={handleResetExport}
-        interviewsToExport={selectedInterviews!}
+        interviewIds={(selectedInterviews ?? []).map(
+          (interview) => interview.id,
+        )}
       />
       <DeleteInterviewsDialog
         open={showDeleteModal}
@@ -51,22 +62,37 @@ export const ActionsDropdown = ({ row }: { row: Row<Interview> }) => {
         interviewsToDelete={selectedInterviews ?? []}
       />
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="h-8 w-8 p-0">
-            <span className="sr-only">Open menu</span>
-            <MoreHorizontal className="h-4 w-4" />
-          </Button>
-        </DropdownMenuTrigger>
+        <DropdownMenuTrigger
+          render={
+            <IconButton
+              variant="text"
+              aria-label="Open menu"
+              icon={<MoreHorizontal />}
+              size="sm"
+            />
+          }
+          nativeButton
+        />
         <DropdownMenuContent align="end">
-          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-          <DropdownMenuItem onClick={() => handleDelete(row.original)}>
-            Delete
-          </DropdownMenuItem>
-          <DropdownMenuItem onClick={() => handleExport(row.original)}>
-            Export
-          </DropdownMenuItem>
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+            <DropdownMenuItem
+              onClick={() => handleDelete(row.original)}
+              icon={<DeleteIcon />}
+            >
+              Delete
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handleExport(row.original)}
+              icon={<FileIcon />}
+            >
+              Export
+            </DropdownMenuItem>
+          </DropdownMenuGroup>
           <Link href={`/interview/${row.original.id}`}>
-            <DropdownMenuItem>Enter Interview</DropdownMenuItem>
+            <DropdownMenuItem icon={<DoorOpenIcon />}>
+              Enter Interview
+            </DropdownMenuItem>
           </Link>
         </DropdownMenuContent>
       </DropdownMenu>

@@ -1,0 +1,14 @@
+{
+  "nodes": [
+    { "name": "Alice Johnson", "age": 32, "location": "New York" },
+    { "name": "Bob Smith", "age": 45, "location": "Los Angeles" },
+    { "name": "Charlie Brown", "age": 28, "location": "Chicago" },
+    { "name": "Diana Prince", "age": 35, "location": "Houston" },
+    { "name": "Eve Martinez", "age": 41, "location": "Phoenix" },
+    { "name": "Frank Wilson", "age": 29, "location": "Philadelphia" },
+    { "name": "Grace Lee", "age": 38, "location": "San Antonio" },
+    { "name": "Henry Garcia", "age": 52, "location": "San Diego" },
+    { "name": "Iris Chen", "age": 24, "location": "Dallas" },
+    { "name": "Jack Taylor", "age": 33, "location": "San Jose" }
+  ]
+}

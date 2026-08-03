@@ -1,0 +1,30 @@
+---
+title: "Fresco self-hosted — UploadThing asset storage"
+---
+flowchart TB
+    admin["Researcher browser<br/>(dashboard)"]
+    participant["Participant browser<br/>(interview)"]
+
+    subgraph host["Docker host — docker-compose.uploadthing.yml"]
+        proxy["<b>Traefik</b> — :80/:443, TLS via Let's Encrypt<br/>FRESCO_DOMAIN → fresco :3000"]
+        fresco["<b>Fresco app</b><br/>Next.js :3000"]
+        postgres[("PostgreSQL")]
+    end
+
+    ut["UploadThing (cloud)<br/>ingest + CDN"]
+    ph["Analytics relay<br/>(optional)"]
+    exports["Interview exports stream<br/>Postgres → app → browser<br/>(never stored)"]
+
+    admin -->|"dashboard +<br/>upload authorization"| proxy
+    participant -->|"interview"| proxy
+    proxy --> fresco
+    fresco -->|"Prisma"| postgres
+    admin -->|"asset upload<br/>(SDK, direct)"| ut
+    participant -->|"asset download<br/>(CDN)"| ut
+    fresco -->|"UTApi — assets only<br/>register / delete"| ut
+    admin -.->|"events"| ph
+    participant -.->|"events"| ph
+    fresco -.->|"events"| ph
+    fresco -.- exports
+
+    linkStyle 7,8,9,10 stroke:#999,color:#999

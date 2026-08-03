@@ -2,16 +2,18 @@
 
 import { createId } from '@paralleldrive/cuid2';
 import { addEvent } from '~/actions/activityFeed';
-import { safeRevalidateTag } from '~/lib/cache';
+import { requireApiAuth } from '~/lib/auth/guards';
+import { safeUpdateTag } from '~/lib/cache';
+import { prisma } from '~/lib/db';
+import { getParticipantIdsMatching } from '~/queries/participants';
 import {
   participantListInputSchema,
   updateSchema,
 } from '~/schemas/participant';
-import { requireApiAuth } from '~/utils/auth';
-import { prisma } from '~/lib/db';
+import type { ParticipantsSearchParams } from '~/app/dashboard/_components/ParticipantsTable/searchParams';
 
 export async function deleteParticipants(participantIds: string[]) {
-  await requireApiAuth();
+  const session = await requireApiAuth();
 
   const result = await prisma.participant.deleteMany({
     where: {
@@ -21,31 +23,88 @@ export async function deleteParticipants(participantIds: string[]) {
 
   void addEvent(
     'Participant(s) Removed',
-    `Deleted ${result.count} participant(s)`,
+    `User ${session.user.username} removed ${result.count} participant(s)`,
   );
 
-  safeRevalidateTag('getParticipants');
-  safeRevalidateTag('getInterviews');
-  safeRevalidateTag('summaryStatistics');
+  safeUpdateTag('getParticipants');
+  safeUpdateTag('getInterviews');
+  safeUpdateTag('summaryStatistics');
+  safeUpdateTag('activityFeed');
 }
 
-export async function deleteAllParticipants() {
+export async function resolveParticipantIds(
+  searchParams: ParticipantsSearchParams,
+): Promise<{ error: string | null; ids: string[] }> {
   await requireApiAuth();
+  try {
+    const ids = await getParticipantIdsMatching(searchParams);
+    return { error: null, ids };
+  } catch {
+    return { error: 'Failed to resolve participants', ids: [] };
+  }
+}
 
-  const result = await prisma.participant.deleteMany();
+export type ParticipantExportRow = {
+  id: string;
+  identifier: string;
+  label: string | null;
+};
 
-  void addEvent(
-    'Participant(s) Removed',
-    `Deleted ${result.count} participant(s)`,
-  );
+export async function getParticipantsForExport(ids: string[]): Promise<{
+  error: string | null;
+  data: ParticipantExportRow[];
+}> {
+  await requireApiAuth();
+  try {
+    const uniqueIds = [...new Set(ids)];
+    const participants = await prisma.participant.findMany({
+      where: { id: { in: uniqueIds } },
+      select: { id: true, identifier: true, label: true },
+    });
+    return { error: null, data: participants };
+  } catch {
+    return { error: 'Failed to resolve participants', data: [] };
+  }
+}
 
-  safeRevalidateTag('getParticipants');
-  safeRevalidateTag('getInterviews');
-  safeRevalidateTag('summaryStatistics');
+export type ParticipantDeletionInfo = {
+  id: string;
+  hasInterviews: boolean;
+  hasUnexportedInterviews: boolean;
+};
+
+export async function getParticipantDeletionInfo(ids: string[]): Promise<{
+  error: string | null;
+  data: ParticipantDeletionInfo[];
+}> {
+  await requireApiAuth();
+  try {
+    const uniqueIds = [...new Set(ids)];
+    const participants = await prisma.participant.findMany({
+      where: { id: { in: uniqueIds } },
+      select: {
+        id: true,
+        _count: { select: { interviews: true } },
+        interviews: { select: { exportTime: true } },
+      },
+    });
+    return {
+      error: null,
+      data: participants.map((participant) => ({
+        id: participant.id,
+        hasInterviews: participant._count.interviews > 0,
+        hasUnexportedInterviews: participant.interviews.some(
+          (interview) => !interview.exportTime,
+        ),
+      })),
+    };
+  } catch {
+    return { error: 'Failed to resolve participants', data: [] };
+  }
 }
 
 export async function importParticipants(rawInput: unknown) {
-  await requireApiAuth();
+  const session = await requireApiAuth();
 
   const participantList = participantListInputSchema.parse(rawInput);
 
@@ -81,11 +140,12 @@ export async function importParticipants(rawInput: unknown) {
 
     void addEvent(
       'Participant(s) Added',
-      `Added ${createdParticipants.count} participant(s)`,
+      `User ${session.user.username} added ${createdParticipants.count} participant(s)`,
     );
 
-    safeRevalidateTag('getParticipants');
-    safeRevalidateTag('summaryStatistics');
+    safeUpdateTag('getParticipants');
+    safeUpdateTag('summaryStatistics');
+    safeUpdateTag('activityFeed');
 
     return {
       error: null,
@@ -112,8 +172,8 @@ export async function updateParticipant(rawInput: unknown) {
       data: formData,
     });
 
-    safeRevalidateTag('getParticipants');
-    safeRevalidateTag('summaryStatistics');
+    safeUpdateTag('getParticipants');
+    safeUpdateTag('summaryStatistics');
 
     return { error: null, participant: updatedParticipant };
   } catch (error) {
@@ -122,7 +182,7 @@ export async function updateParticipant(rawInput: unknown) {
 }
 
 export async function createParticipant(rawInput: unknown) {
-  await requireApiAuth();
+  const session = await requireApiAuth();
 
   const participants = participantListInputSchema.parse(rawInput);
 
@@ -153,11 +213,12 @@ export async function createParticipant(rawInput: unknown) {
 
     void addEvent(
       'Participant(s) Added',
-      `Added ${createdParticipants.count} participant(s)`,
+      `User ${session.user.username} added ${createdParticipants.count} participant(s)`,
     );
 
-    safeRevalidateTag('getParticipants');
-    safeRevalidateTag('summaryStatistics');
+    safeUpdateTag('getParticipants');
+    safeUpdateTag('summaryStatistics');
+    safeUpdateTag('activityFeed');
 
     return {
       error: null,

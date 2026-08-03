@@ -1,16 +1,19 @@
-import { AlertTriangleIcon } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@codaco/fresco-ui/Alert';
 import Link from '~/components/Link';
-import { Alert, AlertDescription, AlertTitle } from '~/components/ui/Alert';
+import { env } from '~/env';
 import { getAppSetting } from '~/queries/appSettings';
+import { getStorageProvider } from '~/queries/storageProvider';
 
 export default async function UpdateUploadThingTokenAlert() {
-  const uploadThingToken = await getAppSetting('uploadThingToken');
+  const storageProvider = await getStorageProvider();
+  if (storageProvider === 's3') return null;
 
+  const uploadThingToken =
+    env.UPLOADTHING_TOKEN ?? (await getAppSetting('uploadThingToken'));
   if (uploadThingToken) return null;
 
   return (
-    <Alert variant="destructive" className="mt-4">
-      <AlertTriangleIcon className="h-4 w-4" />
+    <Alert variant="destructive">
       <AlertTitle>Configuration update required</AlertTitle>
       <AlertDescription>
         You need to add a new UploadThing API key before you can upload
