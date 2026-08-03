@@ -58,7 +58,7 @@
     "ohash": "^2.0.11",
     "otpauth": "^9.5.1",
     "papaparse": "^5.5.4",
-    "postcss": "^8.5.23",
+    "postcss": "^8.5.25",
     "posthog-js": "^1.407.2",
     "posthog-node": "^5.46.1",
     "qrcode": "^1.5.4",
