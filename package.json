@@ -64,7 +64,7 @@
     "qrcode": "^1.5.4",
     "react": "19.2.8",
     "react-dom": "19.2.8",
-    "react-dropzone": "^19.1.1",
+    "react-dropzone": "^20.0.0",
     "react-markdown": "^10.1.0",
     "server-only": "^0.0.1",
     "sharp": "^0.35.3",
