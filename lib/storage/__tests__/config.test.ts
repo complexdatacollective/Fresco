@@ -3,9 +3,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('server-only', () => ({}));
 
 const { mockEnv, mockGetAppSetting } = vi.hoisted(() => {
-  const mockEnv: Record<string, string | undefined> = {};
-  const mockGetAppSetting = vi.fn();
-  return { mockEnv, mockGetAppSetting };
+  const env: Record<string, string | undefined> = {};
+  const getAppSetting = vi.fn();
+  return { mockEnv: env, mockGetAppSetting: getAppSetting };
 });
 
 vi.mock('~/env', () => ({ env: mockEnv }));

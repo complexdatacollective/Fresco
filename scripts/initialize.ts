@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 import { PrismaPg } from '@prisma/adapter-pg';
+
 import { PrismaClient } from '~/lib/db/generated/client';
 
 // CLI scripts must use the PG adapter directly because the Neon serverless

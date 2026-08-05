@@ -1,5 +1,6 @@
 import { Loader2 } from 'lucide-react';
 import { Suspense } from 'react';
+
 import { env } from '~/env';
 import { getServerSession } from '~/lib/auth/guards';
 import { prisma } from '~/lib/db';
@@ -10,6 +11,7 @@ import {
   requireAppNotExpired,
 } from '~/queries/appSettings';
 import { type S3EnvValues } from '~/schemas/s3Settings';
+
 import Setup from './Setup';
 
 async function getSetupData() {

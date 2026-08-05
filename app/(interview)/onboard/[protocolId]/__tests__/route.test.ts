@@ -36,10 +36,11 @@ vi.mock('~/lib/posthog-server', () => ({
   shutdownPostHog: vi.fn(),
 }));
 
+import { cookies } from 'next/headers';
+
 // Import after mocks are set up
 import { createInterview } from '~/actions/interviews';
 import { getAppSetting } from '~/queries/appSettings';
-import { cookies } from 'next/headers';
 
 // Import the handlers
 import { GET, POST } from '../route';

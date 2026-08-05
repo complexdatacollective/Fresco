@@ -1,11 +1,13 @@
 import { type Metadata } from 'next';
 import { connection } from 'next/server';
 import { Suspense } from 'react';
-import NetlifyBadge from '~/components/NetlifyBadge';
+
 import { ExportProgressProvider } from '~/components/ExportProgressProvider';
+import NetlifyBadge from '~/components/NetlifyBadge';
 import { env } from '~/env';
 import { getAppSetting } from '~/queries/appSettings';
 import { getStorageProvider } from '~/queries/storageProvider';
+
 import { NavigationBar } from './_components/NavigationBar';
 import UploadThingModal from './_components/UploadThingModal';
 

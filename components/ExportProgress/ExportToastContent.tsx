@@ -1,8 +1,9 @@
 'use client';
 
+import { Database, FileSearch, FileUp, Package, X } from 'lucide-react';
+
 import Button from '@codaco/fresco-ui/Button';
 import ProgressBar from '@codaco/fresco-ui/ProgressBar';
-import { Database, FileSearch, FileUp, Package, X } from 'lucide-react';
 
 type ExportStage = 'fetching' | 'formatting' | 'generating' | 'outputting';
 

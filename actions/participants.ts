@@ -1,7 +1,9 @@
 'use server';
 
 import { createId } from '@paralleldrive/cuid2';
+
 import { addEvent } from '~/actions/activityFeed';
+import type { ParticipantsSearchParams } from '~/app/dashboard/_components/ParticipantsTable/searchParams';
 import { requireApiAuth } from '~/lib/auth/guards';
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
@@ -10,7 +12,6 @@ import {
   participantListInputSchema,
   updateSchema,
 } from '~/schemas/participant';
-import type { ParticipantsSearchParams } from '~/app/dashboard/_components/ParticipantsTable/searchParams';
 
 export async function deleteParticipants(participantIds: string[]) {
   const session = await requireApiAuth();
@@ -169,10 +170,19 @@ export async function updateParticipant(rawInput: unknown) {
   try {
     const updatedParticipant = await prisma.participant.update({
       where: { identifier: existingIdentifier },
-      data: formData,
+      data: {
+        ...formData,
+        // A cleared label parses to `undefined`, which Prisma reads as "leave
+        // this column alone" — the old label would survive an edit that was
+        // reported as successful. `null` actually removes it.
+        label: formData.label ?? null,
+      },
     });
 
     safeUpdateTag('getParticipants');
+    // The interviews dashboard caches the participant identifier alongside each
+    // interview row, so an identifier edit must invalidate it too.
+    safeUpdateTag('getInterviews');
     safeUpdateTag('summaryStatistics');
 
     return { error: null, participant: updatedParticipant };

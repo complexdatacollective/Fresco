@@ -1,8 +1,9 @@
+import type Zip from 'jszip';
+
 import {
   type CurrentProtocol,
   type VersionedProtocol,
 } from '@codaco/protocol-validation';
-import type Zip from 'jszip';
 import { type AssetInsertType } from '~/schemas/protocol';
 
 /**

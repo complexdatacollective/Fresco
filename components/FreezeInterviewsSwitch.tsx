@@ -1,6 +1,7 @@
 import 'server-only';
 import { setAppSetting } from '~/actions/appSettings';
 import { getAppSetting } from '~/queries/appSettings';
+
 import Switch from './SwitchWithOptimisticUpdate';
 
 const FreezeInterviewsSwitch = async () => {

@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import SettingsField from '~/components/settings/SettingsField';
-import { setAppSetting } from '~/actions/appSettings';
+
 import { Button } from '@codaco/fresco-ui/Button';
 import InputField from '@codaco/fresco-ui/form/fields/InputField';
+import { setAppSetting } from '~/actions/appSettings';
+import SettingsField from '~/components/settings/SettingsField';
 import { type AppSetting } from '~/schemas/appSettings';
 
 type S3Field = {

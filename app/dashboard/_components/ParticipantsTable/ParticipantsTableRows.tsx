@@ -12,12 +12,14 @@ import {
 import { parseAsInteger, parseAsStringLiteral, useQueryStates } from 'nuqs';
 import { use, useMemo, type ReactNode } from 'react';
 import superjson from 'superjson';
+
 import { DataTable } from '@codaco/fresco-ui/DataTable/DataTable';
 import { useNuqsTable } from '~/components/DataTable/nuqs/NuqsTableProvider';
 import type {
   GetParticipantsQuery,
   GetParticipantsReturnType,
 } from '~/queries/participants';
+
 import { ParticipantsSelectionBar } from './ParticipantsSelectionBar';
 import { searchParamsUrlKeys, sortableFields, sortOrder } from './searchParams';
 
@@ -38,7 +40,7 @@ export default function ParticipantsTableRows({
   participantsPromise: GetParticipantsReturnType;
   rowSelection: RowSelectionState;
   onRowSelectionChange: OnChangeFn<RowSelectionState>;
-  columns: ColumnDef<ParticipantRow, unknown>[];
+  columns: ColumnDef<ParticipantRow>[];
   toolbar: ReactNode;
   isBusy: boolean;
   onDeleteSelected: () => void;

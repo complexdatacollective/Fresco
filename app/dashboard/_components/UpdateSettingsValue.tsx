@@ -1,10 +1,12 @@
 import { Loader2 } from 'lucide-react';
 import { type ReactNode, useState } from 'react';
 import type { z } from 'zod/mini';
-import { setAppSetting } from '~/actions/appSettings';
+
 import { Button } from '@codaco/fresco-ui/Button';
 import InputField from '@codaco/fresco-ui/form/fields/InputField';
+import { setAppSetting } from '~/actions/appSettings';
 import { type AppSetting } from '~/schemas/appSettings';
+
 import ReadOnlyEnvAlert from '../settings/ReadOnlyEnvAlert';
 
 export default function UpdateSettingsValue({

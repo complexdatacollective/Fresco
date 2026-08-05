@@ -1,9 +1,11 @@
-import { type StrictColumnDef } from '@codaco/fresco-ui/DataTable/types';
 import Image from 'next/image';
-import Checkbox from '@codaco/fresco-ui/form/fields/Checkbox';
+
+import { Badge } from '@codaco/fresco-ui/Badge';
 import { DataTableColumnHeader } from '@codaco/fresco-ui/DataTable/ColumnHeader';
 import { SelectAllHeader } from '@codaco/fresco-ui/DataTable/SelectAllHeader';
-import { Badge } from '@codaco/fresco-ui/Badge';
+import { type StrictColumnDef } from '@codaco/fresco-ui/DataTable/types';
+import Checkbox from '@codaco/fresco-ui/form/fields/Checkbox';
+
 import type { ProtocolWithInterviews } from '../ProtocolsTable/ProtocolsTableClient';
 import { GenerateParticipationURLButton } from './GenerateParticipantURLButton';
 import type { ParticipantRow } from './ParticipantsTableClient';
@@ -18,7 +20,7 @@ export function getParticipantColumns(
       cell: ({ row }) => (
         <Checkbox
           checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          onCheckedChange={(value) => row.toggleSelected(value)}
           aria-label="Select row"
         />
       ),

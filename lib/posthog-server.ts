@@ -1,5 +1,6 @@
 // lib/posthog-server.ts
 import { PostHog } from 'posthog-node';
+
 import {
   POSTHOG_API_KEY,
   POSTHOG_APP_NAME,
@@ -40,9 +41,9 @@ export async function captureEvent(
     if (await isAnalyticsDisabled()) return;
 
     const distinctId = await resolveInstallationId();
-    const client = getPostHogServer();
+    const posthog = getPostHogServer();
 
-    client.capture({
+    posthog.capture({
       distinctId,
       event,
       properties: {
@@ -67,9 +68,9 @@ export async function captureException(
     if (await isAnalyticsDisabled()) return;
 
     const distinctId = await resolveInstallationId();
-    const client = getPostHogServer();
+    const posthog = getPostHogServer();
 
-    client.captureException(error, distinctId, properties);
+    posthog.captureException(error, distinctId, properties);
   } catch {
     // swallow
   }

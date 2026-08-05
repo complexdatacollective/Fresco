@@ -1,7 +1,7 @@
 import 'server-only';
 import { setAppSetting } from '~/actions/appSettings';
-import { getAppSetting } from '~/queries/appSettings';
 import Switch from '~/components/SwitchWithOptimisticUpdate';
+import { getAppSetting } from '~/queries/appSettings';
 
 const InterviewDataApiSwitch = async () => {
   const enableInterviewDataApi = await getAppSetting('enableInterviewDataApi');

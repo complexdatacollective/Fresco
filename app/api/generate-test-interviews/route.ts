@@ -1,11 +1,12 @@
 import { createId } from '@paralleldrive/cuid2';
-import { addEvent } from '~/actions/activityFeed';
-import { requireApiAuth } from '~/lib/auth/guards';
-import { prisma } from '~/lib/db';
+
 import {
   generateNetwork,
   type GenerateNetworkParams,
 } from '@codaco/protocol-utilities';
+import { addEvent } from '~/actions/activityFeed';
+import { requireApiAuth } from '~/lib/auth/guards';
+import { prisma } from '~/lib/db';
 import { generateSyntheticInterviewsSchema } from '~/schemas/synthetic-interviews';
 
 export async function POST(request: Request) {

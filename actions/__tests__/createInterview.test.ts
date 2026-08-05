@@ -1,8 +1,9 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
 } from '@codaco/shared-consts';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Mock server-only first to prevent import errors
 vi.mock('server-only', () => ({}));

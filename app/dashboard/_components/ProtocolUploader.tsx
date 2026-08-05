@@ -1,7 +1,7 @@
 'use client';
 
-import ProtocolImportPopover from '~/components/ProtocolImport/ProtocolImportPopover';
 import { type ButtonProps } from '@codaco/fresco-ui/Button';
+import ProtocolImportPopover from '~/components/ProtocolImport/ProtocolImportPopover';
 import { useProtocolImport } from '~/hooks/useProtocolImport';
 
 export default function ProtocolUploader({

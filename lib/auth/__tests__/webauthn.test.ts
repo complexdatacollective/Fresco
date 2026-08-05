@@ -23,6 +23,12 @@ describe('getWebAuthnConfig', () => {
     expect(config.rpName).toBe('Fresco');
     expect(config.origin).toBe('https://fresco.example.com');
   });
+
+  it('requires discoverable credentials, because sign-in is usernameless', async () => {
+    const { getWebAuthnConfig } = await import('../webauthn');
+    const config = await getWebAuthnConfig();
+    expect(config.authenticatorSelection.residentKey).toBe('required');
+  });
 });
 
 describe('challenge cookie', () => {

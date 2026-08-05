@@ -1,4 +1,5 @@
 import { z } from 'zod/mini';
+
 import { isStrongPassword } from '~/utils/isStrongPassword';
 
 export const createUserSchema = z

@@ -1,8 +1,10 @@
 import { Suspense } from 'react';
+
 import SettingsField from '~/components/settings/SettingsField';
 import { getAppSetting } from '~/queries/appSettings';
 import { getParticipantsForSelect } from '~/queries/participants';
 import { getProtocols } from '~/queries/protocols';
+
 import RecruitmentTestSection from './RecruitmentTestSection';
 
 export default function RecruitmentTestSectionServer() {

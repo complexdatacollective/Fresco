@@ -1,14 +1,15 @@
 import 'server-only';
 import { cacheLife } from 'next/cache';
 import { stringify } from 'superjson';
-import { safeCacheTag } from '~/lib/cache';
-import { prisma } from '~/lib/db';
-import { Prisma } from '~/lib/db/generated/client';
+
 import {
   buildInterviewOrderBy,
   buildInterviewWhere,
 } from '~/app/dashboard/_components/InterviewsTable/buildInterviewWhere';
 import type { InterviewsSearchParams } from '~/app/dashboard/_components/InterviewsTable/searchParams';
+import { safeCacheTag } from '~/lib/cache';
+import { prisma } from '~/lib/db';
+import { Prisma } from '~/lib/db/generated/client';
 
 type NetworkSummaryEntry = {
   type: string;
@@ -162,7 +163,7 @@ export async function getInterviewFilterOptions() {
     select: { name: true, codebook: true },
   });
 
-  const protocolNames = [...new Set(protocols.map((p) => p.name))].sort();
+  const protocolNames = [...new Set(protocols.map((p) => p.name))].toSorted();
 
   const nodeTypes = new Map<string, string>();
   const edgeTypes = new Map<string, string>();

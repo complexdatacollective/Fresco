@@ -1,6 +1,8 @@
+import ChildProcess from 'node:child_process';
+
 import { withPostHogConfig } from '@posthog/nextjs-config';
 import type { NextConfig } from 'next';
-import ChildProcess from 'node:child_process';
+
 import './env.js';
 import { POSTHOG_APP_NAME } from './fresco.config';
 import pkg from './package.json' with { type: 'json' };

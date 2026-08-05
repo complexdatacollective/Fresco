@@ -1,5 +1,6 @@
 import { cookies } from 'next/headers';
 import { after, NextResponse } from 'next/server';
+
 import { addEvent } from '~/actions/activityFeed';
 import { safeRevalidateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';

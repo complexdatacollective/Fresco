@@ -1,8 +1,9 @@
-import { useExportProgress } from '~/components/ExportProgressProvider';
 import { Button } from '@codaco/fresco-ui/Button';
-import useSafeLocalStorage from '@codaco/fresco-ui/hooks/useSafeLocalStorage';
 import Dialog from '@codaco/fresco-ui/dialogs/Dialog';
+import useSafeLocalStorage from '@codaco/fresco-ui/hooks/useSafeLocalStorage';
 import { ExportOptionsSchema } from '@codaco/network-exporters/options';
+import { useExportProgress } from '~/components/ExportProgressProvider';
+
 import ExportOptionsView from './ExportOptionsView';
 
 export const ExportInterviewsDialog = ({

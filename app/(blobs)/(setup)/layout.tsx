@@ -1,5 +1,6 @@
 import { Loader2 } from 'lucide-react';
 import { type ReactNode, Suspense } from 'react';
+
 import { requireAppNotExpired } from '~/queries/appSettings';
 
 export default function Layout({ children }: { children: ReactNode }) {

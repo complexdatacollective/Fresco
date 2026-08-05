@@ -1,5 +1,4 @@
 import 'server-only';
-
 import {
   createHash,
   createHmac,
@@ -7,6 +6,7 @@ import {
   randomBytes,
   timingSafeEqual,
 } from 'node:crypto';
+
 import { Secret, TOTP } from 'otpauth';
 import { toDataURL } from 'qrcode';
 

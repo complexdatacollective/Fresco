@@ -2,6 +2,7 @@
 
 import { Loader2 } from 'lucide-react';
 import { useFormStatus } from 'react-dom';
+
 import { Button, type ButtonProps } from '@codaco/fresco-ui/Button';
 
 function SubmitButton(props: ButtonProps) {

@@ -4,20 +4,21 @@ import { createId } from '@paralleldrive/cuid2';
 import { HelpCircle, WandSparkles } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useState, type Dispatch, type SetStateAction } from 'react';
+import { z } from 'zod/mini';
+
+import { Button } from '@codaco/fresco-ui/Button';
+import Dialog from '@codaco/fresco-ui/dialogs/Dialog';
+import Field from '@codaco/fresco-ui/form/Field/Field';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
+import { FormWithoutProvider } from '@codaco/fresco-ui/form/Form';
+import useFormStore from '@codaco/fresco-ui/form/hooks/useFormStore';
+import FormStoreProvider from '@codaco/fresco-ui/form/store/formStoreProvider';
+import SubmitButton from '@codaco/fresco-ui/form/SubmitButton';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
 import { createParticipant, updateParticipant } from '~/actions/participants';
 import ActionError from '~/components/ActionError';
 import InfoTooltip from '~/components/InfoTooltip';
-import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
-import { Button } from '@codaco/fresco-ui/Button';
 import type { Participant } from '~/lib/db/generated/client';
-import Dialog from '@codaco/fresco-ui/dialogs/Dialog';
-import Field from '@codaco/fresco-ui/form/Field/Field';
-import { FormWithoutProvider } from '@codaco/fresco-ui/form/Form';
-import SubmitButton from '@codaco/fresco-ui/form/SubmitButton';
-import InputField from '@codaco/fresco-ui/form/fields/InputField';
-import useFormStore from '@codaco/fresco-ui/form/hooks/useFormStore';
-import FormStoreProvider from '@codaco/fresco-ui/form/store/formStoreProvider';
-import { z } from 'zod/mini';
 import {
   participantIdentifierSchema,
   participantLabelSchema,

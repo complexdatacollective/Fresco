@@ -1,6 +1,7 @@
 'use client';
 
 import { createUploadThingTokenSchema } from '~/schemas/appSettings';
+
 import UpdateSettingsValue from '../../_components/UpdateSettingsValue';
 
 // The saved token is write-only: it is never sent back to the client, so the

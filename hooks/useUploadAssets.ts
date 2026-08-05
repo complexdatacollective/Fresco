@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback } from 'react';
+
 import type { PresignedUploadUrl } from '~/lib/storage/services/AssetStorage';
 import {
   type UploadedFile,
@@ -65,7 +66,7 @@ async function uploadViaS3(
   onProgress?: (progress: number) => void,
 ): Promise<UploadedFile[]> {
   const totalBytes = files.reduce((sum, f) => sum + f.size, 0);
-  const loaded = new Array<number>(files.length).fill(0);
+  const loaded = Array.from<number>({ length: files.length }).fill(0);
 
   const uploadPromises = files.map(async (file, index) => {
     const presigned = urls[index];
@@ -94,11 +95,53 @@ async function uploadViaS3(
   return Promise.all(uploadPromises);
 }
 
+// The `assetRouter` route accepts at most 50 files per upload (see
+// app/api/uploadthing/core.ts), and one huge request also risks timeouts, so
+// larger imports are sent as sequential batches rather than rejected.
+const UPLOADTHING_MAX_FILES_PER_UPLOAD = 50;
+
+const totalSize = (files: File[]) => files.reduce((sum, f) => sum + f.size, 0);
+
 async function uploadViaUploadThing(
   files: File[],
   onProgress?: (progress: number) => void,
 ): Promise<UploadedFile[]> {
-  return uploadToUploadThingWithRetry(files, onProgress);
+  if (files.length <= UPLOADTHING_MAX_FILES_PER_UPLOAD) {
+    return uploadToUploadThingWithRetry(files, onProgress);
+  }
+
+  const batches: File[][] = [];
+  for (let i = 0; i < files.length; i += UPLOADTHING_MAX_FILES_PER_UPLOAD) {
+    batches.push(files.slice(i, i + UPLOADTHING_MAX_FILES_PER_UPLOAD));
+  }
+
+  const batchBytes = batches.map(totalSize);
+  const totalBytes = totalSize(files);
+  // Percentage reported so far by each batch, so a batch's own progress can be
+  // re-weighted by its share of the total bytes into a single overall figure.
+  const batchProgress = Array.from<number>({ length: batches.length }).fill(0);
+
+  const uploaded: UploadedFile[] = [];
+
+  for (const [index, batch] of batches.entries()) {
+    const results = await uploadToUploadThingWithRetry(batch, (progress) => {
+      batchProgress[index] = progress;
+      if (onProgress) {
+        const loadedBytes = batchProgress.reduce(
+          (sum, percent, i) => sum + ((batchBytes[i] ?? 0) * percent) / 100,
+          0,
+        );
+        onProgress(
+          totalBytes > 0 ? Math.round((loadedBytes / totalBytes) * 100) : 0,
+        );
+      }
+    });
+
+    batchProgress[index] = 100;
+    uploaded.push(...results);
+  }
+
+  return uploaded;
 }
 
 export function useUploadAssets() {

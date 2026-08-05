@@ -3,11 +3,12 @@
 import { Upload } from 'lucide-react';
 import { useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
+
+import { Button } from '@codaco/fresco-ui/Button';
 import Heading from '@codaco/fresco-ui/typography/Heading';
 import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
-import { Button } from '@codaco/fresco-ui/Button';
-import { PROTOCOL_EXTENSION } from '~/fresco.config';
 import { cx } from '@codaco/fresco-ui/utils/cva';
+import { PROTOCOL_EXTENSION } from '~/fresco.config';
 
 type ProtocolImportDropzoneProps = {
   onFilesAccepted: (files: File[]) => void;

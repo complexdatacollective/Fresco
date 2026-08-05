@@ -1,4 +1,5 @@
 import { Prisma } from '~/lib/db/generated/client';
+
 import type { ParticipantsSearchParams } from './searchParams';
 
 /**

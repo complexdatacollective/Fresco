@@ -3,6 +3,7 @@
 import NuqsClearFilters from '~/components/DataTable/nuqs/NuqsClearFilters';
 import NuqsFacetedFilter from '~/components/DataTable/nuqs/NuqsFacetedFilter';
 import NuqsSearchFilter from '~/components/DataTable/nuqs/NuqsSearchFilter';
+
 import ExportActivityFeed from './ExportActivityFeed';
 import { activityTypes } from './types';
 

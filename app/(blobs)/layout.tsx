@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { type PropsWithChildren, Suspense } from 'react';
+
 import BackgroundBlobs from '~/components/BackgroundBlobs/BackgroundBlobs';
 import NetlifyBadge from '~/components/NetlifyBadge';
 

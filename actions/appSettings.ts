@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { after } from 'next/server';
 import { type z } from 'zod';
 import { z as zm } from 'zod/mini';
+
 import { addEvent } from '~/actions/activityFeed';
 import { requireApiAuth } from '~/lib/auth/guards';
 import { safeUpdateTag } from '~/lib/cache';
@@ -104,7 +105,9 @@ export async function setAppSetting<
     return value;
   } catch (error) {
     const e = ensureError(error);
-    throw new Error(`Failed to update appSettings: ${key}: ${e.message}`);
+    throw new Error(`Failed to update appSettings: ${key}: ${e.message}`, {
+      cause: error,
+    });
   }
 }
 

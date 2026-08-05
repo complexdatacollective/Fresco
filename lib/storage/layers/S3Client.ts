@@ -1,4 +1,5 @@
 import { S3Client } from '@aws-sdk/client-s3';
+
 import { getStorageConfig, type S3StorageConfig } from '~/lib/storage/config';
 
 async function getS3Config(): Promise<S3StorageConfig> {

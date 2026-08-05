@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from 'next/server';
+
 import { verifyApiToken } from '~/actions/apiTokens';
 
 export function createCorsHeaders(methods: string) {

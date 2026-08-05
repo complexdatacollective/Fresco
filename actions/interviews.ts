@@ -2,18 +2,19 @@
 
 import { createId } from '@paralleldrive/cuid2';
 import { after } from 'next/server';
+
+import { createInitialNetwork } from '@codaco/interview/contract';
+import { addEvent } from '~/actions/activityFeed';
+import type { InterviewsSearchParams } from '~/app/dashboard/_components/InterviewsTable/searchParams';
 import { requireApiAuth } from '~/lib/auth/guards';
 import { safeRevalidateTag, safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
-import { createInitialNetwork } from '@codaco/interview/contract';
 import { captureException, shutdownPostHog } from '~/lib/posthog-server';
 import { getAppSetting } from '~/queries/appSettings';
 import { getInterviewIdsMatching } from '~/queries/interviews';
 import type { CreateInterview, DeleteInterviews } from '~/schemas/interviews';
 import { participantIdentifierSchema } from '~/schemas/participant';
 import { ensureError } from '~/utils/ensureError';
-import { addEvent } from '~/actions/activityFeed';
-import type { InterviewsSearchParams } from '~/app/dashboard/_components/InterviewsTable/searchParams';
 
 export async function deleteInterviews(data: DeleteInterviews) {
   const session = await requireApiAuth();

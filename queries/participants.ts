@@ -1,14 +1,15 @@
 import 'server-only';
 import { cacheLife } from 'next/cache';
 import { stringify } from 'superjson';
-import { safeCacheTag } from '~/lib/cache';
-import { prisma } from '~/lib/db';
-import { Prisma } from '~/lib/db/generated/client';
+
 import {
   buildParticipantOrderBy,
   buildParticipantWhere,
 } from '~/app/dashboard/_components/ParticipantsTable/buildParticipantWhere';
 import type { ParticipantsSearchParams } from '~/app/dashboard/_components/ParticipantsTable/searchParams';
+import { safeCacheTag } from '~/lib/cache';
+import { prisma } from '~/lib/db';
+import { Prisma } from '~/lib/db/generated/client';
 
 type ParticipantInterviewSummary = {
   finishTime: Date | null;

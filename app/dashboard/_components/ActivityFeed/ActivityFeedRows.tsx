@@ -18,10 +18,12 @@ import {
   useQueryStates,
 } from 'nuqs';
 import { use, useMemo } from 'react';
+
 import { DataTable } from '@codaco/fresco-ui/DataTable/DataTable';
 import { useNuqsTable } from '~/components/DataTable/nuqs/NuqsTableProvider';
 import type { Events } from '~/lib/db/generated/client';
 import type { ActivitiesFeed } from '~/queries/activityFeed';
+
 import { fetchActivityFeedTableColumnDefs } from './ColumnDefinition';
 import { searchParamsUrlKeys } from './SearchParams';
 import { activityTypes, sortableFields, sortOrder } from './types';
@@ -36,7 +38,7 @@ export default function ActivityFeedRows({
   const tableData = use(activitiesPromise);
   const { startTransition } = useNuqsTable();
 
-  const columns = useMemo<ColumnDef<Events, unknown>[]>(
+  const columns = useMemo<ColumnDef<Events>[]>(
     () => fetchActivityFeedTableColumnDefs(),
     [],
   );

@@ -1,17 +1,19 @@
 'use client';
 
+import type { UrlObject } from 'url';
+
 import { Menu, Settings, X } from 'lucide-react';
 import { motion } from 'motion/react';
 import type { Route } from 'next';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import type { UrlObject } from 'url';
-import { logout } from '~/actions/auth';
+
 import Modal from '@codaco/fresco-ui/Modal';
 import ModalPopup from '@codaco/fresco-ui/Modal/ModalPopup';
-import SubmitButton from '~/components/SubmitButton';
 import { cx } from '@codaco/fresco-ui/utils/cva';
+import { logout } from '~/actions/auth';
+import SubmitButton from '~/components/SubmitButton';
 
 type NavItem = {
   label: string;

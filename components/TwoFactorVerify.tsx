@@ -1,13 +1,14 @@
 'use client';
 
 import { useState } from 'react';
-import { verifyCurrentUserTotp } from '~/actions/totp';
+
+import { Button } from '@codaco/fresco-ui/Button';
 import Field from '@codaco/fresco-ui/form/Field/Field';
-import { FormWithoutProvider } from '@codaco/fresco-ui/form/Form';
 import InputField from '@codaco/fresco-ui/form/fields/InputField';
 import SegmentedCodeField from '@codaco/fresco-ui/form/fields/SegmentedCodeField';
+import { FormWithoutProvider } from '@codaco/fresco-ui/form/Form';
 import { type FormSubmitHandler } from '@codaco/fresco-ui/form/store/types';
-import { Button } from '@codaco/fresco-ui/Button';
+import { verifyCurrentUserTotp } from '~/actions/totp';
 
 type TwoFactorVerifyProps = {
   formId: string;

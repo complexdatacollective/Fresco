@@ -3,9 +3,12 @@ import dotenv from 'dotenv';
 
 dotenv.config();
 
-import { PrismaPg } from '@prisma/adapter-pg';
 import { execSync, spawnSync } from 'child_process';
+
+import { PrismaPg } from '@prisma/adapter-pg';
+
 import { PrismaClient } from '~/lib/db/generated/client';
+
 import { migrateInterviewCategoricals } from './migrate-interview-categoricals';
 import { migrateProtocolsToV8 } from './migrate-protocols-to-v8';
 

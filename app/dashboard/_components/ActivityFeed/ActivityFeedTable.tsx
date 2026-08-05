@@ -1,13 +1,15 @@
 'use client';
 
 import { Suspense } from 'react';
+
 import { DataTableSkeleton } from '@codaco/fresco-ui/DataTable/DataTableSkeleton';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 import {
   NuqsTableProvider,
   useNuqsTable,
 } from '~/components/DataTable/nuqs/NuqsTableProvider';
 import type { ActivitiesFeed } from '~/queries/activityFeed';
-import { cx } from '@codaco/fresco-ui/utils/cva';
+
 import ActivityFeedRows from './ActivityFeedRows';
 import ActivityFeedToolbar from './ActivityFeedToolbar';
 import { ACTIVITY_FEED_PREFIX } from './SearchParams';

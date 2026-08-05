@@ -1,12 +1,13 @@
 import { Alert, AlertDescription } from '@codaco/fresco-ui/Alert';
+import Link from '~/components/Link';
 import SettingsCard from '~/components/settings/SettingsCard';
 import SettingsField from '~/components/settings/SettingsField';
-import Link from '~/components/Link';
 import { getStorageEnvStatus } from '~/lib/storage/config';
 import { getAppSetting } from '~/queries/appSettings';
 import { getStorageProvider } from '~/queries/storageProvider';
-import UpdateUploadThingToken from './UpdateUploadThingToken';
+
 import UpdateS3Settings from './UpdateS3Settings';
+import UpdateUploadThingToken from './UpdateUploadThingToken';
 
 export default async function StorageProviderSection() {
   const [provider, s3Endpoint, s3PublicUrl, s3Bucket, s3Region] =

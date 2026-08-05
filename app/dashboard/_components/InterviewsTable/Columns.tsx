@@ -1,12 +1,9 @@
 'use client';
 
-import { Badge } from '@codaco/fresco-ui/Badge';
-import Checkbox from '@codaco/fresco-ui/form/fields/Checkbox';
-import ProgressBar from '@codaco/fresco-ui/ProgressBar';
-import TimeAgo from '@codaco/fresco-ui/TimeAgo';
 import Image from 'next/image';
+
+import { Badge } from '@codaco/fresco-ui/Badge';
 import { DataTableColumnHeader } from '@codaco/fresco-ui/DataTable/ColumnHeader';
-import { SelectAllHeader } from '@codaco/fresco-ui/DataTable/SelectAllHeader';
 import {
   booleanFilterFn,
   dateFilterFn,
@@ -14,11 +11,16 @@ import {
   operatorFilterFn,
   rangeFilterFn,
 } from '@codaco/fresco-ui/DataTable/filters/filterFns';
+import { SelectAllHeader } from '@codaco/fresco-ui/DataTable/SelectAllHeader';
 import { type StrictColumnDef } from '@codaco/fresco-ui/DataTable/types';
+import Checkbox from '@codaco/fresco-ui/form/fields/Checkbox';
+import ProgressBar from '@codaco/fresco-ui/ProgressBar';
+import TimeAgo from '@codaco/fresco-ui/TimeAgo';
 import type {
   GetInterviewsQuery,
   InterviewFilterOptions,
 } from '~/queries/interviews';
+
 import { computeInterviewProgress } from './computeInterviewProgress';
 import NetworkSummary from './NetworkSummary';
 
@@ -36,7 +38,7 @@ export const InterviewColumns = (
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
+        onCheckedChange={(value) => row.toggleSelected(value)}
         aria-label="Select row"
       />
     ),

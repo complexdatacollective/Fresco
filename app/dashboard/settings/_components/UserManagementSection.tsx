@@ -2,6 +2,7 @@ import SettingsCard from '~/components/settings/SettingsCard';
 import { env } from '~/env';
 import { prisma } from '~/lib/db';
 import { getUsers } from '~/queries/users';
+
 import UserManagement from './UserManagement';
 
 async function getHasTwoFactor(userId: string) {

@@ -1,8 +1,9 @@
-import { act, renderHook } from '@testing-library/react';
 import { type ColumnDef } from '@tanstack/react-table';
+import { act, renderHook } from '@testing-library/react';
 import { NuqsTestingAdapter } from 'nuqs/adapters/testing';
 import { type ReactNode } from 'react';
 import { describe, expect, it } from 'vitest';
+
 import { useClientDataTable } from '~/hooks/useClientDataTable';
 
 type TestRow = { id: string; status: string };

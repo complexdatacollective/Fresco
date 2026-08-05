@@ -1,5 +1,7 @@
 'use server';
 
+import { randomBytes } from 'node:crypto';
+
 import {
   generateAuthenticationOptions as generateAuthOptions,
   generateRegistrationOptions as generateRegOptions,
@@ -10,11 +12,10 @@ import {
   type RegistrationResponseJSON,
 } from '@simplewebauthn/server';
 import { cookies } from 'next/headers';
-import { randomBytes } from 'node:crypto';
+
 import { env } from '~/env';
 import { requireApiAuth } from '~/lib/auth/guards';
 import { createSessionCookie } from '~/lib/auth/session';
-import { isAppConfigured } from '~/queries/appSettings';
 import { getAuthenticatorName } from '~/lib/auth/utils/getAuthenticatorName';
 import {
   createChallengeCookie,
@@ -24,8 +25,12 @@ import {
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { checkRateLimit, recordLoginAttempt } from '~/lib/rateLimit';
+import { isAppConfigured } from '~/queries/appSettings';
+import { strongPasswordSchema } from '~/schemas/users';
 import { getClientIp } from '~/utils/getClientIp';
+import { STRONG_PASSWORD_MESSAGE } from '~/utils/isStrongPassword';
 import { hashPassword, verifyPassword } from '~/utils/password';
+
 import { addEvent } from './activityFeed';
 
 const CHALLENGE_COOKIE_NAME = 'webauthn_challenge';
@@ -626,7 +631,18 @@ export async function switchToPasswordMode(newPassword: string) {
     return { error: 'Account is already in password mode.', data: null };
   }
 
-  const hashed = await hashPassword(newPassword);
+  // The dialog applies this strength check client-side, but this Server Action
+  // is directly invokable — without it, a weak or empty password could replace
+  // the account's passkeys.
+  const parsedPassword = strongPasswordSchema.safeParse(newPassword);
+  if (!parsedPassword.success) {
+    return {
+      error: STRONG_PASSWORD_MESSAGE,
+      data: null,
+    };
+  }
+
+  const hashed = await hashPassword(parsedPassword.data);
 
   await prisma.$transaction([
     prisma.key.updateMany({

@@ -1,19 +1,20 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { enableTotp, verifyTotpSetup } from '~/actions/totp';
-import RecoveryCodes from '~/components/RecoveryCodes';
+
 import { Alert, AlertDescription, AlertTitle } from '@codaco/fresco-ui/Alert';
+import Button from '@codaco/fresco-ui/Button';
 import useDialog from '@codaco/fresco-ui/dialogs/useDialog';
 import { useWizard } from '@codaco/fresco-ui/dialogs/useWizard';
 import UnconnectedField from '@codaco/fresco-ui/form/Field/UnconnectedField';
 import InputField from '@codaco/fresco-ui/form/fields/InputField';
 import SegmentedCodeField from '@codaco/fresco-ui/form/fields/SegmentedCodeField';
-import { cx } from '@codaco/fresco-ui/utils/cva';
 import { surfaceSpacingVariants } from '@codaco/fresco-ui/layout/Surface';
-import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
-import Button from '@codaco/fresco-ui/Button';
 import Spinner from '@codaco/fresco-ui/Spinner';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import { cx } from '@codaco/fresco-ui/utils/cva';
+import { enableTotp, verifyTotpSetup } from '~/actions/totp';
+import RecoveryCodes from '~/components/RecoveryCodes';
 
 type SetupData = {
   secret: string;

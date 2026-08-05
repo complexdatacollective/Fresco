@@ -1,6 +1,8 @@
+import { env } from 'node:process';
+
 import Image from 'next/image';
 import { connection } from 'next/server';
-import { env } from 'node:process';
+
 import Heading from '@codaco/fresco-ui/typography/Heading';
 import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
 import { getAppSetting } from '~/queries/appSettings';

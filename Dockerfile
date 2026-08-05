@@ -14,12 +14,11 @@ RUN corepack enable
 # Copy dependency files
 COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml prisma.config.ts env.js ./
 COPY lib/db/schema.prisma ./lib/db/schema.prisma
-COPY patches ./patches
 
 # Install pnpm and dependencies with cache mount for faster builds
 RUN --mount=type=cache,target=/root/.local/share/pnpm/store \
     --mount=type=cache,target=/root/.cache/pnpm \
-    corepack enable pnpm && pnpm i --frozen-lockfile --prefer-offline
+    corepack enable pnpm && pnpm i --frozen-lockfile --prefer-offline --ignore-scripts
 
 # ---------
 
@@ -83,6 +82,9 @@ COPY --from=builder --chown=nextjs:nodejs /app/prisma.config.ts ./
 COPY --from=builder --chown=nextjs:nodejs /app/package.json ./
 COPY --from=builder --chown=nextjs:nodejs /app/env.js ./
 COPY --from=builder --chown=nextjs:nodejs /app/tsconfig.json ./
+# The mirrored tsconfig.json extends ./tsconfig/web.json (vendored by
+# scripts/mirror-app.mjs), so the startup scripts need that directory present.
+COPY --from=builder --chown=nextjs:nodejs /app/tsconfig ./tsconfig
 
 # Install ONLY the deps the startup scripts need (prisma CLI, tsx, and the
 # packages the .ts scripts import), pinned to the app's versions, into

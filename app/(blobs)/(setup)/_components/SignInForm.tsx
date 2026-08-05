@@ -7,22 +7,23 @@ import {
 import { ArrowLeft, KeyRound, LockIcon, User2 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+
+import { Button } from '@codaco/fresco-ui/Button';
+import { DialogFooter } from '@codaco/fresco-ui/dialogs/Dialog';
+import Field from '@codaco/fresco-ui/form/Field/Field';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
+import PasswordField from '@codaco/fresco-ui/form/fields/PasswordField';
+import SegmentedCodeField from '@codaco/fresco-ui/form/fields/SegmentedCodeField';
+import Form from '@codaco/fresco-ui/form/Form';
+import { type FormSubmitHandler } from '@codaco/fresco-ui/form/store/types';
+import SubmitButton from '@codaco/fresco-ui/form/SubmitButton';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
 import { login, recoveryCodeLogin, type LoginResult } from '~/actions/auth';
 import { verifyTwoFactor } from '~/actions/twoFactor';
 import {
   generateAuthenticationOptions,
   verifyAuthentication,
 } from '~/actions/webauthn';
-import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
-import { Button } from '@codaco/fresco-ui/Button';
-import { DialogFooter } from '@codaco/fresco-ui/dialogs/Dialog';
-import Field from '@codaco/fresco-ui/form/Field/Field';
-import Form from '@codaco/fresco-ui/form/Form';
-import SubmitButton from '@codaco/fresco-ui/form/SubmitButton';
-import InputField from '@codaco/fresco-ui/form/fields/InputField';
-import PasswordField from '@codaco/fresco-ui/form/fields/PasswordField';
-import SegmentedCodeField from '@codaco/fresco-ui/form/fields/SegmentedCodeField';
-import { type FormSubmitHandler } from '@codaco/fresco-ui/form/store/types';
 import { loginSchema } from '~/schemas/auth';
 
 function isRateLimited(
@@ -95,7 +96,7 @@ export const SignInForm = () => {
       return { success: false };
     }
 
-    if (result.success === true) {
+    if (result.success) {
       router.push('/dashboard');
     }
 

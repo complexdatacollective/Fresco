@@ -1,0 +1,88 @@
+{
+  "extends": ["../../.oxlintrc.json", "../../tooling/oxlint/react.json"],
+  "plugins": ["nextjs"],
+  "jsPlugins": ["oxlint-tailwindcss"],
+  "settings": {
+    "tailwindcss": {
+      "entryPoint": "apps/fresco/styles/globals.css"
+    }
+  },
+  "rules": {
+    "nextjs/no-img-element": "off",
+    "tailwindcss/no-unknown-classes": "warn",
+    "tailwindcss/no-duplicate-classes": "error",
+    "tailwindcss/no-conflicting-classes": "warn",
+    "tailwindcss/no-unnecessary-whitespace": "error",
+    "tailwindcss/enforce-canonical": "warn",
+    "no-restricted-imports": [
+      "error",
+      {
+        "paths": [
+          {
+            "name": "next/cache",
+            "importNames": ["cacheTag", "updateTag", "revalidateTag"],
+            "message": "Use safeCacheTag, safeUpdateTag, or safeRevalidateTag from ~/lib/cache for type-safe cache tags."
+          }
+        ]
+      }
+    ]
+  },
+  "overrides": [
+    {
+      // Ported wholesale from the app's own tailwind classes, which predate the
+      // shared theme.
+      "files": ["lib/legacy-ui/**", "lib/interviewer/**"],
+      "rules": {
+        "tailwindcss/no-unknown-classes": "off"
+      }
+    },
+    {
+      // Enforce zod/mini in client-reachable code for smaller bundles.
+      // Server-only trees (actions/, queries/, schemas/) use standard zod
+      // behind `import 'server-only'` guards instead; route handlers are
+      // exempted by the override below, which re-applies the narrower rule.
+      "files": ["app/**", "components/**", "hooks/**", "lib/**"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "next/cache",
+                "importNames": ["cacheTag", "updateTag", "revalidateTag"],
+                "message": "Use safeCacheTag, safeUpdateTag, or safeRevalidateTag from ~/lib/cache for type-safe cache tags."
+              },
+              {
+                "name": "zod",
+                "message": "Import from 'zod/mini' instead for smaller client bundles. Standard zod is allowed in server-only files (actions/, queries/)."
+              },
+              {
+                "name": "zod/v4",
+                "message": "Import from 'zod/mini' instead for smaller client bundles. Standard zod is allowed in server-only files (actions/, queries/)."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      // Route handlers are server-only, so standard zod is allowed there; the
+      // next/cache guard still applies.
+      "files": ["app/**/route.ts", "app/**/route.tsx"],
+      "rules": {
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              {
+                "name": "next/cache",
+                "importNames": ["cacheTag", "updateTag", "revalidateTag"],
+                "message": "Use safeCacheTag, safeUpdateTag, or safeRevalidateTag from ~/lib/cache for type-safe cache tags."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

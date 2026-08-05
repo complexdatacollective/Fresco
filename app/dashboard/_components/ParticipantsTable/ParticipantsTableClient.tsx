@@ -8,6 +8,10 @@ import {
 import { FileUp } from 'lucide-react';
 import { use, useMemo, useState, useTransition } from 'react';
 import SuperJSON from 'superjson';
+
+import { Button } from '@codaco/fresco-ui/Button';
+import { useToast } from '@codaco/fresco-ui/Toast';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 import {
   deleteParticipants,
   getParticipantDeletionInfo,
@@ -21,9 +25,6 @@ import { DeleteParticipantsDialog } from '~/app/dashboard/participants/_componen
 import { useExportParticipants } from '~/app/dashboard/participants/_components/ExportParticipants/ExportParticipants';
 import ImportParticipants from '~/app/dashboard/participants/_components/ImportParticipants';
 import ParticipantModal from '~/app/dashboard/participants/_components/ParticipantModal';
-import { Button } from '@codaco/fresco-ui/Button';
-import { cx } from '@codaco/fresco-ui/utils/cva';
-import { useToast } from '@codaco/fresco-ui/Toast';
 import NuqsClearFilters from '~/components/DataTable/nuqs/NuqsClearFilters';
 import NuqsSearchFilter from '~/components/DataTable/nuqs/NuqsSearchFilter';
 import {
@@ -41,6 +42,7 @@ import type {
   GetProtocolsQuery,
   GetProtocolsReturnType,
 } from '~/queries/protocols';
+
 import ParticipantsTableRows from './ParticipantsTableRows';
 import {
   PARTICIPANTS_PREFIX,
@@ -139,7 +141,7 @@ const ParticipantsTableInner = ({
     [],
   );
 
-  const columns = useMemo<ColumnDef<ParticipantRow, unknown>[]>(
+  const columns = useMemo<ColumnDef<ParticipantRow>[]>(
     () => [
       ...getParticipantColumns(protocols),
       {

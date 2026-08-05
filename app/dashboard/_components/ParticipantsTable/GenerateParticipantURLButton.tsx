@@ -2,16 +2,18 @@
 
 import { Copy } from 'lucide-react';
 import { memo, useState } from 'react';
-import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+
 import { Button } from '@codaco/fresco-ui/Button';
+import SelectField from '@codaco/fresco-ui/form/fields/Select/Native';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from '@codaco/fresco-ui/Popover';
 import { useToast } from '@codaco/fresco-ui/Toast';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
 import type { Protocol } from '~/lib/db/generated/client';
-import SelectField from '@codaco/fresco-ui/form/fields/Select/Native';
+
 import type { ProtocolWithInterviews } from '../ProtocolsTable/ProtocolsTableClient';
 
 export const GenerateParticipationURLButton = memo(
@@ -68,7 +70,7 @@ export const GenerateParticipationURLButton = memo(
             options={protocols.map((p) => ({ value: p.id, label: p.name }))}
             onChange={(value) => {
               const protocol = protocols.find(
-                (protocol) => protocol.id === value,
+                (candidate) => candidate.id === value,
               ) as Protocol;
 
               setSelectedProtocol(protocol);

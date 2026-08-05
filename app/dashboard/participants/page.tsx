@@ -1,10 +1,11 @@
 import { type SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
-import ParticipantsTable from '~/app/dashboard/_components/ParticipantsTable/ParticipantsTable';
-import { searchParamsCache } from '~/app/dashboard/_components/ParticipantsTable/searchParams';
+
 import { DataTableSkeleton } from '@codaco/fresco-ui/DataTable/DataTableSkeleton';
 import ResponsiveContainer from '@codaco/fresco-ui/layout/ResponsiveContainer';
 import PageHeader from '@codaco/fresco-ui/typography/PageHeader';
+import ParticipantsTable from '~/app/dashboard/_components/ParticipantsTable/ParticipantsTable';
+import { searchParamsCache } from '~/app/dashboard/_components/ParticipantsTable/searchParams';
 import { requirePageAuth } from '~/lib/auth/guards';
 import { requireAppNotExpired } from '~/queries/appSettings';
 

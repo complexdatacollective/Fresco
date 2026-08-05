@@ -1,11 +1,12 @@
 'use client';
 
 import { FileText } from 'lucide-react';
-import { completeSetup } from '~/actions/appSettings';
+
+import Button from '@codaco/fresco-ui/Button';
 import Surface from '@codaco/fresco-ui/layout/Surface';
 import Heading from '@codaco/fresco-ui/typography/Heading';
 import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
-import Button from '@codaco/fresco-ui/Button';
+import { completeSetup } from '~/actions/appSettings';
 
 export default function Documentation() {
   return (
@@ -22,6 +23,8 @@ export default function Documentation() {
         <a
           href="https://documentation.networkcanvas.com/en/fresco"
           target="_blank"
+          rel="noreferrer"
+          aria-label="About Fresco — visit our documentation site to learn more (opens in a new tab)"
         >
           <Surface className="flex gap-8">
             <div className="flex-1">
@@ -38,6 +41,8 @@ export default function Documentation() {
         <a
           href="https://documentation.networkcanvas.com/en/fresco/using-fresco"
           target="_blank"
+          rel="noreferrer"
+          aria-label="Using Fresco — visit our documentation site for a usage guide (opens in a new tab)"
         >
           <Surface className="flex gap-10">
             <div className="flex-1">

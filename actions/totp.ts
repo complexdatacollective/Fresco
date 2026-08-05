@@ -1,5 +1,6 @@
 'use server';
 
+import { type FormSubmissionResult } from '@codaco/fresco-ui/form/store/types';
 import { requireApiAuth } from '~/lib/auth/guards';
 import {
   generateQrCodeDataUrl,
@@ -11,9 +12,9 @@ import {
 } from '~/lib/auth/totp';
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
-import { type FormSubmissionResult } from '@codaco/fresco-ui/form/store/types';
 import { disableTotpSchema, verifyTotpSetupSchema } from '~/schemas/totp';
 import { getBaseUrl } from '~/utils/getBaseUrl';
+
 import { addEvent } from './activityFeed';
 
 export async function enableTotp() {

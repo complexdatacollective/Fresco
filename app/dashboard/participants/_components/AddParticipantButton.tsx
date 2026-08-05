@@ -1,7 +1,7 @@
-import { Button } from '@codaco/fresco-ui/Button';
-
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
+
+import { Button } from '@codaco/fresco-ui/Button';
 import ParticipantModal from '~/app/dashboard/participants/_components/ParticipantModal';
 import { type Participant } from '~/lib/db/generated/client';
 

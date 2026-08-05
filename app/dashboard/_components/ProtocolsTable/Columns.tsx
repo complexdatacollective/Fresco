@@ -1,10 +1,12 @@
 'use client';
 
-import { type StrictColumnDef } from '@codaco/fresco-ui/DataTable/types';
 import Image from 'next/image';
-import Checkbox from '@codaco/fresco-ui/form/fields/Checkbox';
+
 import { DataTableColumnHeader } from '@codaco/fresco-ui/DataTable/ColumnHeader';
+import { type StrictColumnDef } from '@codaco/fresco-ui/DataTable/types';
+import Checkbox from '@codaco/fresco-ui/form/fields/Checkbox';
 import TimeAgo from '@codaco/fresco-ui/TimeAgo';
+
 import { AnonymousRecruitmentURLButton } from './AnonymousRecruitmentURLButton';
 import type { ProtocolWithInterviews } from './ProtocolsTableClient';
 
@@ -17,14 +19,14 @@ export const getProtocolColumns = (
       header: ({ table }) => (
         <Checkbox
           checked={table.getIsAllPageRowsSelected()}
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(value)}
           aria-label="Select all"
         />
       ),
       cell: ({ row }) => (
         <Checkbox
           checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          onCheckedChange={(value) => row.toggleSelected(value)}
           aria-label="Select row"
         />
       ),

@@ -1,9 +1,11 @@
 import { Suspense } from 'react';
+
 import { DataTableSkeleton } from '@codaco/fresco-ui/DataTable/DataTableSkeleton';
 import ResponsiveContainer from '@codaco/fresco-ui/layout/ResponsiveContainer';
 import PageHeader from '@codaco/fresco-ui/typography/PageHeader';
 import { requirePageAuth } from '~/lib/auth/guards';
 import { requireAppNotExpired } from '~/queries/appSettings';
+
 import ProtocolsTable from '../_components/ProtocolsTable/ProtocolsTable';
 import UpdateUploadThingTokenAlert from '../_components/UpdateUploadThingTokenAlert';
 

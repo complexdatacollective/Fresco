@@ -1,5 +1,6 @@
-import { hashProtocol, migrateProtocol } from '@codaco/protocol-validation';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { hashProtocol, migrateProtocol } from '@codaco/protocol-validation';
 import {
   buildAssetManifest,
   migrateProtocolsToV8,

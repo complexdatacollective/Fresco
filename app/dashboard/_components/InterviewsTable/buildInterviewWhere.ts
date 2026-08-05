@@ -1,4 +1,5 @@
 import { Prisma } from '~/lib/db/generated/client';
+
 import type { InterviewsSearchParams, NetworkCondition } from './searchParams';
 
 function parseRange(raw: string | null): { lo: string; hi: string } | null {

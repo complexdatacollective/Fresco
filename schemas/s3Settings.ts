@@ -1,4 +1,5 @@
 import { z as zm } from 'zod/mini';
+
 import { isSafeHttpUrl } from '~/utils/safeUrl';
 
 export const s3ConfigSchema = zm.object({

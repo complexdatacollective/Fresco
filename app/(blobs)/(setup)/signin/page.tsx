@@ -1,11 +1,13 @@
 import { type Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
-import { containerClasses } from '~/components/ContainerClasses';
+
 import { MotionSurface } from '@codaco/fresco-ui/layout/Surface';
 import Heading from '@codaco/fresco-ui/typography/Heading';
-import { getServerSession } from '~/lib/auth/guards';
 import { cx } from '@codaco/fresco-ui/utils/cva';
+import { containerClasses } from '~/components/ContainerClasses';
+import { getServerSession } from '~/lib/auth/guards';
+
 import SandboxCredentials from '../_components/SandboxCredentials';
 import { SignInForm } from '../_components/SignInForm';
 

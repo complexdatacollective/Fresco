@@ -1,7 +1,8 @@
 import 'server-only';
-
 import { createHmac, hkdfSync, timingSafeEqual } from 'node:crypto';
+
 import { headers } from 'next/headers';
+
 import { getInstallationId } from '~/queries/appSettings';
 
 const CHALLENGE_TTL_MS = 5 * 60 * 1000; // 5 minutes
@@ -26,7 +27,11 @@ export async function getWebAuthnConfig() {
     origin: url.origin,
     attestationType: 'none' as const,
     authenticatorSelection: {
-      residentKey: 'preferred' as const,
+      // Must be 'required': sign-in generates usernameless authentication
+      // options with no allowCredentials, so only discoverable (resident)
+      // credentials can ever be offered. A non-resident credential would
+      // register successfully and then lock a passkey-only account out.
+      residentKey: 'required' as const,
       // 'preferred' means the authenticator MAY skip user verification.
       // requireUserVerification must stay in sync — when generation uses
       // 'preferred', verification must accept responses without UV.

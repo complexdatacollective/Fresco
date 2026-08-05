@@ -1,9 +1,10 @@
 import { Suspense } from 'react';
+
+import { ToggleFieldSkeleton } from '@codaco/fresco-ui/form/fields/ToggleFieldSkeleton';
 import ApiTokenManagement from '~/components/ApiTokenManagement';
 import InterviewDataApiSwitch from '~/components/InterviewDataApiSwitch';
 import SettingsCard from '~/components/settings/SettingsCard';
 import SettingsField from '~/components/settings/SettingsField';
-import { ToggleFieldSkeleton } from '@codaco/fresco-ui/form/fields/ToggleFieldSkeleton';
 import { getApiTokens } from '~/queries/apiTokens';
 
 export default function ApiTokensSection() {

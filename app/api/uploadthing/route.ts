@@ -1,8 +1,10 @@
 import { invariant } from 'es-toolkit';
 import { type NextRequest } from 'next/server';
 import { createRouteHandler } from 'uploadthing/next';
+
 import { getStorageConfig } from '~/lib/storage/config';
 import { getBaseUrl } from '~/utils/getBaseUrl';
+
 import { ourFileRouter } from './core';
 
 /**

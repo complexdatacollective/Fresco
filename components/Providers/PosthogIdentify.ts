@@ -2,6 +2,7 @@
 
 import posthog from 'posthog-js';
 import { useEffect } from 'react';
+
 import { POSTHOG_APP_NAME } from '~/fresco.config';
 
 /**

@@ -7,8 +7,8 @@ import {
 } from '@tanstack/react-table';
 import { HardDriveUpload } from 'lucide-react';
 import { use, useMemo, useState, useTransition } from 'react';
+
 import { Button } from '@codaco/fresco-ui/Button';
-import { cx } from '@codaco/fresco-ui/utils/cva';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -16,6 +16,7 @@ import {
   DropdownMenuTrigger,
 } from '@codaco/fresco-ui/DropdownMenu';
 import { useToast } from '@codaco/fresco-ui/Toast';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 import {
   getInterviewDeletionInfo,
   resolveInterviewIds,
@@ -37,6 +38,7 @@ import type {
   InterviewFilterOptions,
 } from '~/queries/interviews';
 import type { GetProtocolsReturnType } from '~/queries/protocols';
+
 import InterviewsTableRows from './InterviewsTableRows';
 import { INTERVIEWS_PREFIX, type InterviewsSearchParams } from './searchParams';
 
@@ -96,7 +98,7 @@ const InterviewsTableInner = ({
     (id) => rowSelection[id],
   );
 
-  const columns = useMemo<ColumnDef<InterviewRow, unknown>[]>(() => {
+  const columns = useMemo<ColumnDef<InterviewRow>[]>(() => {
     const actionsColumn: ColumnDef<InterviewRow> = {
       id: 'actions',
       enableSorting: false,

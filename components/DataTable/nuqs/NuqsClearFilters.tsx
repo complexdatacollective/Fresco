@@ -3,7 +3,9 @@
 import { X } from 'lucide-react';
 import { parseAsString, useQueryStates } from 'nuqs';
 import { useMemo } from 'react';
+
 import { Button } from '@codaco/fresco-ui/Button';
+
 import { nuqsTableUrlKey, useNuqsTable } from './NuqsTableProvider';
 
 type NuqsClearFiltersProps = {
@@ -30,7 +32,8 @@ export default function NuqsClearFilters({
 
   const parsers = useMemo(() => {
     const entries = paramKeys.map(
-      (key) => [key, parseAsString.withOptions({ clearOnDefault: true })] as const,
+      (key) =>
+        [key, parseAsString.withOptions({ clearOnDefault: true })] as const,
     );
     return Object.fromEntries(entries);
   }, [paramKeys]);

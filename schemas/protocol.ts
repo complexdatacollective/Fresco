@@ -1,6 +1,7 @@
 import 'server-only';
-import { CurrentProtocolSchema } from '@codaco/protocol-validation';
 import { z } from 'zod';
+
+import { CurrentProtocolSchema } from '@codaco/protocol-validation';
 
 const assetInsertSchema = z.object({
   key: z.string(),

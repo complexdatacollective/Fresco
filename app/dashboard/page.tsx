@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { type SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
+
 import { DataTableSkeleton } from '@codaco/fresco-ui/DataTable/DataTableSkeleton';
 import ResponsiveContainer from '@codaco/fresco-ui/layout/ResponsiveContainer';
 import Heading from '@codaco/fresco-ui/typography/Heading';
@@ -10,6 +11,7 @@ import { requirePageAuth } from '~/lib/auth/guards';
 import { fetchActivities } from '~/queries/activityFeed';
 import { requireAppNotExpired } from '~/queries/appSettings';
 import { getSummaryStatistics } from '~/queries/summaryStatistics';
+
 import ActivityFeed from './_components/ActivityFeed/ActivityFeed';
 import { searchParamsCache } from './_components/ActivityFeed/SearchParams';
 import {

@@ -1,13 +1,16 @@
 'use client';
 
+import { queue } from 'async';
+import posthog from 'posthog-js';
+import { useCallback, useRef } from 'react';
+
+import Spinner from '@codaco/fresco-ui/Spinner';
+import { useToast } from '@codaco/fresco-ui/Toast';
 import {
   CURRENT_SCHEMA_VERSION,
   getMigrationInfo,
   hashProtocol,
 } from '@codaco/protocol-validation';
-import { queue } from 'async';
-import posthog from 'posthog-js';
-import { useCallback, useRef } from 'react';
 import {
   cleanupUploadedFiles,
   getNewAssetIds,
@@ -19,16 +22,13 @@ import {
   type ImportPhase,
 } from '~/components/ProtocolImport/calculateImportProgress';
 import ImportToastContent from '~/components/ProtocolImport/ImportToastContent';
-import { useToast } from '@codaco/fresco-ui/Toast';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
+import { useUploadAssets } from '~/hooks/useUploadAssets';
 import {
   validateAndMigrateProtocol,
   type ProtocolValidationError,
 } from '~/lib/protocol/validateAndMigrateProtocol';
-import { useUploadAssets } from '~/hooks/useUploadAssets';
-import Spinner from '@codaco/fresco-ui/Spinner';
 import { type AssetInsertType } from '~/schemas/protocol';
-import { getProtocolSizeError } from '~/utils/protocolSize';
 import { DatabaseError } from '~/utils/databaseError';
 import { ensureError } from '~/utils/ensureError';
 import {
@@ -36,6 +36,7 @@ import {
   getProtocolAssets,
   getProtocolJson,
 } from '~/utils/protocolImport';
+import { getProtocolSizeError } from '~/utils/protocolSize';
 
 function formatNumberList(numbers: number[]): string {
   if (numbers.length === 1) {
@@ -241,7 +242,7 @@ export const useProtocolImport = () => {
           }
         });
       } catch (_e) {
-        throw new Error('Error checking for existing assets');
+        throw new Error('Error checking for existing assets', { cause: _e });
       }
 
       // Phase: Uploading protocol

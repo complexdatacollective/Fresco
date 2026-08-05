@@ -7,7 +7,9 @@ import { definePreview } from '@storybook/nextjs-vite';
 import isChromatic from 'chromatic/isChromatic';
 import { NuqsTestingAdapter } from 'nuqs/adapters/testing';
 import { StrictMode } from 'react';
+
 import Providers from '../components/Providers';
+
 import '../styles/globals.css';
 
 // @chromatic-com/storybook is not included here because it doesn't export a
@@ -74,7 +76,7 @@ export default definePreview({
       // Manual browsing has `navigator.webdriver === false`, so interactive
       // development still gets the full animations by default.
       const disableAnimationsFromAutomation =
-        typeof navigator !== 'undefined' && navigator.webdriver === true;
+        typeof navigator !== 'undefined' && navigator.webdriver;
       const disableAnimations =
         disableAnimationsFromAutomation || isChromatic();
 

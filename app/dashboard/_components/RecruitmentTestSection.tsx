@@ -3,9 +3,10 @@ import { type Route } from 'next';
 import { useRouter } from 'next/navigation';
 import { use, useEffect, useState } from 'react';
 import { SuperJSON } from 'superjson';
+
 import { Button } from '@codaco/fresco-ui/Button';
-import type { Participant, Protocol } from '~/lib/db/generated/client';
 import SelectField from '@codaco/fresco-ui/form/fields/Select/Styled';
+import type { Participant, Protocol } from '~/lib/db/generated/client';
 import {
   type GetParticipantsForSelectQuery,
   type GetParticipantsForSelectReturnType,
@@ -63,7 +64,7 @@ export default function RecruitmentTestSection({
           options={protocols.map((p) => ({ value: p.id, label: p.name }))}
           onChange={(value) => {
             const protocol = protocols.find(
-              (protocol) => protocol.id === value,
+              (candidate) => candidate.id === value,
             ) as Protocol;
 
             setSelectedProtocol(protocol);
@@ -79,7 +80,7 @@ export default function RecruitmentTestSection({
           }))}
           onChange={(value) => {
             const participant = participants?.find(
-              (participant) => participant.id === value,
+              (candidate) => candidate.id === value,
             );
 
             setSelectedParticipant(participant);

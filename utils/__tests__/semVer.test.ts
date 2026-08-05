@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import { getSemverUpdateType } from '~/utils/semVer';
 
 const currentVersion = { major: 1, minor: 2, patch: 3 };

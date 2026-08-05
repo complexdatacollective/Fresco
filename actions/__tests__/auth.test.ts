@@ -57,6 +57,7 @@ const {
   mockGetInstallationId,
   mockIsAppConfigured,
   mockUserCreate,
+  mockCreateUserSchemaSafeParse,
 } = vi.hoisted(() => ({
   mockPrismaKeyFindUnique: vi.fn(),
   mockPrismaTotpCredentialFindFirst: vi.fn(),
@@ -72,6 +73,7 @@ const {
   mockGetInstallationId: vi.fn(),
   mockIsAppConfigured: vi.fn(),
   mockUserCreate: vi.fn(),
+  mockCreateUserSchemaSafeParse: vi.fn(),
 }));
 
 vi.mock('~/lib/db', () => ({
@@ -147,7 +149,7 @@ vi.mock('~/schemas/auth', () => ({
     safeParse: mockLoginSchemaSafeParse,
   },
   createUserSchema: {
-    safeParse: vi.fn(),
+    safeParse: mockCreateUserSchemaSafeParse,
   },
 }));
 
@@ -457,5 +459,19 @@ describe('signup', () => {
       error: 'Setup is already complete.',
     });
     expect(mockUserCreate).not.toHaveBeenCalled();
+  });
+
+  it('refuses a passkey-only payload instead of creating a credential-less account', async () => {
+    mockIsAppConfigured.mockResolvedValue(false);
+    mockCreateUserSchemaSafeParse.mockReturnValue({ success: false });
+
+    const result = await signup({ username: 'attacker', password: null });
+
+    expect(result).toEqual({
+      success: false,
+      error: 'Invalid form submission',
+    });
+    expect(mockUserCreate).not.toHaveBeenCalled();
+    expect(mockCreateSessionCookie).not.toHaveBeenCalled();
   });
 });

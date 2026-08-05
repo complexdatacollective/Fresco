@@ -2,9 +2,11 @@
 
 import { parseAsInteger, useQueryState } from 'nuqs';
 import { useEffect } from 'react';
-import { containerClasses } from '~/components/ContainerClasses';
+
 import Surface from '@codaco/fresco-ui/layout/Surface';
 import { cx } from '@codaco/fresco-ui/utils/cva';
+import { containerClasses } from '~/components/ContainerClasses';
+
 import ConfigureStorage from '../_components/OnboardSteps/ConfigureStorage';
 import CreateAccount from '../_components/OnboardSteps/CreateAccount';
 import Documentation from '../_components/OnboardSteps/Documentation';
@@ -64,7 +66,7 @@ export default function Setup({ setupData }: { setupData: SetupData }) {
 
   return (
     <div className={cardClasses}>
-      <OnboardSteps steps={steps.map((step) => step.label)} />
+      <OnboardSteps steps={steps.map((item) => item.label)} />
       <Surface noContainer className="w-full max-w-4xl">
         {steps[clampedStep - 1]?.content}
       </Surface>

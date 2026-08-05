@@ -1,6 +1,7 @@
 'use server';
 
 import { UTApi } from 'uploadthing/server';
+
 import { getStorageConfig } from '~/lib/storage/config';
 
 export const getUTApi = async () => {

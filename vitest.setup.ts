@@ -1,8 +1,7 @@
 import '@testing-library/jest-dom/vitest';
-import { vi } from 'vitest';
-
 // Import React at the top level so it's available for mocks
 import { type default as React } from 'react';
+import { vi } from 'vitest';
 
 // Use vi.hoisted to define mock factories that are available when mocks are hoisted
 const { motionMockModule } = vi.hoisted(() => {
@@ -137,7 +136,7 @@ const { motionMockModule } = vi.hoisted(() => {
     skipAnimations: false,
   });
 
-  const motionMockModule = {
+  const mockModule = {
     motion: motionComponents,
     AnimatePresence,
     LayoutGroup,
@@ -164,7 +163,7 @@ const { motionMockModule } = vi.hoisted(() => {
     usePresence: () => [true, null] as const,
   };
 
-  return { motionMockModule };
+  return { motionMockModule: mockModule };
 });
 
 // Mock motion/react (the primary import path used by the project)

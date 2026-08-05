@@ -1,4 +1,5 @@
 import { after, type NextRequest, NextResponse } from 'next/server';
+
 import {
   createCorsHeaders,
   requireApiTokenAuth,

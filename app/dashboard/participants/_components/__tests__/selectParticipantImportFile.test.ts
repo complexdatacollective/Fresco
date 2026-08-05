@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+
 import selectParticipantImportFile from '../selectParticipantImportFile';
 
 describe('selectParticipantImportFile', () => {
@@ -19,9 +20,7 @@ describe('selectParticipantImportFile', () => {
       type: 'text/csv',
     });
 
-    expect(
-      selectParticipantImportFile([file, secondFile], []),
-    ).toBeNull();
+    expect(selectParticipantImportFile([file, secondFile], [])).toBeNull();
   });
 
   it('rejects the whole drop when react-dropzone accepts one file and rejects the surplus', () => {

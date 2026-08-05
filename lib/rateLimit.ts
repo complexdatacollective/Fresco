@@ -1,5 +1,4 @@
 import 'server-only';
-
 import { prisma } from '~/lib/db';
 
 const WINDOW_MS = 15 * 60 * 1000;

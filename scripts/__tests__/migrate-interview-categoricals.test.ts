@@ -1,6 +1,7 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { type Codebook } from '@codaco/protocol-validation';
 import { type NcNetwork } from '@codaco/shared-consts';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   migrateInterviewCategoricals,
   migrateNetworkCategoricals,

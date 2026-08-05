@@ -3,10 +3,12 @@
 import { Download } from 'lucide-react';
 import { unparse } from 'papaparse';
 import { useState } from 'react';
+
 import { Button } from '@codaco/fresco-ui/Button';
 import { useToast } from '@codaco/fresco-ui/Toast';
 import type { IncompleteInterviewUrlData } from '~/actions/interviews';
 import { useDownload } from '~/hooks/useDownload';
+
 import type { ProtocolWithInterviews } from '../../_components/ProtocolsTable/ProtocolsTableClient';
 
 function ExportCSVInterviewURLs({
@@ -57,6 +59,7 @@ function ExportCSVInterviewURLs({
       });
       throw new Error(
         'An error occurred while exporting incomplete interview URLs',
+        { cause: error },
       );
     }
 

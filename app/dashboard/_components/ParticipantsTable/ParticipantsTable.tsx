@@ -1,10 +1,12 @@
 import { Suspense } from 'react';
+
 import { DataTableSkeleton } from '@codaco/fresco-ui/DataTable/DataTableSkeleton';
 import {
   getParticipants,
   getParticipantsForSelect,
 } from '~/queries/participants';
 import { getProtocols } from '~/queries/protocols';
+
 import { ParticipantsTableClient } from './ParticipantsTableClient';
 import type { ParticipantsSearchParams } from './searchParams';
 

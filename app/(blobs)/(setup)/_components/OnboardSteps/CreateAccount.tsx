@@ -1,5 +1,5 @@
-import { SignUpForm } from '~/app/(blobs)/(setup)/_components/SignUpForm';
 import Heading from '@codaco/fresco-ui/typography/Heading';
+import { SignUpForm } from '~/app/(blobs)/(setup)/_components/SignUpForm';
 
 function CreateAccount() {
   return (

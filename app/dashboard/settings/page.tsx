@@ -1,12 +1,14 @@
 import { Suspense } from 'react';
+
+import PageHeader from '@codaco/fresco-ui/typography/PageHeader';
 import { SettingsCardSkeleton } from '~/components/settings/SettingsCard';
 import SettingsNavigation, {
   type SettingsSection,
 } from '~/components/settings/SettingsNavigation';
-import PageHeader from '@codaco/fresco-ui/typography/PageHeader';
 import { env } from '~/env';
 import { requirePageAuth } from '~/lib/auth/guards';
 import { requireAppNotExpired } from '~/queries/appSettings';
+
 import ApiTokensSection from './_components/ApiTokensSection';
 import ConfigurationSection from './_components/ConfigurationSection';
 import DeveloperToolsSection from './_components/DeveloperToolsSection';

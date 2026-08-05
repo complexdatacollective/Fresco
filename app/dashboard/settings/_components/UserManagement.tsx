@@ -4,11 +4,30 @@ import {
   startAuthentication,
   startRegistration,
 } from '@simplewebauthn/browser';
-import { type StrictColumnDef } from '@codaco/fresco-ui/DataTable/types';
 import { Plus, Trash, User } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { use, useCallback, useState } from 'react';
 import { z } from 'zod/mini';
+
+import { Alert, AlertDescription, AlertTitle } from '@codaco/fresco-ui/Alert';
+import { Button } from '@codaco/fresco-ui/Button';
+import { DataTableColumnHeader } from '@codaco/fresco-ui/DataTable/ColumnHeader';
+import { DataTable } from '@codaco/fresco-ui/DataTable/DataTable';
+import { DataTableFloatingBar } from '@codaco/fresco-ui/DataTable/DataTableFloatingBar';
+import { type StrictColumnDef } from '@codaco/fresco-ui/DataTable/types';
+import Dialog from '@codaco/fresco-ui/dialogs/Dialog';
+import useDialog from '@codaco/fresco-ui/dialogs/useDialog';
+import Field from '@codaco/fresco-ui/form/Field/Field';
+import Checkbox from '@codaco/fresco-ui/form/fields/Checkbox';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
+import PasswordField from '@codaco/fresco-ui/form/fields/PasswordField';
+import { FormWithoutProvider } from '@codaco/fresco-ui/form/Form';
+import FormStoreProvider from '@codaco/fresco-ui/form/store/formStoreProvider';
+import { type FormSubmissionResult } from '@codaco/fresco-ui/form/store/types';
+import SubmitButton from '@codaco/fresco-ui/form/SubmitButton';
+import Surface from '@codaco/fresco-ui/layout/Surface';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
 import {
   changePassword,
   checkUsernameAvailable,
@@ -25,27 +44,14 @@ import {
 } from '~/actions/webauthn';
 import PasskeySettings from '~/app/dashboard/settings/_components/PasskeySettings';
 import TwoFactorSettings from '~/app/dashboard/settings/_components/TwoFactorSettings';
-import { DataTableColumnHeader } from '@codaco/fresco-ui/DataTable/ColumnHeader';
-import { DataTable } from '@codaco/fresco-ui/DataTable/DataTable';
-import { DataTableFloatingBar } from '@codaco/fresco-ui/DataTable/DataTableFloatingBar';
-import Surface from '@codaco/fresco-ui/layout/Surface';
 import SettingsField from '~/components/settings/SettingsField';
-import Heading from '@codaco/fresco-ui/typography/Heading';
-import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
-import { Alert, AlertDescription, AlertTitle } from '@codaco/fresco-ui/Alert';
-import { Button } from '@codaco/fresco-ui/Button';
 import { useClientDataTable } from '~/hooks/useClientDataTable';
-import Dialog from '@codaco/fresco-ui/dialogs/Dialog';
-import useDialog from '@codaco/fresco-ui/dialogs/useDialog';
-import Field from '@codaco/fresco-ui/form/Field/Field';
-import { FormWithoutProvider } from '@codaco/fresco-ui/form/Form';
-import SubmitButton from '@codaco/fresco-ui/form/SubmitButton';
-import Checkbox from '@codaco/fresco-ui/form/fields/Checkbox';
-import InputField from '@codaco/fresco-ui/form/fields/InputField';
-import PasswordField from '@codaco/fresco-ui/form/fields/PasswordField';
-import FormStoreProvider from '@codaco/fresco-ui/form/store/formStoreProvider';
-import { type FormSubmissionResult } from '@codaco/fresco-ui/form/store/types';
 import { type GetUsersReturnType } from '~/queries/users';
+import {
+  PASSWORD_CHARACTER_RULES,
+  PASSWORD_MIN_LENGTH,
+  PASSWORD_MIN_LENGTH_MESSAGE,
+} from '~/utils/isStrongPassword';
 
 type UserRow = GetUsersReturnType[number];
 
@@ -83,13 +89,19 @@ const usernameUniqueSchema = z.string().check(
   }, 'Username is already taken'),
 );
 
+// Built from the shared rule in ~/utils/isStrongPassword rather than restating
+// it: the server enforces the same rule through `strongPasswordSchema`, which
+// cannot be imported here (schemas/ is server-only, and client code uses
+// zod/mini). Each check stays separate so the form reports precisely which
+// requirement is unmet.
 const passwordSchema = z
   .string()
-  .check(z.minLength(8, 'Password must be at least 8 characters'))
-  .check(z.regex(/[a-z]/, 'Password must contain at least 1 lowercase letter'))
-  .check(z.regex(/[A-Z]/, 'Password must contain at least 1 uppercase letter'))
-  .check(z.regex(/[0-9]/, 'Password must contain at least 1 number'))
-  .check(z.regex(/[^a-zA-Z0-9]/, 'Password must contain at least 1 symbol'));
+  .check(
+    z.minLength(PASSWORD_MIN_LENGTH, PASSWORD_MIN_LENGTH_MESSAGE),
+    ...PASSWORD_CHARACTER_RULES.map(({ pattern, message }) =>
+      z.regex(pattern, message),
+    ),
+  );
 
 function makeUserColumns(
   currentUserId: string,
@@ -104,7 +116,7 @@ function makeUserColumns(
         <Checkbox
           checked={table.getIsAllPageRowsSelected()}
           onCheckedChange={(value: boolean) =>
-            table.toggleAllPageRowsSelected(!!value)
+            table.toggleAllPageRowsSelected(value)
           }
           aria-label="Select all"
         />
@@ -114,7 +126,7 @@ function makeUserColumns(
         return (
           <Checkbox
             checked={row.getIsSelected()}
-            onCheckedChange={(value: boolean) => row.toggleSelected(!!value)}
+            onCheckedChange={(value: boolean) => row.toggleSelected(value)}
             aria-label="Select row"
             disabled={isCurrentUser}
           />
@@ -493,10 +505,7 @@ export default function UserManagement({
 
   return (
     <div className="space-y-6">
-      <Surface
-        className="mt-2 divide-y divide-current/10 p-6"
-        spacing="sm"
-      >
+      <Surface className="mt-2 divide-y divide-current/10 p-6" spacing="sm">
         <div className="flex flex-col justify-between gap-4 pb-4">
           <div className="tablet-landscape:flex-row tablet-landscape:items-center tablet-landscape:justify-between flex flex-col gap-4 pb-4">
             <div className="tablet-landscape:gap-6 flex items-center gap-4">

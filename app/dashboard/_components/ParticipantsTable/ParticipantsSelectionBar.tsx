@@ -1,10 +1,11 @@
-import { AnimatePresence } from 'motion/react';
 import { FileUp, Trash } from 'lucide-react';
+import { AnimatePresence } from 'motion/react';
+
 import { Button } from '@codaco/fresco-ui/Button';
 import CloseButton from '@codaco/fresco-ui/CloseButton';
-import { cx } from '@codaco/fresco-ui/utils/cva';
 import { MotionSurface } from '@codaco/fresco-ui/layout/Surface';
 import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import { cx } from '@codaco/fresco-ui/utils/cva';
 
 type ParticipantsSelectionBarProps = {
   selectedCount: number;

@@ -4,12 +4,14 @@ import { type ColumnDef, type Row } from '@tanstack/react-table';
 import { Trash } from 'lucide-react';
 import { use, useMemo, useState } from 'react';
 import { SuperJSON } from 'superjson';
+
+import { Button } from '@codaco/fresco-ui/Button';
 import { DataTable } from '@codaco/fresco-ui/DataTable/DataTable';
 import { DataTableFloatingBar } from '@codaco/fresco-ui/DataTable/DataTableFloatingBar';
 import { DataTableToolbar } from '@codaco/fresco-ui/DataTable/DataTableToolbar';
-import { Button } from '@codaco/fresco-ui/Button';
 import { useClientDataTable } from '~/hooks/useClientDataTable';
 import type { GetProtocolsQuery } from '~/queries/protocols';
+
 import { DeleteProtocolsDialog } from '../../protocols/_components/DeleteProtocolsDialog';
 import ProtocolUploader from '../ProtocolUploader';
 import { ActionsDropdown } from './ActionsDropdown';
@@ -44,7 +46,7 @@ const ProtocolsTableClient = ({ dataPromise }: { dataPromise: GetData }) => {
     ),
   };
 
-  const columns = useMemo<ColumnDef<ProtocolWithInterviews, unknown>[]>(
+  const columns = useMemo<ColumnDef<ProtocolWithInterviews>[]>(
     () => [...getProtocolColumns(allowAnonymousRecruitment), actionsColumn],
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [allowAnonymousRecruitment],

@@ -3,9 +3,7 @@
 import { FileDown, Upload } from 'lucide-react';
 import { useCallback, useState } from 'react';
 import { type FileRejection, useDropzone } from 'react-dropzone';
-import { importParticipants } from '~/actions/participants';
-import Heading from '@codaco/fresco-ui/typography/Heading';
-import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+
 import { Button } from '@codaco/fresco-ui/Button';
 import {
   Popover,
@@ -13,9 +11,13 @@ import {
   PopoverTrigger,
 } from '@codaco/fresco-ui/Popover';
 import { useToast } from '@codaco/fresco-ui/Toast';
-import { csvDataSchema } from '~/schemas/participant';
+import Heading from '@codaco/fresco-ui/typography/Heading';
+import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
 import { cx } from '@codaco/fresco-ui/utils/cva';
+import { importParticipants } from '~/actions/participants';
+import { csvDataSchema } from '~/schemas/participant';
 import parseCSV from '~/utils/parseCSV';
+
 import selectParticipantImportFile from './selectParticipantImportFile';
 
 export default function ImportParticipants() {
@@ -97,10 +99,7 @@ export default function ImportParticipants() {
 
   const handleDrop = useCallback(
     (acceptedFiles: File[], rejectedFiles: FileRejection[]) => {
-      const file = selectParticipantImportFile(
-        acceptedFiles,
-        rejectedFiles,
-      );
+      const file = selectParticipantImportFile(acceptedFiles, rejectedFiles);
 
       if (!file) return;
 

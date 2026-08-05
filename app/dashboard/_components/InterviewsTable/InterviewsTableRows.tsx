@@ -10,7 +10,6 @@ import {
   type RowSelectionState,
   type SortingState,
 } from '@tanstack/react-table';
-import { type OperatorCondition } from '@codaco/fresco-ui/DataTable/filters/types';
 import {
   parseAsArrayOf,
   parseAsBoolean,
@@ -23,12 +22,15 @@ import {
 import { use, useMemo, type ReactNode } from 'react';
 import superjson from 'superjson';
 import { z } from 'zod/mini';
+
 import { DataTable } from '@codaco/fresco-ui/DataTable/DataTable';
+import { type OperatorCondition } from '@codaco/fresco-ui/DataTable/filters/types';
 import { useNuqsTable } from '~/components/DataTable/nuqs/NuqsTableProvider';
 import type {
   GetInterviewsQuery,
   GetInterviewsReturnType,
 } from '~/queries/interviews';
+
 import { InterviewsSelectionBar } from './InterviewsSelectionBar';
 import { searchParamsUrlKeys, sortableFields, sortOrder } from './searchParams';
 
@@ -106,7 +108,7 @@ export default function InterviewsTableRows({
   interviewsPromise: GetInterviewsReturnType;
   rowSelection: RowSelectionState;
   onRowSelectionChange: OnChangeFn<RowSelectionState>;
-  columns: ColumnDef<InterviewRow, unknown>[];
+  columns: ColumnDef<InterviewRow>[];
   toolbar: ReactNode;
   isBusy: boolean;
   onDeleteSelected: () => void;

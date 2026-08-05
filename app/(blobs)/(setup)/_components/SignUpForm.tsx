@@ -7,22 +7,23 @@ import {
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { useMediaQuery } from 'usehooks-ts';
-import { signup } from '~/actions/auth';
-import {
-  generateSignupRegistrationOptions,
-  signupWithPasskey,
-} from '~/actions/webauthn';
+
 import Field from '@codaco/fresco-ui/form/Field/Field';
 import FieldGroup from '@codaco/fresco-ui/form/FieldGroup';
 import InputField from '@codaco/fresco-ui/form/fields/InputField';
 import PasswordField from '@codaco/fresco-ui/form/fields/PasswordField';
 import RichSelectGroupField from '@codaco/fresco-ui/form/fields/RichSelectGroup';
 import Form from '@codaco/fresco-ui/form/Form';
-import SubmitButton from '@codaco/fresco-ui/form/SubmitButton';
 import {
   type FormSubmissionResult,
   type FormSubmitHandler,
 } from '@codaco/fresco-ui/form/store/types';
+import SubmitButton from '@codaco/fresco-ui/form/SubmitButton';
+import { signup } from '~/actions/auth';
+import {
+  generateSignupRegistrationOptions,
+  signupWithPasskey,
+} from '~/actions/webauthn';
 import { createUserSchema } from '~/schemas/auth';
 
 type SignUpFormProps = {

@@ -1,12 +1,14 @@
 import { type SearchParams } from 'nuqs/server';
 import { Suspense } from 'react';
+
 import { DataTableSkeleton } from '@codaco/fresco-ui/DataTable/DataTableSkeleton';
 import ResponsiveContainer from '@codaco/fresco-ui/layout/ResponsiveContainer';
 import PageHeader from '@codaco/fresco-ui/typography/PageHeader';
 import { requirePageAuth } from '~/lib/auth/guards';
 import { requireAppNotExpired } from '~/queries/appSettings';
-import { searchParamsCache } from '../_components/InterviewsTable/searchParams';
+
 import InterviewsTableServer from '../_components/InterviewsTable/InterviewsTableServer';
+import { searchParamsCache } from '../_components/InterviewsTable/searchParams';
 
 export default function InterviewPage({
   searchParams,

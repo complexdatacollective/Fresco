@@ -101,6 +101,7 @@ async function writeMigratedProtocol(
       throw new Error(
         `Hash collision migrating "${row.name}" (id=${row.id}): ` +
           `migrated hash ${newHash} already exists on protocol "${collider?.name ?? '?'}" (id=${collider?.id ?? '?'})`,
+        { cause: err },
       );
     }
     throw err;
@@ -128,6 +129,7 @@ async function migrateOneProtocol(
     const cause = err instanceof Error ? err.message : String(err);
     throw new Error(
       `Failed to migrate protocol "${row.name}" (id=${row.id}): ${cause}`,
+      { cause: err },
     );
   }
   const newHash = hashProtocol(migrated);

@@ -3,17 +3,19 @@ import { notFound, redirect } from 'next/navigation';
 import { after, connection } from 'next/server';
 import { Suspense } from 'react';
 import SuperJSON from 'superjson';
-import { type ActivityType } from '~/app/dashboard/_components/ActivityFeed/types';
+
 import Spinner from '@codaco/fresco-ui/Spinner';
+import { type ActivityType } from '~/app/dashboard/_components/ActivityFeed/types';
 import { getServerSession } from '~/lib/auth/guards';
 import { safeRevalidateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { captureEvent, shutdownPostHog } from '~/lib/posthog-server';
-import { getAppSetting } from '~/queries/appSettings';
+import { getAppSetting, getDisableAnalytics } from '~/queries/appSettings';
 import {
   getInterviewById,
   type GetInterviewByIdQuery,
 } from '~/queries/interviews';
+
 import InterviewClient from './InterviewClient';
 import { mapInterviewPayload } from './mapInterviewPayload';
 
@@ -57,7 +59,15 @@ async function InterviewContent({
 
   const limitInterviews = await getAppSetting('limitInterviews');
 
-  if (limitInterviews && (await cookies()).get(interview.protocol.id)) {
+  // The completion cookie is a per-browser participant guard. Authenticated
+  // users (e.g. an admin opening an interview from the dashboard) must not be
+  // locked out of every interview for a protocol they previously completed a
+  // test interview for in this browser.
+  if (
+    !session &&
+    limitInterviews &&
+    (await cookies()).get(interview.protocol.id)
+  ) {
     redirect('/interview/finished');
   }
 
@@ -102,7 +112,9 @@ async function InterviewContent({
   const { payload, assetUrls, initialStep } = mapInterviewPayload(interview);
 
   const installationId = (await getAppSetting('installationId')) ?? 'unknown';
-  const disableAnalytics = (await getAppSetting('disableAnalytics')) ?? false;
+  // Use the same helper as the rest of the app, so a DISABLE_ANALYTICS
+  // environment override also opts the interview runtime out of telemetry.
+  const disableAnalytics = (await getDisableAnalytics()) ?? false;
 
   return (
     <InterviewClient

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { connection } from 'next/server';
 import 'server-only';
 import { type z } from 'zod';
+
 import { env } from '~/env';
 import { UNCONFIGURED_TIMEOUT } from '~/fresco.config';
 import { safeCacheTag } from '~/lib/cache';
@@ -96,7 +97,7 @@ export async function requireAppNotConfigured() {
  * the page that happens to render the signup form.
  */
 export async function isAppConfigured(): Promise<boolean> {
-  return (await getAppSetting('configured')) === true;
+  return await getAppSetting('configured');
 }
 
 // Unique fetcher for installationID, which defers to the environment variable

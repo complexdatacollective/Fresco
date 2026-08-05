@@ -1,4 +1,5 @@
 import { defineMain } from '@storybook/nextjs-vite/node';
+
 import { stubUseServer } from './vite-plugin-stub-use-server.ts';
 
 export default defineMain({

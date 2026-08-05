@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 import { spawn, spawnSync } from 'node:child_process';
 import process from 'node:process';
+
 import {
   CreateBucketCommand,
   ListBucketsCommand,

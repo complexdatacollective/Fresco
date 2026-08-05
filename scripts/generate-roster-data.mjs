@@ -4,6 +4,7 @@
  */
 import { writeFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
+
 import { faker } from '@faker-js/faker';
 
 const SEED = 42;

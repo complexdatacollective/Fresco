@@ -1,5 +1,6 @@
-import { ThemedRegion } from '@codaco/fresco-ui/ThemedRegion';
 import { type Metadata } from 'next';
+
+import { ThemedRegion } from '@codaco/fresco-ui/ThemedRegion';
 
 export const metadata: Metadata = {
   title: 'Network Canvas Fresco - Interview',

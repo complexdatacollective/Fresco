@@ -10,8 +10,10 @@ import {
   ShieldCheck,
   Upload,
 } from 'lucide-react';
+
 import ProgressBar from '@codaco/fresco-ui/ProgressBar';
 import { cx } from '@codaco/fresco-ui/utils/cva';
+
 import { type ImportPhase } from './calculateImportProgress';
 
 type PhaseConfig = {

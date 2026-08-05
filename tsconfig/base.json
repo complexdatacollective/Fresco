@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2024",
+    "lib": ["ES2024"],
+    "allowJs": true,
+    "checkJs": false,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "module": "esnext",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "moduleDetection": "force",
+    "jsx": "preserve",
+    "incremental": true,
+    "noUncheckedIndexedAccess": true,
+    "erasableSyntaxOnly": true,
+    "allowImportingTsExtensions": true,
+    "types": ["@total-typescript/ts-reset"]
+  },
+  "exclude": ["node_modules", "build", "dist", ".next", ".expo"]
+}

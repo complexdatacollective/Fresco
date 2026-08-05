@@ -1,9 +1,11 @@
 'use server';
 
+import { env } from 'process';
+
 import { Effect } from 'effect';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { env } from 'process';
+
 import { requireApiAuth } from '~/lib/auth/guards';
 import { CacheTags, safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
@@ -17,10 +19,24 @@ export const resetAppSettings = async (): Promise<void> => {
   }
 
   try {
-    const allAssets = await prisma.asset.findMany({
-      select: { key: true },
-    });
-    const assetKeys = allAssets.map((a) => a.key);
+    const [allAssets, allProtocols] = await Promise.all([
+      prisma.asset.findMany({
+        select: { key: true },
+      }),
+      // Protocol imports also upload the original .netcanvas file, whose key is
+      // stored on the protocol rather than in Asset. Without these the archives
+      // would be orphaned in storage after a reset.
+      prisma.protocol.findMany({
+        select: { originalFileKey: true },
+      }),
+    ]);
+
+    const assetKeys = [
+      ...allAssets.map((a) => a.key),
+      ...allProtocols
+        .map((p) => p.originalFileKey)
+        .filter((key): key is string => key !== null),
+    ];
 
     if (assetKeys.length > 0) {
       try {

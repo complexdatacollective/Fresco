@@ -1,5 +1,6 @@
 import { setAppSetting } from '~/actions/appSettings';
 import { getAppSetting } from '~/queries/appSettings';
+
 import SwitchWithOptimisticUpdate from './SwitchWithOptimisticUpdate';
 
 const ToggleSmallScreenWarning = async () => {

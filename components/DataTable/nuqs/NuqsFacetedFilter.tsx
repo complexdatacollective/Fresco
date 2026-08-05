@@ -1,12 +1,10 @@
 'use client';
 
-import {
-  parseAsArrayOf,
-  parseAsStringLiteral,
-  useQueryState,
-} from 'nuqs';
+import { parseAsArrayOf, parseAsStringLiteral, useQueryState } from 'nuqs';
 import { useMemo } from 'react';
+
 import ComboboxField from '@codaco/fresco-ui/form/fields/Combobox/Combobox';
+
 import { nuqsTableUrlKey, useNuqsTable } from './NuqsTableProvider';
 
 type NuqsFacetedFilterProps<T extends string> = {

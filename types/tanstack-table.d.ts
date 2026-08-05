@@ -1,4 +1,5 @@
 import type { RowData } from '@tanstack/react-table';
+
 import type { FilterConfig } from '@codaco/fresco-ui/DataTable/filters/types';
 
 declare module '@tanstack/react-table' {

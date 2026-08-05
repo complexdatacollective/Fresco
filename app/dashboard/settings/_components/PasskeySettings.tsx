@@ -3,16 +3,17 @@
 import { startRegistration } from '@simplewebauthn/browser';
 import { KeyRound, Plus, Trash } from 'lucide-react';
 import { useState } from 'react';
+
+import { Badge } from '@codaco/fresco-ui/Badge';
+import { Button } from '@codaco/fresco-ui/Button';
+import useDialog from '@codaco/fresco-ui/dialogs/useDialog';
+import Surface from '@codaco/fresco-ui/layout/Surface';
 import {
   generateRegistrationOptions,
   removePasskey,
   verifyRegistration,
 } from '~/actions/webauthn';
-import Surface from '@codaco/fresco-ui/layout/Surface';
 import SettingsField from '~/components/settings/SettingsField';
-import { Badge } from '@codaco/fresco-ui/Badge';
-import { Button } from '@codaco/fresco-ui/Button';
-import useDialog from '@codaco/fresco-ui/dialogs/useDialog';
 
 type Passkey = {
   id: string;

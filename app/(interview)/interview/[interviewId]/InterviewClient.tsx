@@ -1,5 +1,10 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
+import { parseAsInteger, useQueryState } from 'nuqs';
+import posthog from 'posthog-js';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+
 import {
   Shell,
   type AssetRequestHandler,
@@ -9,10 +14,6 @@ import {
   type StepChangeHandler,
   type SyncHandler,
 } from '@codaco/interview';
-import { useRouter } from 'next/navigation';
-import { parseAsInteger, useQueryState } from 'nuqs';
-import posthog from 'posthog-js';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import InterviewCompleted from '~/app/(interview)/interview/_components/InterviewCompleted';
 import { env } from '~/env.js';
 import { POSTHOG_APP_NAME } from '~/fresco.config';
@@ -127,6 +128,7 @@ export default function InterviewClient({
       analytics={analytics}
       posthogClient={posthog}
       disableAnalytics={disableAnalytics}
+      allowUserScaling
     />
   );
 }

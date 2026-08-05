@@ -1,9 +1,11 @@
 import { Suspense } from 'react';
+
+import { ToggleFieldSkeleton } from '@codaco/fresco-ui/form/fields/ToggleFieldSkeleton';
 import DisableAnalyticsSwitch from '~/components/DisableAnalyticsSwitch';
 import SettingsCard from '~/components/settings/SettingsCard';
 import SettingsField from '~/components/settings/SettingsField';
-import { ToggleFieldSkeleton } from '@codaco/fresco-ui/form/fields/ToggleFieldSkeleton';
 import { env } from '~/env';
+
 import ReadOnlyEnvAlert from '../ReadOnlyEnvAlert';
 
 export default function PrivacySection() {

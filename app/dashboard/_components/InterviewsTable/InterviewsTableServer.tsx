@@ -1,9 +1,11 @@
 import { Suspense } from 'react';
+
 import { DataTableSkeleton } from '@codaco/fresco-ui/DataTable/DataTableSkeleton';
 import { getInterviewFilterOptions, getInterviews } from '~/queries/interviews';
 import { getProtocols } from '~/queries/protocols';
-import type { InterviewsSearchParams } from './searchParams';
+
 import { InterviewsTable } from './InterviewsTable';
+import type { InterviewsSearchParams } from './searchParams';
 
 export default function InterviewsTableServer({
   searchParams,

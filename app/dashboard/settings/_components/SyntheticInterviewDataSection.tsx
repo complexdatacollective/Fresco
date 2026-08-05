@@ -3,18 +3,19 @@
 import { useRouter } from 'next/navigation';
 import { use, useState } from 'react';
 import { SuperJSON } from 'superjson';
+
+import { Button } from '@codaco/fresco-ui/Button';
+import InputField from '@codaco/fresco-ui/form/fields/InputField';
+import SelectField from '@codaco/fresco-ui/form/fields/Select/Native';
+import ToggleField from '@codaco/fresco-ui/form/fields/ToggleField';
+import ProgressBar from '@codaco/fresco-ui/ProgressBar';
+import { useToast } from '@codaco/fresco-ui/Toast';
 import {
   deleteSyntheticData,
   revalidateSyntheticData,
 } from '~/actions/synthetic-interviews';
 import SettingsCard from '~/components/settings/SettingsCard';
 import SettingsField from '~/components/settings/SettingsField';
-import { Button } from '@codaco/fresco-ui/Button';
-import ProgressBar from '@codaco/fresco-ui/ProgressBar';
-import { useToast } from '@codaco/fresco-ui/Toast';
-import InputField from '@codaco/fresco-ui/form/fields/InputField';
-import SelectField from '@codaco/fresco-ui/form/fields/Select/Native';
-import ToggleField from '@codaco/fresco-ui/form/fields/ToggleField';
 import {
   type GetProtocolsQuery,
   type GetProtocolsReturnType,

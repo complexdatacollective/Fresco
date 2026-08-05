@@ -1,9 +1,11 @@
 import { Suspense } from 'react';
+
 import { DataTableSkeleton } from '@codaco/fresco-ui/DataTable/DataTableSkeleton';
 import { env } from '~/env';
 import { getAppSetting } from '~/queries/appSettings';
 import { getProtocols } from '~/queries/protocols';
 import { getStorageProvider } from '~/queries/storageProvider';
+
 import ProtocolsTableClient from './ProtocolsTableClient';
 
 async function getData() {

@@ -1,5 +1,6 @@
 import { unzipSync } from 'fflate';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+
 import type { ExportOptions } from '@codaco/network-exporters/options';
 import {
   EXPORT_BATCH_RETRIES,
@@ -89,7 +90,7 @@ describe('runBatchedExport', () => {
 
     expect(fetchMock).toHaveBeenCalledTimes(2);
     const entries = unzipSync(new Uint8Array(await blob.arrayBuffer()));
-    expect(Object.keys(entries).sort()).toEqual([
+    expect(Object.keys(entries).toSorted()).toEqual([
       'a.txt',
       'b.txt',
       'shared.txt',
