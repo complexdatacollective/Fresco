@@ -1,5 +1,23 @@
 # fresco
 
+## 4.1.1
+
+### Patch Changes
+
+- e349137: Update runtime dependencies to resolve security vulnerabilities in analytics sanitization, uploads, and form state handling.
+- Updated dependencies [52a3fbb]
+- Updated dependencies [fec9536]
+- Updated dependencies [90e0178]
+- Updated dependencies [90e0178]
+- Updated dependencies [e349137]
+- Updated dependencies [13e5e99]
+- Updated dependencies [673d5f3]
+- Updated dependencies [ea06b66]
+  - @codaco/fresco-ui@6.0.0
+  - @codaco/interview@8.0.0
+  - @codaco/protocol-utilities@3.2.1
+  - @codaco/protocol-validation@12.1.1
+
 ## 4.1.0
 
 ### Minor Changes

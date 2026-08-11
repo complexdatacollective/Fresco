@@ -4,7 +4,6 @@ import addonA11y from '@storybook/addon-a11y';
 import addonDocs from '@storybook/addon-docs';
 import addonVitest from '@storybook/addon-vitest';
 import { definePreview } from '@storybook/nextjs-vite';
-import isChromatic from 'chromatic/isChromatic';
 import { NuqsTestingAdapter } from 'nuqs/adapters/testing';
 import { StrictMode } from 'react';
 
@@ -62,40 +61,21 @@ export default definePreview({
   },
 
   decorators: [
-    (Story) => {
-      // Disable Base UI animations whenever the browser is being driven by
-      // automation (Playwright in vitest browser mode, or Storybook's
-      // play-function runner). This makes Base UI dialog open/close flows
-      // deterministic: they no longer wait on `getAnimations()` so sequences
-      // like "click Cancel → confirm dialog opens → click Continue editing"
-      // don't race the form store against CSS animation completion.
-      //
-      // Also togglable via `?disableAnimations=1` on the URL for interactive
-      // debugging of the animation-disabled code path.
-      //
-      // Manual browsing has `navigator.webdriver === false`, so interactive
-      // development still gets the full animations by default.
-      const disableAnimationsFromAutomation =
-        typeof navigator !== 'undefined' && navigator.webdriver;
-      const disableAnimations =
-        disableAnimationsFromAutomation || isChromatic();
-
-      return (
-        // nextjs-vite doesn't seem to pick up the strict mode setting from next config
-        <StrictMode>
-          {/**
-           * required by base-ui: https://base-ui.com/react/overview/quick-start#portals
-           */}
-          <div className="root h-full">
-            <Providers
-              nuqsAdapter={NuqsTestingAdapter}
-              disableAnimations={disableAnimations}
-            >
-              <Story />
-            </Providers>
-          </div>
-        </StrictMode>
-      );
-    },
+    (Story) => (
+      // nextjs-vite doesn't seem to pick up the strict mode setting from next config
+      <StrictMode>
+        {/**
+         * required by base-ui: https://base-ui.com/react/overview/quick-start#portals
+         */}
+        <div className="root h-full">
+          <Providers
+            nuqsAdapter={NuqsTestingAdapter}
+            disableAnimationsForAutomation
+          >
+            <Story />
+          </Providers>
+        </div>
+      </StrictMode>
+    ),
   ],
 });
