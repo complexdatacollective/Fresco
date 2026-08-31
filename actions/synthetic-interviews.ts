@@ -1,6 +1,6 @@
 'use server';
 
-import { addEvent } from '~/actions/activityFeed';
+import { addEvent } from '~/lib/activityFeed';
 import { requireApiAuth } from '~/lib/auth/guards';
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';

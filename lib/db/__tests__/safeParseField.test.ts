@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { NcNetworkSchema } from '@codaco/shared-consts';
+
 const { envMock, captureExceptionMock } = vi.hoisted(() => ({
   envMock: { NODE_ENV: 'production' },
   captureExceptionMock: vi.fn(),
@@ -81,5 +83,57 @@ describe('safeParseField', () => {
     expect(warnSpy).toHaveBeenCalled();
     expect(captureExceptionMock).not.toHaveBeenCalled();
     warnSpy.mockRestore();
+  });
+
+  it('normalizes legacy null network attributes without using the fallback', () => {
+    const emptyNetwork = NcNetworkSchema.parse({
+      nodes: [],
+      edges: [],
+      ego: { _uid: 'empty', attributes: {} },
+    });
+
+    const result = safeParseField(
+      NcNetworkSchema,
+      {
+        nodes: [],
+        edges: [],
+        ego: {
+          _uid: 'ego-1',
+          attributes: { unanswered: null, answered: false },
+        },
+      },
+      'interview.network',
+      emptyNetwork,
+    );
+
+    expect(result.ego.attributes).toEqual({ answered: false });
+    expect(captureExceptionMock).not.toHaveBeenCalled();
+  });
+
+  it('returns the empty network fallback for an invalid defined value', () => {
+    const emptyNetwork = NcNetworkSchema.parse({
+      nodes: [],
+      edges: [],
+      ego: { _uid: 'empty', attributes: {} },
+    });
+
+    const result = safeParseField(
+      NcNetworkSchema,
+      {
+        nodes: [],
+        edges: [],
+        ego: {
+          _uid: 'ego-1',
+          attributes: { invalid: { nested: 'value' } },
+        },
+      },
+      'interview.network',
+      emptyNetwork,
+    );
+
+    expect(result).toBe(emptyNetwork);
+    expect(captureExceptionMock).toHaveBeenCalledWith(expect.anything(), {
+      context: 'prisma.result.interview.network',
+    });
   });
 });

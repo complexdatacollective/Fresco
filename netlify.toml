@@ -5,3 +5,6 @@ ignore = "bash scripts/netlify-should-build.sh"
 
 [context.branch-deploy]
 command = "pnpm build:branch-preview"
+
+[context.deploy-preview]
+ignore = "bash scripts/netlify-should-build.sh || (cd \"$(git rev-parse --show-toplevel)\" && if test -n \"$CACHED_COMMIT_REF\" && test \"$CACHED_COMMIT_REF\" != \"$COMMIT_REF\" && git diff --quiet \"$CACHED_COMMIT_REF\" \"$COMMIT_REF\" -- apps/fresco/netlify.toml package.json pnpm-lock.yaml pnpm-workspace.yaml && npx --yes turbo@2.10.4 query affected --tasks build --packages fresco --base \"$CACHED_COMMIT_REF\" --head \"$COMMIT_REF\" --exit-code; then true; else false; fi)"

@@ -12,16 +12,18 @@ import {
   type InterviewAnalyticsMetadata,
   type InterviewPayload,
   type StepChangeHandler,
-  type SyncHandler,
 } from '@codaco/interview';
 import InterviewCompleted from '~/app/(interview)/interview/_components/InterviewCompleted';
 import { env } from '~/env.js';
-import { POSTHOG_APP_NAME } from '~/fresco.config';
+import { POSTHOG_APP_NAME, POSTHOG_APP_VERSION } from '~/fresco.config';
+
+import { createInterviewSyncHandler } from './createInterviewSyncHandler';
 
 type Props = {
   payload: InterviewPayload;
   assetUrls: Record<string, string>;
   initialStep: number;
+  initialSyncRevision: number;
   installationId: string;
   disableAnalytics: boolean;
 };
@@ -30,6 +32,7 @@ export default function InterviewClient({
   payload,
   assetUrls,
   initialStep,
+  initialSyncRevision,
   installationId,
   disableAnalytics,
 }: Props) {
@@ -58,17 +61,18 @@ export default function InterviewClient({
     [setCurrentStep],
   );
 
-  const onSync = useCallback<SyncHandler>(async (id, session) => {
-    const response = await fetch(`/interview/${id}/sync`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...session,
-        currentStep: currentStepRef.current,
+  const onSync = useMemo(
+    () =>
+      createInterviewSyncHandler({
+        interviewId: payload.session.id,
+        initialSyncRevision,
+        // Read through the ref, not the render's value: the memo runs once, and
+        // the step a write should record is the one in force when it goes on
+        // the wire.
+        getCurrentStep: () => currentStepRef.current,
       }),
-    });
-    if (!response.ok) throw new Error('Sync failed');
-  }, []);
+    [payload.session.id, initialSyncRevision],
+  );
 
   const [finished, setFinished] = useState(false);
 
@@ -108,6 +112,7 @@ export default function InterviewClient({
     () => ({
       installationId,
       hostApp: POSTHOG_APP_NAME,
+      hostVersion: POSTHOG_APP_VERSION,
     }),
     [installationId],
   );

@@ -129,7 +129,7 @@ vi.mock('~/utils/password', () => ({
   verifyPassword: vi.fn(),
 }));
 
-vi.mock('~/actions/activityFeed', () => ({
+vi.mock('~/lib/activityFeed', () => ({
   addEvent: mockAddEvent,
 }));
 

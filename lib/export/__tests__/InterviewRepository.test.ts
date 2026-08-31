@@ -28,12 +28,15 @@ const network = {
   },
 };
 
-const row = (participant: { identifier: string; label: string | null }) => ({
+const row = (
+  participant: { identifier: string; label: string | null },
+  networkValue: unknown = network,
+) => ({
   id: 'interview-1',
   participant,
   startTime: new Date('2026-01-01'),
   finishTime: null,
-  network,
+  network: networkValue,
   protocol: { hash: 'protocol-hash' },
 });
 
@@ -64,5 +67,41 @@ describe('PrismaInterviewRepository', () => {
     const inputs = await getForExport(['interview-1']);
 
     expect(inputs[0]?.participantIdentifier).toBe('P002');
+  });
+
+  it('normalizes legacy null attributes before export', async () => {
+    mockGetInterviewsForExport.mockResolvedValue([
+      row(
+        { identifier: 'P003', label: null },
+        {
+          ...network,
+          ego: {
+            ...network.ego,
+            attributes: { unanswered: null, answered: false },
+          },
+        },
+      ),
+    ]);
+
+    const inputs = await getForExport(['interview-1']);
+
+    expect(inputs[0]?.network.ego.attributes).toEqual({ answered: false });
+  });
+
+  it('throws invalid defined values into the existing export error path', async () => {
+    mockGetInterviewsForExport.mockResolvedValue([
+      row(
+        { identifier: 'P004', label: null },
+        {
+          ...network,
+          ego: {
+            ...network.ego,
+            attributes: { invalid: { nested: 'value' } },
+          },
+        },
+      ),
+    ]);
+
+    await expect(getForExport(['interview-1'])).rejects.toThrow();
   });
 });

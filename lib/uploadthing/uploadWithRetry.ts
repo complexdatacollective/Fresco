@@ -1,5 +1,5 @@
+import { ensureError } from '@codaco/shared-consts';
 import { createUpload } from '~/lib/uploadthing/client-helpers';
-import { ensureError } from '~/utils/ensureError';
 
 export type UploadedFile = {
   key: string;

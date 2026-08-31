@@ -1,7 +1,6 @@
 'use client';
 
 import { queue } from 'async';
-import posthog from 'posthog-js';
 import { useCallback, useRef } from 'react';
 
 import Spinner from '@codaco/fresco-ui/Spinner';
@@ -11,6 +10,7 @@ import {
   getMigrationInfo,
   hashProtocol,
 } from '@codaco/protocol-validation';
+import { ensureError } from '@codaco/shared-consts';
 import {
   cleanupUploadedFiles,
   getNewAssetIds,
@@ -25,12 +25,15 @@ import ImportToastContent from '~/components/ProtocolImport/ImportToastContent';
 import { APP_SUPPORTED_SCHEMA_VERSIONS } from '~/fresco.config';
 import { useUploadAssets } from '~/hooks/useUploadAssets';
 import {
+  captureClientEvent,
+  captureClientException,
+} from '~/lib/posthog-client';
+import {
   validateAndMigrateProtocol,
   type ProtocolValidationError,
 } from '~/lib/protocol/validateAndMigrateProtocol';
 import { type AssetInsertType } from '~/schemas/protocol';
 import { DatabaseError } from '~/utils/databaseError';
-import { ensureError } from '~/utils/ensureError';
 import {
   fileAsArrayBuffer,
   getProtocolAssets,
@@ -316,7 +319,7 @@ export const useProtocolImport = () => {
         throw new DatabaseError(result.error, result.errorDetails);
       }
 
-      posthog.capture('ProtocolInstalled', {
+      captureClientEvent('ProtocolInstalled', {
         protocol: fileName,
       });
 
@@ -327,7 +330,7 @@ export const useProtocolImport = () => {
     } catch (e) {
       const error = ensureError(e);
 
-      posthog.captureException(error);
+      captureClientException(error);
 
       // Best-effort cleanup of any blobs uploaded before the failure, so a
       // failed import doesn't leave orphaned files in storage.

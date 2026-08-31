@@ -1,13 +1,12 @@
 'use server';
 
+import { addEvent } from '~/lib/activityFeed';
 import { requireApiAuth } from '~/lib/auth/guards';
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { createUserSchema } from '~/schemas/auth';
 import { changePasswordSchema, deleteUsersSchema } from '~/schemas/users';
 import { hashPassword, verifyPassword } from '~/utils/password';
-
-import { addEvent } from './activityFeed';
 
 export async function createUser(data: unknown) {
   const session = await requireApiAuth();

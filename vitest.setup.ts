@@ -1,210 +1,26 @@
 import '@testing-library/jest-dom/vitest';
-// Import React at the top level so it's available for mocks
-import { type default as React } from 'react';
-import { vi } from 'vitest';
 
-// Use vi.hoisted to define mock factories that are available when mocks are hoisted
-const { motionMockModule } = vi.hoisted(() => {
-  // We need to re-require React inside the hoisted block
-  // because vi.hoisted runs before the import at the top
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const ReactModule = require('react') as typeof React;
+// Motion's viewport features use IntersectionObserver, which jsdom does not
+// implement. Keep observation inert unless an individual test supplies a
+// behavior-specific observer.
+class IntersectionObserverMock implements IntersectionObserver {
+  readonly root = null;
+  readonly rootMargin = '0px';
+  readonly scrollMargin = '0px';
+  readonly thresholds = [0];
 
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  const { isValidMotionProp } = require('motion/react') as {
-    isValidMotionProp: (key: string) => boolean;
-  };
+  disconnect() {}
 
-  // Wrap refs to handle callback refs that return cleanup functions
-  // This is needed because some libraries (like @base-ui/react) use the React 19
-  // pattern where callback refs can return cleanup functions, but React 18
-  // warns when callback refs return values. Our wrapper ignores the return value.
-  const wrapRef = (ref: unknown) => {
-    if (ref === null || ref === undefined) {
-      return ref;
-    }
-    if (typeof ref === 'function') {
-      // Return a wrapper that calls the original but ignores return value
-      return (element: HTMLElement | null) => {
-        // eslint-disable-next-line @typescript-eslint/no-unsafe-call
-        ref(element);
-        // Intentionally not returning the cleanup function
-      };
-    }
-    // RefObject - pass through as-is
-    return ref;
-  };
+  observe() {}
 
-  // Props that motion considers valid but should still be passed to DOM elements
-  const domPassthroughProps = new Set(['style']);
+  takeRecords(): IntersectionObserverEntry[] {
+    return [];
+  }
 
-  // Filter out motion-specific props from HTML elements using motion's own detection
-  const filterMotionProps = (props: Record<string, unknown>) => {
-    return Object.fromEntries(
-      Object.entries(props).filter(
-        ([key]) => !isValidMotionProp(key) || domPassthroughProps.has(key),
-      ),
-    );
-  };
+  unobserve() {}
+}
 
-  // Create explicit motion components for common HTML elements
-  const createMotionComponent = (tag: string) =>
-    ReactModule.forwardRef<HTMLElement, Record<string, unknown>>(
-      (props, ref) => {
-        return ReactModule.createElement(tag, {
-          ...filterMotionProps(props),
-          ref: wrapRef(ref),
-        });
-      },
-    );
-
-  // Create a motion-wrapped version of a custom React component
-  // This handles motion.create(Component) calls
-  const createMotionFromComponent = <T extends React.ComponentType>(
-    Component: T,
-  ) =>
-    ReactModule.forwardRef<HTMLElement, Record<string, unknown>>(
-      (props, _ref) => {
-        return ReactModule.createElement(Component, {
-          ...filterMotionProps(props),
-        });
-      },
-    );
-
-  // Pre-create common motion components
-  const motionComponents = {
-    div: createMotionComponent('div'),
-    span: createMotionComponent('span'),
-    button: createMotionComponent('button'),
-    li: createMotionComponent('li'),
-    ul: createMotionComponent('ul'),
-    section: createMotionComponent('section'),
-    article: createMotionComponent('article'),
-    header: createMotionComponent('header'),
-    footer: createMotionComponent('footer'),
-    nav: createMotionComponent('nav'),
-    main: createMotionComponent('main'),
-    aside: createMotionComponent('aside'),
-    form: createMotionComponent('form'),
-    input: createMotionComponent('input'),
-    label: createMotionComponent('label'),
-    p: createMotionComponent('p'),
-    h1: createMotionComponent('h1'),
-    h2: createMotionComponent('h2'),
-    h3: createMotionComponent('h3'),
-    img: createMotionComponent('img'),
-    a: createMotionComponent('a'),
-    table: createMotionComponent('table'),
-    tr: createMotionComponent('tr'),
-    td: createMotionComponent('td'),
-    th: createMotionComponent('th'),
-    tbody: createMotionComponent('tbody'),
-    thead: createMotionComponent('thead'),
-    path: createMotionComponent('path'),
-    // Add the create method for motion.create(Component) API
-    create: createMotionFromComponent,
-  };
-
-  // No-op animation controls
-  const useAnimation = () => ({
-    start: () => Promise.resolve(),
-    stop: () => undefined,
-    set: () => undefined,
-  });
-
-  // useAnimate returns [scope ref, animate function]
-  const useAnimate = <T extends HTMLElement>() => {
-    const scopeRef = ReactModule.useRef<T>(null);
-    const animate = () => Promise.resolve();
-    return [scopeRef, animate] as const;
-  };
-
-  // stagger returns a delay function (just returns 0 in mock)
-  const stagger = () => 0;
-
-  // AnimatePresence and LayoutGroup are passthrough components
-  const AnimatePresence = ({ children }: { children: unknown }) => children;
-  const LayoutGroup = ({ children }: { children: unknown }) => children;
-  const MotionConfig = ({ children }: { children: unknown }) => children;
-
-  // Context shape must match motion's `MotionConfigContext` — consumers of
-  // `useContext(MotionConfigContext)` rely on `skipAnimations` being readable.
-  const MotionConfigContext = ReactModule.createContext({
-    transformPagePoint: (p: unknown) => p,
-    isStatic: false,
-    reducedMotion: 'never' as const,
-    skipAnimations: false,
-  });
-
-  const mockModule = {
-    motion: motionComponents,
-    AnimatePresence,
-    LayoutGroup,
-    MotionConfig,
-    MotionConfigContext,
-    useAnimation,
-    useAnimationControls: useAnimation,
-    useAnimate,
-    stagger,
-    useMotionValue: (initial: number) => ({
-      get: () => initial,
-      set: () => undefined,
-    }),
-    useTransform: () => ({ get: () => 0 }),
-    useSpring: (initial: number) => ({ get: () => initial }),
-    useInView: () => true,
-    useScroll: () => ({
-      scrollY: { get: () => 0 },
-      scrollX: { get: () => 0 },
-    }),
-    useDragControls: () => ({ start: () => undefined }),
-    useReducedMotion: () => false,
-    useReducedMotionConfig: () => false,
-    usePresence: () => [true, null] as const,
-  };
-
-  return { motionMockModule: mockModule };
-});
-
-// Mock motion/react (the primary import path used by the project)
-vi.mock('motion/react', () => motionMockModule);
-
-// Also mock framer-motion directly (some dependencies may import from it)
-vi.mock('framer-motion', () => motionMockModule);
-
-// Mock motion-dom to prevent internal scheduling issues
-vi.mock('motion-dom', () => ({
-  frame: {
-    read: (callback: () => void) => {
-      callback();
-      return () => undefined;
-    },
-    render: (callback: () => void) => {
-      callback();
-      return () => undefined;
-    },
-    postRender: (callback: () => void) => {
-      callback();
-      return () => undefined;
-    },
-  },
-  cancelFrame: () => undefined,
-  steps: {
-    read: {
-      schedule: () => () => undefined,
-      cancel: () => undefined,
-    },
-    render: {
-      schedule: () => () => undefined,
-      cancel: () => undefined,
-    },
-    postRender: {
-      schedule: () => () => undefined,
-      cancel: () => undefined,
-    },
-  },
-  time: { now: () => 0 },
-}));
+global.IntersectionObserver = IntersectionObserverMock;
 
 // Mock ResizeObserver for jsdom environment
 // The callback must be invoked with width > 0 so Collection can measure items

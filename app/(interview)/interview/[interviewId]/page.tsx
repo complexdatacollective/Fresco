@@ -9,7 +9,7 @@ import { type ActivityType } from '~/app/dashboard/_components/ActivityFeed/type
 import { getServerSession } from '~/lib/auth/guards';
 import { safeRevalidateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
-import { captureEvent, shutdownPostHog } from '~/lib/posthog-server';
+import { captureEvent, flushPostHog } from '~/lib/posthog-server';
 import { getAppSetting, getDisableAnalytics } from '~/queries/appSettings';
 import {
   getInterviewById,
@@ -103,13 +103,14 @@ async function InterviewContent({
       safeRevalidateTag('activityFeed');
 
       await captureEvent('Interview Opened', { message });
-      await shutdownPostHog();
+      await flushPostHog();
     } catch {
       // Non-critical — don't block the interview
     }
   });
 
-  const { payload, assetUrls, initialStep } = mapInterviewPayload(interview);
+  const { payload, assetUrls, initialStep, initialSyncRevision } =
+    mapInterviewPayload(interview);
 
   const installationId = (await getAppSetting('installationId')) ?? 'unknown';
   // Use the same helper as the rest of the app, so a DISABLE_ANALYTICS
@@ -121,6 +122,7 @@ async function InterviewContent({
       payload={payload}
       assetUrls={assetUrls}
       initialStep={initialStep}
+      initialSyncRevision={initialSyncRevision}
       installationId={installationId}
       disableAnalytics={disableAnalytics}
     />

@@ -135,7 +135,7 @@ vi.mock('~/utils/password', () => ({
   verifyPassword: mockVerifyPassword,
 }));
 
-vi.mock('~/actions/activityFeed', () => ({
+vi.mock('~/lib/activityFeed', () => ({
   addEvent: mockAddEvent,
 }));
 

@@ -1,10 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { COMPATIBLE_PROTOCOL_SCHEMA_VERSION } from '@codaco/interview/protocol-schema-version';
 import { hashProtocol, migrateProtocol } from '@codaco/protocol-validation';
 import {
   buildAssetManifest,
-  migrateProtocolsToV8,
-} from '~/scripts/migrate-protocols-to-v8';
+  migrateProtocolsToCompatibleVersion,
+} from '~/scripts/migrate-protocols';
 
 /**
  * A minimal v7 protocol JSON containing the fields the v7→v8 migration
@@ -68,7 +69,7 @@ function makeMockPrisma(): MockPrisma {
   };
 }
 
-describe('migrateProtocolsToV8', () => {
+describe('migrateProtocolsToCompatibleVersion', () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
@@ -76,14 +77,16 @@ describe('migrateProtocolsToV8', () => {
   it('is a no-op when there are no v7 protocols', async () => {
     const prisma = makeMockPrisma();
 
-    await migrateProtocolsToV8(
-      prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
+    await migrateProtocolsToCompatibleVersion(
+      prisma as unknown as Parameters<
+        typeof migrateProtocolsToCompatibleVersion
+      >[0],
     );
 
     expect(prisma.protocol.update).not.toHaveBeenCalled();
   });
 
-  it('migrates a v7 protocol row to v8 and writes the result back', async () => {
+  it('migrates a v7 protocol row up to the compatible version and writes the result back', async () => {
     const v7 = makeV7Protocol();
     const prisma = makeMockPrisma();
     prisma.protocol.findMany.mockResolvedValue([
@@ -100,8 +103,10 @@ describe('migrateProtocolsToV8', () => {
       },
     ]);
 
-    await migrateProtocolsToV8(
-      prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
+    await migrateProtocolsToCompatibleVersion(
+      prisma as unknown as Parameters<
+        typeof migrateProtocolsToCompatibleVersion
+      >[0],
     );
 
     expect(prisma.protocol.update).toHaveBeenCalledTimes(1);
@@ -123,7 +128,9 @@ describe('migrateProtocolsToV8', () => {
     const updateCall = rawCall as UpdateCallArg;
 
     expect(updateCall.where).toEqual({ id: 'cm-protocol-1' });
-    expect(updateCall.data.schemaVersion).toBe(8);
+    expect(updateCall.data.schemaVersion).toBe(
+      COMPATIBLE_PROTOCOL_SCHEMA_VERSION,
+    );
     expect(updateCall.data.experiments).toEqual({});
 
     // iconVariant → icon, with shape added
@@ -162,8 +169,10 @@ describe('migrateProtocolsToV8', () => {
       },
     ]);
 
-    await migrateProtocolsToV8(
-      prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
+    await migrateProtocolsToCompatibleVersion(
+      prisma as unknown as Parameters<
+        typeof migrateProtocolsToCompatibleVersion
+      >[0],
     );
 
     type UpdateCallArg = { data: { hash: string } };
@@ -174,15 +183,21 @@ describe('migrateProtocolsToV8', () => {
     // chain the import flow uses (useProtocolImport.tsx strips .netcanvas
     // before passing as the `name` dependency).
     const importName = 'My Protocol.netcanvas'.replace(/\.netcanvas$/i, '');
-    const importMigrated = migrateProtocol({ ...v7, name: importName }, 8, {
-      name: importName,
-    });
+    const importMigrated = migrateProtocol(
+      { ...v7, name: importName },
+      COMPATIBLE_PROTOCOL_SCHEMA_VERSION,
+      { name: importName },
+    );
     const importHash = hashProtocol(importMigrated);
 
     expect(dbHash).toBe(importHash);
   });
 
-  it('hard-fails with id and name when a protocol fails to migrate', async () => {
+  it('leaves an unmigratable protocol in place without failing the deployment', async () => {
+    // Rows stored under an older, more permissive validator can fail the
+    // corrected rules; one such row must never block a customer's upgrade.
+    // The runtime payload guard refuses its interviews instead.
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     const prisma = makeMockPrisma();
     prisma.protocol.findMany.mockResolvedValue([
       {
@@ -201,31 +216,34 @@ describe('migrateProtocolsToV8', () => {
     ]);
 
     await expect(
-      migrateProtocolsToV8(
-        prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
+      migrateProtocolsToCompatibleVersion(
+        prisma as unknown as Parameters<
+          typeof migrateProtocolsToCompatibleVersion
+        >[0],
       ),
-    ).rejects.toThrow(/Broken Protocol\.netcanvas/);
+    ).resolves.toBeUndefined();
 
-    await expect(
-      migrateProtocolsToV8(
-        prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
-      ),
-    ).rejects.toThrow(/cm-broken/);
+    // Nothing was written for the broken row, and the failure names it.
+    expect(prisma.protocol.update).not.toHaveBeenCalled();
+    const logged = errorSpy.mock.calls.map((call) => String(call[0])).join(' ');
+    expect(logged).toMatch(/Broken Protocol\.netcanvas/);
+    expect(logged).toMatch(/cm-broken/);
+    errorSpy.mockRestore();
   });
 
-  it('normalizes a schemaVersion-8 protocol that is not conformant with the strict v8 schema', async () => {
-    // A protocol stored as schemaVersion 8 but still carrying pre-v8 field
-    // shapes (iconVariant, Toggle options). These slip past the `schemaVersion
-    // < 8` filter yet fail the strict read-time CurrentProtocolSchema, so they
-    // must be re-normalized through the v7→v8 migration.
+  it('normalizes a protocol stored at the compatible version that is not conformant', async () => {
+    // A protocol stored at the compatible version but still carrying legacy
+    // field shapes (iconVariant, Toggle options). These slip past the
+    // below-target filter yet fail the strict read-time CurrentProtocolSchema,
+    // so they must be re-normalized through the migration chain.
     const legacyShaped = makeV7Protocol();
     const prisma = makeMockPrisma();
     prisma.protocol.findMany.mockResolvedValue([
       {
-        id: 'cm-mislabelled-v8',
+        id: 'cm-mislabelled',
         assets: [],
         name: 'Mislabelled.netcanvas',
-        schemaVersion: 8,
+        schemaVersion: COMPATIBLE_PROTOCOL_SCHEMA_VERSION,
         stages: legacyShaped.stages,
         codebook: legacyShaped.codebook,
         experiments: null,
@@ -234,8 +252,10 @@ describe('migrateProtocolsToV8', () => {
       },
     ]);
 
-    await migrateProtocolsToV8(
-      prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
+    await migrateProtocolsToCompatibleVersion(
+      prisma as unknown as Parameters<
+        typeof migrateProtocolsToCompatibleVersion
+      >[0],
     );
 
     expect(prisma.protocol.update).toHaveBeenCalledTimes(1);
@@ -250,12 +270,46 @@ describe('migrateProtocolsToV8', () => {
     };
     const call = prisma.protocol.update.mock.calls[0]?.[0] as UpdateCallArg;
 
-    expect(call.where).toEqual({ id: 'cm-mislabelled-v8' });
-    expect(call.data.schemaVersion).toBe(8);
+    expect(call.where).toEqual({ id: 'cm-mislabelled' });
+    expect(call.data.schemaVersion).toBe(COMPATIBLE_PROTOCOL_SCHEMA_VERSION);
     // iconVariant → icon proves the v7→v8 migration actually ran on the
     // mislabelled protocol rather than leaving its legacy shape untouched.
     expect(call.data.codebook.node.person.icon).toBe('add-a-person');
     expect(call.data.codebook.node.person).not.toHaveProperty('iconVariant');
+  });
+
+  it('preserves stored experiments when normalizing a non-conformant protocol', async () => {
+    // Experiments exist only at the compatible version and the migration chain
+    // predates them, so both write paths must carry the stored value through
+    // rather than resetting it to the chain's default.
+    const legacyShaped = makeV7Protocol();
+    const storedExperiments = { encryptedVariables: true };
+    const prisma = makeMockPrisma();
+    prisma.protocol.findMany.mockResolvedValue([
+      {
+        id: 'cm-experiments',
+        assets: [],
+        name: 'With Experiments.netcanvas',
+        schemaVersion: COMPATIBLE_PROTOCOL_SCHEMA_VERSION,
+        stages: legacyShaped.stages,
+        codebook: legacyShaped.codebook,
+        experiments: storedExperiments,
+        description: legacyShaped.description,
+        lastModified: new Date(legacyShaped.lastModified),
+      },
+    ]);
+
+    await migrateProtocolsToCompatibleVersion(
+      prisma as unknown as Parameters<
+        typeof migrateProtocolsToCompatibleVersion
+      >[0],
+    );
+
+    expect(prisma.protocol.update).toHaveBeenCalledTimes(1);
+    const call = prisma.protocol.update.mock.calls[0]?.[0] as {
+      data: { experiments: unknown };
+    };
+    expect(call.data.experiments).toEqual(storedExperiments);
   });
 
   it('normalizes non-conformant asset-referencing protocols', async () => {
@@ -275,7 +329,7 @@ describe('migrateProtocolsToV8', () => {
     const prisma = makeMockPrisma();
     prisma.protocol.findMany.mockResolvedValue([
       {
-        id: 'cm-asset-v8',
+        id: 'cm-asset-current',
         assets: [
           {
             assetId: 'asset-roster-1',
@@ -285,7 +339,7 @@ describe('migrateProtocolsToV8', () => {
           },
         ],
         name: 'AssetProtocol.netcanvas',
-        schemaVersion: 8,
+        schemaVersion: COMPATIBLE_PROTOCOL_SCHEMA_VERSION,
         stages: mixed.stages,
         codebook: mixed.codebook,
         experiments: null,
@@ -294,8 +348,10 @@ describe('migrateProtocolsToV8', () => {
       },
     ]);
 
-    await migrateProtocolsToV8(
-      prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
+    await migrateProtocolsToCompatibleVersion(
+      prisma as unknown as Parameters<
+        typeof migrateProtocolsToCompatibleVersion
+      >[0],
     );
 
     expect(prisma.protocol.update).toHaveBeenCalledTimes(1);
@@ -324,7 +380,7 @@ describe('migrateProtocolsToV8', () => {
           },
         },
       },
-      8,
+      COMPATIBLE_PROTOCOL_SCHEMA_VERSION,
       { name: 'CleanAssets' },
     );
 
@@ -341,7 +397,7 @@ describe('migrateProtocolsToV8', () => {
           },
         ],
         name: 'CleanAssets.netcanvas',
-        schemaVersion: 8,
+        schemaVersion: COMPATIBLE_PROTOCOL_SCHEMA_VERSION,
         stages: conformant.stages,
         codebook: conformant.codebook,
         experiments: conformant.experiments ?? null,
@@ -350,28 +406,32 @@ describe('migrateProtocolsToV8', () => {
       },
     ]);
 
-    await migrateProtocolsToV8(
-      prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
+    await migrateProtocolsToCompatibleVersion(
+      prisma as unknown as Parameters<
+        typeof migrateProtocolsToCompatibleVersion
+      >[0],
     );
 
     expect(prisma.protocol.update).not.toHaveBeenCalled();
   });
 
-  it('conformant schemaVersion-8 protocols are left untouched', async () => {
-    // Start from a fully-migrated v8 protocol so it already satisfies the strict
+  it('conformant protocols at the compatible version are left untouched', async () => {
+    // Start from a fully-migrated protocol so it already satisfies the strict
     // schema; the migration must skip it (no re-write, no hash churn).
     const v7 = makeV7Protocol();
-    const conformant = migrateProtocol({ ...v7, name: 'Clean' }, 8, {
-      name: 'Clean',
-    });
+    const conformant = migrateProtocol(
+      { ...v7, name: 'Clean' },
+      COMPATIBLE_PROTOCOL_SCHEMA_VERSION,
+      { name: 'Clean' },
+    );
 
     const prisma = makeMockPrisma();
     prisma.protocol.findMany.mockResolvedValue([
       {
-        id: 'cm-clean-v8',
+        id: 'cm-clean-current',
         assets: [],
         name: 'Clean.netcanvas',
-        schemaVersion: 8,
+        schemaVersion: COMPATIBLE_PROTOCOL_SCHEMA_VERSION,
         stages: conformant.stages,
         codebook: conformant.codebook,
         experiments: conformant.experiments ?? null,
@@ -380,14 +440,16 @@ describe('migrateProtocolsToV8', () => {
       },
     ]);
 
-    await migrateProtocolsToV8(
-      prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
+    await migrateProtocolsToCompatibleVersion(
+      prisma as unknown as Parameters<
+        typeof migrateProtocolsToCompatibleVersion
+      >[0],
     );
 
     expect(prisma.protocol.update).not.toHaveBeenCalled();
   });
 
-  it('leaves a non-normalizable schemaVersion-8 protocol in place without throwing', async () => {
+  it('leaves a non-normalizable protocol in place without throwing', async () => {
     const warnSpy = vi
       .spyOn(console, 'warn')
       .mockImplementation(() => undefined);
@@ -397,7 +459,7 @@ describe('migrateProtocolsToV8', () => {
         id: 'cm-unfixable',
         assets: [],
         name: 'Unfixable.netcanvas',
-        schemaVersion: 8,
+        schemaVersion: COMPATIBLE_PROTOCOL_SCHEMA_VERSION,
         // Not an array: fails the strict schema AND cannot be migrated, so the
         // normalization attempt throws internally. It must be logged and left
         // in place rather than aborting the whole deploy transaction.
@@ -410,8 +472,10 @@ describe('migrateProtocolsToV8', () => {
     ]);
 
     await expect(
-      migrateProtocolsToV8(
-        prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
+      migrateProtocolsToCompatibleVersion(
+        prisma as unknown as Parameters<
+          typeof migrateProtocolsToCompatibleVersion
+        >[0],
       ),
     ).resolves.toBeUndefined();
 
@@ -422,7 +486,7 @@ describe('migrateProtocolsToV8', () => {
     warnSpy.mockRestore();
   });
 
-  it('wraps a P2002 hash collision with both protocol ids and names', async () => {
+  it('detects a hash collision before writing and names both protocols', async () => {
     const v7 = makeV7Protocol();
     const prisma = makeMockPrisma();
     prisma.protocol.findMany.mockResolvedValue([
@@ -439,30 +503,35 @@ describe('migrateProtocolsToV8', () => {
       },
     ]);
 
-    // Simulate Prisma's P2002 unique-constraint error
-    const { Prisma } = await import('~/lib/db/generated/client');
-    const p2002 = new Prisma.PrismaClientKnownRequestError(
-      'Unique constraint failed on the fields: (`hash`)',
-      { code: 'P2002', clientVersion: 'test', meta: { target: ['hash'] } },
-    );
-    prisma.protocol.update.mockRejectedValue(p2002);
-
-    // The script will look up the colliding row by hash
+    // The pre-write check finds the colliding row by hash. Raising the actual
+    // constraint violation is not an option — inside setup-database's single
+    // PostgreSQL transaction it would poison every subsequent statement.
     prisma.protocol.findFirst.mockResolvedValue({
       id: 'cm-existing',
       name: 'Existing.netcanvas',
     });
 
-    const error = await migrateProtocolsToV8(
-      prisma as unknown as Parameters<typeof migrateProtocolsToV8>[0],
-    ).catch((e: unknown) => e);
+    // A hash collision is tolerated like any other per-row failure — the
+    // deployment completes and the log names both rows so the administrator
+    // can resolve the duplicate.
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    await expect(
+      migrateProtocolsToCompatibleVersion(
+        prisma as unknown as Parameters<
+          typeof migrateProtocolsToCompatibleVersion
+        >[0],
+      ),
+    ).resolves.toBeUndefined();
 
-    expect(error).toBeInstanceOf(Error);
-    const message = (error as Error).message;
-    expect(message).toMatch(/cm-collide/);
-    expect(message).toMatch(/Colliding\.netcanvas/);
-    expect(message).toMatch(/cm-existing/);
-    expect(message).toMatch(/Existing\.netcanvas/);
+    const logged = errorSpy.mock.calls.map((call) => String(call[0])).join(' ');
+    expect(logged).toMatch(/cm-collide/);
+    expect(logged).toMatch(/Colliding\.netcanvas/);
+    expect(logged).toMatch(/cm-existing/);
+    expect(logged).toMatch(/Existing\.netcanvas/);
+    // Detected BEFORE any write: the constraint violation itself would poison
+    // the surrounding PostgreSQL transaction.
+    expect(prisma.protocol.update).not.toHaveBeenCalled();
+    errorSpy.mockRestore();
   });
 });
 

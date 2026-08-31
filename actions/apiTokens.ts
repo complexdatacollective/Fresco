@@ -2,6 +2,7 @@
 
 import { createHash, randomBytes } from 'crypto';
 
+import { addEvent } from '~/lib/activityFeed';
 import { requireApiAuth } from '~/lib/auth/guards';
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
@@ -10,8 +11,6 @@ import {
   deleteApiTokenSchema,
   updateApiTokenSchema,
 } from '~/schemas/apiTokens';
-
-import { addEvent } from './activityFeed';
 
 // Generate a secure random token
 function generateToken(): string {

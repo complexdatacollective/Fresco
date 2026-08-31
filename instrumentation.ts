@@ -1,8 +1,16 @@
 import { type Instrumentation } from 'next';
 
-export function register() {
-  // No-op for initialization
+export async function register() {
+  // eslint-disable-next-line no-process-env
+  if (process.env.NEXT_RUNTIME !== 'nodejs') return;
+
+  // Dynamic import to avoid pulling Prisma (node:path, node:url, etc.)
+  // into the Edge Instrumentation bundle
+  const { installProcessErrorReporting } = await import('./lib/posthog-server');
+
+  installProcessErrorReporting();
 }
+
 export const onRequestError: Instrumentation.onRequestError = async (
   err,
   request,
@@ -12,29 +20,33 @@ export const onRequestError: Instrumentation.onRequestError = async (
   if (process.env.NEXT_RUNTIME === 'nodejs') {
     // Dynamic imports to avoid pulling Prisma (node:path, node:url, etc.)
     // into the Edge Instrumentation bundle
-    const { getPostHogServer, shutdownPostHog } =
-      await import('./lib/posthog-server');
-    const { env } = await import('./env');
-    const { prisma } = await import('./lib/db');
+    const {
+      flushPostHog,
+      getPostHogServer,
+      getPostHogSessionProperties,
+      isAnalyticsDisabledUncached,
+      POSTHOG_SESSION_ID_HEADER,
+      resolveInstallationIdUncached,
+    } = await import('./lib/posthog-server');
+    const { POSTHOG_APP_PROPERTIES } = await import('./fresco.config');
+
+    if (await isAnalyticsDisabledUncached()) {
+      return;
+    }
 
     const posthog = getPostHogServer();
-
-    // Query installation ID directly instead of using the cached query
-    // from queries/appSettings. The cached version uses 'use cache' +
-    // cacheLife(), which isn't available in the instrumentation context.
-    let distinctId = env.INSTALLATION_ID;
-    if (!distinctId) {
-      const result = await prisma.appSettings.findUnique({
-        where: { key: 'installationId' },
-      });
-      distinctId = result?.value ?? 'unknown';
-    }
+    const distinctId = await resolveInstallationIdUncached();
 
     posthog.captureException(err, distinctId, {
       ...context,
+      ...getPostHogSessionProperties(
+        request.headers[POSTHOG_SESSION_ID_HEADER],
+      ),
+      ...POSTHOG_APP_PROPERTIES,
+      installation_id: distinctId,
       $source: 'server',
     });
 
-    await shutdownPostHog();
+    await flushPostHog();
   }
 };

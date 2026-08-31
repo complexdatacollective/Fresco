@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import z from 'zod';
 
 import { type FormSubmissionResult } from '@codaco/fresco-ui/form/store/types';
+import { addEvent } from '~/lib/activityFeed';
 import { getServerSession } from '~/lib/auth/guards';
 import { createSessionCookie, SESSION_COOKIE_NAME } from '~/lib/auth/session';
 import { createTwoFactorToken, hashRecoveryCode } from '~/lib/auth/totp';
@@ -16,8 +17,6 @@ import { getInstallationId, isAppConfigured } from '~/queries/appSettings';
 import { createUserSchema, loginSchema } from '~/schemas/auth';
 import { getClientIp } from '~/utils/getClientIp';
 import { hashPassword, verifyPassword } from '~/utils/password';
-
-import { addEvent } from './activityFeed';
 
 type RateLimited = {
   success: false;

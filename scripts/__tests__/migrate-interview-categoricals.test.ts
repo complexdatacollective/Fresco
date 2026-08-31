@@ -172,13 +172,13 @@ describe('migrateNetworkCategoricals', () => {
     expect(result.network.nodes[0]?.attributes[CAT_NODE]).toEqual(['family']);
   });
 
-  it('leaves unanswered (null) categorical values untouched', () => {
+  it('leaves unanswered categorical attributes absent', () => {
     const network = makeNetwork({
       nodes: [
         {
           _uid: 'node-1',
           type: 'person',
-          attributes: { [CAT_NODE]: null },
+          attributes: {},
         },
       ],
       edges: [],
@@ -187,7 +187,7 @@ describe('migrateNetworkCategoricals', () => {
 
     const result = migrateNetworkCategoricals(network, makeCodebook());
     expect(result.changed).toBe(false);
-    expect(result.network.nodes[0]?.attributes[CAT_NODE]).toBeNull();
+    expect(result.network.nodes[0]?.attributes).not.toHaveProperty(CAT_NODE);
   });
 
   it('reports no change when a network has no categorical scalars', () => {

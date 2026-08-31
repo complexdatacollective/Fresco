@@ -26,26 +26,29 @@ vi.mock('next/server', async (importOriginal) => {
   const actual = await importOriginal<Record<string, unknown>>();
   return {
     ...actual,
-    after: vi.fn(),
+    // Run the callback inline so telemetry side effects are observable.
+    after: vi.fn((callback: () => unknown) => void callback()),
   };
 });
 
 vi.mock('~/lib/posthog-server', () => ({
   captureEvent: vi.fn(),
   captureException: vi.fn(),
-  shutdownPostHog: vi.fn(),
+  flushPostHog: vi.fn(),
 }));
 
 import { cookies } from 'next/headers';
 
 // Import after mocks are set up
 import { createInterview } from '~/actions/interviews';
+import { captureEvent } from '~/lib/posthog-server';
 import { getAppSetting } from '~/queries/appSettings';
 
 // Import the handlers
 import { GET, POST } from '../route';
 
 const mockCreateInterview = vi.mocked(createInterview);
+const mockCaptureEvent = vi.mocked(captureEvent);
 const mockGetAppSetting = vi.mocked(getAppSetting);
 const mockCookies = vi.mocked(cookies);
 
@@ -187,7 +190,7 @@ describe('Onboard Route Handler', () => {
       mockCreateInterview.mockResolvedValue({
         createdInterviewId: null,
         error: 'Failed to create interview',
-        errorType: 'unknown-error',
+        errorType: 'unknown',
       });
 
       const request = new NextRequest(
@@ -222,6 +225,33 @@ describe('Onboard Route Handler', () => {
       expect(response.status).toBe(307);
       expect(response.headers.get('location')).toBe(
         'http://localhost:3000/onboard/no-anonymous-recruitment',
+      );
+    });
+
+    it('should redirect to the invalid-link page when the protocol does not exist', async () => {
+      const protocolId = 'deleted-protocol-id';
+
+      mockCreateInterview.mockResolvedValue({
+        createdInterviewId: null,
+        error: 'Protocol not found',
+        errorType: 'no-protocol',
+      });
+
+      const request = new NextRequest(
+        `http://localhost:3000/onboard/${protocolId}`,
+      );
+      const params = Promise.resolve({ protocolId });
+
+      const response = await GET(request, { params });
+
+      expect(response.status).toBe(307);
+      expect(response.headers.get('location')).toBe(
+        'http://localhost:3000/onboard/invalid-link',
+      );
+      // An invalid link is a participant mistake, not a deployment error.
+      expect(mockCaptureEvent).not.toHaveBeenCalledWith(
+        'Error',
+        expect.anything(),
       );
     });
   });
@@ -298,7 +328,7 @@ describe('Onboard Route Handler', () => {
       mockCreateInterview.mockResolvedValue({
         createdInterviewId: null,
         error: 'Failed to create interview',
-        errorType: 'parse-error',
+        errorType: 'unknown',
       });
 
       const request = new NextRequest(

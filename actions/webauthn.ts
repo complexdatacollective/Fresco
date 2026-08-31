@@ -14,6 +14,7 @@ import {
 import { cookies } from 'next/headers';
 
 import { env } from '~/env';
+import { addEvent } from '~/lib/activityFeed';
 import { requireApiAuth } from '~/lib/auth/guards';
 import { createSessionCookie } from '~/lib/auth/session';
 import { getAuthenticatorName } from '~/lib/auth/utils/getAuthenticatorName';
@@ -30,8 +31,6 @@ import { strongPasswordSchema } from '~/schemas/users';
 import { getClientIp } from '~/utils/getClientIp';
 import { STRONG_PASSWORD_MESSAGE } from '~/utils/isStrongPassword';
 import { hashPassword, verifyPassword } from '~/utils/password';
-
-import { addEvent } from './activityFeed';
 
 const CHALLENGE_COOKIE_NAME = 'webauthn_challenge';
 

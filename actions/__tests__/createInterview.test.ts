@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import { COMPATIBLE_PROTOCOL_SCHEMA_VERSION } from '@codaco/interview/protocol-schema-version';
 import {
   entityAttributesProperty,
   entityPrimaryKeyProperty,
@@ -48,18 +49,28 @@ vi.mock('~/utils/auth', () => ({
 }));
 
 // Use vi.hoisted to define mocks that can be referenced before module execution
-const { mockPrismaCreate, mockGetAppSetting, mockSafeRevalidateTag } =
-  vi.hoisted(() => ({
-    mockPrismaCreate: vi.fn(),
-    mockGetAppSetting: vi.fn(),
-    mockSafeRevalidateTag: vi.fn(),
-  }));
+const {
+  mockPrismaCreate,
+  mockProtocolFindUnique,
+  mockGetAppSetting,
+  mockSafeRevalidateTag,
+  mockCaptureException,
+} = vi.hoisted(() => ({
+  mockPrismaCreate: vi.fn(),
+  mockProtocolFindUnique: vi.fn(),
+  mockGetAppSetting: vi.fn(),
+  mockSafeRevalidateTag: vi.fn(),
+  mockCaptureException: vi.fn(),
+}));
 
 // Mock dependencies before importing
 vi.mock('~/lib/db', () => ({
   prisma: {
     interview: {
       create: mockPrismaCreate,
+    },
+    protocol: {
+      findUnique: mockProtocolFindUnique,
     },
   },
 }));
@@ -74,7 +85,7 @@ vi.mock('~/lib/cache', () => ({
   safeCacheTag: vi.fn(),
 }));
 
-vi.mock('~/actions/activityFeed', () => ({
+vi.mock('~/lib/activityFeed', () => ({
   addEvent: vi.fn(),
 }));
 
@@ -82,14 +93,15 @@ vi.mock('next/server', async (importOriginal) => {
   const actual = await importOriginal<Record<string, unknown>>();
   return {
     ...actual,
-    after: vi.fn(),
+    // Run the callback inline so telemetry side effects are observable.
+    after: vi.fn((callback: () => unknown) => void callback()),
   };
 });
 
 vi.mock('~/lib/posthog-server', () => ({
   captureEvent: vi.fn(),
-  captureException: vi.fn(),
-  shutdownPostHog: vi.fn(),
+  captureException: mockCaptureException,
+  flushPostHog: vi.fn(),
 }));
 
 vi.mock('@codaco/interview/contract', () => ({
@@ -104,6 +116,8 @@ vi.mock('@codaco/interview/contract', () => ({
 }));
 
 // Import the function under test
+import { Prisma } from '~/lib/db/generated/client';
+
 import { createInterview } from '../interviews';
 
 // Type for the mock return value
@@ -119,6 +133,10 @@ type MockInterviewResult = {
 describe('createInterview', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockProtocolFindUnique.mockResolvedValue({
+      id: 'protocol-123',
+      schemaVersion: COMPATIBLE_PROTOCOL_SCHEMA_VERSION,
+    });
   });
 
   describe('with participantIdentifier provided', () => {
@@ -309,13 +327,77 @@ describe('createInterview', () => {
   });
 
   describe('error handling', () => {
-    it('should return error when protocol does not exist', async () => {
+    // The protocol id arrives from an unauthenticated URL, so a deleted or
+    // mistyped protocol is a routine outcome. Prisma signals it as P2025 on the
+    // nested connect, and it must be reported as such rather than captured as
+    // an application exception.
+    const missingProtocolError = () =>
+      new Prisma.PrismaClientKnownRequestError(
+        "An operation failed because it depends on one or more records that were required but not found. No 'Protocol' record (needed to inline the relation on 'Interview' record(s)) was found for a nested connect on one-to-many relation 'InterviewToProtocol'.",
+        { code: 'P2025', clientVersion: 'test' },
+      );
+
+    it('should return a no-protocol error before consulting other settings', async () => {
+      mockProtocolFindUnique.mockResolvedValue(null);
+
+      const result = await createInterview({
+        protocolId: 'non-existent-protocol',
+      });
+
+      expect(result.errorType).toBe('no-protocol');
+      expect(result.error).toBe('Protocol not found');
+      expect(mockPrismaCreate).not.toHaveBeenCalled();
+    });
+
+    // A protocol that is gone is the whole answer — every other reason sends
+    // the researcher after a fix that cannot help, whether that is enabling
+    // anonymous recruitment or correcting an identifier on a dead link. The
+    // create used to be what decided this, so any earlier return hid it.
+    it('should prefer no-protocol over no-anonymous-recruitment', async () => {
+      mockProtocolFindUnique.mockResolvedValue(null);
+      mockGetAppSetting.mockResolvedValue(false);
+
+      const result = await createInterview({
+        protocolId: 'non-existent-protocol',
+      });
+
+      expect(result.errorType).toBe('no-protocol');
+    });
+
+    it('should prefer no-protocol over invalid-identifier', async () => {
+      mockProtocolFindUnique.mockResolvedValue(null);
+
+      const result = await createInterview({
+        protocolId: 'non-existent-protocol',
+        participantIdentifier: '   ',
+      });
+
+      expect(result.errorType).toBe('no-protocol');
+    });
+
+    it('refuses a protocol below the runtime schema version without creating anything', async () => {
+      // A row the deploy-time migration tolerated-and-left; every recruitment
+      // link attempt must be refused here, before an interview is persisted.
+      mockProtocolFindUnique.mockResolvedValue({
+        id: 'protocol-123',
+        schemaVersion: COMPATIBLE_PROTOCOL_SCHEMA_VERSION - 1,
+      });
+
+      const result = await createInterview({
+        participantIdentifier: 'TEST-PARTICIPANT',
+        protocolId: 'protocol-123',
+      });
+
+      expect(result.createdInterviewId).toBeNull();
+      expect(result.errorType).toBe('incompatible-protocol');
+      expect(mockPrismaCreate).not.toHaveBeenCalled();
+    });
+
+    it('should return a no-protocol error when the protocol does not exist', async () => {
       const protocolId = 'non-existent-protocol';
       const participantIdentifier = 'TEST-PARTICIPANT';
 
-      mockPrismaCreate.mockRejectedValue(
-        new Error('Record to connect not found'),
-      );
+      mockPrismaCreate.mockRejectedValue(missingProtocolError());
 
       const result = await createInterview({
         participantIdentifier,
@@ -323,8 +405,19 @@ describe('createInterview', () => {
       });
 
       expect(result.createdInterviewId).toBeNull();
-      expect(result.error).toBe('Failed to create interview');
-      expect(result.errorType).toBe('Record to connect not found');
+      expect(result.errorType).toBe('no-protocol');
+      expect(result.error).toBe('Protocol not found');
+    });
+
+    it('should not report a missing protocol as an exception', async () => {
+      mockPrismaCreate.mockRejectedValue(missingProtocolError());
+
+      await createInterview({
+        participantIdentifier: 'TEST-PARTICIPANT',
+        protocolId: 'non-existent-protocol',
+      });
+
+      expect(mockCaptureException).not.toHaveBeenCalled();
     });
 
     it('should return error on database failure', async () => {
@@ -340,7 +433,32 @@ describe('createInterview', () => {
 
       expect(result.createdInterviewId).toBeNull();
       expect(result.error).toBe('Failed to create interview');
-      expect(result.errorType).toBe('Connection refused');
+      expect(result.errorType).toBe('unknown');
+    });
+
+    it('should report an unexpected database failure as an exception', async () => {
+      mockPrismaCreate.mockRejectedValue(new Error('Connection refused'));
+
+      await createInterview({
+        participantIdentifier: 'DB-ERROR-TEST',
+        protocolId: 'protocol-db-error',
+      });
+
+      expect(mockCaptureException).toHaveBeenCalledTimes(1);
+    });
+
+    it('should not leak the underlying error message to the caller', async () => {
+      mockPrismaCreate.mockRejectedValue(
+        new Error('connection to server at "10.0.0.4" failed'),
+      );
+
+      const result = await createInterview({
+        participantIdentifier: 'LEAK-TEST',
+        protocolId: 'protocol-leak',
+      });
+
+      expect(result.errorType).toBe('unknown');
+      expect(result.error).not.toContain('10.0.0.4');
     });
 
     it('should not invalidate cache on error', async () => {

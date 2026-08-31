@@ -7,7 +7,6 @@ import {
   FileIcon,
   MoreHorizontal,
 } from 'lucide-react';
-import Link from 'next/link';
 import { hash as objectHash } from 'ohash';
 import { useState } from 'react';
 
@@ -90,11 +89,18 @@ export const ActionsDropdown = ({ row }: { row: Row<InterviewRow> }) => {
               Export
             </DropdownMenuItem>
           </DropdownMenuGroup>
-          <Link href={`/interview/${row.original.id}`}>
+          {/* Deliberately a full page load rather than a client-side <Link>.
+              Session replay must never run on an interview: it stores the
+              page URL — which is the participant's access credential — inside
+              its payload. A client-side navigation changes the URL and renders
+              the interview before any effect can stop a recorder that is
+              already running, whereas a fresh load re-initialises PostHog with
+              replay disabled before anything is captured. */}
+          <a href={`/interview/${row.original.id}`}>
             <DropdownMenuItem icon={<DoorOpenIcon />}>
               Enter Interview
             </DropdownMenuItem>
-          </Link>
+          </a>
         </DropdownMenuContent>
       </DropdownMenu>
     </>

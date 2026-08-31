@@ -26,7 +26,7 @@ vi.mock('~/lib/auth/guards', () => ({
   requireApiAuth: vi.fn().mockResolvedValue({ user: { username: 'admin' } }),
 }));
 
-vi.mock('~/actions/activityFeed', () => ({
+vi.mock('~/lib/activityFeed', () => ({
   addEvent: vi.fn(),
 }));
 

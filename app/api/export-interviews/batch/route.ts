@@ -9,7 +9,7 @@ import { makeFileStreamOutputLayer } from '~/lib/export/FileStreamOutput';
 import { PrismaInterviewRepository } from '~/lib/export/InterviewRepository';
 import { PrismaProtocolRepository } from '~/lib/export/ProtocolRepository';
 import { encodeExportEvent } from '~/lib/export/streamProtocol';
-import { captureException, shutdownPostHog } from '~/lib/posthog-server';
+import { captureException, flushPostHog } from '~/lib/posthog-server';
 import { exportInterviewsSchema } from '~/schemas/export';
 
 export async function POST(request: Request) {
@@ -129,7 +129,7 @@ export async function POST(request: Request) {
           .catch(() => undefined);
         await writer.close().catch(() => undefined);
         await captureException(error);
-        await shutdownPostHog();
+        await flushPostHog();
       }),
     ),
     Effect.catchAll(() => Effect.void),

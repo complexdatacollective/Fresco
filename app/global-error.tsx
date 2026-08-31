@@ -2,7 +2,6 @@
 
 import { ClipboardCopy } from 'lucide-react';
 import Image from 'next/image';
-import posthog from 'posthog-js';
 import { useEffect, useState } from 'react';
 
 import { Button } from '@codaco/fresco-ui/Button';
@@ -10,6 +9,7 @@ import Surface from '@codaco/fresco-ui/layout/Surface';
 import Heading from '@codaco/fresco-ui/typography/Heading';
 import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
 import Link from '~/components/Link';
+import { captureClientException } from '~/lib/posthog-client';
 
 export default function Error({
   error,
@@ -39,7 +39,7 @@ ${error.stack}`;
   };
 
   useEffect(() => {
-    posthog.captureException(error);
+    captureClientException(error);
   }, [error]);
 
   return (

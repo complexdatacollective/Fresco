@@ -1,6 +1,7 @@
 'use server';
 
 import { type FormSubmissionResult } from '@codaco/fresco-ui/form/store/types';
+import { addEvent } from '~/lib/activityFeed';
 import { createSessionCookie } from '~/lib/auth/session';
 import {
   hashRecoveryCode,
@@ -13,8 +14,6 @@ import { checkRateLimit, recordLoginAttempt } from '~/lib/rateLimit';
 import { getInstallationId } from '~/queries/appSettings';
 import { verifyTwoFactorSchema } from '~/schemas/totp';
 import { getClientIp } from '~/utils/getClientIp';
-
-import { addEvent } from './activityFeed';
 
 const TOTP_CODE_PATTERN = /^\d{6}$/;
 const RECOVERY_CODE_PATTERN = /^[0-9a-f]{20}$/;

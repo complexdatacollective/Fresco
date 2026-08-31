@@ -2,8 +2,8 @@
 
 import { createId } from '@paralleldrive/cuid2';
 
-import { addEvent } from '~/actions/activityFeed';
 import type { ParticipantsSearchParams } from '~/app/dashboard/_components/ParticipantsTable/searchParams';
+import { addEvent } from '~/lib/activityFeed';
 import { requireApiAuth } from '~/lib/auth/guards';
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';

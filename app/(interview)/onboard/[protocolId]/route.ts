@@ -3,7 +3,7 @@ import { after, NextResponse, type NextRequest } from 'next/server';
 
 import { createInterview } from '~/actions/interviews';
 import { env } from '~/env';
-import { captureEvent, shutdownPostHog } from '~/lib/posthog-server';
+import { captureEvent, flushPostHog } from '~/lib/posthog-server';
 import { getAppSetting } from '~/queries/appSettings';
 
 const handler = async (
@@ -50,22 +50,30 @@ const handler = async (
   }
 
   // Create a new interview given the protocolId and participantId
-  const { createdInterviewId, error, errorType } = await createInterview({
+  const result = await createInterview({
     participantIdentifier,
     protocolId,
   });
 
-  if (error) {
+  if (result.errorType) {
+    // The protocol id comes from the URL, so a link to a protocol that has been
+    // deleted (or was never valid) is a routine outcome rather than a fault in
+    // this deployment. Explain it to the participant without reporting an error.
+    if (result.errorType === 'no-protocol') {
+      url.pathname = '/onboard/invalid-link';
+      return NextResponse.redirect(url);
+    }
+
     after(async () => {
       await captureEvent('Error', {
-        name: error,
+        name: result.error,
         message: 'Failed to create interview',
         path: '/onboard/[protocolId]/route.ts',
       });
-      await shutdownPostHog();
+      await flushPostHog();
     });
 
-    if (errorType === 'no-anonymous-recruitment') {
+    if (result.errorType === 'no-anonymous-recruitment') {
       url.pathname = '/onboard/no-anonymous-recruitment';
       return NextResponse.redirect(url);
     }
@@ -82,14 +90,14 @@ const handler = async (
     await captureEvent('InterviewStarted', {
       usingAnonymousParticipant: !participantIdentifier,
     });
-    await shutdownPostHog();
+    await flushPostHog();
   });
 
   // Redirect to the interview
   // Explicitly disable caching to prevent Netlify from caching this redirect
   // (Netlify adds max-age=86400 by default, causing all users to get the same interview)
   // See: https://github.com/opennextjs/opennextjs-netlify/issues/3460
-  url.pathname = `/interview/${createdInterviewId}`;
+  url.pathname = `/interview/${result.createdInterviewId}`;
   return NextResponse.redirect(url, {
     headers: {
       'Cache-Control': 'no-cache, no-store, must-revalidate',

@@ -32,8 +32,8 @@ function categoricalVariableIds(
 
 /**
  * Wrap any scalar value held by a categorical variable in a single-element array.
- * Already-array values, unanswered (`null`/`undefined`) values, and the `{x, y}`
- * layout object are left untouched, so the transform is idempotent.
+ * Already-array values and the `{x, y}` layout object are left untouched, so
+ * the transform is idempotent. Unanswered variables are absent from attributes.
  */
 function wrapEntityCategoricals(
   attributes: Record<string, VariableValue>,
@@ -43,7 +43,7 @@ function wrapEntityCategoricals(
   for (const id of categoricalIds) {
     if (!Object.prototype.hasOwnProperty.call(attributes, id)) continue;
     const value = attributes[id];
-    if (value === null || value === undefined) continue;
+    if (value === undefined) continue;
     if (Array.isArray(value)) continue;
     if (typeof value === 'object') continue;
     attributes[id] = [value];

@@ -1,7 +1,6 @@
 'use client';
 
 import { ClipboardCopy } from 'lucide-react';
-import posthog from 'posthog-js';
 import { useEffect } from 'react';
 
 import { Button } from '@codaco/fresco-ui/Button';
@@ -9,6 +8,7 @@ import Surface from '@codaco/fresco-ui/layout/Surface';
 import { useToast } from '@codaco/fresco-ui/Toast';
 import Heading from '@codaco/fresco-ui/typography/Heading';
 import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
+import { captureClientException } from '~/lib/posthog-client';
 
 export default function Error({
   error,
@@ -41,7 +41,7 @@ ${error.stack}`;
   };
 
   useEffect(() => {
-    posthog.captureException(error);
+    captureClientException(error);
   }, [error]);
 
   return (

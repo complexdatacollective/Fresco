@@ -21,38 +21,29 @@ type EdgeSummaryProps = {
 };
 
 function EdgeSummary({ color, count, typeName }: EdgeSummaryProps) {
-  /**
-   * There is a bug in the suggestCanonicalClasses rule: https://github.com/tailwindlabs/tailwindcss-intellisense/issues/1542
-   */
+  // The suggested canonical form removes CSS-required subtraction whitespace.
+  /* eslint-disable tailwindcss/enforce-canonical */
   const edgeColorClasses = cx(
     color === 'edge-color-seq-1' &&
-      // eslint-disable-next-line better-tailwindcss/enforce-canonical-classes
-      '[--fill-dark:oklch(from_var(--edge-1)_calc(l-var(--dark-mod))_c_h)] [--fill:var(--edge-1)]',
+      '[--fill-dark:oklch(from_var(--edge-1)_calc(l_-_var(--dark-mod))_c_h)] [--fill:var(--edge-1)]',
     color === 'edge-color-seq-2' &&
-      // eslint-disable-next-line better-tailwindcss/enforce-canonical-classes
-      '[--fill-dark:oklch(from_var(--edge-2)_calc(l-var(--dark-mod))_c_h)] [--fill:var(--edge-2)]',
+      '[--fill-dark:oklch(from_var(--edge-2)_calc(l_-_var(--dark-mod))_c_h)] [--fill:var(--edge-2)]',
     color === 'edge-color-seq-3' &&
-      // eslint-disable-next-line better-tailwindcss/enforce-canonical-classes
-      '[--fill-dark:oklch(from_var(--edge-3)_calc(l-var(--dark-mod))_c_h)] [--fill:var(--edge-3)]',
+      '[--fill-dark:oklch(from_var(--edge-3)_calc(l_-_var(--dark-mod))_c_h)] [--fill:var(--edge-3)]',
     color === 'edge-color-seq-4' &&
-      // eslint-disable-next-line better-tailwindcss/enforce-canonical-classes
-      '[--fill-dark:oklch(from_var(--edge-4)_calc(l-var(--dark-mod))_c_h)] [--fill:var(--edge-4)]',
+      '[--fill-dark:oklch(from_var(--edge-4)_calc(l_-_var(--dark-mod))_c_h)] [--fill:var(--edge-4)]',
     color === 'edge-color-seq-5' &&
-      // eslint-disable-next-line better-tailwindcss/enforce-canonical-classes
-      '[--fill-dark:oklch(from_var(--edge-5)_calc(l-var(--dark-mod))_c_h)] [--fill:var(--edge-5)]',
+      '[--fill-dark:oklch(from_var(--edge-5)_calc(l_-_var(--dark-mod))_c_h)] [--fill:var(--edge-5)]',
     color === 'edge-color-seq-6' &&
-      // eslint-disable-next-line better-tailwindcss/enforce-canonical-classes
-      '[--fill-dark:oklch(from_var(--edge-6)_calc(l-var(--dark-mod))_c_h)] [--fill:var(--edge-6)]',
+      '[--fill-dark:oklch(from_var(--edge-6)_calc(l_-_var(--dark-mod))_c_h)] [--fill:var(--edge-6)]',
     color === 'edge-color-seq-7' &&
-      // eslint-disable-next-line better-tailwindcss/enforce-canonical-classes
-      '[--fill-dark:oklch(from_var(--edge-7)_calc(l-var(--dark-mod))_c_h)] [--fill:var(--edge-7)]',
+      '[--fill-dark:oklch(from_var(--edge-7)_calc(l_-_var(--dark-mod))_c_h)] [--fill:var(--edge-7)]',
     color === 'edge-color-seq-8' &&
-      // eslint-disable-next-line better-tailwindcss/enforce-canonical-classes
-      '[--fill-dark:oklch(from_var(--edge-8)_calc(l-var(--dark-mod))_c_h)] [--fill:var(--edge-8)]',
+      '[--fill-dark:oklch(from_var(--edge-8)_calc(l_-_var(--dark-mod))_c_h)] [--fill:var(--edge-8)]',
     color === 'edge-color-seq-9' &&
-      // eslint-disable-next-line better-tailwindcss/enforce-canonical-classes
-      '[--fill-dark:oklch(from_var(--edge-9)_calc(l-var(--dark-mod))_c_h)] [--fill:var(--edge-9)]',
+      '[--fill-dark:oklch(from_var(--edge-9)_calc(l_-_var(--dark-mod))_c_h)] [--fill:var(--edge-9)]',
   );
+  /* eslint-enable tailwindcss/enforce-canonical */
 
   return (
     <div className="flex flex-col items-center">

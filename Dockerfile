@@ -13,6 +13,7 @@ RUN corepack enable
 
 # Copy dependency files
 COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml prisma.config.ts env.js ./
+COPY vendor/vitest-config ./vendor/vitest-config
 COPY lib/db/schema.prisma ./lib/db/schema.prisma
 
 # Install pnpm and dependencies with cache mount for faster builds
@@ -94,10 +95,34 @@ COPY --from=builder --chown=nextjs:nodejs /app/tsconfig ./tsconfig
 # repeat rebuilds skip re-downloading; only /tmp scratch is removed in-layer.
 # (Replaces a `pnpm add --force` that baked a 3.6GB pnpm store + a redundant
 # 1.7GB node_modules copy into the image.)
+#
+# `@codaco/interview` is unpacked rather than installed. The startup scripts
+# import exactly one of its entries — the standalone `protocol-schema-version`
+# bundle naming the schema version this build's interview runtime executes —
+# and that bundle's only runtime import is `@codaco/protocol-validation`,
+# installed above. The package's own dependencies (mapbox-gl, posthog-js,
+# lucide-react, the Redux stack) exist for the interview UI, which these
+# scripts never load, and would add ~250MB to a ~44MB runtime tree. If a
+# startup script ever imports another entry of this package, install it
+# properly instead.
+#
+# The two @codaco packages install at the EXACT versions the generated pnpm
+# lockfile resolved (LV below), never the manifest's caret range: the schema
+# version the startup migration targets resolves through these packages, while
+# the interview runtime that must execute the migrated protocols is baked into
+# the Next build from the lockfile. A caret install rebuilt after a later
+# release could fetch newer package code and migrate production rows to a
+# schema the bundled runtime cannot run.
 COPY --from=builder /app/package.json /tmp/package.json
+COPY --from=builder /app/pnpm-lock.yaml /tmp/pnpm-lock.yaml
 RUN --mount=type=cache,target=/root/.npm \
     set -e; \
     V() { node -p "require('/tmp/package.json').dependencies?.['$1'] || require('/tmp/package.json').devDependencies?.['$1']"; }; \
+    LV() { \
+      v=$(awk -v dep="'$1':" '/^packages:/{exit} $1==dep{f=1;next} f&&$1=="specifier:"{next} f&&$1=="version:"{sub(/\(.*/,"",$2);print $2;exit} f{f=0}' /tmp/pnpm-lock.yaml); \
+      [ -n "$v" ] || { echo "pnpm-lock.yaml has no resolved version for $1" >&2; exit 1; }; \
+      printf '%s' "$v"; \
+    }; \
     mkdir -p /tmp/runtime && cd /tmp/runtime; \
     printf '{"name":"fresco-runtime-deps","private":true}\n' > package.json; \
     npm install --no-audit --no-fund \
@@ -108,10 +133,15 @@ RUN --mount=type=cache,target=/root/.npm \
       "dotenv@$(V dotenv)" \
       "zod@$(V zod)" \
       "@t3-oss/env-nextjs@$(V @t3-oss/env-nextjs)" \
-      "@codaco/protocol-validation@$(V @codaco/protocol-validation)"; \
+      "@codaco/protocol-validation@$(LV @codaco/protocol-validation)"; \
+    npm pack --silent --pack-destination /tmp "@codaco/interview@$(LV @codaco/interview)"; \
+    mkdir -p /tmp/interview-pack /tmp/runtime/node_modules/@codaco; \
+    tar xzf /tmp/codaco-interview-*.tgz -C /tmp/interview-pack; \
+    mv /tmp/interview-pack/package /tmp/runtime/node_modules/@codaco/interview; \
     ( cd /tmp/runtime/node_modules && tar cf - . ) | ( cd /app/node_modules && tar xf - ); \
     chown -R nextjs:nodejs /app/node_modules; \
-    cd /app && rm -rf /tmp/runtime /root/.cache /tmp/package.json
+    cd /app && rm -rf /tmp/runtime /root/.cache /tmp/package.json \
+      /tmp/pnpm-lock.yaml /tmp/interview-pack /tmp/codaco-interview-*.tgz
 
 # Switch to non-root user
 USER nextjs

@@ -1,11 +1,9 @@
 import { type Metadata, type Viewport } from 'next';
-import { connection } from 'next/server';
 import { Suspense } from 'react';
 
 import Providers from '~/components/Providers';
-import { PostHogIdentify } from '~/components/Providers/PosthogIdentify';
+import AnalyticsLoader from '~/components/Providers/AnalyticsLoader';
 import { env } from '~/env';
-import { getDisableAnalytics, getInstallationId } from '~/queries/appSettings';
 
 import '@codaco/tailwind-config/fonts/inclusive-sans.css';
 import '@codaco/tailwind-config/fonts/nunito.css';
@@ -19,31 +17,6 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   viewportFit: 'cover',
 };
-
-async function AnalyticsLoader() {
-  // Opt this subtree out of prerendering — getInstallationId and
-  // getDisableAnalytics can fall back to the database, which isn't
-  // available at build time (e.g. when building the distributable
-  // Docker image). The <Suspense> boundary in RootLayout lets Next
-  // stream this in at request time instead.
-  await connection();
-
-  try {
-    const [installationId, disableAnalytics] = await Promise.all([
-      getInstallationId(),
-      getDisableAnalytics(),
-    ]);
-
-    return (
-      <PostHogIdentify
-        installationId={installationId}
-        disableAnalytics={disableAnalytics}
-      />
-    );
-  } catch {
-    return null;
-  }
-}
 
 function RootLayout({ children }: { children: React.ReactNode }) {
   return (

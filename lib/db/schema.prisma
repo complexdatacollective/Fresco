@@ -103,6 +103,12 @@ model Interview {
   currentStep   Int         @default(0)
   stageMetadata Json? // Used to store negative responses in tiestrength census and dyadcensus
   isSynthetic   Boolean     @default(false)
+  // Write-ordering guard for the interview sync endpoint. The participant's
+  // browser numbers each sync it issues and the endpoint only applies one
+  // carrying a higher number than the row already holds, so a request that
+  // overtakes a newer one is discarded instead of rolling the interview back.
+  // Not a timestamp: see the sync route for why the client clock will not do.
+  syncRevision  Int         @default(0)
 
   @@index(fields: [protocolId])
   @@index([participantId])

@@ -1,5 +1,5 @@
-import 'server-only';
 import { Loader2 } from 'lucide-react';
+import 'server-only';
 import { after } from 'next/server';
 import Markdown from 'react-markdown';
 // eslint-disable-next-line no-restricted-imports -- server-only file (uses 'server-only' import)
@@ -8,10 +8,10 @@ import { z } from 'zod';
 import { Alert, AlertDescription, AlertTitle } from '@codaco/fresco-ui/Alert';
 import { Button } from '@codaco/fresco-ui/Button';
 import Heading from '@codaco/fresco-ui/typography/Heading';
+import { ensureError } from '@codaco/shared-consts';
 import Link from '~/components/Link';
 import { env } from '~/env';
-import { captureException, shutdownPostHog } from '~/lib/posthog-server';
-import { ensureError } from '~/utils/ensureError';
+import { captureException, flushPostHog } from '~/lib/posthog-server';
 import { getSemverUpdateType, semverSchema } from '~/utils/semVer';
 
 import SettingsField from './settings/SettingsField';
@@ -69,7 +69,7 @@ async function checkForUpdate() {
     const error = ensureError(e);
     after(async () => {
       await captureException(error);
-      await shutdownPostHog();
+      await flushPostHog();
     });
 
     return {

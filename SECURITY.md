@@ -19,7 +19,7 @@ Fresco is a **single-tenant, single-trust-level** application. Understanding thi
 
 ## Transport & headers
 
-Responses carry `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Strict-Transport-Security`, and `Referrer-Policy` (set to `no-referrer` on `/interview/*` and `/onboard/*` so capability-bearing interview URLs are never leaked via the `Referer` header). User-uploaded assets are served with a validated content type and are forced to download (rather than render inline) for script-capable types such as SVG/HTML. Terminate TLS in front of the app (the bundled `docker-compose.prod.yml` does this with Traefik).
+Responses carry `X-Content-Type-Options: nosniff`, `X-Frame-Options: SAMEORIGIN`, `Strict-Transport-Security`, and `Referrer-Policy` (set to `no-referrer` on `/interview/*` and `/onboard/*` so capability-bearing interview URLs are never leaked via the `Referer` header). User-uploaded assets are served with a validated content type and are forced to download (rather than render inline) for script-capable types such as SVG/HTML. Terminate TLS in front of the app. The bundled production Compose files do this with Traefik and enforce `Strict-Transport-Security` across the entire HTTPS entrypoint, including proxy-generated redirects and storage responses.
 
 ## Reporting a Vulnerability
 

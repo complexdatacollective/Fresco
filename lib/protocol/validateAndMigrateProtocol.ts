@@ -34,7 +34,8 @@ export type ProtocolValidationResult =
  * It handles:
  * 1. Basic object validation
  * 2. Schema version checking against APP_SUPPORTED_SCHEMA_VERSIONS
- * 3. Migration from older schema versions to v8 (with dependency checking)
+ * 3. Migration from older schema versions up to CURRENT_SCHEMA_VERSION (with
+ *    dependency checking)
  * 4. Full protocol validation
  *
  * Returns a discriminated union so consumers can handle errors appropriately.

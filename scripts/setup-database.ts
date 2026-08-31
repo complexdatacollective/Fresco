@@ -10,7 +10,7 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from '~/lib/db/generated/client';
 
 import { migrateInterviewCategoricals } from './migrate-interview-categoricals';
-import { migrateProtocolsToV8 } from './migrate-protocols-to-v8';
+import { migrateProtocolsToCompatibleVersion } from './migrate-protocols';
 
 // CLI scripts must use the PG adapter directly because the Neon serverless
 // adapter doesn't work in CLI/Node.js context (only in serverless runtimes)
@@ -126,7 +126,7 @@ try {
   // module. All-or-nothing keeps the old version working on the old data.
   await prisma.$transaction(
     async (tx) => {
-      await migrateProtocolsToV8(tx);
+      await migrateProtocolsToCompatibleVersion(tx);
       await migrateInterviewCategoricals(tx);
     },
     { timeout: DATA_MIGRATION_TIMEOUT_MS },

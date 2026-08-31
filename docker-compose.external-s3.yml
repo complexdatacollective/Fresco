@@ -48,6 +48,8 @@ services:
       - '--providers.docker.exposedbydefault=false'
       - '--entrypoints.web.address=:80'
       - '--entrypoints.websecure.address=:443'
+      # Cover proxy-generated redirects and every service on the HTTPS entrypoint.
+      - '--entrypoints.websecure.http.middlewares=fresco-hsts@docker'
       - '--entrypoints.web.http.redirections.entrypoint.to=websecure'
       - '--entrypoints.web.http.redirections.entrypoint.scheme=https'
       - '--certificatesresolvers.letsencrypt.acme.email=${ACME_EMAIL:?Set ACME_EMAIL in .env (Lets Encrypt contact email)}'
@@ -78,6 +80,8 @@ services:
       PUBLIC_URL: https://${FRESCO_DOMAIN}
     labels:
       - 'traefik.enable=true'
+      - 'traefik.http.middlewares.fresco-hsts.headers.stsseconds=63072000'
+      - 'traefik.http.middlewares.fresco-hsts.headers.stsincludesubdomains=true'
       - 'traefik.http.routers.fresco.rule=Host(`${FRESCO_DOMAIN:?Set FRESCO_DOMAIN in .env (public domain for this deployment)}`)'
       - 'traefik.http.routers.fresco.entrypoints=websecure'
       - 'traefik.http.routers.fresco.tls.certresolver=letsencrypt'

@@ -6,11 +6,12 @@ import { after } from 'next/server';
 import { type z } from 'zod';
 import { z as zm } from 'zod/mini';
 
-import { addEvent } from '~/actions/activityFeed';
+import { ensureError } from '@codaco/shared-consts';
+import { addEvent } from '~/lib/activityFeed';
 import { requireApiAuth } from '~/lib/auth/guards';
 import { safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
-import { captureEvent, shutdownPostHog } from '~/lib/posthog-server';
+import { captureEvent, flushPostHog } from '~/lib/posthog-server';
 import { getStorageEnvStatus } from '~/lib/storage/config';
 import { getInstallationId } from '~/queries/appSettings';
 import {
@@ -18,7 +19,6 @@ import {
   appSettingPreprocessedSchema,
   createUploadThingTokenFormSchema,
 } from '~/schemas/appSettings';
-import { ensureError } from '~/utils/ensureError';
 import { getStringValue } from '~/utils/serializeHelpers';
 
 const S3_SETTING_KEYS: AppSetting[] = [
@@ -211,7 +211,7 @@ export async function completeSetup() {
     await captureEvent('AppSetup', {
       installationId,
     });
-    await shutdownPostHog();
+    await flushPostHog();
   });
 
   redirect('/dashboard');

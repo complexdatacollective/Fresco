@@ -3,6 +3,7 @@ import {
   type InterviewPayload,
   type ResolvedAsset,
 } from '@codaco/interview/contract';
+import { COMPATIBLE_PROTOCOL_SCHEMA_VERSION } from '@codaco/interview/protocol-schema-version';
 import type { GetInterviewByIdQuery } from '~/queries/interviews';
 
 export function mapInterviewPayload(
@@ -11,8 +12,25 @@ export function mapInterviewPayload(
   payload: InterviewPayload;
   assetUrls: Record<string, string>;
   initialStep: number;
+  initialSyncRevision: number;
 } {
   const { protocol, ...session } = source;
+
+  // The stored version is written from the validated document at import
+  // (actions/protocols.ts) and rewritten by the deploy-time migration
+  // (scripts/migrate-protocols.ts), so every row that reaches an interview
+  // should already match the runtime. Stamping a literal instead would
+  // mislabel any row that does not, handing the interview a document it cannot
+  // read while claiming it can; refuse loudly instead.
+  const { schemaVersion } = protocol;
+  if (schemaVersion !== COMPATIBLE_PROTOCOL_SCHEMA_VERSION) {
+    throw new Error(
+      `Protocol "${protocol.name}" (id=${protocol.id}) is stored as schema ` +
+        `version ${schemaVersion}, but this version of Fresco runs protocol ` +
+        `schema version ${COMPATIBLE_PROTOCOL_SCHEMA_VERSION}. It must be ` +
+        `migrated before an interview using it can be started.`,
+    );
+  }
 
   const assets: ResolvedAsset[] = protocol.assets.map((a) => {
     if (!isValidAssetType(a.type)) {
@@ -43,7 +61,7 @@ export function mapInterviewPayload(
     },
     protocol: {
       ...protocol,
-      schemaVersion: 8,
+      schemaVersion,
       hash: protocol.hash,
       description: protocol.description ?? undefined,
       importedAt: protocol.importedAt.toISOString(),
@@ -51,5 +69,13 @@ export function mapInterviewPayload(
     },
   };
 
-  return { payload, assetUrls, initialStep: session.currentStep };
+  return {
+    payload,
+    assetUrls,
+    initialStep: session.currentStep,
+    // The sync handler numbers its writes upwards from here. It is not part of
+    // `InterviewPayload` because it belongs to this host's transport rather
+    // than to the interview the engine runs.
+    initialSyncRevision: session.syncRevision,
+  };
 }

@@ -1,6 +1,5 @@
 'use client';
 
-import posthog from 'posthog-js';
 import {
   createContext,
   useCallback,
@@ -11,11 +10,12 @@ import {
 
 import { useToast } from '@codaco/fresco-ui/Toast';
 import type { ExportOptions } from '@codaco/network-exporters/options';
+import { ensureError } from '@codaco/shared-consts';
 import { commitInterviewExport } from '~/actions/interviews';
 import ExportToastContent from '~/components/ExportProgress/ExportToastContent';
 import { useDownload } from '~/hooks/useDownload';
 import { runBatchedExport } from '~/lib/export/runBatchedExport';
-import { ensureError } from '~/utils/ensureError';
+import { captureClientException } from '~/lib/posthog-client';
 
 type ExportContextValue = {
   startExport: (interviewIds: string[], exportOptions: ExportOptions) => void;
@@ -131,7 +131,7 @@ export function ExportProgressProvider({
             return;
           }
           const e = ensureError(error);
-          posthog.captureException(e);
+          captureClientException(e);
           close(toastId);
           add({
             variant: 'destructive',

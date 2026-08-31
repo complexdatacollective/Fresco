@@ -1,0 +1,20 @@
+{
+  "name": "@codaco/vitest-config",
+  "version": "0.1.0",
+  "private": true,
+  "files": [
+    "modern/**"
+  ],
+  "type": "module",
+  "exports": {
+    "./modern/disable-animations": "./modern/disable-animations.js",
+    "./modern/setup-path": "./modern/setup-path.js"
+  },
+  "dependencies": {
+    "@testing-library/dom": "^10.4.1",
+    "motion": "^13.1.0"
+  },
+  "peerDependencies": {
+    "vitest": "^4.1.11"
+  }
+}

@@ -20,7 +20,7 @@ vi.mock('~/lib/db', () => ({
 }));
 vi.mock('~/lib/auth/guards', () => ({ requireApiAuth: vi.fn() }));
 vi.mock('~/lib/cache', () => ({ safeUpdateTag: vi.fn() }));
-vi.mock('~/actions/activityFeed', () => ({ addEvent: vi.fn() }));
+vi.mock('~/lib/activityFeed', () => ({ addEvent: vi.fn() }));
 vi.mock('~/schemas/apiTokens', () => ({
   createApiTokenSchema: { parse: vi.fn() },
   updateApiTokenSchema: { parse: vi.fn() },
