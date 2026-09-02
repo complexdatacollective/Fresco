@@ -8,8 +8,9 @@
  * researcher-assigned `participantIdentifier` in its query string, which names
  * a human being.
  *
- * `next.config.ts` already sends `no-referrer` from both routes so those values
- * cannot leak to third-party sub-resources. Analytics is the other way out:
+ * `next.config.ts` already sends `strict-origin-when-cross-origin` from both
+ * routes, so a third-party sub-resource sees the origin and never the path
+ * those values live in. Analytics is the other way out:
  * posthog-js attaches the current URL to every event it captures, so an
  * enabled deployment would send participant access links to PostHog on every
  * autocaptured click. This module is what stops that.

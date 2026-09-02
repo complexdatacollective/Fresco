@@ -52,6 +52,17 @@ const config: NextConfig = {
     const securityHeaders = [
       { key: 'X-Content-Type-Options', value: 'nosniff' },
       { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+      // `strict-origin-when-cross-origin` applies to the participant routes
+      // (`/interview/*`, `/onboard/*`) as well, on purpose. Their URLs carry the
+      // interview id, which is the unauthenticated participant access
+      // capability, and this policy never sends the path cross-origin: a
+      // third-party sub-resource sees only the scheme and host, and nothing at
+      // all on an HTTPS→HTTP downgrade. Sending the origin is what lets a
+      // Geospatial stage work with a URL-restricted Mapbox token, which Mapbox
+      // evaluates from the Referer header and rejects with 403 when it is
+      // absent. Do not tighten these routes to `no-referrer` again: it strips
+      // the origin too and breaks every restricted token, while protecting
+      // nothing this policy already withholds.
       { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
       {
         key: 'Strict-Transport-Security',
@@ -59,16 +70,7 @@ const config: NextConfig = {
       },
     ];
 
-    // Interview/onboard URLs carry the interview id, which is the
-    // unauthenticated participant access capability. Send no Referer from these
-    // routes so the id can never leak to third-party sub-resources.
-    const noReferrer = [{ key: 'Referrer-Policy', value: 'no-referrer' }];
-
-    return Promise.resolve([
-      { source: '/:path*', headers: securityHeaders },
-      { source: '/interview/:path*', headers: noReferrer },
-      { source: '/onboard/:path*', headers: noReferrer },
-    ]);
+    return Promise.resolve([{ source: '/:path*', headers: securityHeaders }]);
   },
 };
 
