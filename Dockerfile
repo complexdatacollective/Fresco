@@ -13,6 +13,7 @@ RUN corepack enable
 
 # Copy dependency files
 COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml prisma.config.ts env.js ./
+COPY vendor ./vendor
 COPY vendor/vitest-config ./vendor/vitest-config
 COPY lib/db/schema.prisma ./lib/db/schema.prisma
 
@@ -115,6 +116,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/tsconfig ./tsconfig
 # schema the bundled runtime cannot run.
 COPY --from=builder /app/package.json /tmp/package.json
 COPY --from=builder /app/pnpm-lock.yaml /tmp/pnpm-lock.yaml
+COPY --from=builder /app/vendor /tmp/vendor
 RUN --mount=type=cache,target=/root/.npm \
     set -e; \
     V() { node -p "require('/tmp/package.json').dependencies?.['$1'] || require('/tmp/package.json').devDependencies?.['$1']"; }; \
@@ -134,7 +136,7 @@ RUN --mount=type=cache,target=/root/.npm \
       "zod@$(V zod)" \
       "@t3-oss/env-nextjs@$(V @t3-oss/env-nextjs)" \
       "@codaco/protocol-validation@$(LV @codaco/protocol-validation)"; \
-    npm pack --silent --pack-destination /tmp "@codaco/interview@$(LV @codaco/interview)"; \
+    cp /tmp/vendor/codaco-interview-9.0.1.tgz /tmp/codaco-interview-vendored.tgz; \
     mkdir -p /tmp/interview-pack /tmp/runtime/node_modules/@codaco; \
     tar xzf /tmp/codaco-interview-*.tgz -C /tmp/interview-pack; \
     mv /tmp/interview-pack/package /tmp/runtime/node_modules/@codaco/interview; \

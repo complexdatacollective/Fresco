@@ -31,6 +31,10 @@ allowBuilds:
 # Keep security-sensitive transitives on patched versions when upstream
 # manifests still pin vulnerable releases.
 overrides:
+  # Packages changed since fresco@4.1.4 (and their dependents), bundled by the hotfix lane (local tarballs).
+  '@codaco/fresco-ui': 'file:vendor/codaco-fresco-ui-6.4.0.tgz'
+  '@codaco/interview': 'file:vendor/codaco-interview-9.0.1.tgz'
+  '@codaco/protocol-utilities': 'file:vendor/codaco-protocol-utilities-4.0.0.tgz'
   'effect@3.17.7': '^3.22.1'
   fast-uri: '^3.1.4'
   find-my-way: '^9.7.0'

@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
+  '@codaco/fresco-ui': file:vendor/codaco-fresco-ui-6.4.0.tgz
+  '@codaco/interview': file:vendor/codaco-interview-9.0.1.tgz
+  '@codaco/protocol-utilities': file:vendor/codaco-protocol-utilities-4.0.0.tgz
   effect@3.17.7: ^3.22.1
   fast-uri: ^3.1.4
   find-my-way: ^9.7.0
@@ -26,17 +29,17 @@ importers:
         specifier: ~1.7.0
         version: 1.7.0(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@codaco/fresco-ui':
-        specifier: ^6.4.0
-        version: 6.4.0(@base-ui/react@1.7.0(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@codaco/shared-consts@6.0.0)(@codaco/tailwind-config@1.4.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(tailwindcss@4.3.3))(@floating-ui/dom@1.8.0)(@tanstack/react-table@8.21.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@tiptap/extension-list@3.31.0(@tiptap/core@3.31.0(@tiptap/pm@3.31.0))(@tiptap/pm@3.31.0))(@tiptap/extensions@3.31.0(@tiptap/core@3.31.0(@tiptap/pm@3.31.0))(@tiptap/pm@3.31.0))(@types/react-dom@19.2.5(@types/react@19.2.18))(@types/react@19.2.18)(motion@13.1.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(supports-color@10.2.2)(tailwindcss@4.3.3)(typescript@7.0.2)(zod@4.5.4)(zustand@5.0.15(@types/react@19.2.18)(immer@11.1.18)(react@19.2.8)(use-sync-external-store@1.6.0(react@19.2.8)))
+        specifier: file:vendor/codaco-fresco-ui-6.4.0.tgz
+        version: file:vendor/codaco-fresco-ui-6.4.0.tgz(@base-ui/react@1.7.0(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@codaco/shared-consts@6.0.0)(@codaco/tailwind-config@1.4.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(tailwindcss@4.3.3))(@floating-ui/dom@1.8.0)(@tanstack/react-table@8.21.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@tiptap/extension-list@3.31.0(@tiptap/core@3.31.0(@tiptap/pm@3.31.0))(@tiptap/pm@3.31.0))(@tiptap/extensions@3.31.0(@tiptap/core@3.31.0(@tiptap/pm@3.31.0))(@tiptap/pm@3.31.0))(@types/react-dom@19.2.5(@types/react@19.2.18))(@types/react@19.2.18)(motion@13.1.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(supports-color@10.2.2)(tailwindcss@4.3.3)(typescript@7.0.2)(zod@4.5.4)(zustand@5.0.15(@types/react@19.2.18)(immer@11.1.18)(react@19.2.8)(use-sync-external-store@1.6.0(react@19.2.8)))
       '@codaco/interview':
-        specifier: ^9.0.1
-        version: 9.0.1(2c80ece380d7341f586970ba332c6078)
+        specifier: file:vendor/codaco-interview-9.0.1.tgz
+        version: file:vendor/codaco-interview-9.0.1.tgz(d47d29a6b44c518f8026fdfd65af9a4a)
       '@codaco/network-exporters':
         specifier: ^2.0.1
         version: 2.0.1
       '@codaco/protocol-utilities':
-        specifier: ^4.0.0
-        version: 4.0.0
+        specifier: file:vendor/codaco-protocol-utilities-4.0.0.tgz
+        version: file:vendor/codaco-protocol-utilities-4.0.0.tgz
       '@codaco/protocol-validation':
         specifier: ^13.0.1
         version: 13.0.1
@@ -496,8 +499,9 @@ packages:
     peerDependencies:
       storybook: ^0.0.0-0 || ^10.1.0 || ^10.1.0-0 || ^10.2.0-0 || ^10.3.0-0 || ^10.4.0-0 || ^10.5.0-0 || ^10.6.0-0
 
-  '@codaco/fresco-ui@6.4.0':
-    resolution: {integrity: sha512-ivIXuSBVr14OCEwars9XkrnUT4CULUP8uRsC6gGcx7JpiiXEyQXRwSoqGGM2JeeRz+yBmIG2Xh4+ifFzuFvW1g==}
+  '@codaco/fresco-ui@file:vendor/codaco-fresco-ui-6.4.0.tgz':
+    resolution: {integrity: sha512-aQMws/2T5KVDbRE3bl0SCUDBqaaTWMHQEGknA3IAbjC03p9nVacUqlf5nfHUMxREbymQzoZVPdEoMC38upPxyA==, tarball: file:vendor/codaco-fresco-ui-6.4.0.tgz}
+    version: 6.4.0
     peerDependencies:
       '@base-ui/react': ^1.4.0
       '@codaco/shared-consts': ^6.0.0
@@ -510,8 +514,9 @@ packages:
       zod: ^4.4.3
       zustand: ^5.0.14
 
-  '@codaco/interview@9.0.1':
-    resolution: {integrity: sha512-UHJOvijfQCCGcEC7rVEAmsLq3TCEocMXXz591GyGq9Ubv/s2JPohGWAgcqH284c+YUEFr1Rj2nhDFkjo/YnzrA==}
+  '@codaco/interview@file:vendor/codaco-interview-9.0.1.tgz':
+    resolution: {integrity: sha512-Z+2qefWbH3FFlCHAdGvmj2wyhF+RJVp0LgNP4ju1zsw0N3DiST22iT3RElShqcNDqJxa7bSGVGfWEHWXerfKhw==, tarball: file:vendor/codaco-interview-9.0.1.tgz}
+    version: 9.0.1
     peerDependencies:
       '@codaco/fresco-ui': ^6.4.0
       '@codaco/protocol-validation': ^13.0.1
@@ -528,8 +533,9 @@ packages:
   '@codaco/network-query@1.2.4':
     resolution: {integrity: sha512-YnhhEve+947mWett50pPViAXAkMViHtb6izmsP12Nhr67LY7Kvyz4vX3z25SMyF0XJnHYFrZHA2DnLqpDyEYNw==}
 
-  '@codaco/protocol-utilities@4.0.0':
-    resolution: {integrity: sha512-yVg8jH8gnJOnER/laL/XR5fBgNxVtx2hqibifqc/Lkf7+rMwkrqJ/GafzYoJRlzpIz7ZiCY0cl54gS4nJOYljA==}
+  '@codaco/protocol-utilities@file:vendor/codaco-protocol-utilities-4.0.0.tgz':
+    resolution: {integrity: sha512-u5x0LZvJXalfp0+h4zsbg+ddScAeMrlzcTfH9RL8Uoi2jWJ3+R7vXxichvgI+CMVX5ML2BjpwyTGaNREXyVu1Q==, tarball: file:vendor/codaco-protocol-utilities-4.0.0.tgz}
+    version: 4.0.0
 
   '@codaco/protocol-validation@13.0.1':
     resolution: {integrity: sha512-5cCrcjK9VKSO/U2WBhkn/VMrxaHrLsZ+jYsyHcaLukMxJKmFhCuoG3dGg1KJc2dUbRwZwS6fcQJhmOpYV92I0Q==}
@@ -2117,6 +2123,7 @@ packages:
   '@smithy/node-http-handler@4.12.0':
     resolution: {integrity: sha512-0mq1pHadfyXCYCqm2cNpbjNIT+fbaUpNxewZb/YNr2L0IrEVMOb8gM/Fl4K6XvHCW3uSNDFwPl/+iKm0bx9jYg==}
     engines: {node: '>=18.0.0'}
+    deprecated: Depreacted due to a memory leak issue https://github.com/smithy-lang/smithy-typescript/issues/2258
 
   '@smithy/signature-v4@5.7.3':
     resolution: {integrity: sha512-7ImGm+FkHRLcBaRttIAMZ6bzJZWb2cJGoYjq46F2UjycujWzrL9GEN9h4w7eQyXJYnltrUhxbbieBAIRrdqpow==}
@@ -6095,7 +6102,7 @@ snapshots:
       - '@chromatic-com/playwright'
       - '@chromatic-com/vitest'
 
-  '@codaco/fresco-ui@6.4.0(@base-ui/react@1.7.0(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@codaco/shared-consts@6.0.0)(@codaco/tailwind-config@1.4.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(tailwindcss@4.3.3))(@floating-ui/dom@1.8.0)(@tanstack/react-table@8.21.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@tiptap/extension-list@3.31.0(@tiptap/core@3.31.0(@tiptap/pm@3.31.0))(@tiptap/pm@3.31.0))(@tiptap/extensions@3.31.0(@tiptap/core@3.31.0(@tiptap/pm@3.31.0))(@tiptap/pm@3.31.0))(@types/react-dom@19.2.5(@types/react@19.2.18))(@types/react@19.2.18)(motion@13.1.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(supports-color@10.2.2)(tailwindcss@4.3.3)(typescript@7.0.2)(zod@4.5.4)(zustand@5.0.15(@types/react@19.2.18)(immer@11.1.18)(react@19.2.8)(use-sync-external-store@1.6.0(react@19.2.8)))':
+  '@codaco/fresco-ui@file:vendor/codaco-fresco-ui-6.4.0.tgz(@base-ui/react@1.7.0(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@codaco/shared-consts@6.0.0)(@codaco/tailwind-config@1.4.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(tailwindcss@4.3.3))(@floating-ui/dom@1.8.0)(@tanstack/react-table@8.21.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@tiptap/extension-list@3.31.0(@tiptap/core@3.31.0(@tiptap/pm@3.31.0))(@tiptap/pm@3.31.0))(@tiptap/extensions@3.31.0(@tiptap/core@3.31.0(@tiptap/pm@3.31.0))(@tiptap/pm@3.31.0))(@types/react-dom@19.2.5(@types/react@19.2.18))(@types/react@19.2.18)(motion@13.1.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(supports-color@10.2.2)(tailwindcss@4.3.3)(typescript@7.0.2)(zod@4.5.4)(zustand@5.0.15(@types/react@19.2.18)(immer@11.1.18)(react@19.2.8)(use-sync-external-store@1.6.0(react@19.2.8)))':
     dependencies:
       '@base-ui/react': 1.7.0(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@codaco/shared-consts': 6.0.0
@@ -6142,10 +6149,10 @@ snapshots:
       - supports-color
       - typescript
 
-  '@codaco/interview@9.0.1(2c80ece380d7341f586970ba332c6078)':
+  '@codaco/interview@file:vendor/codaco-interview-9.0.1.tgz(d47d29a6b44c518f8026fdfd65af9a4a)':
     dependencies:
       '@base-ui/react': 1.7.0(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
-      '@codaco/fresco-ui': 6.4.0(@base-ui/react@1.7.0(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@codaco/shared-consts@6.0.0)(@codaco/tailwind-config@1.4.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(tailwindcss@4.3.3))(@floating-ui/dom@1.8.0)(@tanstack/react-table@8.21.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@tiptap/extension-list@3.31.0(@tiptap/core@3.31.0(@tiptap/pm@3.31.0))(@tiptap/pm@3.31.0))(@tiptap/extensions@3.31.0(@tiptap/core@3.31.0(@tiptap/pm@3.31.0))(@tiptap/pm@3.31.0))(@types/react-dom@19.2.5(@types/react@19.2.18))(@types/react@19.2.18)(motion@13.1.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(supports-color@10.2.2)(tailwindcss@4.3.3)(typescript@7.0.2)(zod@4.5.4)(zustand@5.0.15(@types/react@19.2.18)(immer@11.1.18)(react@19.2.8)(use-sync-external-store@1.6.0(react@19.2.8)))
+      '@codaco/fresco-ui': file:vendor/codaco-fresco-ui-6.4.0.tgz(@base-ui/react@1.7.0(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@codaco/shared-consts@6.0.0)(@codaco/tailwind-config@1.4.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(tailwindcss@4.3.3))(@floating-ui/dom@1.8.0)(@tanstack/react-table@8.21.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(@tiptap/extension-list@3.31.0(@tiptap/core@3.31.0(@tiptap/pm@3.31.0))(@tiptap/pm@3.31.0))(@tiptap/extensions@3.31.0(@tiptap/core@3.31.0(@tiptap/pm@3.31.0))(@tiptap/pm@3.31.0))(@types/react-dom@19.2.5(@types/react@19.2.18))(@types/react@19.2.18)(motion@13.1.1(react-dom@19.2.8(react@19.2.8))(react@19.2.8))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(supports-color@10.2.2)(tailwindcss@4.3.3)(typescript@7.0.2)(zod@4.5.4)(zustand@5.0.15(@types/react@19.2.18)(immer@11.1.18)(react@19.2.8)(use-sync-external-store@1.6.0(react@19.2.8)))
       '@codaco/network-query': 1.2.4
       '@codaco/protocol-validation': 13.0.1
       '@codaco/shared-consts': 6.0.0
@@ -6198,7 +6205,7 @@ snapshots:
       '@codaco/shared-consts': 6.0.0
       es-toolkit: 1.52.0
 
-  '@codaco/protocol-utilities@4.0.0':
+  '@codaco/protocol-utilities@file:vendor/codaco-protocol-utilities-4.0.0.tgz':
     dependencies:
       '@codaco/network-query': 1.2.4
       '@codaco/protocol-validation': 13.0.1

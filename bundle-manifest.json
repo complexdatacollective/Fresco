@@ -1,0 +1,14 @@
+{
+  "vendored": {
+    "@codaco/fresco-ui": "codaco-fresco-ui-6.4.0.tgz",
+    "@codaco/interview": "codaco-interview-9.0.1.tgz",
+    "@codaco/protocol-utilities": "codaco-protocol-utilities-4.0.0.tgz"
+  },
+  "registry": [
+    "@codaco/network-exporters",
+    "@codaco/network-query",
+    "@codaco/protocol-validation",
+    "@codaco/shared-consts",
+    "@codaco/tailwind-config"
+  ]
+}
