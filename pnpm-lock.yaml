@@ -500,7 +500,7 @@ packages:
       storybook: ^0.0.0-0 || ^10.1.0 || ^10.1.0-0 || ^10.2.0-0 || ^10.3.0-0 || ^10.4.0-0 || ^10.5.0-0 || ^10.6.0-0
 
   '@codaco/fresco-ui@file:vendor/codaco-fresco-ui-6.4.0.tgz':
-    resolution: {integrity: sha512-aQMws/2T5KVDbRE3bl0SCUDBqaaTWMHQEGknA3IAbjC03p9nVacUqlf5nfHUMxREbymQzoZVPdEoMC38upPxyA==, tarball: file:vendor/codaco-fresco-ui-6.4.0.tgz}
+    resolution: {integrity: sha512-EHdVDRLz04RIO9lgUBbfXU2XuZ3kEQ0One1rxPeWPmYX1whgYmYEx8e8kNVowlLZ8pFEDKoSG1ABYBFDlOBt0A==, tarball: file:vendor/codaco-fresco-ui-6.4.0.tgz}
     version: 6.4.0
     peerDependencies:
       '@base-ui/react': ^1.4.0
@@ -515,7 +515,7 @@ packages:
       zustand: ^5.0.14
 
   '@codaco/interview@file:vendor/codaco-interview-9.0.1.tgz':
-    resolution: {integrity: sha512-Z+2qefWbH3FFlCHAdGvmj2wyhF+RJVp0LgNP4ju1zsw0N3DiST22iT3RElShqcNDqJxa7bSGVGfWEHWXerfKhw==, tarball: file:vendor/codaco-interview-9.0.1.tgz}
+    resolution: {integrity: sha512-4rv2fvR3Up85BcoPjhF9ZI4gFlSJlDzCSZ63nZPR1UkU/slA4igOjBNvFIpbu6gNjd4tEHkt6V1B5K0ME+PK6g==, tarball: file:vendor/codaco-interview-9.0.1.tgz}
     version: 9.0.1
     peerDependencies:
       '@codaco/fresco-ui': ^6.4.0
@@ -534,7 +534,7 @@ packages:
     resolution: {integrity: sha512-YnhhEve+947mWett50pPViAXAkMViHtb6izmsP12Nhr67LY7Kvyz4vX3z25SMyF0XJnHYFrZHA2DnLqpDyEYNw==}
 
   '@codaco/protocol-utilities@file:vendor/codaco-protocol-utilities-4.0.0.tgz':
-    resolution: {integrity: sha512-u5x0LZvJXalfp0+h4zsbg+ddScAeMrlzcTfH9RL8Uoi2jWJ3+R7vXxichvgI+CMVX5ML2BjpwyTGaNREXyVu1Q==, tarball: file:vendor/codaco-protocol-utilities-4.0.0.tgz}
+    resolution: {integrity: sha512-PkZfGdLoo3LHjdrZgk54RiAABZkcy2w7tZ3QJaK0jWAUEo8KLY2j3/VTB58VG5aOauW0j09FlaR81lSjM7sO3g==, tarball: file:vendor/codaco-protocol-utilities-4.0.0.tgz}
     version: 4.0.0
 
   '@codaco/protocol-validation@13.0.1':

@@ -27,7 +27,14 @@ try {
 }
 
 const config: NextConfig = {
-  output: 'standalone',
+  // Next 16.3 stopped emitting `.next/next-server.js.nft.json` when
+  // `output: 'standalone'` is set, and Vercel's build adapter needs it to
+  // package functions — every Vercel deploy dies in `onBuildComplete`.
+  // Standalone exists only for the Docker image, so drop it there.
+  // Fixed upstream for 16.4 (vercel/next.js#96646); remove when the catalog
+  // moves off 16.3.x.
+  // eslint-disable-next-line no-process-env
+  output: process.env.VERCEL ? undefined : 'standalone',
   reactStrictMode: true,
   reactCompiler: true,
   cacheComponents: true,
