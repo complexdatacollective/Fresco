@@ -5,6 +5,8 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
+  '@codaco/fresco-ui': file:vendor/codaco-fresco-ui-7.0.0.tgz
+  '@codaco/interview': file:vendor/codaco-interview-9.1.0.tgz
   effect@3.17.7: ^3.22.1
   fast-uri: ^3.1.6
   find-my-way: ^9.7.0
@@ -29,11 +31,11 @@ importers:
         specifier: ^0.2.0
         version: 0.2.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.0)(rolldown@1.2.11)(vite@8.3.1(@types/node@24.19.0)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.0)(sass@1.105.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.111.1(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.28)(sharp@0.35.5(@types/node@24.19.0)))
       '@codaco/fresco-ui':
-        specifier: ^7.0.0
-        version: 7.0.0(3f4138762893bd1cd2ffa089e30b95f8)
+        specifier: file:vendor/codaco-fresco-ui-7.0.0.tgz
+        version: file:vendor/codaco-fresco-ui-7.0.0.tgz(3f4138762893bd1cd2ffa089e30b95f8)
       '@codaco/interview':
-        specifier: ^9.1.0
-        version: 9.1.0(45b24713ad698892b2f264ae867d5da1)
+        specifier: file:vendor/codaco-interview-9.1.0.tgz
+        version: file:vendor/codaco-interview-9.1.0.tgz(401c89407a94114838b8fb003f8b4c0f)
       '@codaco/network-exporters':
         specifier: ^3.0.0
         version: 3.0.0(@codaco/app-i18n@0.2.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.0)(rolldown@1.2.11)(vite@8.3.1(@types/node@24.19.0)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.0)(sass@1.105.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.111.1(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.28)(sharp@0.35.5(@types/node@24.19.0))))(effect@4.0.0-rc.115)
@@ -519,8 +521,9 @@ packages:
     peerDependencies:
       react: ^19.3.0
 
-  '@codaco/fresco-ui@7.0.0':
-    resolution: {integrity: sha512-rqUItLXiyneuGiQpz+sRlIsECZPhqdNxWhmwVhtC92KbQWzGShieHjK90SWxlavDiLQ+NYAky7JRcMkokPSxgA==}
+  '@codaco/fresco-ui@file:vendor/codaco-fresco-ui-7.0.0.tgz':
+    resolution: {integrity: sha512-Mzxg4/A2BNuHyLxfbsfBYGeAMY7V1/jyb1u1hbewzoyVE+iGthNJftWW43lG3TSZC8y1JwmMu8xxevc7HlsE+Q==, tarball: file:vendor/codaco-fresco-ui-7.0.0.tgz}
+    version: 7.0.0
     peerDependencies:
       '@base-ui/react': ^1.4.0
       '@codaco/app-i18n': ^0.2.0
@@ -538,8 +541,9 @@ packages:
       '@codaco/protocol-validation':
         optional: true
 
-  '@codaco/interview@9.1.0':
-    resolution: {integrity: sha512-nO8Sl8vA1QamCSC9v840/W6NFHp/sjBN9xJCKyLUJXQQ34O1g1aMbWEHxyWAvjn6h+geDBq9ihpyHIk4qAqhCA==}
+  '@codaco/interview@file:vendor/codaco-interview-9.1.0.tgz':
+    resolution: {integrity: sha512-Xr+zYZj1qzv9sILWEpqs9yCRHRg42JydyK2gA1i7nwPxrZEAhfdbFWRp4OR3l+fbw9xnQ1aPHQzzCYTioFARyg==, tarball: file:vendor/codaco-interview-9.1.0.tgz}
+    version: 9.1.0
     peerDependencies:
       '@codaco/fresco-ui': ^7.0.0
       '@codaco/protocol-validation': ^14.0.0
@@ -6625,7 +6629,7 @@ snapshots:
       - vue
       - webpack
 
-  '@codaco/fresco-ui@7.0.0(3f4138762893bd1cd2ffa089e30b95f8)':
+  '@codaco/fresco-ui@file:vendor/codaco-fresco-ui-7.0.0.tgz(3f4138762893bd1cd2ffa089e30b95f8)':
     dependencies:
       '@base-ui/react': 1.7.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@codaco/app-i18n': 0.2.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.0)(rolldown@1.2.11)(vite@8.3.1(@types/node@24.19.0)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.0)(sass@1.105.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.111.1(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.28)(sharp@0.35.5(@types/node@24.19.0)))
@@ -6676,11 +6680,11 @@ snapshots:
       - supports-color
       - typescript
 
-  '@codaco/interview@9.1.0(45b24713ad698892b2f264ae867d5da1)':
+  '@codaco/interview@file:vendor/codaco-interview-9.1.0.tgz(401c89407a94114838b8fb003f8b4c0f)':
     dependencies:
       '@base-ui/react': 1.7.0(@types/react@19.3.0)(react-dom@19.3.0(react@19.3.0))(react@19.3.0)
       '@codaco/app-i18n': 0.2.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.0)(rolldown@1.2.11)(vite@8.3.1(@types/node@24.19.0)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.0)(sass@1.105.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.111.1(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.28)(sharp@0.35.5(@types/node@24.19.0)))
-      '@codaco/fresco-ui': 7.0.0(3f4138762893bd1cd2ffa089e30b95f8)
+      '@codaco/fresco-ui': file:vendor/codaco-fresco-ui-7.0.0.tgz(3f4138762893bd1cd2ffa089e30b95f8)
       '@codaco/network-query': 1.2.5(@codaco/app-i18n@0.2.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.0)(rolldown@1.2.11)(vite@8.3.1(@types/node@24.19.0)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.0)(sass@1.105.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.111.1(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.28)(sharp@0.35.5(@types/node@24.19.0))))
       '@codaco/protocol-validation': 14.0.0(@codaco/app-i18n@0.2.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.0)(rolldown@1.2.11)(vite@8.3.1(@types/node@24.19.0)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.0)(sass@1.105.0)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.111.1(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.28)(sharp@0.35.5(@types/node@24.19.0))))
       '@codaco/shared-consts': 6.1.0
