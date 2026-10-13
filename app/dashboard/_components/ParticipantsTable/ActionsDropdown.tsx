@@ -7,6 +7,7 @@ import { commonMessages } from '@codaco/app-i18n/common';
 import { defineMessages } from '@codaco/app-i18n/messages';
 import { useAppIntl } from '@codaco/app-i18n/react';
 import { IconButton } from '@codaco/fresco-ui/Button';
+import { type DataTableFeatures } from '@codaco/fresco-ui/DataTable/features';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -43,7 +44,7 @@ export function ActionsDropdown({
   onEdit,
   onDelete,
 }: {
-  row: Row<ParticipantRow>;
+  row: Row<DataTableFeatures, ParticipantRow>;
   onEdit: (participant: ParticipantRow) => void;
   onDelete: (participant: ParticipantRow) => void;
 }) {

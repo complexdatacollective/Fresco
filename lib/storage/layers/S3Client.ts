@@ -21,6 +21,10 @@ function makeClient(endpoint: string, config: S3StorageConfig): S3Client {
     // Required for MinIO and for bucket-in-path URLs that the reverse-proxy
     // path route depends on.
     forcePathStyle: true,
+    // Upload URLs are presigned before the browser has sent a body, so the
+    // SDK's default checksum would be the checksum of an empty body, and a
+    // store that verifies it (Garage among them) rejects the real upload.
+    requestChecksumCalculation: 'WHEN_REQUIRED',
   });
 }
 

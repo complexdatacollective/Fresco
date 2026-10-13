@@ -17,6 +17,7 @@ import { requireApiAuth } from '~/lib/auth/guards';
 import { safeRevalidateTag, safeUpdateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import { Prisma } from '~/lib/db/generated/client';
+import { parseStoredProtocol } from '~/lib/db/storedProtocol';
 import { captureException, flushPostHog } from '~/lib/posthog-server';
 import { getAppSetting } from '~/queries/appSettings';
 import { getInterviewIdsMatching } from '~/queries/interviews';
@@ -63,6 +64,13 @@ const messages = defineMessages({
       'Protocol is stored under a schema version this deployment cannot run. Repair it in Architect and upload it again.',
     description:
       'Researcher-facing actions / interviews: Protocol is stored under a schema version this deployment cannot run. Repair it in Architect and upload it again.',
+  },
+  copyProtocolCouldNotBeRead: {
+    id: 'fresco.actions.interviews.copyProtocolCouldNotBeRead',
+    defaultMessage:
+      'This protocol could not be read, so interviews cannot be started with it.',
+    description:
+      "Researcher-facing actions / interviews: the protocol's stored stages, codebook or experiments do not parse, so no interview was created.",
   },
   copyInvalidParticipantIdentifier: {
     id: 'fresco.actions.interviews.copyInvalidParticipantIdentifier',
@@ -272,7 +280,13 @@ export async function createInterview(
     // when nothing else fails first.
     const protocol = await prisma.protocol.findUnique({
       where: { id: protocolId },
-      select: { id: true, schemaVersion: true },
+      select: {
+        id: true,
+        schemaVersion: true,
+        stages: true,
+        codebook: true,
+        experiments: true,
+      },
     });
 
     if (!protocol) {
@@ -293,6 +307,16 @@ export async function createInterview(
         error: intl.formatMessage(
           messages.copyProtocolIsStoredUnderASchemaVersion,
         ),
+        createdInterviewId: null,
+      };
+    }
+
+    // Likewise a protocol whose stored design does not parse: the interview
+    // page would refuse to start every interview created for it.
+    if (!parseStoredProtocol(protocol).success) {
+      return {
+        errorType: 'incompatible-protocol',
+        error: intl.formatMessage(messages.copyProtocolCouldNotBeRead),
         createdInterviewId: null,
       };
     }

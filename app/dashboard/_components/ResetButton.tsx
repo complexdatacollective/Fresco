@@ -60,13 +60,19 @@ const ResetButton = () => {
         accent="destructive"
         open={showConfirmDialog}
         closeDialog={() => setShowConfirmDialog(false)}
+        // The reset runs to completion once started, so leaving mid-way would
+        // look like a cancel while every protocol and interview is deleted.
+        dismissible={!isResetting}
         title={intl.formatMessage(messages.areYouSure)}
         description={intl.formatMessage(
           messages.thisActionWillDeleteALLApplicationData,
         )}
         footer={
           <>
-            <Button onClick={() => setShowConfirmDialog(false)}>
+            <Button
+              onClick={() => setShowConfirmDialog(false)}
+              disabled={isResetting}
+            >
               {intl.formatMessage(commonMessages.cancel)}
             </Button>
             <Button
@@ -76,6 +82,9 @@ const ResetButton = () => {
                 try {
                   await resetAppSettings();
                 } catch {
+                  // Success redirects to setup, so the flag is only cleared
+                  // on failure: clearing it on success would briefly reopen
+                  // the dialog to dismissal before the navigation lands.
                   setIsResetting(false);
                 }
               }}

@@ -1,9 +1,5 @@
 import {
-  getCoreRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-  type ColumnDef,
+  useTable,
   type OnChangeFn,
   type PaginationState,
   type RowSelectionState,
@@ -14,6 +10,8 @@ import { use, useMemo, type ReactNode } from 'react';
 import superjson from 'superjson';
 
 import { DataTable } from '@codaco/fresco-ui/DataTable/DataTable';
+import { dataTableFeatures } from '@codaco/fresco-ui/DataTable/features';
+import { type DataTableColumnDef } from '@codaco/fresco-ui/DataTable/types';
 import { useNuqsTable } from '~/components/DataTable/nuqs/NuqsTableProvider';
 import type {
   GetParticipantsQuery,
@@ -40,7 +38,7 @@ export default function ParticipantsTableRows({
   participantsPromise: GetParticipantsReturnType;
   rowSelection: RowSelectionState;
   onRowSelectionChange: OnChangeFn<RowSelectionState>;
-  columns: ColumnDef<ParticipantRow>[];
+  columns: DataTableColumnDef<ParticipantRow>[];
   toolbar: ReactNode;
   isBusy: boolean;
   onDeleteSelected: () => void;
@@ -82,7 +80,8 @@ export default function ParticipantsTableRows({
   const sorting: SortingState =
     sort === 'none' ? [] : [{ id: sortField, desc: sort === 'desc' }];
 
-  const table = useReactTable({
+  const table = useTable({
+    features: dataTableFeatures,
     data: rows,
     columns,
     pageCount: data.pageCount,
@@ -111,11 +110,11 @@ export default function ParticipantsTableRows({
       });
     },
     onRowSelectionChange,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
     manualPagination: true,
     manualSorting: true,
+    // This table never filtered client-side (v8 had no filtered row model
+    // registered); the shared feature set registers one, so opt out here.
+    manualFiltering: true,
   });
 
   const selectedCount = Object.keys(rowSelection).filter(

@@ -7,7 +7,7 @@ import {
   syntheticGenerationEventSchema,
   syntheticGenerationFailureSchema,
 } from '~/schemas/synthetic-interviews';
-import { frescoCatalogs } from '~/src/locales/catalogs';
+import { frescoCatalogSource } from '~/src/locales/catalogs';
 
 vi.mock('server-only', () => ({}));
 const {
@@ -16,12 +16,24 @@ const {
   createInterview,
   generateNetwork,
   addEvent,
+  captureException,
 } = vi.hoisted(() => ({
   requireApiAuth: vi.fn(),
   findProtocol: vi.fn(),
   createInterview: vi.fn(),
   generateNetwork: vi.fn(),
   addEvent: vi.fn(),
+  captureException: vi.fn(),
+}));
+vi.mock('next/server', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  after: vi.fn((task: () => unknown) => {
+    void task();
+  }),
+}));
+vi.mock('~/lib/posthog-server', () => ({
+  captureException,
+  flushPostHog: vi.fn(),
 }));
 vi.mock('~/lib/auth/guards', () => ({ requireApiAuth }));
 vi.mock('~/lib/activityFeed', () => ({ addEvent }));
@@ -48,8 +60,11 @@ const request = (
     headers: { 'Content-Type': 'application/json' },
     body,
   });
+// Loaded up front, so the Spanish formatter below is synchronous.
+await frescoCatalogSource.load('es');
+
 const intl = (locale: string) =>
-  createAppIntl({ locale, messages: frescoCatalogs[locale] });
+  createAppIntl({ locale, messages: frescoCatalogSource.peek(locale) });
 
 beforeEach(() => {
   vi.resetAllMocks();
@@ -106,6 +121,29 @@ describe('synthetic generation failure transport', () => {
     );
     expect(findProtocol).toHaveBeenCalledWith({ where: { id: 'protocol-1' } });
     expect(generateNetwork).not.toHaveBeenCalled();
+  });
+
+  // Generating against an empty stand-in for a protocol that does not parse
+  // would fill the deployment with interviews that hold nothing.
+  it('refuses to generate from a protocol it cannot read, rather than from an empty stand-in', async () => {
+    findProtocol.mockResolvedValue({
+      name: 'Fixture',
+      stages: [{ id: 'stage-1', type: 'NotAnInterface' }],
+      codebook: {},
+    });
+    const response = await POST(request());
+    expect(response.status).toBe(500);
+    const failure = syntheticGenerationFailureSchema.parse(
+      await response.json(),
+    );
+    expect(formatMessageError(failure.error, intl('en'))).toBe(
+      'This protocol could not be read, so no interviews were generated.',
+    );
+    expect(generateNetwork).not.toHaveBeenCalled();
+    expect(createInterview).not.toHaveBeenCalled();
+    expect(captureException).toHaveBeenCalledWith(expect.anything(), {
+      context: 'synthetic.protocol.unreadable',
+    });
   });
 
   it('streams named constraints with owning-package reasons and retains the original diagnostic after partial creation', async () => {

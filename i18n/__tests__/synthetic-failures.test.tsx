@@ -18,7 +18,7 @@ import SyntheticInterviewDataSection from '~/app/dashboard/settings/_components/
 import { frescoLocales } from '~/i18n/locales';
 import { syntheticGenerationMessages } from '~/i18n/syntheticGenerationMessages';
 import { getSyntheticGenerationFailure } from '~/lib/syntheticGenerationFailure';
-import { frescoCatalogs } from '~/src/locales/catalogs';
+import { frescoCatalogSource } from '~/src/locales/catalogs';
 
 const { deleteSyntheticData, revalidateSyntheticData, refresh } = vi.hoisted(
   () => ({
@@ -36,11 +36,15 @@ vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh }) }));
 const protocolsPromise = Promise.resolve(
   SuperJSON.stringify([{ id: 'protocol-1', name: 'Protocol fixture' }]),
 );
+// Loaded up front, so every render and formatter below has Spanish
+// synchronously.
+await frescoCatalogSource.load('es');
+
 const view = (locale: string) => (
   <AppI18nProvider
     locale={locale}
     locales={frescoLocales}
-    messages={frescoCatalogs[locale]}
+    messages={frescoCatalogSource.peek(locale)}
   >
     <Toast.Provider>
       <Suspense fallback={null}>

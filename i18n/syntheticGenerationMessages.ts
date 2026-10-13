@@ -20,6 +20,13 @@ export const syntheticGenerationMessages = defineMessages({
       'This protocol is no longer available. Select another protocol.',
     description: 'The selected protocol was not found when generation started.',
   },
+  unreadableProtocol: {
+    id: 'fresco.syntheticGeneration.unreadableProtocol',
+    defaultMessage:
+      'This protocol could not be read, so no interviews were generated.',
+    description:
+      "The selected protocol's stored data does not parse, so generation was refused before creating anything.",
+  },
   interrupted: {
     id: 'fresco.syntheticGeneration.interrupted',
     defaultMessage:

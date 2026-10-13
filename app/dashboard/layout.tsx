@@ -32,7 +32,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
         <UploadThingTokenGate />
       </Suspense>
       <ExportProgressProvider>{children}</ExportProgressProvider>
-      <NetlifyBadge />
+      {env.SANDBOX_MODE && <NetlifyBadge />}
     </div>
   );
 };

@@ -152,7 +152,7 @@ export const InterviewColumns = (
     {
       id: 'identifier',
       accessorKey: 'participant.identifier',
-      sortingFn: 'text',
+      sortFn: 'text',
       header: ({ column }) => {
         return (
           <DataTableColumnHeader
@@ -188,7 +188,7 @@ export const InterviewColumns = (
     {
       id: 'protocolName',
       accessorKey: 'protocol.name',
-      sortingFn: 'text',
+      sortFn: 'text',
       meta: {
         filterType: 'faceted',
         filterConfig: {
@@ -237,7 +237,7 @@ export const InterviewColumns = (
     {
       id: 'startTime',
       accessorKey: 'startTime',
-      sortingFn: 'datetime',
+      sortFn: 'datetime',
       meta: {
         filterType: 'date',
         filterConfig: { type: 'date' },
@@ -259,7 +259,7 @@ export const InterviewColumns = (
     {
       id: 'lastUpdated',
       accessorKey: 'lastUpdated',
-      sortingFn: 'datetime',
+      sortFn: 'datetime',
       meta: {
         filterType: 'date',
         filterConfig: { type: 'date' },
@@ -280,7 +280,7 @@ export const InterviewColumns = (
     },
     {
       id: 'progress',
-      sortingFn: 'basic',
+      sortFn: 'basic',
       accessorFn: (row) =>
         computeInterviewProgress({
           finishTime: row.finishTime,
@@ -386,7 +386,7 @@ export const InterviewColumns = (
     {
       id: 'exportTime',
       accessorKey: 'exportTime',
-      sortingFn: 'datetime',
+      sortFn: 'datetime',
       meta: {
         filterType: 'boolean',
         filterConfig: {

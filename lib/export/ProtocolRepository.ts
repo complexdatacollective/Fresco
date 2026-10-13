@@ -19,10 +19,24 @@ export const PrismaProtocolRepository = Layer.succeed(ProtocolRepository, {
 
       const result: Record<string, ProtocolExportInput> = {};
       for (const row of rows) {
+        // An export is labelled and typed by its codebook. One that does not
+        // parse fails the export rather than writing out every variable
+        // unlabelled, and it fails as a typed error: the batch route reports
+        // and closes the stream only for those.
+        const codebook = CodebookSchema.safeParse(row.codebook);
+        if (!codebook.success) {
+          return yield* new DatabaseError({
+            cause: new Error(
+              'A protocol selected for export holds data that could not be read',
+              { cause: codebook.error },
+            ),
+          });
+        }
+
         result[row.hash] = {
           hash: row.hash,
           name: row.name,
-          codebook: CodebookSchema.parse(row.codebook),
+          codebook: codebook.data,
         };
       }
       return result;

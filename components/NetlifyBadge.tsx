@@ -2,7 +2,6 @@
 
 import { defineMessages } from '@codaco/app-i18n/messages';
 import { useAppIntl } from '@codaco/app-i18n/react';
-import { env } from '~/env';
 
 const messages = defineMessages({
   deploysByNetlify: {
@@ -12,12 +11,14 @@ const messages = defineMessages({
   },
 });
 
+/**
+ * Rendered only by sandbox deployments. The `SANDBOX_MODE` check belongs to the
+ * server components that render this one: the variable is not exposed to the
+ * browser, so reading it here returned `undefined` on the client and the badge
+ * hydrated as nothing, failing hydration for the whole page.
+ */
 export default function NetlifyBadge() {
   const intl = useAppIntl();
-
-  if (!env.SANDBOX_MODE) {
-    return null;
-  }
 
   return (
     <footer className="flex justify-center py-4">

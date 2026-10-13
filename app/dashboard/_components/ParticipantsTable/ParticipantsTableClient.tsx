@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  type ColumnDef,
-  type Row,
-  type RowSelectionState,
-} from '@tanstack/react-table';
+import { type Row, type RowSelectionState } from '@tanstack/react-table';
 import { FileUp } from 'lucide-react';
 import { use, useMemo, useState, useTransition } from 'react';
 import SuperJSON from 'superjson';
@@ -16,6 +12,8 @@ import {
   useAppIntl,
 } from '@codaco/app-i18n/react';
 import { Button } from '@codaco/fresco-ui/Button';
+import { type DataTableFeatures } from '@codaco/fresco-ui/DataTable/features';
+import { type DataTableColumnDef } from '@codaco/fresco-ui/DataTable/types';
 import { useToast } from '@codaco/fresco-ui/Toast';
 import { cx } from '@codaco/fresco-ui/utils/cva';
 import {
@@ -83,10 +81,10 @@ export type ParticipantRow = GetParticipantsQuery[number];
 const createActionsColumn = (
   onEdit: (participant: ParticipantRow) => void,
   onDelete: (participant: ParticipantRow) => void,
-): ColumnDef<ParticipantRow> => ({
+): DataTableColumnDef<ParticipantRow> => ({
   id: 'actions',
   enableSorting: false,
-  cell: ({ row }: { row: Row<ParticipantRow> }) => (
+  cell: ({ row }: { row: Row<DataTableFeatures, ParticipantRow> }) => (
     <ActionsDropdown row={row} onEdit={onEdit} onDelete={onDelete} />
   ),
 });
@@ -183,7 +181,7 @@ const ParticipantsTableInner = ({
     [],
   );
 
-  const columns = useMemo<ColumnDef<ParticipantRow>[]>(
+  const columns = useMemo<DataTableColumnDef<ParticipantRow>[]>(
     () => [
       ...getParticipantColumns(intl, protocols),
       createActionsColumn(handleEditParticipant, handleDeleteSingle),

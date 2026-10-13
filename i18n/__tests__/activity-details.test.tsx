@@ -1,13 +1,10 @@
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from '@tanstack/react-table';
+import { useTable, flexRender } from '@tanstack/react-table';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 
 import { createAppIntl } from '@codaco/app-i18n/messages';
 import { AppI18nProvider, useAppIntl } from '@codaco/app-i18n/react';
+import { dataTableFeatures } from '@codaco/fresco-ui/DataTable/features';
 import { fetchActivityFeedTableColumnDefs } from '~/app/dashboard/_components/ActivityFeed/ColumnDefinition';
 import { formatActivityType } from '~/app/dashboard/_components/ActivityFeed/messages';
 import {
@@ -15,7 +12,7 @@ import {
   type ActivityLocalization,
 } from '~/i18n/activityDetails';
 import { frescoLocales } from '~/i18n/locales';
-import { frescoCatalogs } from '~/src/locales/catalogs';
+import { frescoCatalogSource } from '~/src/locales/catalogs';
 
 const legacy = 'User Ada changed an old setting';
 const event = {
@@ -31,10 +28,10 @@ const event = {
 
 function Details() {
   const intl = useAppIntl();
-  const table = useReactTable({
+  const table = useTable({
+    features: dataTableFeatures,
     data: [event],
     columns: fetchActivityFeedTableColumnDefs(intl),
-    getCoreRowModel: getCoreRowModel(),
   });
   const cell = table
     .getRowModel()
@@ -44,12 +41,16 @@ function Details() {
     ? flexRender(cell.column.columnDef.cell, cell.getContext())
     : null;
 }
+// Loaded up front, so every render and formatter below has Spanish
+// synchronously.
+const es = await frescoCatalogSource.load('es');
+
 function View({ locale }: { locale: string }) {
   return (
     <AppI18nProvider
       locale={locale}
       locales={frescoLocales}
-      messages={frescoCatalogs[locale]}
+      messages={frescoCatalogSource.peek(locale)}
     >
       <Details />
     </AppI18nProvider>
@@ -60,7 +61,7 @@ describe('localized activity records', () => {
   it.each(['Historical Type', 'constructor', 'toString'])(
     'preserves an unknown type label verbatim: %s',
     (type) => {
-      const intl = createAppIntl({ locale: 'es', messages: frescoCatalogs.es });
+      const intl = createAppIntl({ locale: 'es', messages: es });
       expect(formatActivityType(intl, type)).toBe(type);
     },
   );
@@ -104,7 +105,7 @@ describe('localized activity records', () => {
   ])(
     'preserves historical or unrecognized audit content verbatim: %j',
     (localization) => {
-      const intl = createAppIntl({ locale: 'es', messages: frescoCatalogs.es });
+      const intl = createAppIntl({ locale: 'es', messages: es });
       expect(
         formatActivityDetails(intl, { message: legacy, localization }),
       ).toBe(legacy);
@@ -137,28 +138,25 @@ describe('localized activity records', () => {
       ).toBe(english);
       expect(
         formatActivityDetails(
-          createAppIntl({ locale: 'es', messages: frescoCatalogs.es }),
+          createAppIntl({ locale: 'es', messages: es }),
           activity,
         ),
       ).toBe(spanish);
       expect(activity.message).toBe('Original interview-open audit record');
       expect(
-        formatActivityDetails(
-          createAppIntl({ locale: 'es', messages: frescoCatalogs.es }),
-          {
-            ...activity,
-            localization: {
-              ...activity.localization,
-              values: { ...activity.localization.values, actor: 'future' },
-            },
+        formatActivityDetails(createAppIntl({ locale: 'es', messages: es }), {
+          ...activity,
+          localization: {
+            ...activity.localization,
+            values: { ...activity.localization.values, actor: 'future' },
           },
-        ),
+        }),
       ).toBe(activity.message);
     },
   );
 
   it('formats independent counts and user lists without translating research identifiers', () => {
-    const intl = createAppIntl({ locale: 'es', messages: frescoCatalogs.es });
+    const intl = createAppIntl({ locale: 'es', messages: es });
     expect(
       formatActivityDetails(intl, {
         message: 'original audit record',

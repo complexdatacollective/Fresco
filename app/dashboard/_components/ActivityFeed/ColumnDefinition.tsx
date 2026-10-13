@@ -35,7 +35,7 @@ export function fetchActivityFeedTableColumnDefs(
   return [
     {
       accessorKey: 'timestamp',
-      sortingFn: 'datetime',
+      sortFn: 'datetime',
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
@@ -49,7 +49,7 @@ export function fetchActivityFeedTableColumnDefs(
     },
     {
       accessorKey: 'type',
-      sortingFn: 'text',
+      sortFn: 'text',
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}

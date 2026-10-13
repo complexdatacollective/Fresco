@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { AppI18nProvider } from '@codaco/app-i18n/react';
 import { frescoLocales } from '~/i18n/locales';
-import { frescoCatalogs } from '~/src/locales/catalogs';
+import { frescoCatalogSource } from '~/src/locales/catalogs';
 
 const { mockPush, mockStartTwoFactorSetup, mockUseTwoFactorSetup } = vi.hoisted(
   () => ({
@@ -25,11 +25,15 @@ vi.mock('~/actions/auth', () => ({ logout: vi.fn() }));
 
 import TwoFactorSetupPrompt from '../TwoFactorSetupPrompt';
 
+// Loaded up front, so every render and formatter below has Spanish
+// synchronously.
+await frescoCatalogSource.load('es');
+
 const view = (locale: string) => (
   <AppI18nProvider
     locale={locale}
     locales={frescoLocales}
-    messages={frescoCatalogs[locale]}
+    messages={frescoCatalogSource.peek(locale)}
   >
     <TwoFactorSetupPrompt username="alice" userCount={3} />
   </AppI18nProvider>

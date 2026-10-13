@@ -52,6 +52,7 @@ import {
 } from '~/actions/webauthn';
 import PasskeySettings from '~/app/dashboard/settings/_components/PasskeySettings';
 import TwoFactorSettings from '~/app/dashboard/settings/_components/TwoFactorSettings';
+import FormDialog from '~/components/FormDialog';
 import SettingsField from '~/components/settings/SettingsField';
 import { useClientDataTable } from '~/hooks/useClientDataTable';
 import { describePasskeyCeremonyError } from '~/i18n/passkeyCeremony';
@@ -498,7 +499,7 @@ function makeUserColumns(
     {
       id: 'username',
       accessorKey: 'username',
-      sortingFn: 'text',
+      sortFn: 'text',
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
@@ -912,7 +913,6 @@ export default function UserManagement({
           genError ??
             createMessageError(messages.copyFailedToStartVerification),
         );
-        setSwitchToPasswordReauthLoading(false);
         return;
       }
 
@@ -924,12 +924,10 @@ export default function UserManagement({
 
       if (result.error) {
         setSwitchToPasswordReauthError(result.error);
-        setSwitchToPasswordReauthLoading(false);
         return;
       }
 
       setSwitchToPasswordReauthed(true);
-      setSwitchToPasswordReauthLoading(false);
     } catch (e) {
       setSwitchToPasswordReauthError(
         describePasskeyCeremonyError(
@@ -938,6 +936,8 @@ export default function UserManagement({
           messages.copyVerificationFailed,
         ),
       );
+    } finally {
+      // It holds the dialog open, so it must clear however this ends.
       setSwitchToPasswordReauthLoading(false);
     }
   };
@@ -1114,7 +1114,7 @@ export default function UserManagement({
         />
       </div>
       <FormStoreProvider>
-        <Dialog
+        <FormDialog
           open={isChangingPassword}
           closeDialog={() => {
             setIsChangingPassword(false);
@@ -1122,11 +1122,12 @@ export default function UserManagement({
           }}
           title={intl.formatMessage(messages.changePassword)}
           description={intl.formatMessage(messages.updateYourAccountPassword)}
-          footer={
+          footer={(heldOpen) =>
             passwordChangeSuccess ? null : (
               <>
                 <Button
                   type="button"
+                  disabled={heldOpen}
                   onClick={() => {
                     setIsChangingPassword(false);
                     setPasswordChangeSuccess(false);
@@ -1191,21 +1192,22 @@ export default function UserManagement({
               />
             </FormWithoutProvider>
           )}
-        </Dialog>
+        </FormDialog>
       </FormStoreProvider>
       {/* Create User Dialog */}
       <FormStoreProvider>
-        <Dialog
+        <FormDialog
           open={isCreating}
           closeDialog={() => {
             setIsCreating(false);
             setError(null);
           }}
           title={intl.formatMessage(messages.addUser)}
-          footer={
+          footer={(heldOpen) => (
             <>
               <Button
                 type="button"
+                disabled={heldOpen}
                 onClick={() => {
                   setIsCreating(false);
                   setError(null);
@@ -1217,7 +1219,7 @@ export default function UserManagement({
                 {intl.formatMessage(messages.createUser)}
               </SubmitButton>
             </>
-          }
+          )}
         >
           <FormWithoutProvider onSubmit={handleCreateUser} id="createUserForm">
             {error && (
@@ -1269,7 +1271,7 @@ export default function UserManagement({
               autoComplete="off"
             />
           </FormWithoutProvider>
-        </Dialog>
+        </FormDialog>
       </FormStoreProvider>
       <Dialog
         open={tempPassword !== null}
@@ -1292,17 +1294,18 @@ export default function UserManagement({
       </Dialog>
       {/* Switch to Passkey Dialog */}
       <FormStoreProvider>
-        <Dialog
+        <FormDialog
           open={showSwitchToPasskey}
           closeDialog={() => setShowSwitchToPasskey(false)}
           title={intl.formatMessage(messages.switchToPasskeyAuthentication)}
           description={intl.formatMessage(
             messages.enterYourCurrentPasswordThenRegisterA,
           )}
-          footer={
+          footer={(heldOpen) => (
             <>
               <Button
                 type="button"
+                disabled={heldOpen}
                 onClick={() => setShowSwitchToPasskey(false)}
               >
                 {intl.formatMessage(commonMessages.cancel)}
@@ -1311,7 +1314,7 @@ export default function UserManagement({
                 {intl.formatMessage(messages.switchToPasskey)}
               </SubmitButton>
             </>
-          }
+          )}
         >
           <FormWithoutProvider
             onSubmit={handleSwitchToPasskey}
@@ -1335,27 +1338,31 @@ export default function UserManagement({
               autoComplete="current-password"
             />
           </FormWithoutProvider>
-        </Dialog>
+        </FormDialog>
       </FormStoreProvider>
       {/* Switch to Password Dialog */}
       <FormStoreProvider>
-        <Dialog
+        <FormDialog
           open={showSwitchToPassword}
+          // The passkey re-authentication finishes once started, and would then
+          // mark this dialog verified for its next opening, so it holds the
+          // dialog open just as the password form's submission does.
+          busy={switchToPasswordReauthLoading}
           closeDialog={() => {
             setShowSwitchToPassword(false);
             setSwitchToPasswordReauthed(false);
             setSwitchToPasswordReauthError(null);
-            setSwitchToPasswordReauthLoading(false);
           }}
           title={intl.formatMessage(messages.switchToPasswordAuthentication)}
           description={intl.formatMessage(
             messages.allYourPasskeysWillBeRemovedAnd,
           )}
-          footer={
+          footer={(heldOpen) =>
             switchToPasswordReauthed ? (
               <>
                 <Button
                   type="button"
+                  disabled={heldOpen}
                   onClick={() => {
                     setShowSwitchToPassword(false);
                     setSwitchToPasswordReauthed(false);
@@ -1430,7 +1437,7 @@ export default function UserManagement({
               </Button>
             </div>
           )}
-        </Dialog>
+        </FormDialog>
       </FormStoreProvider>
     </div>
   );

@@ -78,7 +78,7 @@ export function getParticipantColumns(
     {
       id: 'identifier',
       accessorKey: 'identifier',
-      sortingFn: 'text',
+      sortFn: 'text',
       header: ({ column }) => {
         return (
           <DataTableColumnHeader
@@ -111,7 +111,7 @@ export function getParticipantColumns(
     },
     {
       accessorKey: 'label',
-      sortingFn: 'text',
+      sortFn: 'text',
       header: ({ column }) => {
         return (
           <DataTableColumnHeader
@@ -127,7 +127,7 @@ export function getParticipantColumns(
     {
       id: 'interviews',
       accessorFn: (row) => row._count.interviews,
-      sortingFn: 'basic',
+      sortFn: 'basic',
       header: ({ column }) => {
         return (
           <DataTableColumnHeader

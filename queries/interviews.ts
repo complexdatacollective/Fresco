@@ -2,6 +2,7 @@ import 'server-only';
 import { cacheLife } from 'next/cache';
 import { stringify } from 'superjson';
 
+import { CodebookSchema } from '@codaco/protocol-validation';
 import {
   buildInterviewOrderBy,
   buildInterviewWhere,
@@ -168,10 +169,16 @@ export async function getInterviewFilterOptions() {
   const nodeTypes = new Map<string, string>();
   const edgeTypes = new Map<string, string>();
   for (const p of protocols) {
-    for (const [type, def] of Object.entries(p.codebook.node ?? {})) {
+    // Options only narrow the list, so a codebook that does not parse offers
+    // no types rather than failing the dashboard. Every path that would use
+    // the protocol refuses it, and reports it there.
+    const codebook = CodebookSchema.safeParse(p.codebook);
+    if (!codebook.success) continue;
+
+    for (const [type, def] of Object.entries(codebook.data.node ?? {})) {
       nodeTypes.set(type, def.name ?? type);
     }
-    for (const [type, def] of Object.entries(p.codebook.edge ?? {})) {
+    for (const [type, def] of Object.entries(codebook.data.edge ?? {})) {
       edgeTypes.set(type, def.name ?? type);
     }
   }

@@ -10,7 +10,8 @@ import { Alert, AlertDescription } from '@codaco/fresco-ui/Alert';
 import { Button } from '@codaco/fresco-ui/Button';
 import Field from '@codaco/fresco-ui/form/Field/Field';
 import InputField from '@codaco/fresco-ui/form/fields/InputField';
-import Form from '@codaco/fresco-ui/form/Form';
+import { FormWithoutProvider } from '@codaco/fresco-ui/form/Form';
+import FormStoreProvider from '@codaco/fresco-ui/form/store/formStoreProvider';
 import SubmitButton from '@codaco/fresco-ui/form/SubmitButton';
 import { setUploadThingToken } from '~/actions/appSettings';
 import { setStorageProvider } from '~/actions/storageProvider';
@@ -74,11 +75,23 @@ const messages = defineMessages({
   },
 });
 
-export const UploadThingTokenForm = ({
-  disabled = false,
-}: {
+type UploadThingTokenFormProps = {
   disabled?: boolean;
-}) => {
+};
+
+export const UploadThingTokenForm = (props: UploadThingTokenFormProps) => (
+  <FormStoreProvider>
+    <UploadThingTokenFormWithoutProvider {...props} />
+  </FormStoreProvider>
+);
+
+/**
+ * The form without its store provider, for a host that needs to read the
+ * store itself — a dialog that must stay open while the token is saved.
+ */
+export const UploadThingTokenFormWithoutProvider = ({
+  disabled = false,
+}: UploadThingTokenFormProps) => {
   const intl = useAppIntl();
   const { createUploadThingTokenSchema } =
     createUploadThingSchemas(createMessageError);
@@ -151,7 +164,7 @@ export const UploadThingTokenForm = ({
   };
 
   return (
-    <Form onSubmit={handleSubmit}>
+    <FormWithoutProvider onSubmit={handleSubmit}>
       {disabled && (
         <Alert variant="info">
           <AlertDescription>
@@ -199,6 +212,6 @@ export const UploadThingTokenForm = ({
           {intl.formatMessage(messages.saveAndContinue)}
         </SubmitButton>
       )}
-    </Form>
+    </FormWithoutProvider>
   );
 };

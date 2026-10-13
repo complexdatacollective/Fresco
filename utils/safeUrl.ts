@@ -1,6 +1,6 @@
 // Reject URLs that target private, loopback, or link-local addresses to limit
 // SSRF when a user-supplied value (e.g. the admin-configured S3 endpoint) is
-// later requested server-side. Hostnames (e.g. `minio`, `s3.amazonaws.com`)
+// later requested server-side. Hostnames (e.g. `garage`, `s3.amazonaws.com`)
 // are allowed — only literal private/loopback/link-local IPs are rejected — so
 // container-internal endpoints addressed by hostname keep working.
 

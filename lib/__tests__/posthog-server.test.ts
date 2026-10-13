@@ -769,4 +769,56 @@ describe('posthog-server', () => {
       await expect(flushPostHog()).resolves.toBeUndefined();
     });
   });
+
+  describe('isAnalyticsDisabledUncached', () => {
+    // Failing closed on consent is correct, but it makes an unreadable setting
+    // indistinguishable from "analytics is off": a read that always throws
+    // drops every server-side report for the life of the process. Saying so is
+    // the only thing that separates the two, so assert it is said — and said
+    // once, because this runs per request and a line each time would bury it.
+    it('reports an unreadable setting once, and keeps suppressing', async () => {
+      const failure = new Error('relation "AppSettings" does not exist');
+      mockFindUnique.mockRejectedValue(failure);
+      delete mockEnv.DISABLE_ANALYTICS;
+      const consoleError = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => undefined);
+
+      try {
+        const { isAnalyticsDisabledUncached } =
+          await import('../posthog-server');
+
+        await expect(isAnalyticsDisabledUncached()).resolves.toBe(true);
+        await expect(isAnalyticsDisabledUncached()).resolves.toBe(true);
+        await expect(isAnalyticsDisabledUncached()).resolves.toBe(true);
+
+        expect(mockFindUnique).toHaveBeenCalledTimes(3);
+        expect(consoleError).toHaveBeenCalledTimes(1);
+        expect(consoleError).toHaveBeenCalledWith(
+          expect.stringContaining('could not read the analytics setting'),
+          failure,
+        );
+      } finally {
+        consoleError.mockRestore();
+      }
+    });
+
+    // The quiet path has to stay quiet, or the warning means nothing.
+    it('says nothing when the setting reads cleanly', async () => {
+      mockFindUnique.mockResolvedValue({ value: 'true' });
+      const consoleError = vi
+        .spyOn(console, 'error')
+        .mockImplementation(() => undefined);
+
+      try {
+        const { isAnalyticsDisabledUncached } =
+          await import('../posthog-server');
+
+        await expect(isAnalyticsDisabledUncached()).resolves.toBe(true);
+        expect(consoleError).not.toHaveBeenCalled();
+      } finally {
+        consoleError.mockRestore();
+      }
+    });
+  });
 });

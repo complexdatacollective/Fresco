@@ -31,9 +31,6 @@ allowBuilds:
 # Keep security-sensitive transitives on patched versions when upstream
 # manifests still pin vulnerable releases.
 overrides:
-  # Packages changed since fresco@4.2.0 (and their dependents), bundled by the hotfix lane (local tarballs).
-  '@codaco/fresco-ui': 'file:vendor/codaco-fresco-ui-7.0.0.tgz'
-  '@codaco/interview': 'file:vendor/codaco-interview-9.1.0.tgz'
   # @uploadthing/shared is written against the Effect 3 API. A literal, not the
   # root catalog's effect entry, which is on Effect 4.
   'effect@3.17.7': '^3.22.1'
@@ -42,6 +39,6 @@ overrides:
   fast-uri: '^3.1.6'
   find-my-way: '^9.7.0'
   # Next pins an exact PostCSS version; this is resolved from the root catalog.
-  postcss: '^8.5.26'
+  postcss: '^8.5.28'
   sharp: '^0.35.3'
   valibot: '^1.4.2'

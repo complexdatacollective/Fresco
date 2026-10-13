@@ -18,6 +18,10 @@ export type CreateInterview = {
  * `no-protocol` covers an onboarding link whose protocol no longer exists
  * (deleted, or simply mistyped). That is a routine participant-facing outcome
  * rather than a fault in the deployment.
+ *
+ * `incompatible-protocol` covers a protocol this deployment cannot run: one
+ * stored under another schema version, or one whose stored data does not
+ * parse.
  */
 export type CreateInterviewErrorType =
   | 'incompatible-protocol'

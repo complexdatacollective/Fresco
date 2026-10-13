@@ -67,7 +67,7 @@ The repository contains three production Docker Compose configurations:
 
 | Resource                                                             | Storage configuration                  |
 | -------------------------------------------------------------------- | -------------------------------------- |
-| [`docker-compose.prod.yml`](./docker-compose.prod.yml)               | Bundled, private MinIO storage         |
+| [`docker-compose.prod.yml`](./docker-compose.prod.yml)               | Bundled, private Garage storage        |
 | [`docker-compose.external-s3.yml`](./docker-compose.external-s3.yml) | An external S3-compatible object store |
 | [`docker-compose.uploadthing.yml`](./docker-compose.uploadthing.yml) | UploadThing-managed object storage     |
 

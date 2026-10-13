@@ -5,6 +5,7 @@ import { ensureError } from '@codaco/shared-consts';
 import { addEvent } from '~/lib/activityFeed';
 import { safeRevalidateTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
+import { parseStoredInterviewSession } from '~/lib/db/storedInterviewSession';
 import { captureException, flushPostHog } from '~/lib/posthog-server';
 
 export async function POST(
@@ -23,7 +24,9 @@ export async function POST(
     const { label, identifier } = updatedInterview.participant;
     const participantDisplay = label ? `${label} (${identifier})` : identifier;
 
-    const network = updatedInterview.network;
+    // Only the sizes are recorded, so stored data that does not parse costs the
+    // activity its counts and nothing else: finishing writes no network.
+    const stored = parseStoredInterviewSession(updatedInterview);
 
     void addEvent(
       'Interview Completed',
@@ -32,10 +35,12 @@ export async function POST(
         kind: 'interviewCompleted',
         values: { participant: participantDisplay },
       },
-      {
-        nodeCount: network?.nodes?.length ?? 0,
-        edgeCount: network?.edges?.length ?? 0,
-      },
+      stored.success
+        ? {
+            nodeCount: stored.data.network.nodes.length,
+            edgeCount: stored.data.network.edges.length,
+          }
+        : undefined,
     );
 
     (await cookies()).set(updatedInterview.protocolId, 'completed');

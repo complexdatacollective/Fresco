@@ -82,6 +82,95 @@ Consequences worth remembering:
   mirror. Code that only works under one bundler will pass locally and fail in
   the released image — see "Workers and bundler portability" below.
 
+### PostHog source maps
+
+Nothing in this repository builds the bundle the released image serves, so the
+`Dockerfile`'s build is the only place Fresco's source maps can be uploaded
+from: PostHog resolves a frame by matching the chunk ID baked into the bundle
+against an uploaded map, and no other build's chunk IDs match the image's. That
+is unlike Architect, Interviewer, Documentation and the Website, which are each
+built and deployed by a job in `.github/workflows/ci-and-release.yml` that
+passes `POSTHOG_PERSONAL_API_KEY` and `POSTHOG_PROJECT_ID` to the build step
+(`scripts/ci/ci-workflow.test.mjs` keeps those jobs wired).
+
+The `Dockerfile` therefore takes the credentials as two optional BuildKit
+secrets, `posthog_personal_api_key` and `posthog_project_id` — secrets rather
+than `ARG`/`ENV` so the key never lands in the image's layer history. Supply
+both and the build uploads its maps and deletes them from the output; supply
+neither and the build is byte-identical to one from before they existed.
+`apps/fresco/__tests__/sourceMapUpload.test.ts` guards both arms.
+
+The publisher workflow, `apps/fresco/.github/workflows/docker-publish.yml`,
+passes both as `secrets:` on its `docker/build-push-action` step. It is
+source-controlled here and the mirror carries it to the Fresco repository, so
+the whole chain lives in this repo: turbo keeps the credentials in the cache
+key, `next.config.ts` gates on them, the `Dockerfile` mounts them, and the
+publisher supplies them. Remove any one link and the other three change nothing,
+which is why the guard test covers all four.
+
+Two things this still depends on, neither of them a code change:
+
+- **`POSTHOG_PERSONAL_API_KEY` and `POSTHOG_PROJECT_ID` must exist as secrets on
+  the `complexdatacollective/Fresco` repository**, because that is where the
+  publisher runs. While they are absent the expressions expand to empty, the
+  `-s` test in the Dockerfile fails, and the build emits no maps — the same
+  behaviour as before, just silently. There is no error to notice, so if Fresco
+  frames are still minified after a release, check these first.
+- **A publisher change must be pre-applied to the Fresco repository before the
+  next release.** `assertFrescoPublisherContract` in
+  `scripts/release/mirror-app.mjs` refuses to mirror unless the external copy is
+  already byte-identical, because the release token deliberately cannot modify
+  workflows. So editing this file here **blocks the next Fresco release** until a
+  maintainer credential applies the identical diff over there. Sequence it that
+  way round, or the release lane fails with "must already match the monorepo
+  copy".
+
+Netlify's `fresco-next` and `fresco-sandbox` deploys are built by Netlify rather
+than by this publisher, so they upload only if those two variables are also set
+on the Netlify site.
+
+## Deploy previews and their databases
+
+The `fresco-next` Netlify site (fresco-sandbox.networkcanvas.dev) is the
+sandbox for `main`. Its `DATABASE_URL` and `DATABASE_URL_UNPOOLED` are set for
+**production only**; a deploy preview never sees that database. On 12 Oct 2026
+previews still shared it, and every build of the `schema-9` preview migrated
+the sandbox's protocols and interviews to schema 9, which main refuses to run,
+so every interview link on the sandbox failed.
+
+Each pull request that changes Fresco gets its own database instead, from
+`.github/workflows/fresco-preview-database.yml`
+(`scripts/ci/fresco-preview-database.mjs`): a Neon branch, in the
+`fresco-sandbox-dev` project, copied from the database of the pull request's
+**base**. A pull request into `main` copies main's database (the project's
+default branch); one into `schema-9` copies `preview/schema-9`, so stacked pull
+requests stack their databases. The branch is named `preview/<git branch>`,
+created when the pull request opens, kept across pushes, replaced when the
+pull request is retargeted, and deleted when it closes (unless another
+preview is still copied from it). Its connection strings and a
+`PREVIEW_DATABASE_BRANCH` marker are set as Netlify values scoped to that git
+branch.
+Netlify scopes values to a git branch, not to a pull request, so pull requests
+that share a head branch share one database: while more than one is open,
+none of them replaces or removes it. A pull request that stops changing
+Fresco, or is retargeted onto a base that has no preview database, loses its
+copy. When a branch's database is created, the open pull requests into that
+branch that found nothing to copy are provisioned in the same run.
+
+The workflow builds a newly provisioned preview itself, because Netlify
+skipped the build for that push. Netlify has no call that re-runs a skipped
+Deploy Preview, so that first build is a branch deploy
+(`<branch>--fresco-next.netlify.app`); later pushes build the pull request's
+Deploy Preview as usual. Both read the same database.
+
+Previews and branch deploys build with `build:preview`
+(`scripts/build-preview.ts`). It runs the full `build:platform`, migrations
+included, only when `PREVIEW_DATABASE_BRANCH` is `preview/<the branch being
+built>`; otherwise it builds without touching the database. A self-hosted
+deployment whose previews share its production database therefore never
+migrates it from a preview. A pull request into a branch that has no preview
+database gets none, and its preview is skipped by `netlify-should-build.sh`.
+
 ## Hotfix releases (when main is ahead)
 
 The normal lane always mirrors `main`, so it can only ship a patch together
@@ -287,10 +376,11 @@ Harness scripts live in `apps/fresco/release-test/` (`build-image.sh`,
 `up.sh --lane upgrade|fresh|analytics|twofactor --image <ref> [--keep-data]`,
 `down.sh`,
 `stage-fixture.sh` and `enable-captures.sh` for browser-driven uploads and
-download capture via MinIO). `release-test/AGENT_NOTES.md` records the
+download capture through presigned URLs into the lane's Garage). `release-test/AGENT_NOTES.md` records the
 verified techniques for driving Fresco in the in-app browser. The directory is
-excluded from the public mirror. Storage is configured through the setup
-wizard, not env vars, matching real bundled-MinIO deployments. Every stack but
+excluded from the public mirror. Storage is configured through the compose
+file's `STORAGE_PROVIDER`/`S3_*` env vars, matching real bundled-Garage
+deployments, so the setup wizard's storage step is locked. Every stack but
 the analytics lane sets
 `DISABLE_ANALYTICS`, and a deployment with analytics disabled sends nothing
 off-box from the browser: posthog-js is loaded only once the server has
@@ -390,7 +480,46 @@ including the early one taken when the build never completes.
 
 `expectedVersion` is the version the Version Packages PR bumps Fresco to —
 the one `bundle-pending-packages.mjs` bakes into the staged tree and the one
-the build stamp records. Each lane is bound to that build by the image id
+the build stamp records. Run from the Version Packages branch itself — HEAD is
+the commit origin's `changeset-release/main` points at now (read with
+`git ls-remote`, so not a possibly stale local tracking ref), under that branch
+name or any other, as in a detached worktree — and it can be omitted: the
+workflow infers it from the Fresco version that branch carries
+(`release-test/scripts/release-branch-version.mjs`), provided the branch
+contains `origin/main`'s tip (which must match origin's `main`) and moves
+Fresco's version past it as stable semver. A checkout that looks like the
+release branch (named `changeset-release/main`, or at the local tracking ref)
+but is not origin's current head, an unreachable origin, a PR that does not
+contain main's tip (wait for the bot to regenerate it), a downgrade, or a
+version that is not stable semver leaves the run unpinned rather than inferring
+anything. So does any other checkout that deleted normal-lane changesets since
+it left `origin/main`, as only a Version Packages head does: a detached or
+renamed checkout of a superseded PR head keeps neither the branch name nor the
+tracking ref, so what it consumed is what identifies it. So does an origin that is not the canonical
+`complexdatacollective/network-canvas-monorepo` on github.com (after any
+`insteadOf` rewriting), since nothing it says identifies the Version Packages
+PR. The release branch has already consumed (deleted) the changesets it ships,
+so the script also names every changeset it deleted relative to main's tip;
+the diff judge, audit and critic read them from that commit, and the coverage
+gates count them as pending. A branch that consumed none, or that still
+carries a changeset the normal lane owns (the merge-time freshness guard's
+predicate: a stale PR updated by merging main rather than regenerated), or that
+deleted a changeset a separately gated lane (Documentation, Website, Studio)
+still needs, pins nothing. Neither does a Fresco version the app-release guard
+would skip: one whose `fresco@` tag already exists on origin, one not newer
+than origin's newest `fresco@` tag, or a branch that does not contain that
+tag's commit (an unmerged hotfix; merge it into main and wait for the PR to
+regenerate). The branch is checked on every run, pinned or not, and a run from
+it is bound to it either way: the image must be built from the branch head, a
+passed `expectedVersion` must equal the version the branch carries, the branch
+must release Fresco, and its consumed changesets are counted. Because the bot regenerates the PR whenever
+main moves, the branch is checked again after the lanes finish; if its head,
+version or consumed changesets changed, or the check fails, the run is
+`incomplete`. A pinned run whose checkout cannot be identified (the check
+failed, or origin is not the canonical repository) is also `incomplete`,
+since changesets it may have consumed would go uncounted.
+`expectedVersionSource` reports where the version came from (`args`,
+`release-branch`, or `null` when unpinned). Each lane is bound to that build by the image id
 docker reports for its Fresco container (`/api/health` names no version, on
 purpose). Other args:
 `skipBuild` (reuse the previous image, revalidated against its stamp),
@@ -452,7 +581,7 @@ change that reopens a fail-open fails CI.
 ## Commands
 
 ```bash
-pnpm --filter fresco dev          # Postgres + MinIO via Docker, then next dev
+pnpm --filter fresco dev          # Postgres + Garage via Docker, then next dev
 pnpm --filter fresco build        # next build
 pnpm --filter fresco typecheck
 pnpm --filter fresco test        # vitest, units project

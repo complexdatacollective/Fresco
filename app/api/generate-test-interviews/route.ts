@@ -1,4 +1,5 @@
 import { createId } from '@paralleldrive/cuid2';
+import { after } from 'next/server';
 
 import { createMessageError } from '@codaco/app-i18n/messages';
 import {
@@ -9,6 +10,8 @@ import { syntheticGenerationMessages } from '~/i18n/syntheticGenerationMessages'
 import { addEvent } from '~/lib/activityFeed';
 import { requireApiAuth } from '~/lib/auth/guards';
 import { prisma } from '~/lib/db';
+import { parseStoredProtocol } from '~/lib/db/storedProtocol';
+import { captureException, flushPostHog } from '~/lib/posthog-server';
 import { getSyntheticGenerationFailure } from '~/lib/syntheticGenerationFailure';
 import { generateSyntheticInterviewsSchema } from '~/schemas/synthetic-interviews';
 
@@ -77,6 +80,30 @@ export async function POST(request: Request) {
     );
   }
 
+  // Generating from an empty stand-in would fill the deployment with
+  // interviews that hold nothing, so refuse before creating any.
+  const storedProtocol = parseStoredProtocol(protocol);
+  if (!storedProtocol.success) {
+    after(async () => {
+      await captureException(storedProtocol.error, {
+        context: 'synthetic.protocol.unreadable',
+      });
+      await flushPostHog();
+    });
+
+    return Response.json(
+      {
+        error: createMessageError(
+          syntheticGenerationMessages.unreadableProtocol,
+        ),
+        diagnostic: 'Protocol could not be read',
+      },
+      {
+        status: 500,
+      },
+    );
+  }
+
   const stream = new ReadableStream({
     async start(controller) {
       const encoder = new TextEncoder();
@@ -86,8 +113,8 @@ export async function POST(request: Request) {
 
       try {
         const genParams = {
-          codebook: protocol.codebook as GenerateNetworkParams['codebook'],
-          stages: protocol.stages as GenerateNetworkParams['stages'],
+          codebook: storedProtocol.data.codebook,
+          stages: storedProtocol.data.stages,
           simulateDropOut,
           respectSkipLogicAndFiltering,
         } satisfies GenerateNetworkParams;

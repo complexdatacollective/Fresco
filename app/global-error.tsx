@@ -60,7 +60,9 @@ function ErrorContent({
   error,
   reset,
 }: {
-  error: Error;
+  // Next adds `digest` to an error it forwarded from the server. In production
+  // that digest is all there is: React's #441 carries no message.
+  error: Error & { digest?: string };
   reset: () => void;
   heading?: string;
 }) {
@@ -86,7 +88,10 @@ ${error.stack}`;
   };
 
   useEffect(() => {
-    captureClientException(error);
+    captureClientException(
+      error,
+      error.digest === undefined ? undefined : { digest: error.digest },
+    );
   }, [error]);
 
   return (

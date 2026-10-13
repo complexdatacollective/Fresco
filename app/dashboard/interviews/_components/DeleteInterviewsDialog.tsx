@@ -90,6 +90,9 @@ export const DeleteInterviewsDialog = ({
       accent="destructive"
       open={open}
       closeDialog={handleCancelDialog}
+      // The deletion runs to completion once started, so leaving mid-way would
+      // look like a cancel while the interviews are still deleted.
+      dismissible={!isDeleting}
       title={intl.formatMessage(messages.title)}
       description={intl.formatMessage(messages.description, {
         count: interviewsToDelete.length,
@@ -105,8 +108,11 @@ export const DeleteInterviewsDialog = ({
             color="primary"
             onClick={async () => {
               setIsDeleting(true);
-              await handleConfirm();
-              setIsDeleting(false);
+              try {
+                await handleConfirm();
+              } finally {
+                setIsDeleting(false);
+              }
             }}
             icon={
               isDeleting ? <Loader2 className="animate-spin" /> : <Trash2 />

@@ -1,4 +1,4 @@
-# Fresco deployment with SELF-HOSTED storage (bundled MinIO).
+# Fresco deployment with SELF-HOSTED storage (bundled Garage).
 #
 # Alternative storage scenarios live in sibling files:
 #   docker-compose.external-s3.yml  - external S3-compatible service (AWS S3, R2, ...)
@@ -8,17 +8,28 @@
 #
 #   FRESCO_DOMAIN        - the public domain for this deployment (e.g. study.example.com)
 #   ACME_EMAIL           - email for Let's Encrypt certificate notifications
-#   MINIO_ROOT_USER      - MinIO access key (choose a non-default value)
-#   MINIO_ROOT_PASSWORD  - MinIO secret key (use a long random value)
+#   GARAGE_ACCESS_KEY_ID      - storage access key: GK followed by 24 lowercase hex characters
+#   GARAGE_SECRET_ACCESS_KEY  - storage secret key: 64 lowercase hex characters
+#
+# Generate each one with:
+#
+#   echo "GK$(openssl rand -hex 12)"   # GARAGE_ACCESS_KEY_ID
+#   openssl rand -hex 32               # GARAGE_SECRET_ACCESS_KEY
+#
+# Garage creates the access key and the 'assets' bucket from these on its
+# first start, and Fresco is given the same values (see the fresco service's
+# `environment:` block), so the setup wizard's storage step is already filled
+# in and the key is never stored in Fresco's database. Requires Docker Engine 25 or newer and Docker Compose v2.23.1 or
+# newer: Garage's configuration is carried inline in this file, which older
+# versions cannot read.
 #
 # FRESCO_DOMAIN is the single source of truth for this deployment's domain: the
 # app's PUBLIC_URL is derived from it automatically (see the fresco service's
-# `environment:` block), so you do not set PUBLIC_URL yourself. During Fresco
-# setup, set the storage "Public URL" to https://<FRESCO_DOMAIN> as well.
+# `environment:` block), so you do not set PUBLIC_URL yourself.
 
 services:
   # Bundled reverse proxy: terminates TLS (automatic Let's Encrypt
-  # certificates) and routes both the app and MinIO on one domain.
+  # certificates) and routes both the app and Garage on one domain.
   #
   # Required deployer configuration (set in .env):
   #   FRESCO_DOMAIN  - the public domain for this deployment (e.g. study.example.com)
@@ -54,7 +65,9 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-      minio:
+      # Without this, a Garage that cannot set itself up would leave Fresco
+      # running, healthy by its own check, with every file operation failing.
+      garage:
         condition: service_healthy
     restart: always
     networks:
@@ -65,6 +78,16 @@ services:
       # FRESCO_DOMAIN is the only place the deployment domain is set; the app's
       # public URL is derived from it here (overrides any PUBLIC_URL in .env).
       PUBLIC_URL: https://${FRESCO_DOMAIN}
+      # The bundled Garage below. Set here rather than in the setup wizard so
+      # the key stays in .env instead of the database; the wizard shows these
+      # values and cannot change them.
+      STORAGE_PROVIDER: s3
+      S3_ENDPOINT: http://garage:3900
+      S3_PUBLIC_URL: https://${FRESCO_DOMAIN}
+      S3_BUCKET: assets
+      S3_REGION: us-east-1
+      S3_ACCESS_KEY_ID: ${GARAGE_ACCESS_KEY_ID:?Set GARAGE_ACCESS_KEY_ID in .env (GK followed by 24 hex characters)}
+      S3_SECRET_ACCESS_KEY: ${GARAGE_SECRET_ACCESS_KEY:?Set GARAGE_SECRET_ACCESS_KEY in .env (openssl rand -hex 32)}
     labels:
       - 'traefik.enable=true'
       - 'traefik.http.middlewares.fresco-hsts.headers.stsseconds=63072000'
@@ -89,13 +112,15 @@ services:
     networks:
       - fresco_network
 
-  # Optional: S3-compatible storage using MinIO.
-  # If you prefer UploadThing, remove this service and configure
+  # Optional: S3-compatible storage using Garage (https://garagehq.deuxfleurs.fr).
+  # If you prefer UploadThing, remove the garage service, the garage-config
+  # config, the garage-data volume, and the fresco service's dependency on
+  # garage and its STORAGE_PROVIDER and S3_* settings, and configure
   # UploadThing during Fresco setup instead.
   #
-  # MinIO stays PRIVATE: no published ports, no anonymous bucket access.
+  # Garage stays PRIVATE: no published ports, no anonymous bucket access.
   # Browsers reach it through the bundled Traefik reverse proxy via a path
-  # route on your Fresco domain: /assets/* -> minio:9000 (the bucket is named
+  # route on your Fresco domain: /assets/* -> garage:3900 (the bucket is named
   # 'assets'; path-style S3 URLs put the bucket name in the path). The path
   # and Host header are preserved - required for signature validation.
   #
@@ -103,7 +128,7 @@ services:
   # Caddy example:
   #   app.example.com {
   #     handle /assets/* {
-  #       reverse_proxy minio:9000
+  #       reverse_proxy garage:3900
   #     }
   #     handle {
   #       reverse_proxy fresco:3000
@@ -112,72 +137,88 @@ services:
   # nginx example:
   #   location /assets/ {
   #     proxy_set_header Host $host;
-  #     proxy_pass http://minio:9000;
+  #     proxy_pass http://garage:3900;
   #   }
   #
-  # During Fresco setup, select "S3 / S3-Compatible" and use:
-  #   Endpoint URL:      http://minio:9000        (internal - containers only)
-  #   Public URL:        https://<your domain>    (your Fresco domain)
-  #   Bucket Name:       assets
-  #   Region:            us-east-1
-  #   Access Key ID:     value of MINIO_ROOT_USER (set in .env; no default)
-  #   Secret Access Key: value of MINIO_ROOT_PASSWORD (set in .env; no default)
+  # The fresco service is configured for this Garage: the endpoint is
+  # internal (http://garage:3900, reachable only by containers), and the
+  # public URL is your Fresco domain.
   #
-  # Note: the bucket name occupies /<bucket>/ on your domain - keep the
-  # default 'assets' (verified collision-free) or pick a name that cannot
-  # collide with app routes. If you change the bucket name, set S3_BUCKET in
-  # .env so the Traefik route and bucket creation stay in sync with the
-  # bucket name you enter during Fresco setup.
-  minio:
-    image: minio/minio:latest
+  # The bucket name occupies /assets/ on your domain; 'assets' is verified not
+  # to collide with any of Fresco's own routes, so it is fixed here.
+  garage:
+    image: dxflrs/garage:v2.4.1@sha256:9c96caa2612d3411acc5b0e6701fb238dbfba33e533a6d7d3d811a4b12d0d020
+    # On every start: assign this node its storage role, then create the access
+    # key, the bucket and the key's access to it, if they do not exist yet.
+    # Changing only the secret of an existing key ID stops Garage starting.
+    command: ['/garage', 'server', '--single-node', '--default-bucket']
     restart: always
-    # ports:
-    #   - '9001:9001'  # Uncomment to expose the MinIO admin console for debugging only.
-    volumes:
-      - minio:/data
     environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?Set MINIO_ROOT_USER in .env}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Set a strong MINIO_ROOT_PASSWORD in .env}
-    command: server /data --console-address ":9001"
+      GARAGE_DEFAULT_ACCESS_KEY: ${GARAGE_ACCESS_KEY_ID:?Set GARAGE_ACCESS_KEY_ID in .env (GK followed by 24 hex characters)}
+      GARAGE_DEFAULT_SECRET_KEY: ${GARAGE_SECRET_ACCESS_KEY:?Set GARAGE_SECRET_ACCESS_KEY in .env (openssl rand -hex 32)}
+      GARAGE_DEFAULT_BUCKET: assets
+    volumes:
+      - garage-data:/var/lib/garage
+    configs:
+      - source: garage-config
+        target: /etc/garage.toml
+    # The image has no shell, but the check is Garage's own binary: it asks
+    # the node over RPC and fails while the node is down or restarting, which
+    # is what a failed set-up (such as a changed secret) leaves it doing.
     healthcheck:
-      test: ['CMD', 'mc', 'ready', 'local']
+      test: ['CMD', '/garage', 'health', '--quiet']
       interval: 5s
-      timeout: 10s
+      timeout: 5s
       retries: 5
+      start_period: 30s
     networks:
       - fresco_network
     # Traefik rule-length priority makes the PathPrefix rule win for /assets/*;
     # Host and path are preserved — required for SigV4 signature validation.
     labels:
       - 'traefik.enable=true'
-      - 'traefik.http.routers.minio.rule=Host(`${FRESCO_DOMAIN}`) && PathPrefix(`/${S3_BUCKET:-assets}`)'
-      - 'traefik.http.routers.minio.entrypoints=websecure'
-      - 'traefik.http.routers.minio.tls.certresolver=letsencrypt'
-      - 'traefik.http.services.minio.loadbalancer.server.port=9000'
-
-  # One-shot container that creates the default bucket after MinIO starts.
-  # Runs once and exits — it does not stay running.
-  minio-init:
-    image: minio/minio:latest
-    depends_on:
-      minio:
-        condition: service_healthy
-    entrypoint: /bin/sh
-    command:
-      - -c
-      - |
-        mc alias set minio http://minio:9000 $${MINIO_ROOT_USER} $${MINIO_ROOT_PASSWORD}
-        mc mb --ignore-existing minio/${S3_BUCKET:-assets}
-    environment:
-      MINIO_ROOT_USER: ${MINIO_ROOT_USER:?Set MINIO_ROOT_USER in .env}
-      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:?Set a strong MINIO_ROOT_PASSWORD in .env}
-    networks:
-      - fresco_network
+      - 'traefik.http.routers.garage.rule=Host(`${FRESCO_DOMAIN}`) && PathPrefix(`/assets`)'
+      - 'traefik.http.routers.garage.entrypoints=websecure'
+      - 'traefik.http.routers.garage.tls.certresolver=letsencrypt'
+      - 'traefik.http.services.garage.loadbalancer.server.port=3900'
 
 volumes:
   postgres:
-  minio:
+  garage-data:
   letsencrypt:
+
+configs:
+  garage-config:
+    content: |
+      # One node, one copy of every object. Durability on a single-host
+      # deployment comes from the volume and its backups, not from Garage.
+      replication_factor = 1
+
+      metadata_dir = "/var/lib/garage/meta"
+      data_dir = "/var/lib/garage/data"
+
+      # This node holds the only copy of everything, so it trades write speed
+      # for surviving a power cut or a hard reset. Garage's default metadata
+      # engine, LMDB, can be corrupted by an unclean shutdown; SQLite cannot,
+      # and the fsyncs keep recent writes from being lost in one.
+      db_engine = "sqlite"
+      metadata_fsync = true
+      data_fsync = true
+
+      # Garage's node-to-node port. A single node has no peers, but Garage
+      # still requires the port and its secret, and the garage command-line
+      # tool talks to the server through it. Bound to the container's own
+      # loopback, nothing outside the container can reach it, so the secret
+      # protects nothing and is fixed here rather than generated.
+      rpc_bind_addr = "127.0.0.1:3901"
+      rpc_public_addr = "127.0.0.1:3901"
+      rpc_secret = "0000000000000000000000000000000000000000000000000000000000000000"
+
+      # Garage only accepts requests signed for the region it names, so this
+      # must match the fresco service's S3_REGION.
+      [s3_api]
+      api_bind_addr = "[::]:3900"
+      s3_region = "us-east-1"
 
 # Define a network, which allows containers to communicate
 # with each other, by using their container name as a hostname

@@ -11,8 +11,9 @@ import {
   type ReactNode,
 } from 'react';
 
+import type { CatalogMessages } from '@codaco/app-i18n/locales';
 import { resolveAppLocale } from '@codaco/app-i18n/negotiate';
-import { AppI18nProvider } from '@codaco/app-i18n/react';
+import { AppI18nProvider, useLocaleCatalog } from '@codaco/app-i18n/react';
 import { updateLocale } from '~/actions/locale';
 import {
   frescoLocales,
@@ -21,7 +22,7 @@ import {
   localeMirrorCookie,
 } from '~/i18n/locales';
 import type { FrescoI18nInitialization } from '~/i18n/resolve';
-import { frescoCatalogs } from '~/src/locales/catalogs';
+import { frescoCatalogSource } from '~/src/locales/catalogs';
 
 type FrescoLocaleSaveState = 'idle' | 'saving' | 'saved' | 'failed';
 
@@ -47,17 +48,31 @@ const resolveAutomaticLocale = (requested: readonly string[]) =>
 
 const LocaleContext = createContext<LocaleState | null>(null);
 
+type FrescoI18nProviderProps = {
+  initial: FrescoI18nInitialization;
+  /**
+   * The merged catalog for `initial.locale`, loaded by the server. The
+   * request's language therefore renders on the server and hydrates without
+   * downloading anything, so the two always agree; English sends an empty
+   * catalog. Only a switch to another language fetches one.
+   */
+  messages: CatalogMessages;
+  children: ReactNode;
+};
+
 export function FrescoI18nProvider({
   initial,
+  messages,
   children,
-}: {
-  initial: FrescoI18nInitialization;
-  children: ReactNode;
-}) {
+}: FrescoI18nProviderProps) {
   // Remount on identity changes; queued operations still carry expectedUserId
   // and are refused by the action if authentication changed meanwhile.
   return (
-    <LocaleSession key={initial.userId ?? 'signed-out'} initial={initial}>
+    <LocaleSession
+      key={initial.userId ?? 'signed-out'}
+      initial={initial}
+      messages={messages}
+    >
       {children}
     </LocaleSession>
   );
@@ -65,16 +80,32 @@ export function FrescoI18nProvider({
 
 function LocaleSession({
   initial,
+  messages,
   children,
-}: {
-  initial: FrescoI18nInitialization;
-  children: ReactNode;
-}) {
+}: FrescoI18nProviderProps) {
   const router = useRouter();
   const [state, setState] = useState({
     preference: initial.preference,
     locale: initial.locale,
   });
+  // Every refresh re-renders the root layout, which sends the same catalog
+  // again as a new object. Keeping the first copy for a locale stops each
+  // refresh from rebuilding the formatter and re-rendering every message.
+  const [preloaded, setPreloaded] = useState({
+    locale: initial.locale,
+    messages,
+  });
+  if (preloaded.locale !== initial.locale) {
+    setPreloaded({ locale: initial.locale, messages });
+  }
+  // A switch keeps the current language on screen until the new one is ready:
+  // its chunk has loaded, or the refresh that follows a saved choice has
+  // delivered it as props, whichever comes first.
+  const catalog = useLocaleCatalog(
+    frescoCatalogSource,
+    state.locale,
+    preloaded,
+  );
   // Seeded from the request so the server and hydrating client agree.
   const [automaticLocale, setAutomaticLocale] = useState(() =>
     resolveAutomaticLocale(initial.requested),
@@ -164,9 +195,10 @@ function LocaleSession({
       }}
     >
       <AppI18nProvider
-        locale={state.locale}
+        locale={catalog.locale}
         locales={frescoLocales}
-        messages={frescoCatalogs[state.locale]}
+        messages={catalog.messages}
+        loadFailure={catalog.failure}
         timeZone={frescoTimeZone}
         onLocaleChange={setLocale}
       >

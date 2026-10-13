@@ -1,17 +1,27 @@
 import { NextRequest } from 'next/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const { findUniqueMock, getAppSettingMock, updateManyMock } = vi.hoisted(
-  () => ({
-    findUniqueMock: vi.fn(),
-    getAppSettingMock: vi.fn(),
-    updateManyMock: vi.fn(),
-  }),
-);
+const {
+  captureExceptionMock,
+  findUniqueMock,
+  getAppSettingMock,
+  updateManyMock,
+} = vi.hoisted(() => ({
+  captureExceptionMock: vi.fn(),
+  findUniqueMock: vi.fn(),
+  getAppSettingMock: vi.fn(),
+  updateManyMock: vi.fn(),
+}));
 
+// Run deferred work straight away, so what the route reports can be asserted.
 vi.mock('next/server', async (importOriginal) => {
   const actual = await importOriginal<Record<string, unknown>>();
-  return { ...actual, after: vi.fn() };
+  return {
+    ...actual,
+    after: vi.fn((task: () => unknown) => {
+      void task();
+    }),
+  };
 });
 
 vi.mock('~/lib/db', () => ({
@@ -28,7 +38,7 @@ vi.mock('~/queries/appSettings', () => ({
 }));
 
 vi.mock('~/lib/posthog-server', () => ({
-  captureException: vi.fn(),
+  captureException: captureExceptionMock,
   flushPostHog: vi.fn(),
 }));
 
@@ -91,23 +101,45 @@ function networkNamed(name: string) {
  * as happily against a route that built the predicate and then ignored it.
  */
 function installInterviewRow(
-  initial: { syncRevision: number; network: unknown } | null,
+  initial: {
+    syncRevision: number;
+    network: unknown;
+    stageMetadata?: unknown;
+  } | null,
 ) {
-  const row = initial ? { ...initial, currentStep: 0 } : null;
+  const row: {
+    syncRevision: number;
+    network: unknown;
+    stageMetadata: unknown;
+    finishTime: Date | null;
+    currentStep: number;
+  } | null = initial
+    ? {
+        stageMetadata: null,
+        finishTime: null,
+        ...initial,
+        currentStep: 0,
+      }
+    : null;
 
   updateManyMock.mockImplementation(
     ({
       where,
       data,
     }: {
-      where: { id: string; syncRevision: { lt: number; gte: number } };
+      where: {
+        id: string;
+        syncRevision: { lt: number; gte: number };
+        finishTime?: null;
+      };
       data: { syncRevision: number; network: unknown; currentStep: number };
     }) => {
       if (!row || where.id !== 'interview-1')
         return Promise.resolve({ count: 0 });
       if (
         row.syncRevision >= where.syncRevision.lt ||
-        row.syncRevision < where.syncRevision.gte
+        row.syncRevision < where.syncRevision.gte ||
+        (where.finishTime === null && row.finishTime !== null)
       ) {
         return Promise.resolve({ count: 0 });
       }
@@ -127,7 +159,12 @@ describe('interview sync route', () => {
     vi.clearAllMocks();
     getAppSettingMock.mockResolvedValue(false);
     updateManyMock.mockResolvedValue({ count: 1 });
-    findUniqueMock.mockResolvedValue(null);
+    findUniqueMock.mockResolvedValue({
+      network: networkNamed('stored'),
+      stageMetadata: null,
+      finishTime: null,
+      syncRevision: 0,
+    });
   });
 
   it('accepts legacy null attributes and persists a canonical sparse network', async () => {
@@ -342,6 +379,131 @@ describe('interview sync route', () => {
         syncRevision: 9,
       });
       expect(updateManyMock).not.toHaveBeenCalled();
+    });
+
+    it('declines a write when the interview is finished while the write is in flight', async () => {
+      // Another tab finishes the interview after this request has read the
+      // row but before it writes. Checking the snapshot alone would let the
+      // write land over an interview that is now frozen.
+      getAppSettingMock.mockResolvedValue(true);
+      const readRow = installInterviewRow({
+        syncRevision: 4,
+        network: networkNamed('final'),
+      });
+      findUniqueMock.mockImplementationOnce(() => {
+        const snapshot = { ...readRow() };
+        const row = readRow();
+        if (row) row.finishTime = new Date('2026-08-12T00:00:00.000Z');
+        return Promise.resolve(snapshot);
+      });
+
+      const response = await post(
+        makeRequest(networkNamed('after-finish'), { syncRevision: 5 }),
+      );
+
+      await expect(response.json()).resolves.toEqual({
+        success: true,
+        applied: false,
+        frozen: true,
+        syncRevision: 4,
+      });
+      expect(readRow()?.network).toEqual(networkNamed('final'));
+    });
+  });
+
+  describe('stored data the server cannot read', () => {
+    // A network the deployment can no longer parse — here a node attribute
+    // holding a nested object — still holds the participant's answers. Loading
+    // it fails, so any client syncing now is one that never received it.
+    const unreadableNetwork = {
+      nodes: [
+        {
+          _uid: 'node-1',
+          type: 'person',
+          attributes: { name: 'Ada', invalid: { nested: 'value' } },
+        },
+      ],
+      edges: [],
+      ego: { _uid: 'ego-1', attributes: { age: 42 } },
+    };
+
+    // What a client that started without the stored network sends back.
+    const networkBuiltWithoutIt = {
+      nodes: [],
+      edges: [],
+      ego: { _uid: 'ego-fresh', attributes: {} },
+    };
+
+    it('leaves a stored network it cannot read untouched rather than replacing it', async () => {
+      const readRow = installInterviewRow({
+        syncRevision: 3,
+        network: unreadableNetwork,
+      });
+
+      const response = await post(
+        makeRequest(networkBuiltWithoutIt, { syncRevision: 4 }),
+      );
+
+      expect(response.status).toBe(409);
+      await expect(response.json()).resolves.toEqual({
+        error: 'Stored interview data could not be read',
+      });
+      expect(updateManyMock).not.toHaveBeenCalled();
+      expect(readRow()?.network).toEqual(unreadableNetwork);
+      expect(readRow()?.syncRevision).toBe(3);
+    });
+
+    it('leaves stored stage metadata it cannot read untouched rather than replacing it', async () => {
+      const unreadableStageMetadata = { 'stage-1': 'not a list of answers' };
+      const readRow = installInterviewRow({
+        syncRevision: 3,
+        network: networkNamed('stored'),
+        stageMetadata: unreadableStageMetadata,
+      });
+
+      const response = await post(
+        makeRequest(networkNamed('stored'), {
+          syncRevision: 4,
+          stageMetadata: {},
+        }),
+      );
+
+      expect(response.status).toBe(409);
+      expect(updateManyMock).not.toHaveBeenCalled();
+      expect(readRow()?.stageMetadata).toEqual(unreadableStageMetadata);
+      expect(readRow()?.network).toEqual(networkNamed('stored'));
+    });
+
+    it('reports the refused write without naming the interview', async () => {
+      installInterviewRow({ syncRevision: 3, network: unreadableNetwork });
+
+      await post(makeRequest(networkBuiltWithoutIt, { syncRevision: 4 }));
+
+      expect(captureExceptionMock).toHaveBeenCalledTimes(1);
+      expect(captureExceptionMock).toHaveBeenCalledWith(expect.anything(), {
+        context: 'interview.sync.unreadable',
+      });
+      // The id is the participant's access capability, and the report leaves
+      // the deployment.
+      expect(JSON.stringify(captureExceptionMock.mock.calls)).not.toContain(
+        'interview-1',
+      );
+    });
+
+    it('still applies a write over stored data it can read', async () => {
+      const readRow = installInterviewRow({
+        syncRevision: 3,
+        network: networkNamed('stored'),
+        stageMetadata: { 'stage-1': [[0, 'node-1', 'node-2', false]] },
+      });
+
+      const response = await post(
+        makeRequest(networkNamed('next'), { syncRevision: 4 }),
+      );
+
+      expect(response.status).toBe(200);
+      expect(readRow()?.network).toEqual(networkNamed('next'));
+      expect(captureExceptionMock).not.toHaveBeenCalled();
     });
   });
 });

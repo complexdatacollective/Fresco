@@ -12,7 +12,7 @@ import { SignInForm } from '~/app/(blobs)/(setup)/_components/SignInForm';
 import PasskeySettings from '~/app/dashboard/settings/_components/PasskeySettings';
 import { frescoLocales } from '~/i18n/locales';
 import { describePasskeyCeremonyError } from '~/i18n/passkeyCeremony';
-import { frescoCatalogs } from '~/src/locales/catalogs';
+import { frescoCatalogSource } from '~/src/locales/catalogs';
 
 const {
   startAuthentication,
@@ -54,12 +54,16 @@ function ceremonyError(name: string): Error {
   return Object.assign(new Error(`${name} raised by the browser`), { name });
 }
 
+// Loaded up front, so every render and formatter below has Spanish
+// synchronously.
+await frescoCatalogSource.load('es');
+
 function provide(locale: string, children: React.ReactNode) {
   return (
     <AppI18nProvider
       locale={locale}
       locales={frescoLocales}
-      messages={frescoCatalogs[locale]}
+      messages={frescoCatalogSource.peek(locale)}
     >
       <DialogProvider>{children}</DialogProvider>
     </AppI18nProvider>

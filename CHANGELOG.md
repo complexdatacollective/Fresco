@@ -1,5 +1,48 @@
 # fresco
 
+## 4.3.0
+
+### Docker deployments
+
+- **Existing deployments don't need to do anything.** If you already run Fresco with the bundled MinIO storage, keep your current compose file and everything carries on as before. Deployments using external S3 storage or UploadThing are also unaffected.
+- **New deployments with bundled storage now use Garage instead of MinIO**, because the MinIO image is no longer published. A new deployment using `docker-compose.prod.yml` needs two values in `.env`, `GARAGE_ACCESS_KEY_ID` and `GARAGE_SECRET_ACCESS_KEY`, and the compose file prints the commands that generate them. Fresco's storage setup step is then filled in for you. Docker Engine 25 and Docker Compose 2.23.1 or later are required. If you ever move an existing deployment to the new compose file, you will need to move your files from the `minio` Docker volume into Garage yourself.
+
+### New features
+
+- **Seven new languages.** Fresco is now available in Brazilian Portuguese, Dutch, French, German, Italian, Simplified Chinese and Traditional Chinese, as well as English and Spanish. Pick one from the language setting, which now has a search box, or let Fresco follow the browser's language. The interview controls participants see are translated too; a protocol's own text stays in the language it was written in. The pages participants see outside the interview, such as the pages for a broken or expired link, the screen-too-small notice and the thank-you page, now appear in their language too, and the thank-you page follows the language chosen in the interview. Fresco downloads only the language in use, and an interview in another language opens without waiting for it.
+- **Post-quantum passkeys.** Devices and password managers that support post-quantum passkeys can now register one with Fresco. Existing passkeys keep working.
+- **More storage providers.** Uploads now work with S3-compatible services that check upload checksums, including Garage.
+
+### Interview changes
+
+These improvements to the interview are shared with Interviewer and Architect's Preview.
+
+- **Passphrase-protected answers.** For studies that protect answers with a passphrase, protected answers are no longer lost or saved in a way that can't be read back, and participants are told when an answer wasn't saved so they can try again. Once some answers are protected, a passphrase that can't read them is turned away with a message, so a typo can't start protecting new answers with a different passphrase. The passphrase button is now available on phones and portrait screens.
+- **Family pedigree.** Complex families now draw correctly, including half-siblings, step-parents, chains of partnerships and children whose parents aren't a couple. A participant's chosen terms are kept when the pedigree is reopened, and the "finalized" notice no longer hides the bottom of a tall pedigree.
+- **Network Composer.** Changes in the side panel are saved when the panel closes instead of being lost, and undo and redo now update the panel.
+- **Accessibility.** Screen readers name each person by the label on their node wherever the interview mentions them.
+
+### Data safety and privacy
+
+- **Unreadable interviews are never overwritten.** If an interview's saved answers can't be read, Fresco shows the participant an error, refuses to save over it, and stops exports and the interview data API with an error instead of treating it as empty.
+- **Unreadable protocols are never treated as empty.** If a protocol's design can't be read, Fresco refuses to start its interviews, and its recruitment links, synthetic data, exports and interview data API report an error.
+- **Frozen interviews stay frozen.** A save that was still under way when an interview finished, for example from a second tab, is now declined.
+- **Netlify deploy previews no longer migrate the production database.** Previously a preview of a newer version could migrate it and break every interview link. Previews that share production's database settings still connect to that database when visited.
+- **Exports.** CSV and GraphML exports mark an answer as ENCRYPTED only when it was actually saved encrypted.
+- **Analytics.** Interview analytics no longer include protocol details such as codebook type names or validation messages.
+
+### Bug fixes
+
+- Dashboard actions such as deleting interviews, participants, protocols or API tokens, managing users and passkeys, changing your password, and setting up or turning off two-factor authentication now wait until they're done and show an error if they fail. A refused two-factor code now shows why.
+- The sandbox's sign-in page and dashboard keep working, and the demo sign-in details stay visible.
+- The dashboard navigation bar no longer causes an error for researchers with reduced motion turned on.
+- Fewer false error reports, and clearer ones: a failed page now reports an identifier that can be traced, and a deployment whose error reporting is off is told so.
+- The page for a failed interview link no longer mentions onboarding.
+- Long ordinal bin labels are no longer cut off.
+- Names that couldn't be added on a name generator are no longer cleared.
+- Navigation buttons stay on screen on small phones and at larger text sizes.
+- Updated third-party libraries.
+
 ## 4.2.1
 
 ### Patch Changes

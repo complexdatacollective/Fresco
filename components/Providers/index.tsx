@@ -8,8 +8,10 @@ import { type ComponentType, type ReactNode } from 'react';
 import { AnimationProvider } from '@codaco/fresco-ui/AnimationProvider';
 import DialogProvider from '@codaco/fresco-ui/dialogs/DialogProvider';
 import { DndStoreProvider } from '@codaco/fresco-ui/dnd/dnd';
+import LocaleLoadFailureToast from '@codaco/fresco-ui/LocaleLoadFailureToast';
 import { Toaster } from '@codaco/fresco-ui/Toast';
 import { TooltipProvider } from '@codaco/fresco-ui/Tooltip';
+import { captureClientException } from '~/lib/posthog-client';
 
 export default function Providers({
   children,
@@ -35,6 +37,15 @@ export default function Providers({
                 <DialogProvider>{children}</DialogProvider>
               </DndStoreProvider>
             </TooltipProvider>
+            <LocaleLoadFailureToast
+              onReload={() => window.location.reload()}
+              onFailure={(error, locale) =>
+                captureClientException(error, {
+                  operation: 'locale-load',
+                  locale,
+                })
+              }
+            />
             <Toaster />
           </Toast.Provider>
         </DirectionProvider>

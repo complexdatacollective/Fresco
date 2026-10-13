@@ -61,9 +61,9 @@ const messages = defineMessages({
   theURLBrowsersUseToReachThis: {
     id: 'fresco.S3ConfigForm.theURLBrowsersUseToReachThis',
     defaultMessage:
-      'The URL browsers use to reach this storage. For MinIO behind your reverse proxy, this is your Fresco domain (see deployment docs). For AWS S3 or R2, this is usually the same as the Endpoint URL.',
+      "The URL browsers use to reach this storage. For the storage bundled with Fresco's Docker deployment, this is your Fresco domain. For AWS S3 or R2, this is usually the same as the Endpoint URL.",
     description:
-      'Researcher-facing S3ConfigForm: The URL browsers use to reach this storage. For MinIO behind your reverse proxy, this is your Fresco domain (see deploym',
+      'Researcher-facing S3ConfigForm: hint under the Public URL field. The bundled storage is served through the reverse proxy on the Fresco domain, so its public URL is that domain; for AWS S3 or Cloudflare R2 it usually matches the Endpoint URL.',
   },
   bucketName: {
     id: 'fresco.S3ConfigForm.bucketName',

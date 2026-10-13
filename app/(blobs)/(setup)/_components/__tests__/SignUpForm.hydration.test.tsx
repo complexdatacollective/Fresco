@@ -5,6 +5,7 @@ import { renderToString } from 'react-dom/server';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { FrescoI18nProvider } from '~/i18n/FrescoI18nProvider';
+import { frescoCatalogSource } from '~/src/locales/catalogs';
 
 const { mockBrowserSupportsWebAuthn } = vi.hoisted(() => ({
   mockBrowserSupportsWebAuthn: vi.fn(() => true),
@@ -31,6 +32,9 @@ vi.mock('usehooks-ts', () => ({ useMediaQuery: () => false }));
 
 import { SignUpForm } from '../SignUpForm';
 
+// What the root layout delivers with an English request.
+const messages = await frescoCatalogSource.load('en');
+
 const view = (
   <FrescoI18nProvider
     initial={{
@@ -39,6 +43,7 @@ const view = (
       userId: null,
       requested: ['en'],
     }}
+    messages={messages}
   >
     <SignUpForm />
   </FrescoI18nProvider>

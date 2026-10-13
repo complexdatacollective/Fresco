@@ -7,7 +7,7 @@ import DialogProvider from '@codaco/fresco-ui/dialogs/DialogProvider';
 import PasskeySettings from '~/app/dashboard/settings/_components/PasskeySettings';
 import { formatActivityDetails } from '~/i18n/activityDetails';
 import { frescoLocales } from '~/i18n/locales';
-import { frescoCatalogs } from '~/src/locales/catalogs';
+import { frescoCatalogSource } from '~/src/locales/catalogs';
 
 vi.mock('@simplewebauthn/browser', () => ({ startRegistration: vi.fn() }));
 vi.mock('~/actions/webauthn', () => ({
@@ -15,6 +15,10 @@ vi.mock('~/actions/webauthn', () => ({
   verifyRegistration: vi.fn(),
   removePasskey: vi.fn(),
 }));
+
+// Loaded up front, so every render and formatter below has Spanish
+// synchronously.
+const es = await frescoCatalogSource.load('es');
 
 const view = (
   locale: string,
@@ -24,7 +28,7 @@ const view = (
   <AppI18nProvider
     locale={locale}
     locales={frescoLocales}
-    messages={frescoCatalogs[locale]}
+    messages={frescoCatalogSource.peek(locale)}
   >
     <DialogProvider>
       <PasskeySettings
@@ -86,7 +90,7 @@ describe('passkey names in researcher chrome', () => {
   ])(
     'localizes generated values for %s while preserving legacy and rejecting invalid identity metadata',
     (kind) => {
-      const intl = createAppIntl({ locale: 'es', messages: frescoCatalogs.es });
+      const intl = createAppIntl({ locale: 'es', messages: es });
       const values = {
         username: 'Researcher',
         passkey: '',

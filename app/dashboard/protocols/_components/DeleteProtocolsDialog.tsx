@@ -83,8 +83,11 @@ export const DeleteProtocolsDialog = ({
 
   const handleConfirm = async () => {
     setIsDeleting(true);
-    await deleteProtocols(protocolsToDelete.map((d) => d.hash));
-    setIsDeleting(false);
+    try {
+      await deleteProtocols(protocolsToDelete.map((d) => d.hash));
+    } finally {
+      setIsDeleting(false);
+    }
     setOpen(false);
   };
 
@@ -96,6 +99,9 @@ export const DeleteProtocolsDialog = ({
     <Dialog
       open={open}
       closeDialog={() => handleCancelDialog()}
+      // The deletion runs to completion once started, so leaving mid-way would
+      // look like a cancel while the protocols are still deleted.
+      dismissible={!isDeleting}
       title={intl.formatMessage(messages.title)}
       description={intl.formatMessage(messages.description, {
         count: protocolsToDelete.length,

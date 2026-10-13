@@ -7,7 +7,7 @@ import { Toaster } from '@codaco/fresco-ui/Toast';
 import { GenerateParticipationURLButton } from '~/app/dashboard/_components/ParticipantsTable/GenerateParticipantURLButton';
 import type { ProtocolWithInterviews } from '~/app/dashboard/_components/ProtocolsTable/ProtocolsTableClient';
 import { frescoLocales } from '~/i18n/locales';
-import { frescoCatalogs } from '~/src/locales/catalogs';
+import { frescoCatalogSource } from '~/src/locales/catalogs';
 
 const protocol: ProtocolWithInterviews = {
   id: 'protocol-1',
@@ -19,17 +19,21 @@ const protocol: ProtocolWithInterviews = {
   lastModified: new Date('2026-09-05T00:00:00Z'),
   stages: [],
   codebook: {},
-  experiments: undefined,
+  experiments: null,
   originalFileKey: null,
   originalFileUrl: null,
   interviews: [],
 };
 
+// Loaded up front, so every render and formatter below has Spanish
+// synchronously.
+await frescoCatalogSource.load('es');
+
 const view = (locale: string) => (
   <AppI18nProvider
     locale={locale}
     locales={frescoLocales}
-    messages={frescoCatalogs[locale]}
+    messages={frescoCatalogSource.peek(locale)}
   >
     <Toast.Provider>
       <GenerateParticipationURLButton

@@ -76,9 +76,12 @@ type ProtocolRow = {
 };
 
 /**
- * Whether a stored protocol already satisfies the strict schema the Prisma
- * result extension applies on every read (lib/db/index.ts). Mirrors that
- * reconstruction so a protocol this returns `true` for cannot make a read throw.
+ * Whether a stored protocol already satisfies the whole-protocol schema. That
+ * is stricter than any reader's own parse: `parseStoredProtocol`
+ * (lib/db/storedProtocol.ts) where an interview is started or synthetic data
+ * generated, and `CodebookSchema` alone where only the codebook is read
+ * (export, the interview data API, the dashboard's filter options). No reader
+ * refuses or degrades a protocol this returns `true` for.
  */
 function isConformant(row: ProtocolRow): boolean {
   return CurrentProtocolSchema.safeParse({
@@ -251,10 +254,12 @@ async function normalizeNonConformantProtocol(
  *
  * Both classes tolerate failure: a protocol that cannot be migrated or
  * normalized is logged and left in place, because one bad row must never
- * block a customer's deployment. A left-behind below-target row is safe at
- * runtime — the interview payload refuses a protocol whose stored version
- * does not match the runtime's — and a left-behind non-conformant row
- * degrades gracefully through the read path's per-field parsing.
+ * block a customer's deployment. A left-behind row is safe at runtime: the
+ * interview payload refuses a protocol whose stored version does not match
+ * the runtime's, and no reader substitutes an empty stand-in for fields that
+ * do not parse. Starting an interview, generating synthetic data, exporting
+ * and the interview data API refuse it and report the refusal; the
+ * dashboard's filter options leave out its node and edge types.
  *
  * Idempotent: conformant protocols at the target version are skipped.
  */
@@ -317,7 +322,9 @@ export async function migrateProtocolsToCompatibleVersion(
       const cause = err instanceof Error ? err.message : String(err);
       console.warn(
         `Could not normalize protocol "${row.name}" (id=${row.id}): ${cause}. ` +
-          `Leaving it in place; the read path will fall back for this protocol.`,
+          `Leaving it in place; if it cannot be read, interviews and exports ` +
+          `using it will be refused until it is repaired in Architect and ` +
+          `uploaded again.`,
       );
     }
   }

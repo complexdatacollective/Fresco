@@ -7,6 +7,7 @@ import { MotionSurface } from '@codaco/fresco-ui/layout/Surface';
 import Heading from '@codaco/fresco-ui/typography/Heading';
 import { cx } from '@codaco/fresco-ui/utils/cva';
 import { containerClasses } from '~/components/ContainerClasses';
+import { env } from '~/env';
 import { getServerIntl } from '~/i18n/server';
 import { getServerSession } from '~/lib/auth/guards';
 import { TWO_FACTOR_SETUP_PATH } from '~/lib/auth/paths';
@@ -67,7 +68,7 @@ export default async function Page() {
       <Heading level="h2">
         {intl.formatMessage(messages.signInToFresco)}
       </Heading>
-      <SandboxCredentials />
+      {env.SANDBOX_MODE && <SandboxCredentials />}
       <SignInForm />
     </MotionSurface>
   );

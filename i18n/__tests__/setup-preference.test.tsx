@@ -11,6 +11,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SignUpForm } from '~/app/(blobs)/(setup)/_components/SignUpForm';
 import { FrescoI18nProvider } from '~/i18n/FrescoI18nProvider';
 import FrescoLocaleSwitcher from '~/i18n/FrescoLocaleSwitcher';
+import { frescoCatalogSource } from '~/src/locales/catalogs';
 
 const { signup, signupWithPasskey, startRegistration, updateLocale, router } =
   vi.hoisted(() => ({
@@ -36,6 +37,11 @@ vi.mock('@simplewebauthn/browser', () => ({
 vi.mock('next/navigation', () => ({ useRouter: () => router }));
 vi.mock('usehooks-ts', () => ({ useMediaQuery: () => false }));
 
+// The request's catalog, as the root layout delivers it, and Spanish loaded up
+// front so choosing it changes the form's language immediately.
+const en = await frescoCatalogSource.load('en');
+await frescoCatalogSource.load('es');
+
 const chooseLanguage = async (name: RegExp) => {
   fireEvent.click(
     screen.getByRole('combobox', {
@@ -56,6 +62,7 @@ function View({ password = false }: { password?: boolean }) {
         userId: null,
         requested: ['en'],
       }}
+      messages={en}
     >
       <FrescoLocaleSwitcher />
       <SignUpForm sandboxMode={password} />

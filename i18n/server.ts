@@ -7,7 +7,7 @@ import { parseAcceptLanguage } from '@codaco/protocol-validation';
 import { frescoTimeZone, localeMirrorCookie } from '~/i18n/locales';
 import { resolveFrescoLocale } from '~/i18n/resolve';
 import { getServerSession } from '~/lib/auth/guards';
-import { frescoCatalogs } from '~/src/locales/catalogs';
+import { frescoCatalogSource } from '~/src/locales/catalogs';
 
 // React cache deduplicates within a server render only. Never use Next's
 // shared `use cache` here: the result is private to this request and user.
@@ -30,7 +30,7 @@ export const getServerIntl = cache(async () => {
   const { locale } = await getFrescoI18nInitialization();
   return createAppIntl({
     locale,
-    messages: frescoCatalogs[locale],
+    messages: await frescoCatalogSource.load(locale),
     timeZone: frescoTimeZone,
   });
 });

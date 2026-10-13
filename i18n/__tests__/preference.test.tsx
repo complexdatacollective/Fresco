@@ -9,10 +9,12 @@ import { hydrateRoot } from 'react-dom/client';
 import { renderToString } from 'react-dom/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import type { CatalogMessages } from '@codaco/app-i18n/locales';
 import { useAppIntl } from '@codaco/app-i18n/react';
 import { FrescoI18nProvider, useFrescoLocale } from '~/i18n/FrescoI18nProvider';
 import FrescoLocaleSwitcher from '~/i18n/FrescoLocaleSwitcher';
 import type { FrescoI18nInitialization } from '~/i18n/resolve';
+import { frescoCatalogSource } from '~/src/locales/catalogs';
 
 const { updateLocale, refresh } = vi.hoisted(() => ({
   updateLocale: vi.fn(),
@@ -20,6 +22,13 @@ const { updateLocale, refresh } = vi.hoisted(() => ({
 }));
 vi.mock('~/actions/locale', () => ({ updateLocale }));
 vi.mock('next/navigation', () => ({ useRouter: () => ({ refresh }) }));
+
+// The catalogs the root layout would deliver with each request below, and the
+// ones the tests switch to: loaded up front, so a switch changes immediately.
+// German is left unloaded for the test that switches before its catalog has.
+const en = await frescoCatalogSource.load('en');
+const es = await frescoCatalogSource.load('es');
+const enGb = await frescoCatalogSource.load('en-GB');
 
 const initial: FrescoI18nInitialization = {
   locale: 'en',
@@ -36,9 +45,15 @@ function Probe() {
     </div>
   );
 }
-function App({ value = initial }: { value?: FrescoI18nInitialization }) {
+function App({
+  value = initial,
+  messages = en,
+}: {
+  value?: FrescoI18nInitialization;
+  messages?: CatalogMessages;
+}) {
   return (
-    <FrescoI18nProvider initial={value}>
+    <FrescoI18nProvider initial={value} messages={messages}>
       <FrescoLocaleSwitcher />
       <Probe />
       <div lang="en" dir="ltr" data-testid="interview">
@@ -92,14 +107,20 @@ beforeEach(() => {
 
 describe('Fresco locale preference control', () => {
   it('hydrates the exact Spanish server markup despite a British browser preference', async () => {
+    // Only the delivered catalog can supply Spanish: as far as the provider
+    // can tell nothing has been downloaded, and nothing may be.
+    const peek = vi
+      .spyOn(frescoCatalogSource, 'peek')
+      .mockReturnValue(undefined);
+    const load = vi.spyOn(frescoCatalogSource, 'load');
     const value = { ...initial, locale: 'es', preference: 'es' };
-    const markup = renderToString(<App value={value} />);
+    const markup = renderToString(<App value={value} messages={es} />);
     expect(markup).toContain('Idioma de la interfaz: Español');
     const container = document.createElement('div');
     container.innerHTML = markup;
     document.body.append(container);
     const recoverableError = vi.fn();
-    const root = hydrateRoot(container, <App value={value} />, {
+    const root = hydrateRoot(container, <App value={value} messages={es} />, {
       onRecoverableError: recoverableError,
     });
     await act(async () => {
@@ -110,11 +131,19 @@ describe('Fresco locale preference control', () => {
     );
     expect(document.documentElement.lang).toBe('es');
     expect(recoverableError).not.toHaveBeenCalled();
+    expect(load).not.toHaveBeenCalled();
     await act(async () => root.unmount());
     container.remove();
+    peek.mockRestore();
+    load.mockRestore();
   });
   it('starts from serialized server locale before reading a different browser preference', async () => {
-    render(<App value={{ ...initial, locale: 'es', preference: 'es' }} />);
+    render(
+      <App
+        value={{ ...initial, locale: 'es', preference: 'es' }}
+        messages={es}
+      />,
+    );
     expect(readState().locale).toBe('es');
     expect(document.documentElement).toHaveAttribute('lang', 'es');
     expect(document.documentElement).toHaveAttribute('dir', 'ltr');
@@ -152,6 +181,20 @@ describe('Fresco locale preference control', () => {
     await open();
     expect(footer()).toHaveTextContent('Guardado en tu cuenta.');
   });
+  it('keeps the current language on screen until a newly chosen one has loaded', async () => {
+    const download = vi
+      .spyOn(frescoCatalogSource, 'load')
+      .mockReturnValue(new Promise(() => undefined));
+    render(<App />);
+    await choose(/^Deutsch$/);
+    expect(download).toHaveBeenCalledWith('de');
+    expect(readState()).toMatchObject({ locale: 'en', preference: 'de' });
+    expect(document.documentElement.lang).toBe('en');
+    download.mockRestore();
+    await act(() => frescoCatalogSource.load('de'));
+    expect(readState()).toMatchObject({ locale: 'de', preference: 'de' });
+    expect(document.documentElement.lang).toBe('de');
+  });
   it('reports a signed-out choice as saved on this device', async () => {
     render(<App value={{ ...initial, userId: null }} />);
     await choose(/^English \(UK\)$/);
@@ -160,7 +203,12 @@ describe('Fresco locale preference control', () => {
     expect(footer()).toHaveTextContent('Saved on this device.');
   });
   it('saves Automatic as null and uses current browser best fit', async () => {
-    render(<App value={{ ...initial, locale: 'es', preference: 'es' }} />);
+    render(
+      <App
+        value={{ ...initial, locale: 'es', preference: 'es' }}
+        messages={es}
+      />,
+    );
     await choose(/^Automático/);
     expect(document.documentElement.lang).toBe('en-GB');
     expect(trigger()).toHaveAccessibleName(
@@ -225,7 +273,10 @@ describe('Fresco locale preference control', () => {
       expect(updateLocale).toHaveBeenCalledWith('es', 'alice'),
     );
     view.rerender(
-      <App value={{ ...initial, userId: 'bob', locale: 'en-GB' }} />,
+      <App
+        value={{ ...initial, userId: 'bob', locale: 'en-GB' }}
+        messages={enGb}
+      />,
     );
     expect(readState()).toMatchObject({ locale: 'en-GB', preference: null });
     await act(async () => write.resolve({ success: true }));

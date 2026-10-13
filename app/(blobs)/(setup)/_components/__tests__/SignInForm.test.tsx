@@ -4,7 +4,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AppI18nProvider } from '@codaco/app-i18n/react';
 import { frescoLocales } from '~/i18n/locales';
 import { TWO_FACTOR_SETUP_PATH } from '~/lib/auth/paths';
-import { frescoCatalogs } from '~/src/locales/catalogs';
 
 const { mockPush, mockLogin } = vi.hoisted(() => ({
   mockPush: vi.fn(),
@@ -35,11 +34,7 @@ vi.mock('~/actions/webauthn', () => ({
 import { SignInForm } from '../SignInForm';
 
 const view = (
-  <AppI18nProvider
-    locale="en"
-    locales={frescoLocales}
-    messages={frescoCatalogs.en}
-  >
+  <AppI18nProvider locale="en" locales={frescoLocales}>
     <SignInForm />
   </AppI18nProvider>
 );

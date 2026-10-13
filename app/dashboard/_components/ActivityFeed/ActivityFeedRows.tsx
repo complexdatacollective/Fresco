@@ -1,11 +1,7 @@
 'use client';
 
 import {
-  getCoreRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-  type ColumnDef,
+  useTable,
   type ColumnFiltersState,
   type PaginationState,
   type SortingState,
@@ -21,6 +17,8 @@ import { use, useMemo } from 'react';
 
 import { useAppIntl } from '@codaco/app-i18n/react';
 import { DataTable } from '@codaco/fresco-ui/DataTable/DataTable';
+import { dataTableFeatures } from '@codaco/fresco-ui/DataTable/features';
+import { type DataTableColumnDef } from '@codaco/fresco-ui/DataTable/types';
 import { useNuqsTable } from '~/components/DataTable/nuqs/NuqsTableProvider';
 import type { Events } from '~/lib/db/generated/client';
 import type { ActivitiesFeed } from '~/queries/activityFeed';
@@ -40,7 +38,7 @@ export default function ActivityFeedRows({
   const tableData = use(activitiesPromise);
   const { startTransition } = useNuqsTable();
 
-  const columns = useMemo<ColumnDef<Events>[]>(
+  const columns = useMemo<DataTableColumnDef<Events>[]>(
     () => fetchActivityFeedTableColumnDefs(intl),
     [intl],
   );
@@ -87,7 +85,8 @@ export default function ActivityFeedRows({
     return filters;
   }, [q, type]);
 
-  const table = useReactTable({
+  const table = useTable({
+    features: dataTableFeatures,
     data: tableData.events,
     columns,
     pageCount: tableData.pageCount,
@@ -118,9 +117,6 @@ export default function ActivityFeedRows({
         });
       }
     },
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
     manualPagination: true,
     manualSorting: true,
     manualFiltering: true,

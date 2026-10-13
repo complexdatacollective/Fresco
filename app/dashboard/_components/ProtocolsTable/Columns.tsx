@@ -77,7 +77,7 @@ export const getProtocolColumns = (
     },
     {
       accessorKey: 'name',
-      sortingFn: 'text',
+      sortFn: 'text',
       header: ({ column }) => {
         return (
           <DataTableColumnHeader
@@ -103,7 +103,7 @@ export const getProtocolColumns = (
     },
     {
       accessorKey: 'importedAt',
-      sortingFn: 'datetime',
+      sortFn: 'datetime',
       header: ({ column }) => {
         return (
           <DataTableColumnHeader
@@ -116,7 +116,7 @@ export const getProtocolColumns = (
     },
     {
       accessorKey: 'lastModified',
-      sortingFn: 'datetime',
+      sortFn: 'datetime',
       header: ({ column }) => {
         return (
           <DataTableColumnHeader

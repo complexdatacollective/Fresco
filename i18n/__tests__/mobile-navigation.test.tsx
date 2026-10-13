@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { AppI18nProvider } from '@codaco/app-i18n/react';
 import { MobileNavDrawer } from '~/app/dashboard/_components/MobileNavDrawer';
 import { frescoLocales } from '~/i18n/locales';
-import { frescoCatalogs } from '~/src/locales/catalogs';
+import { frescoCatalogSource } from '~/src/locales/catalogs';
 
 vi.mock('next/navigation', () => ({ usePathname: () => '/dashboard' }));
 vi.mock('~/actions/auth', () => ({ logout: vi.fn() }));
@@ -12,11 +12,15 @@ vi.mock('~/i18n/FrescoLocaleSwitcher', () => ({
   default: () => <button type="button">Interface language</button>,
 }));
 
+// Loaded up front, so every render and formatter below has Spanish
+// synchronously.
+await frescoCatalogSource.load('es');
+
 const view = (locale: string) => (
   <AppI18nProvider
     locale={locale}
     locales={frescoLocales}
-    messages={frescoCatalogs[locale]}
+    messages={frescoCatalogSource.peek(locale)}
   >
     <MobileNavDrawer />
   </AppI18nProvider>

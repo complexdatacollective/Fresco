@@ -1,20 +1,23 @@
 'use client';
 
 import {
-  getCoreRowModel,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-  type ColumnDef,
+  useTable,
   type ColumnFiltersState,
   type OnChangeFn,
   type Row,
+  type RowData,
+  type RowSelectionState,
   type SortingState,
 } from '@tanstack/react-table';
 import { parseAsJson, useQueryState } from 'nuqs';
 import { useState } from 'react';
 import { z } from 'zod/mini';
+
+import {
+  dataTableFeatures,
+  type DataTableFeatures,
+} from '@codaco/fresco-ui/DataTable/features';
+import { type DataTableColumnDef } from '@codaco/fresco-ui/DataTable/types';
 
 const ColumnFiltersStateSchema = z.array(
   z.object({
@@ -23,29 +26,31 @@ const ColumnFiltersStateSchema = z.array(
   }),
 );
 
-type UseClientDataTableOptions<TData, TValue> = {
+type UseClientDataTableOptions<TData extends RowData> = {
   data: TData[];
-  columns: ColumnDef<TData, TValue>[];
+  columns: DataTableColumnDef<TData>[];
   enablePagination?: boolean;
-  enableRowSelection?: boolean | ((row: Row<TData>) => boolean);
+  enableRowSelection?:
+    | boolean
+    | ((row: Row<DataTableFeatures, TData>) => boolean);
   enableUrlFilters?: boolean;
   defaultSortBy?: { id: string; desc: boolean };
 };
 
-export function useClientDataTable<TData, TValue>({
+export function useClientDataTable<TData extends RowData>({
   data,
   columns,
   enablePagination = true,
   enableRowSelection = true,
   enableUrlFilters = false,
   defaultSortBy,
-}: UseClientDataTableOptions<TData, TValue>) {
+}: UseClientDataTableOptions<TData>) {
   // TanStack Table returns a mutable ref with stable identity, defeating React Compiler memoization.
   'use no memo';
   const [sorting, setSorting] = useState<SortingState>(
     defaultSortBy ? [{ ...defaultSortBy }] : [],
   );
-  const [rowSelection, setRowSelection] = useState({});
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
 
   const [urlFilters, setUrlFilters] = useQueryState(
     'filters',
@@ -68,18 +73,16 @@ export function useClientDataTable<TData, TValue>({
       }
     : setLocalFilters;
 
-  const table = useReactTable({
+  const table = useTable({
+    features: dataTableFeatures,
     data,
     columns,
-    getCoreRowModel: getCoreRowModel(),
-    ...(enablePagination && {
-      getPaginationRowModel: getPaginationRowModel(),
-    }),
+    // Without pagination every row renders on one page: `manualPagination`
+    // skips the paginated row model, as leaving it unregistered did in v8.
+    manualPagination: !enablePagination,
     onSortingChange: setSorting,
-    getSortedRowModel: getSortedRowModel(),
     onRowSelectionChange: setRowSelection,
     onColumnFiltersChange,
-    getFilteredRowModel: getFilteredRowModel(),
     enableRowSelection,
     state: {
       sorting,

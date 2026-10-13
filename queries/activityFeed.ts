@@ -9,7 +9,7 @@ import { frescoTimeZone } from '~/i18n/locales';
 import { safeCacheTag } from '~/lib/cache';
 import { prisma } from '~/lib/db';
 import type { Events, Prisma } from '~/lib/db/generated/client';
-import { frescoCatalogs } from '~/src/locales/catalogs';
+import { frescoCatalogSource } from '~/src/locales/catalogs';
 
 const searchBatchSize = 500;
 type ActivityQueryGroup = {
@@ -85,7 +85,7 @@ export async function fetchActivities(
     // the caller, never from headers or a session inside this shared cache.
     const intl = createAppIntl({
       locale,
-      messages: frescoCatalogs[locale],
+      messages: await frescoCatalogSource.load(locale),
       timeZone: frescoTimeZone,
     });
     const groups: ActivityQueryGroup[] =

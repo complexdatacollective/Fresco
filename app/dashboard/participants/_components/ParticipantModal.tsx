@@ -16,7 +16,6 @@ import { commonMessages } from '@codaco/app-i18n/common';
 import { createMessageError, defineMessages } from '@codaco/app-i18n/messages';
 import { AppMessage, useAppIntl } from '@codaco/app-i18n/react';
 import { Button } from '@codaco/fresco-ui/Button';
-import Dialog from '@codaco/fresco-ui/dialogs/Dialog';
 import Field from '@codaco/fresco-ui/form/Field/Field';
 import InputField from '@codaco/fresco-ui/form/fields/InputField';
 import { FormWithoutProvider } from '@codaco/fresco-ui/form/Form';
@@ -26,6 +25,7 @@ import SubmitButton from '@codaco/fresco-ui/form/SubmitButton';
 import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
 import { createParticipant, updateParticipant } from '~/actions/participants';
 import ActionError from '~/components/ActionError';
+import FormDialog from '~/components/FormDialog';
 import InfoTooltip from '~/components/InfoTooltip';
 import type { Participant } from '~/lib/db/generated/client';
 import { createParticipantSchemas } from '~/schemas/participant';
@@ -201,7 +201,7 @@ function ParticipantModal({
 
   return (
     <FormStoreProvider>
-      <Dialog
+      <FormDialog
         open={open}
         closeDialog={() => handleOpenChange(false)}
         title={
@@ -209,9 +209,13 @@ function ParticipantModal({
             ? intl.formatMessage(messages.copyEditParticipant)
             : intl.formatMessage(messages.copyAddParticipant)
         }
-        footer={
+        footer={(heldOpen) => (
           <>
-            <Button type="button" onClick={() => handleOpenChange(false)}>
+            <Button
+              type="button"
+              onClick={() => handleOpenChange(false)}
+              disabled={heldOpen}
+            >
               {intl.formatMessage(commonMessages.cancel)}
             </Button>
             <SubmitButton form="participantForm">
@@ -220,7 +224,7 @@ function ParticipantModal({
                 : intl.formatMessage(messages.copySubmit)}
             </SubmitButton>
           </>
-        }
+        )}
       >
         {error && (
           <div className="mb-6 flex flex-wrap">
@@ -257,7 +261,7 @@ function ParticipantModal({
             initialValue={initialValues?.label}
           />
         </FormWithoutProvider>
-      </Dialog>
+      </FormDialog>
     </FormStoreProvider>
   );
 }

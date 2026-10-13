@@ -4,16 +4,31 @@ import {
   type ResolvedAsset,
 } from '@codaco/interview/contract';
 import { COMPATIBLE_PROTOCOL_SCHEMA_VERSION } from '@codaco/interview/protocol-schema-version';
+import { parseStoredInterviewSession } from '~/lib/db/storedInterviewSession';
+import { parseStoredProtocol } from '~/lib/db/storedProtocol';
 import type { GetInterviewByIdQuery } from '~/queries/interviews';
+
+type MappedInterview =
+  | {
+      success: true;
+      payload: InterviewPayload;
+      assetUrls: Record<string, string>;
+      initialStep: number;
+      initialSyncRevision: number;
+    }
+  | {
+      // Nothing may start the interview. Without the participant data the
+      // client would build a network that its first sync writes over the
+      // stored one; without the protocol it would run a design other than the
+      // researcher's.
+      success: false;
+      unreadable: 'session' | 'protocol';
+      error: unknown;
+    };
 
 export function mapInterviewPayload(
   source: NonNullable<GetInterviewByIdQuery>,
-): {
-  payload: InterviewPayload;
-  assetUrls: Record<string, string>;
-  initialStep: number;
-  initialSyncRevision: number;
-} {
+): MappedInterview {
   const { protocol, ...session } = source;
 
   // The stored version is written from the validated document at import
@@ -30,6 +45,20 @@ export function mapInterviewPayload(
         `schema version ${COMPATIBLE_PROTOCOL_SCHEMA_VERSION}. It must be ` +
         `migrated before an interview using it can be started.`,
     );
+  }
+
+  const storedProtocol = parseStoredProtocol(protocol);
+  if (!storedProtocol.success) {
+    return {
+      success: false,
+      unreadable: 'protocol',
+      error: storedProtocol.error,
+    };
+  }
+
+  const stored = parseStoredInterviewSession(session);
+  if (!stored.success) {
+    return { success: false, unreadable: 'session', error: stored.error };
   }
 
   const assets: ResolvedAsset[] = protocol.assets.map((a) => {
@@ -56,11 +85,12 @@ export function mapInterviewPayload(
       finishTime: session.finishTime?.toISOString() ?? null,
       exportTime: session.exportTime?.toISOString() ?? null,
       lastUpdated: session.lastUpdated.toISOString(),
-      network: session.network,
-      stageMetadata: session.stageMetadata ?? undefined,
+      network: stored.data.network,
+      stageMetadata: stored.data.stageMetadata ?? undefined,
     },
     protocol: {
       ...protocol,
+      ...storedProtocol.data,
       schemaVersion,
       hash: protocol.hash,
       description: protocol.description ?? undefined,
@@ -70,6 +100,7 @@ export function mapInterviewPayload(
   };
 
   return {
+    success: true,
     payload,
     assetUrls,
     initialStep: session.currentStep,

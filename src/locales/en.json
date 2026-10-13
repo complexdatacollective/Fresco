@@ -796,8 +796,8 @@
     "description": "Researcher-facing S3ConfigForm: The S3-compatible endpoint URL"
   },
   "fresco.S3ConfigForm.theURLBrowsersUseToReachThis": {
-    "defaultMessage": "The URL browsers use to reach this storage. For MinIO behind your reverse proxy, this is your Fresco domain (see deployment docs). For AWS S3 or R2, this is usually the same as the Endpoint URL.",
-    "description": "Researcher-facing S3ConfigForm: The URL browsers use to reach this storage. For MinIO behind your reverse proxy, this is your Fresco domain (see deploym"
+    "defaultMessage": "The URL browsers use to reach this storage. For the storage bundled with Fresco's Docker deployment, this is your Fresco domain. For AWS S3 or R2, this is usually the same as the Endpoint URL.",
+    "description": "Researcher-facing S3ConfigForm: hint under the Public URL field. The bundled storage is served through the reverse proxy on the Fresco domain, so its public URL is that domain; for AWS S3 or Cloudflare R2 it usually matches the Endpoint URL."
   },
   "fresco.S3ConfigForm.theseS3SettingsAreConfiguredViaEnvironment": {
     "defaultMessage": "These S3 settings are configured via environment variables and cannot be changed here.",
@@ -1430,6 +1430,10 @@
   "fresco.actions.interviews.copyInvalidParticipantIdentifier": {
     "defaultMessage": "Invalid participant identifier",
     "description": "Researcher-facing actions / interviews: Invalid participant identifier"
+  },
+  "fresco.actions.interviews.copyProtocolCouldNotBeRead": {
+    "defaultMessage": "This protocol could not be read, so interviews cannot be started with it.",
+    "description": "Researcher-facing actions / interviews: the protocol's stored stages, codebook or experiments do not parse, so no interview was created."
   },
   "fresco.actions.interviews.copyProtocolIsStoredUnderASchemaVersion": {
     "defaultMessage": "Protocol is stored under a schema version this deployment cannot run. Repair it in Architect and upload it again.",
@@ -2234,6 +2238,70 @@
   "fresco.page.welcomeToFrescoThisPageProvidesAn": {
     "defaultMessage": "Welcome to Fresco! This page provides an overview of your recent activity and key metrics.",
     "description": "Researcher-facing page: Welcome to Fresco! This page provides an overview of your recent activity and key metrics."
+  },
+  "fresco.participantPages.anonymousRecruitmentDisabled.message": {
+    "defaultMessage": "Anonymous recruitment is disabled for this study. Researchers may optionally enable anonymous recruitment from the dashboard.",
+    "description": "Shown when an anonymous interview link is opened while the deployment does not allow anonymous recruitment. Seen by participants, and by researchers testing their links."
+  },
+  "fresco.participantPages.anonymousRecruitmentDisabled.title": {
+    "defaultMessage": "Anonymous Recruitment Disabled",
+    "description": "Heading shown when an anonymous interview link is opened while the deployment does not allow anonymous recruitment."
+  },
+  "fresco.participantPages.interviewCompleted.message": {
+    "defaultMessage": "Your interview has been successfully completed.",
+    "description": "Participant-facing confirmation shown once an interview has been finished."
+  },
+  "fresco.participantPages.interviewCompleted.title": {
+    "defaultMessage": "Thank you for participating!",
+    "description": "Participant-facing heading shown once an interview has been finished."
+  },
+  "fresco.participantPages.invalidLink.message": {
+    "defaultMessage": "The study this link points to is not available. Please contact the person who recruited you to this study for assistance.",
+    "description": "Participant-facing page shown when an interview link points to a study that no longer exists."
+  },
+  "fresco.participantPages.invalidLink.title": {
+    "defaultMessage": "This interview link is no longer valid",
+    "description": "Participant-facing heading shown when an interview link points to a study that no longer exists."
+  },
+  "fresco.participantPages.metadata.pageDescription": {
+    "defaultMessage": "Interview",
+    "description": "Participant-facing interview pages, page description metadata: Interview"
+  },
+  "fresco.participantPages.metadata.pageTitle": {
+    "defaultMessage": "Network Canvas Fresco - Interview",
+    "description": "Participant-facing interview pages, browser tab title. \"Network Canvas Fresco\" is the product name and is not translated."
+  },
+  "fresco.participantPages.onboardingError.message": {
+    "defaultMessage": "Something went wrong while starting your interview. Please contact the person who recruited you to this study for assistance.",
+    "description": "Participant-facing page shown when an interview link fails to start an interview."
+  },
+  "fresco.participantPages.onboardingError.title": {
+    "defaultMessage": "This interview could not be started",
+    "description": "Participant-facing heading shown when an interview link fails to start an interview."
+  },
+  "fresco.participantPages.smallScreen.message": {
+    "defaultMessage": "To complete this interview, please use a device with a larger screen, or maximize your browser window.",
+    "description": "Participant-facing paragraph on the overlay that covers an interview when the screen is too small to show it."
+  },
+  "fresco.participantPages.smallScreen.mobileNote": {
+    "defaultMessage": "<strong>Note:</strong> it is not possible to complete this interview using a mobile phone.",
+    "description": "Small print on the overlay that covers an interview when the screen is too small. <strong> marks the word \"Note\" in bold."
+  },
+  "fresco.participantPages.smallScreen.title": {
+    "defaultMessage": "Screen Size Too Small",
+    "description": "Heading of the overlay that covers an interview when the participant’s screen is too small to show it."
+  },
+  "fresco.participantPages.unopenableInterview.answersUnreadable": {
+    "defaultMessage": "The answers saved for this interview could not be read, so it has not been started. Nothing has been changed. Please contact the person who recruited you to this study for assistance.",
+    "description": "Participant-facing explanation when the answers stored for an interview cannot be read, so the interview is refused rather than restarted empty."
+  },
+  "fresco.participantPages.unopenableInterview.protocolUnreadable": {
+    "defaultMessage": "This interview could not be loaded, so it has not been started. Nothing has been changed. Please contact the person who recruited you to this study for assistance.",
+    "description": "Participant-facing explanation when the study design behind an interview cannot be read, so the interview is refused."
+  },
+  "fresco.participantPages.unopenableInterview.title": {
+    "defaultMessage": "This interview could not be opened",
+    "description": "Participant-facing heading when an interview is refused because its stored data cannot be read."
   },
   "fresco.participants.AddParticipantButton.addParticipant": {
     "defaultMessage": "Add Participant",
@@ -3234,6 +3302,10 @@
   "fresco.syntheticGeneration.technicalDetails": {
     "defaultMessage": "Technical details",
     "description": "Disclosure label for the original, untranslated generation diagnostic."
+  },
+  "fresco.syntheticGeneration.unreadableProtocol": {
+    "defaultMessage": "This protocol could not be read, so no interviews were generated.",
+    "description": "The selected protocol's stored data does not parse, so generation was refused before creating anything."
   },
   "fresco.tableFilters.NuqsClearFilterslabel": {
     "defaultMessage": "Clear Filters",

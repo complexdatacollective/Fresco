@@ -114,6 +114,18 @@ function moveMechanismIntoException(
  * `installProcessErrorReporting` below, which does consult the setting, on
  * every event.
  */
+// A failure to read the analytics setting repeats on every request, so report
+// it once per process rather than per attempt: the point is to make a silent
+// state visible, and a line per request would bury it.
+const warnedOnce = new Set<string>();
+
+function warnOnce(message: string, error: unknown) {
+  if (warnedOnce.has(message)) return;
+  warnedOnce.add(message);
+  // oxlint-disable-next-line no-console -- the only channel available here: this runs in the instrumentation module graph, where the app's own reporting is exactly what has failed
+  console.error(message, error);
+}
+
 export function getPostHogServer() {
   client ??= new PostHog(POSTHOG_API_KEY, {
     host: POSTHOG_PROXY_HOST,
@@ -145,9 +157,21 @@ export async function isAnalyticsDisabledUncached() {
       where: { key: 'disableAnalytics' },
     });
     return setting?.value === 'true';
-  } catch {
+  } catch (error) {
     // Without the setting we can't tell whether this deployment consented
     // to analytics, so stay silent rather than assume consent.
+    //
+    // Say so, once. Returning `true` here is indistinguishable from the
+    // deployment having switched analytics off, so a settings read that always
+    // throws — this runs in the instrumentation module graph rather than the
+    // request one, which is the whole reason the uncached form exists — drops
+    // every server-side error report for the life of the process and leaves no
+    // trace anywhere. That is how a deployment ends up reporting client-side
+    // React errors whose server-side cause was never sent.
+    warnOnce(
+      'posthog: could not read the analytics setting, so no server-side report will be sent. Errors raised while handling a request will not reach error tracking until this read succeeds.',
+      error,
+    );
     return true;
   }
 }

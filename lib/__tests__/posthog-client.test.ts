@@ -292,7 +292,24 @@ describe('Fresco PostHog client', () => {
 
       await startPostHog('install-123');
 
-      expect(captureException).toHaveBeenCalledWith(error);
+      expect(captureException).toHaveBeenCalledWith(error, undefined);
+    });
+
+    // The digest is the only identifier a production server error carries once
+    // React has stripped its message, so it has to survive the replay queue as
+    // well as a direct capture.
+    it('carries a forwarded server error digest', async () => {
+      const { captureClientException, startPostHog } = await loadModule();
+      const error = Object.assign(new Error('Minified React error #441'), {
+        digest: '2846721839',
+      });
+
+      captureClientException(error, { digest: error.digest });
+      await startPostHog('install-123');
+
+      expect(captureException).toHaveBeenCalledWith(error, {
+        digest: '2846721839',
+      });
     });
 
     // captureClientException attaches to the same promise startPostHog is
@@ -322,7 +339,7 @@ describe('Fresco PostHog client', () => {
 
       captureClientException(error);
       await vi.waitFor(() =>
-        expect(captureException).toHaveBeenCalledWith(error),
+        expect(captureException).toHaveBeenCalledWith(error, undefined),
       );
     });
 

@@ -24,6 +24,7 @@ export default function FrescoLocaleSwitcher({
       options={frescoLocales}
       value={preference}
       automaticLocale={automaticLocale}
+      searchable
       onChange={setLocale}
       saveState={saveState}
       persistence={persistence}

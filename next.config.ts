@@ -112,16 +112,24 @@ const posthogProjectId = process.env.POSTHOG_PROJECT_ID;
  * posthog requires personalApiKey and projectId to be set at build time, but
  * we don't want to require them for local development or CI. If they're not
  * set, we provide dummy values and the posthog client will be a no-op.
+ *
+ * The credentials alone decide whether a build emits and uploads source maps,
+ * matching apps/documentation and apps/networkcanvas.com. They must not be
+ * qualified by `CI`: Fresco's production bundle is built by `apps/fresco/
+ * Dockerfile` in the mirror repository, which sets no `CI`, so a `CI` test
+ * would refuse to upload maps for the only build whose chunk IDs the deployed
+ * image actually carries. Every build that lacks the credentials — local, PR,
+ * Netlify preview — still emits no maps at all, and `deleteAfterUpload` keeps
+ * an uploading build from leaving maps in the output it serves.
+ *
+ * Both variables are declared in turbo.json's `fresco#build` `env` so an
+ * uploading build can never reuse a non-uploading cache entry.
  */
 export default withPostHogConfig(config, {
   personalApiKey: posthogPersonalApiKey ?? 'none',
   projectId: posthogProjectId ?? 'none',
   sourcemaps: {
-    enabled:
-      // eslint-disable-next-line no-process-env
-      process.env.CI === 'true' &&
-      !!posthogPersonalApiKey &&
-      !!posthogProjectId,
+    enabled: !!posthogPersonalApiKey && !!posthogProjectId,
     releaseName: POSTHOG_APP_NAME,
     deleteAfterUpload: true,
   },

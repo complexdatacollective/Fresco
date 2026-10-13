@@ -42,7 +42,7 @@ describe('locale preference persistence', () => {
     });
     expect(deleteCookie).toHaveBeenCalledWith('fresco.locale');
   });
-  it.each(['ES', 'es-MX', 'fr', 'en_XA', '', 'en-XA'])(
+  it.each(['ES', 'es-MX', 'ja', 'en_XA', '', 'en-XA'])(
     'rejects unsupported or noncanonical input %s before persistence',
     async (locale) => {
       expect(await updateLocale(locale, 'alice')).toEqual({ success: false });

@@ -5,9 +5,10 @@ import { type ReactNode, useState } from 'react';
 
 import { defineMessages } from '@codaco/app-i18n/messages';
 import { useAppIntl } from '@codaco/app-i18n/react';
-import Dialog from '@codaco/fresco-ui/dialogs/Dialog';
+import FormStoreProvider from '@codaco/fresco-ui/form/store/formStoreProvider';
 import Paragraph from '@codaco/fresco-ui/typography/Paragraph';
-import { UploadThingTokenForm } from '~/app/(blobs)/(setup)/_components/UploadThingTokenForm';
+import { UploadThingTokenFormWithoutProvider } from '~/app/(blobs)/(setup)/_components/UploadThingTokenForm';
+import FormDialog from '~/components/FormDialog';
 import Link from '~/components/Link';
 
 const messages = defineMessages({
@@ -87,45 +88,49 @@ function UploadThingModal() {
   const intl = useAppIntl();
 
   const [open, setOpen] = useState(true);
+  // The store sits above the dialog so the dialog can read the form's
+  // submission and stay open while the token is saved.
   return (
-    <Dialog
-      open={open}
-      closeDialog={() => setOpen(false)}
-      title={intl.formatMessage(messages.requiredEnvironmentVariableUpdate)}
-      description={intl.formatMessage(
-        messages.theFrescoUpdateYouInstalledRequiresA,
-      )}
-    >
-      <Paragraph>
-        {intl.formatMessage(messages.updatingTheKeyShouldTakeAMatter)}
-      </Paragraph>
-      <ol className="mt-6 ml-4 list-inside list-decimal">
-        <li>
-          {intl.formatMessage(messages.visitTheUploadThingDashboard, {
-            tag1: renderDashboardLinkChunks,
-          })}
-        </li>
-        <li>{intl.formatMessage(messages.selectYourProject)}</li>
-        <li>{intl.formatMessage(messages.selectTheAPIKeysTab)}</li>
-        <li>
-          {intl.formatMessage(messages.ensureYouHaveTheSDKV7Tab, {
-            tag1: renderStrongChunks,
-          })}
-        </li>
-        <li>
-          {intl.formatMessage(messages.copyTheTokenByClickingTheCopy)}
-          <Image
-            src="/images/uploadthing-key.png"
-            width={500}
-            height={300}
-            alt={intl.formatMessage(messages.uploadThingAPIKeyDashboard)}
-            className="w-full"
-          />
-        </li>
-        <li>{intl.formatMessage(messages.pasteTheTokenIntoTheFieldBelow)}</li>
-      </ol>
-      <UploadThingTokenForm />
-    </Dialog>
+    <FormStoreProvider>
+      <FormDialog
+        open={open}
+        closeDialog={() => setOpen(false)}
+        title={intl.formatMessage(messages.requiredEnvironmentVariableUpdate)}
+        description={intl.formatMessage(
+          messages.theFrescoUpdateYouInstalledRequiresA,
+        )}
+      >
+        <Paragraph>
+          {intl.formatMessage(messages.updatingTheKeyShouldTakeAMatter)}
+        </Paragraph>
+        <ol className="mt-6 ml-4 list-inside list-decimal">
+          <li>
+            {intl.formatMessage(messages.visitTheUploadThingDashboard, {
+              tag1: renderDashboardLinkChunks,
+            })}
+          </li>
+          <li>{intl.formatMessage(messages.selectYourProject)}</li>
+          <li>{intl.formatMessage(messages.selectTheAPIKeysTab)}</li>
+          <li>
+            {intl.formatMessage(messages.ensureYouHaveTheSDKV7Tab, {
+              tag1: renderStrongChunks,
+            })}
+          </li>
+          <li>
+            {intl.formatMessage(messages.copyTheTokenByClickingTheCopy)}
+            <Image
+              src="/images/uploadthing-key.png"
+              width={500}
+              height={300}
+              alt={intl.formatMessage(messages.uploadThingAPIKeyDashboard)}
+              className="w-full"
+            />
+          </li>
+          <li>{intl.formatMessage(messages.pasteTheTokenIntoTheFieldBelow)}</li>
+        </ol>
+        <UploadThingTokenFormWithoutProvider />
+      </FormDialog>
+    </FormStoreProvider>
   );
 }
 

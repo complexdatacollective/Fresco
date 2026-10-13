@@ -10,7 +10,7 @@ import {
   useExportProgress,
 } from '~/components/ExportProgressProvider';
 import { frescoLocales } from '~/i18n/locales';
-import { frescoCatalogs } from '~/src/locales/catalogs';
+import { frescoCatalogSource } from '~/src/locales/catalogs';
 
 const { runBatchedExport } = vi.hoisted(() => ({ runBatchedExport: vi.fn() }));
 vi.mock('~/lib/export/runBatchedExport', () => ({ runBatchedExport }));
@@ -39,11 +39,15 @@ function StartExport() {
     </button>
   );
 }
+// Loaded up front, so every render and formatter below has Spanish
+// synchronously.
+await frescoCatalogSource.load('es');
+
 const view = (locale: string) => (
   <AppI18nProvider
     locale={locale}
     locales={frescoLocales}
-    messages={frescoCatalogs[locale]}
+    messages={frescoCatalogSource.peek(locale)}
   >
     <Toast.Provider>
       <ExportProgressProvider>

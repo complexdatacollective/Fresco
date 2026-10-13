@@ -9,7 +9,10 @@ import Field from '@codaco/fresco-ui/form/Field/Field';
 import InputField from '@codaco/fresco-ui/form/fields/InputField';
 import SegmentedCodeField from '@codaco/fresco-ui/form/fields/SegmentedCodeField';
 import { FormWithoutProvider } from '@codaco/fresco-ui/form/Form';
-import { type FormSubmitHandler } from '@codaco/fresco-ui/form/store/types';
+import {
+  type FormSubmissionResult,
+  type FormSubmitHandler,
+} from '@codaco/fresco-ui/form/store/types';
 import { verifyCurrentUserTotp } from '~/actions/totp';
 
 const messages = defineMessages({
@@ -63,7 +66,12 @@ const messages = defineMessages({
 
 type TwoFactorVerifyProps = {
   formId: string;
-  onVerify: (code: string) => void | Promise<void>;
+  /**
+   * Runs once the code is verified, as part of the same submission: the form
+   * reads as submitting until it settles, and a failure it returns is shown
+   * on the form like a rejected code.
+   */
+  onVerify: (code: string) => Promise<FormSubmissionResult>;
   allowRecoveryCodes?: boolean;
 };
 
@@ -93,9 +101,7 @@ export default function TwoFactorVerify({
       return result;
     }
 
-    void onVerify(code);
-
-    return { success: true };
+    return onVerify(code);
   };
 
   return (

@@ -292,9 +292,20 @@ function report(make: (posthog: PostHog) => void) {
   });
 }
 
-/** Reports a client-side exception. */
-export function captureClientException(error: unknown) {
-  report((posthog) => posthog.captureException(error));
+/**
+ * Reports a client-side exception.
+ *
+ * `properties` carries what the error object itself cannot. A server error that
+ * reaches the browser through the RSC payload arrives as React's minified
+ * #441 — the message is stripped in production and only a `digest` identifies
+ * it — so the digest is the one value that joins this report to the server-side
+ * log line for the same failure. Without it a #441 names nothing.
+ */
+export function captureClientException(
+  error: unknown,
+  properties?: Record<string, unknown>,
+) {
+  report((posthog) => posthog.captureException(error, properties));
 }
 
 /** Reports a client-side event. */

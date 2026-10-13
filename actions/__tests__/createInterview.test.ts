@@ -136,6 +136,9 @@ describe('createInterview', () => {
     mockProtocolFindUnique.mockResolvedValue({
       id: 'protocol-123',
       schemaVersion: COMPATIBLE_PROTOCOL_SCHEMA_VERSION,
+      stages: [],
+      codebook: { node: {}, edge: {} },
+      experiments: null,
     });
   });
 
@@ -390,6 +393,30 @@ describe('createInterview', () => {
 
       expect(result.createdInterviewId).toBeNull();
       expect(result.errorType).toBe('incompatible-protocol');
+      expect(mockPrismaCreate).not.toHaveBeenCalled();
+    });
+
+    it('refuses a protocol it cannot read without creating anything', async () => {
+      // The interview page would refuse to start it, so each recruitment link
+      // attempt would otherwise leave behind an interview nobody can open.
+      mockProtocolFindUnique.mockResolvedValue({
+        id: 'protocol-123',
+        schemaVersion: COMPATIBLE_PROTOCOL_SCHEMA_VERSION,
+        stages: [{ id: 'stage-1', type: 'NotAnInterface' }],
+        codebook: { node: {}, edge: {} },
+        experiments: null,
+      });
+
+      const result = await createInterview({
+        participantIdentifier: 'TEST-PARTICIPANT',
+        protocolId: 'protocol-123',
+      });
+
+      expect(result.createdInterviewId).toBeNull();
+      expect(result.errorType).toBe('incompatible-protocol');
+      expect(result.error).toBe(
+        'This protocol could not be read, so interviews cannot be started with it.',
+      );
       expect(mockPrismaCreate).not.toHaveBeenCalled();
     });
 

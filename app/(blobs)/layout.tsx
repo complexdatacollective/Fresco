@@ -4,6 +4,7 @@ import { type PropsWithChildren, Suspense } from 'react';
 
 import BackgroundBlobs from '~/components/BackgroundBlobs/BackgroundBlobs';
 import NetlifyBadge from '~/components/NetlifyBadge';
+import { env } from '~/env';
 import FrescoLocaleSwitcher from '~/i18n/FrescoLocaleSwitcher';
 
 export default function Layout({ children }: PropsWithChildren) {
@@ -35,7 +36,7 @@ export default function Layout({ children }: PropsWithChildren) {
         <main className="flex min-w-0 items-center justify-center">
           {children}
         </main>
-        <NetlifyBadge />
+        {env.SANDBOX_MODE && <NetlifyBadge />}
       </div>
     </>
   );

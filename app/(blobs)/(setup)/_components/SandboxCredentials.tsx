@@ -3,7 +3,6 @@
 import { defineMessages } from '@codaco/app-i18n/messages';
 import { useAppIntl } from '@codaco/app-i18n/react';
 import { Alert, AlertDescription, AlertTitle } from '@codaco/fresco-ui/Alert';
-import { env } from '~/env';
 
 const messages = defineMessages({
   sandboxCredentials: {
@@ -46,10 +45,13 @@ const messages = defineMessages({
   },
 });
 
+/**
+ * Rendered only by sandbox deployments. The `SANDBOX_MODE` check belongs to the
+ * server component that renders this one — see `NetlifyBadge` for why.
+ */
 export default function SandboxCredentials() {
   const intl = useAppIntl();
 
-  if (!env.SANDBOX_MODE) return null;
   return (
     <Alert variant="info">
       <AlertTitle>{intl.formatMessage(messages.sandboxCredentials)}</AlertTitle>

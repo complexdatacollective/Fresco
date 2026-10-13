@@ -1,9 +1,5 @@
 import {
-  getCoreRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-  type ColumnDef,
+  useTable,
   type ColumnFiltersState,
   type OnChangeFn,
   type PaginationState,
@@ -24,7 +20,9 @@ import superjson from 'superjson';
 import { z } from 'zod/mini';
 
 import { DataTable } from '@codaco/fresco-ui/DataTable/DataTable';
+import { dataTableFeatures } from '@codaco/fresco-ui/DataTable/features';
 import { type OperatorCondition } from '@codaco/fresco-ui/DataTable/filters/types';
+import { type DataTableColumnDef } from '@codaco/fresco-ui/DataTable/types';
 import { useNuqsTable } from '~/components/DataTable/nuqs/NuqsTableProvider';
 import type {
   GetInterviewsQuery,
@@ -108,7 +106,7 @@ export default function InterviewsTableRows({
   interviewsPromise: GetInterviewsReturnType;
   rowSelection: RowSelectionState;
   onRowSelectionChange: OnChangeFn<RowSelectionState>;
-  columns: ColumnDef<InterviewRow>[];
+  columns: DataTableColumnDef<InterviewRow>[];
   toolbar: ReactNode;
   isBusy: boolean;
   onDeleteSelected: () => void;
@@ -229,7 +227,8 @@ export default function InterviewsTableRows({
     });
   };
 
-  const table = useReactTable({
+  const table = useTable({
+    features: dataTableFeatures,
     data: rows,
     columns,
     pageCount: data.pageCount,
@@ -259,9 +258,6 @@ export default function InterviewsTableRows({
     },
     onColumnFiltersChange,
     onRowSelectionChange,
-    getCoreRowModel: getCoreRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
     manualPagination: true,
     manualSorting: true,
     manualFiltering: true,

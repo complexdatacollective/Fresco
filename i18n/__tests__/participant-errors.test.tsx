@@ -5,7 +5,7 @@ import { createMessageError, defineMessage } from '@codaco/app-i18n/messages';
 import { AppI18nProvider } from '@codaco/app-i18n/react';
 import ParticipantModal from '~/app/dashboard/participants/_components/ParticipantModal';
 import { frescoLocales } from '~/i18n/locales';
-import { frescoCatalogs } from '~/src/locales/catalogs';
+import { frescoCatalogSource } from '~/src/locales/catalogs';
 
 const { createParticipant, updateParticipant, refresh, setOpen } = vi.hoisted(
   () => ({
@@ -33,11 +33,15 @@ const participant = {
   isSynthetic: false,
   createdAt: new Date('2026-09-05T10:00:00Z'),
 };
+// Loaded up front, so every render and formatter below has Spanish
+// synchronously.
+await frescoCatalogSource.load('es');
+
 const view = (locale: string, editing = false) => (
   <AppI18nProvider
     locale={locale}
     locales={frescoLocales}
-    messages={frescoCatalogs[locale]}
+    messages={frescoCatalogSource.peek(locale)}
   >
     <ParticipantModal
       open

@@ -14,6 +14,7 @@ import { commonMessages } from '@codaco/app-i18n/common';
 import { defineMessages } from '@codaco/app-i18n/messages';
 import { useAppIntl } from '@codaco/app-i18n/react';
 import { IconButton } from '@codaco/fresco-ui/Button';
+import { type DataTableFeatures } from '@codaco/fresco-ui/DataTable/features';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -53,7 +54,11 @@ const messages = defineMessages({
 
 type InterviewRow = GetInterviewsQuery[number];
 
-export const ActionsDropdown = ({ row }: { row: Row<InterviewRow> }) => {
+export const ActionsDropdown = ({
+  row,
+}: {
+  row: Row<DataTableFeatures, InterviewRow>;
+}) => {
   const intl = useAppIntl();
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);

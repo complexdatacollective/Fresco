@@ -8,6 +8,7 @@ import { commonMessages } from '@codaco/app-i18n/common';
 import { defineMessages } from '@codaco/app-i18n/messages';
 import { AppMessage, useAppIntl } from '@codaco/app-i18n/react';
 import { IconButton } from '@codaco/fresco-ui/Button';
+import { type DataTableFeatures } from '@codaco/fresco-ui/DataTable/features';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -80,7 +81,7 @@ const downloadToastMessages = {
 export const ActionsDropdown = ({
   row,
 }: {
-  row: Row<ProtocolWithInterviews>;
+  row: Row<DataTableFeatures, ProtocolWithInterviews>;
 }) => {
   const intl = useAppIntl();
 

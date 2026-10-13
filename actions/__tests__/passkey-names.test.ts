@@ -9,7 +9,7 @@ import {
   verifyRegistration,
 } from '~/actions/webauthn';
 import { formatActivityDetails } from '~/i18n/activityDetails';
-import { frescoCatalogs } from '~/src/locales/catalogs';
+import { frescoCatalogSource } from '~/src/locales/catalogs';
 
 vi.mock('server-only', () => ({}));
 const { verify, createCredential, createUser, findCredential, addEvent } =
@@ -80,6 +80,9 @@ vi.mock('~/utils/password', () => ({
   hashPassword: vi.fn(),
   verifyPassword: async () => true,
 }));
+
+// Loaded up front, so the Spanish formatter below is synchronous.
+const es = await frescoCatalogSource.load('es');
 
 const credential: RegistrationResponseJSON = {
   id: 'credential-id',
@@ -240,7 +243,7 @@ describe.each(['additional', 'signup', 'switch'])(
         const activity = { message: 'original record', localization };
         expect(
           formatActivityDetails(
-            createAppIntl({ locale: 'es', messages: frescoCatalogs.es }),
+            createAppIntl({ locale: 'es', messages: es }),
             activity,
           ),
         ).toContain(spanishName);

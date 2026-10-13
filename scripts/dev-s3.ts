@@ -1,22 +1,55 @@
-/* eslint-disable no-console */
+/*
+ * The development object store. It is the self-hosted deployment's own Garage
+ * — `docker-compose.prod.yml`'s `garage` service, with `docker-compose.dev.yml`
+ * over it publishing the S3 API on the host loopback — rather than a
+ * hand-rolled container, so a change to how deployments run Garage is felt
+ * here first. Garage creates the key and bucket itself; this adds only the
+ * CORS rule a deployment does not need.
+ *
+ * Each branch gets its own Compose project, and with it its own container and
+ * data volume. Stopping this script leaves the stack running for the next
+ * `pnpm dev`, as the database container does; take it down with
+ *
+ *   pnpm exec tsx scripts/dev-s3.ts --down [--volumes]
+ */
+
 import { spawn, spawnSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import process from 'node:process';
+import { fileURLToPath } from 'node:url';
+import { parseEnv } from 'node:util';
 
 import {
-  CreateBucketCommand,
-  ListBucketsCommand,
+  ListObjectsV2Command,
+  PutBucketCorsCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
 
-const IMAGE = 'minio/minio:latest';
 const HOST_PORT = 9000;
-const CONTAINER_PORT = 9000;
-const BUCKET = 'fresco-dev';
+const ENDPOINT = `http://localhost:${HOST_PORT}`;
+// Both fixed by the deployment's garage service and its configuration.
+const BUCKET = 'assets';
 const REGION = 'us-east-1';
-const ACCESS_KEY_ID = 'minioadmin';
-const SECRET_ACCESS_KEY = 'minioadmin';
+
+// Development credentials in Garage's own key formats, safe to commit. The S3
+// pair is what `.env.development` gives the app; checkEnvDevelopment() refuses
+// to start a store the app would then fail to authenticate against.
+const ACCESS_KEY_ID = 'GK7264a84895442c56d7af713e';
+const SECRET_ACCESS_KEY =
+  '44ddf3da7d056e03767853bba63c422fd60365b6a613c6d367b2b83ab94e55eb';
+
+// The browser uploads and downloads straight from the store through presigned
+// URLs, which is cross-origin from `next dev`. Any origin, so a dev server that
+// moved off port 3000 still works; the store is reachable from this machine only.
+const CORS_ORIGIN = '*';
+
 const READY_MAX_ATTEMPTS = 30;
 const READY_INTERVAL_MS = 1000;
+
+const appRoot = new URL('../', import.meta.url);
+const composeFiles = ['docker-compose.prod.yml', 'docker-compose.dev.yml'].map(
+  (file) => fileURLToPath(new URL(file, appRoot)),
+);
 
 const branch =
   spawnSync('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
@@ -28,92 +61,119 @@ const safeBranch = branch
   .replaceAll('/', '-')
   .replace(/[^a-z0-9-]/g, '');
 
-const containerName = `fresco-dev-minio-${safeBranch}`;
-const volumeName = `fresco-dev-minio-${safeBranch}`;
+const project = `fresco-dev-${safeBranch}`;
 
-function docker(args: string[]): {
-  status: number;
-  stdout: string;
-  stderr: string;
-} {
-  const result = spawnSync('docker', args, { encoding: 'utf8' });
-  return {
-    status: result.status ?? -1,
-    stdout: result.stdout ?? '',
-    stderr: result.stderr ?? '',
-  };
-}
+/**
+ * Everything the deployment file interpolates. Compose validates the whole
+ * model before selecting services, so the variables of the services this
+ * never starts are set too, with values that show they were never used.
+ */
+const composeEnvironment: Record<string, string> = {
+  FRESCO_DOMAIN: 'fresco.invalid',
+  ACME_EMAIL: 'nobody@fresco.invalid',
 
-function containerExists(): boolean {
-  return docker(['container', 'inspect', containerName]).status === 0;
-}
+  GARAGE_ACCESS_KEY_ID: ACCESS_KEY_ID,
+  GARAGE_SECRET_ACCESS_KEY: SECRET_ACCESS_KEY,
+};
 
-function containerIsRunning(): boolean {
-  const result = docker(['inspect', '-f', '{{.State.Running}}', containerName]);
-  return result.status === 0 && result.stdout.trim() === 'true';
-}
+const composeFlags = [
+  'compose',
+  '-p',
+  project,
+  ...composeFiles.flatMap((file) => ['-f', file]),
+];
 
-function ensureVolume(): void {
-  const inspect = docker(['volume', 'inspect', volumeName]);
-  if (inspect.status === 0) return;
-  const create = docker(['volume', 'create', volumeName]);
-  if (create.status !== 0) {
-    throw new Error(`docker volume create failed: ${create.stderr}`);
-  }
-}
+const childEnvironment = { ...process.env, ...composeEnvironment };
 
-function removeContainer(): void {
-  const result = docker(['rm', '-f', containerName]);
-  if (result.status === 0) return;
-  // Tolerate "already gone" races with parallel invocations.
-  if (result.stderr.toLowerCase().includes('no such container')) return;
-  throw new Error(`docker rm -f failed: ${result.stderr}`);
-}
-
-function startContainer(): void {
-  console.log(`Starting MinIO on port ${HOST_PORT} [branch: ${branch}]...`);
-  const result = docker([
-    'run',
-    '-d',
-    '--rm',
-    '--name',
-    containerName,
-    '-p',
-    `${HOST_PORT}:${CONTAINER_PORT}`,
-    '-v',
-    `${volumeName}:/data`,
-    '-e',
-    `MINIO_ROOT_USER=${ACCESS_KEY_ID}`,
-    '-e',
-    `MINIO_ROOT_PASSWORD=${SECRET_ACCESS_KEY}`,
-    '-e',
-    'MINIO_API_CORS_ALLOW_ORIGIN=*',
-    IMAGE,
-    'server',
-    '/data',
-  ]);
-  if (result.status !== 0) {
-    throw new Error(`docker run failed: ${result.stderr}`);
-  }
-}
-
-function createS3Client(): S3Client {
-  return new S3Client({
-    endpoint: `http://localhost:${HOST_PORT}`,
-    region: REGION,
-    credentials: {
-      accessKeyId: ACCESS_KEY_ID,
-      secretAccessKey: SECRET_ACCESS_KEY,
-    },
-    forcePathStyle: true,
+function compose(args: string[]): { status: number; stderr: string } {
+  const result = spawnSync('docker', [...composeFlags, ...args], {
+    encoding: 'utf8',
+    env: childEnvironment,
+    stdio: ['inherit', 'inherit', 'pipe'],
   });
+  const stderr = result.stderr ?? '';
+  // Compose reports progress on stderr, so it is printed as well as kept.
+  if (stderr) process.stderr.write(stderr);
+  return { status: result.status ?? -1, stderr };
+}
+
+function checkEnvDevelopment(): void {
+  const expected: Record<string, string> = {
+    S3_ENDPOINT: ENDPOINT,
+    S3_PUBLIC_URL: ENDPOINT,
+    S3_BUCKET: BUCKET,
+    S3_REGION: REGION,
+    S3_ACCESS_KEY_ID: ACCESS_KEY_ID,
+    S3_SECRET_ACCESS_KEY: SECRET_ACCESS_KEY,
+  };
+  const actual = parseEnv(
+    readFileSync(new URL('.env.development', appRoot), 'utf8'),
+  );
+  const drifted = Object.entries(expected)
+    .filter(([key, value]) => actual[key] !== value)
+    .map(([key, value]) => `  ${key}=${value}`);
+  if (drifted.length > 0) {
+    throw new Error(
+      `.env.development no longer matches the store scripts/dev-s3.ts starts. Expected:\n${drifted.join('\n')}`,
+    );
+  }
+}
+
+/**
+ * The MinIO containers this replaced were long-lived, so one left running
+ * from an earlier session still holds port 9000. Stopped rather than removed:
+ * its volume and container are not this script's to delete.
+ */
+function stopSupersededContainers(): string[] {
+  const listed = spawnSync(
+    'docker',
+    [
+      'ps',
+      '--filter',
+      'name=^/fresco-dev-minio-',
+      '--format',
+      '{{.Names}}\t{{.Label "com.docker.compose.project"}}',
+    ],
+    { encoding: 'utf8' },
+  );
+  const names = (listed.stdout ?? '')
+    .split('\n')
+    .map((line) => line.split('\t'))
+    // A branch named `minio-*` has a Compose project of this script's own.
+    .filter(([name, composeProject]) => name && !composeProject)
+    .map(([name]) => name ?? '');
+  return names.filter(
+    (name) => spawnSync('docker', ['stop', name]).status === 0,
+  );
+}
+
+function startGarage(): void {
+  console.log(
+    `Starting Garage on port ${HOST_PORT} [project: ${project}, branch: ${branch}]...`,
+  );
+  if (compose(['up', '-d', '--wait', 'garage']).status === 0) return;
+
+  const stopped = stopSupersededContainers();
+  if (stopped.length === 0) {
+    throw new Error(
+      `docker compose up failed. If port ${HOST_PORT} is taken, another branch's development store may hold it: docker ps --filter publish=${HOST_PORT}`,
+    );
+  }
+  console.log(
+    `Stopped ${stopped.join(', ')}, MinIO containers from before this script ran Garage, which still held port ${HOST_PORT}. Retrying.`,
+  );
+  if (compose(['up', '-d', '--wait', 'garage']).status !== 0) {
+    throw new Error('docker compose up failed');
+  }
 }
 
 async function waitForReady(client: S3Client): Promise<void> {
   let lastError: unknown;
   for (let attempt = 1; attempt <= READY_MAX_ATTEMPTS; attempt++) {
     try {
-      await client.send(new ListBucketsCommand({}));
+      await client.send(
+        new ListObjectsV2Command({ Bucket: BUCKET, MaxKeys: 0 }),
+      );
       return;
     } catch (error) {
       lastError = error;
@@ -121,31 +181,34 @@ async function waitForReady(client: S3Client): Promise<void> {
     }
   }
   throw new Error(
-    `MinIO did not become ready after ${READY_MAX_ATTEMPTS} attempts: ${String(lastError)}`,
+    `Garage did not serve bucket '${BUCKET}' after ${READY_MAX_ATTEMPTS} attempts: ${String(lastError)}`,
   );
 }
 
-async function ensureBucket(client: S3Client): Promise<void> {
-  try {
-    await client.send(new CreateBucketCommand({ Bucket: BUCKET }));
-    console.log(`Created bucket '${BUCKET}'`);
-  } catch (error) {
-    if (
-      error instanceof Error &&
-      (error.name === 'BucketAlreadyOwnedByYou' ||
-        error.name === 'BucketAlreadyExists')
-    ) {
-      console.log(`Bucket '${BUCKET}' already exists`);
-      return;
-    }
-    throw error;
-  }
+/** Replaces the bucket's CORS rule, so it is idempotent. */
+async function allowBrowserOrigin(client: S3Client): Promise<void> {
+  await client.send(
+    new PutBucketCorsCommand({
+      Bucket: BUCKET,
+      CORSConfiguration: {
+        CORSRules: [
+          {
+            AllowedOrigins: [CORS_ORIGIN],
+            AllowedMethods: ['GET', 'PUT', 'HEAD'],
+            AllowedHeaders: ['*'],
+            ExposeHeaders: ['ETag'],
+            MaxAgeSeconds: 3600,
+          },
+        ],
+      },
+    }),
+  );
 }
 
 function printBanner(): void {
-  console.log(`MinIO ready — bucket '${BUCKET}' available`);
-  console.log(`  Endpoint:          http://localhost:${HOST_PORT}`);
-  console.log(`  Public URL:        http://localhost:${HOST_PORT}`);
+  console.log(`Garage ready — bucket '${BUCKET}' available`);
+  console.log(`  Endpoint:          ${ENDPOINT}`);
+  console.log(`  Public URL:        ${ENDPOINT}`);
   console.log(`  Bucket:            ${BUCKET}`);
   console.log(`  Region:            ${REGION}`);
   console.log(`  Access Key ID:     ${ACCESS_KEY_ID}`);
@@ -153,8 +216,9 @@ function printBanner(): void {
 }
 
 function followLogs(): void {
-  const child = spawn('docker', ['logs', '-f', containerName], {
+  const child = spawn('docker', [...composeFlags, 'logs', '-f', 'garage'], {
     stdio: 'inherit',
+    env: childEnvironment,
   });
 
   let shuttingDown = false;
@@ -175,32 +239,45 @@ function followLogs(): void {
   });
 }
 
-async function main(): Promise<void> {
-  const alreadyRunning = containerExists() && containerIsRunning();
+function down(removeVolumes: boolean): void {
+  const result = compose(['down', ...(removeVolumes ? ['--volumes'] : [])]);
+  if (result.status !== 0) throw new Error('docker compose down failed');
+  console.log(
+    removeVolumes
+      ? `Stopped ${project} and removed its stored objects.`
+      : `Stopped ${project}. Its stored objects are kept; add --volumes to delete them.`,
+  );
+}
 
-  if (containerExists() && !alreadyRunning) {
-    removeContainer();
+async function main(argv: readonly string[]): Promise<void> {
+  if (argv.includes('--down')) {
+    down(argv.includes('--volumes') || argv.includes('-v'));
+    return;
   }
 
-  if (!alreadyRunning) {
-    ensureVolume();
-    startContainer();
-  } else {
-    console.log(
-      `MinIO already running (${containerName}) on port ${HOST_PORT}`,
-    );
+  checkEnvDevelopment();
+  startGarage();
+  console.log('Waiting for Garage to serve the bucket...');
+  const client = new S3Client({
+    endpoint: ENDPOINT,
+    region: REGION,
+    credentials: {
+      accessKeyId: ACCESS_KEY_ID,
+      secretAccessKey: SECRET_ACCESS_KEY,
+    },
+    forcePathStyle: true,
+  });
+  try {
+    await waitForReady(client);
+    await allowBrowserOrigin(client);
+  } finally {
+    client.destroy();
   }
-
-  const s3 = createS3Client();
-  console.log('Waiting for MinIO to become ready...');
-  await waitForReady(s3);
-  await ensureBucket(s3);
-
-  if (!alreadyRunning) printBanner();
+  printBanner();
   followLogs();
 }
 
-main().catch((error: unknown) => {
+main(process.argv.slice(2)).catch((error: unknown) => {
   console.error(error);
   process.exit(1);
 });

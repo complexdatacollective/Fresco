@@ -6,7 +6,7 @@ import { AppI18nProvider } from '@codaco/app-i18n/react';
 import { SignInForm } from '~/app/(blobs)/(setup)/_components/SignInForm';
 import { frescoLocales } from '~/i18n/locales';
 import { createAuthSchemas } from '~/schemas/auth';
-import { frescoCatalogs } from '~/src/locales/catalogs';
+import { frescoCatalogSource } from '~/src/locales/catalogs';
 
 const { login } = vi.hoisted(() => ({ login: vi.fn() }));
 vi.mock('~/actions/auth', () => ({ login, recoveryCodeLogin: vi.fn() }));
@@ -26,11 +26,15 @@ const incorrectCredentials = defineMessage({
   defaultMessage: 'Incorrect username or password',
   description: 'Authentication error returned by the real login action.',
 });
+// Loaded up front, so every render and formatter below has Spanish
+// synchronously.
+await frescoCatalogSource.load('es');
+
 const view = (locale: string) => (
   <AppI18nProvider
     locale={locale}
     locales={frescoLocales}
-    messages={frescoCatalogs[locale]}
+    messages={frescoCatalogSource.peek(locale)}
   >
     <SignInForm />
   </AppI18nProvider>

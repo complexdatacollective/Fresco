@@ -111,6 +111,9 @@ export const DeleteParticipantsDialog = ({
       accent="destructive"
       open={open}
       closeDialog={onCancel}
+      // The deletion runs to completion once started, so leaving mid-way would
+      // look like a cancel while the participants are still deleted.
+      dismissible={!isDeleting}
       title={intl.formatMessage(messages.title)}
       description={intl.formatMessage(messages.description, {
         count: participantCount,
@@ -124,8 +127,11 @@ export const DeleteParticipantsDialog = ({
             disabled={isDeleting}
             onClick={async () => {
               setIsDeleting(true);
-              await onConfirm();
-              setIsDeleting(false);
+              try {
+                await onConfirm();
+              } finally {
+                setIsDeleting(false);
+              }
             }}
             color="destructive"
             icon={<Trash2 />}

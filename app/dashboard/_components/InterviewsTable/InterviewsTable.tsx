@@ -1,10 +1,6 @@
 'use client';
 
-import {
-  type ColumnDef,
-  type Row,
-  type RowSelectionState,
-} from '@tanstack/react-table';
+import { type Row, type RowSelectionState } from '@tanstack/react-table';
 import { HardDriveUpload } from 'lucide-react';
 import { use, useMemo, useState, useTransition } from 'react';
 
@@ -15,6 +11,8 @@ import {
   useAppIntl,
 } from '@codaco/app-i18n/react';
 import { Button } from '@codaco/fresco-ui/Button';
+import { type DataTableFeatures } from '@codaco/fresco-ui/DataTable/features';
+import { type DataTableColumnDef } from '@codaco/fresco-ui/DataTable/types';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -98,10 +96,12 @@ const clearableFilters = [
 
 type InterviewRow = GetInterviewsQuery[number];
 
-const actionsColumn: ColumnDef<InterviewRow> = {
+const actionsColumn: DataTableColumnDef<InterviewRow> = {
   id: 'actions',
   enableSorting: false,
-  cell: ({ row }: { row: Row<InterviewRow> }) => <ActionsDropdown row={row} />,
+  cell: ({ row }: { row: Row<DataTableFeatures, InterviewRow> }) => (
+    <ActionsDropdown row={row} />
+  ),
 };
 
 type InterviewsTableProps = {
@@ -152,7 +152,7 @@ const InterviewsTableInner = ({
     (id) => rowSelection[id],
   );
 
-  const columns = useMemo<ColumnDef<InterviewRow>[]>(
+  const columns = useMemo<DataTableColumnDef<InterviewRow>[]>(
     () => [...InterviewColumns(intl, filterOptions), actionsColumn],
     [intl, filterOptions],
   );

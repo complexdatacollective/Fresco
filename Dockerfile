@@ -13,7 +13,6 @@ RUN corepack enable
 
 # Copy dependency files
 COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml prisma.config.ts env.js ./
-COPY vendor ./vendor
 COPY vendor/vitest-config ./vendor/vitest-config
 COPY lib/db/schema.prisma ./lib/db/schema.prisma
 
@@ -49,7 +48,30 @@ ENV NODE_OPTIONS="--max-old-space-size=4096 --no-network-family-autoselection"
 #
 # The client is generated _again_ as part of migrate-and-start.sh in the final image
 # to ensure that it inherits the correct runtime environment variables.
-RUN corepack enable pnpm && pnpm exec prisma generate && pnpm run build
+#
+# PostHog resolves a minified stack frame by matching the chunk ID baked into
+# the bundle against an uploaded source map, so the maps are only useful when
+# they come from the build that produced this image's bundle — no other build's
+# chunk IDs match it. This is the only build of Fresco's deployed bundle, so it
+# is the only place those maps can come from.
+#
+# The credentials arrive as BuildKit secrets rather than build args or ENV so
+# they never reach the image or its layer history. When they are not supplied
+# the mounts are empty and the build runs exactly as it did before, emitting no
+# maps at all; `deleteAfterUpload` in next.config.ts keeps an uploading build
+# from leaving maps in the output this image serves. To upload, pass
+# `--secret id=posthog_personal_api_key,env=POSTHOG_PERSONAL_API_KEY` and
+# `--secret id=posthog_project_id,env=POSTHOG_PROJECT_ID` to `docker build`.
+RUN --mount=type=secret,id=posthog_personal_api_key \
+    --mount=type=secret,id=posthog_project_id \
+    corepack enable pnpm && pnpm exec prisma generate && \
+    if [ -s /run/secrets/posthog_personal_api_key ] && [ -s /run/secrets/posthog_project_id ]; then \
+      POSTHOG_PERSONAL_API_KEY="$(cat /run/secrets/posthog_personal_api_key)" \
+      POSTHOG_PROJECT_ID="$(cat /run/secrets/posthog_project_id)" \
+      pnpm run build; \
+    else \
+      pnpm run build; \
+    fi
 
 # Production image, copy all the files and run next
 FROM base AS runner
@@ -67,8 +89,15 @@ RUN addgroup --system --gid 1001 nodejs && \
 # Copy public assets
 COPY --from=builder /app/public ./public
 
-# Create .next directory with correct permissions
-RUN mkdir .next && chown nextjs:nodejs .next
+# Create the .next directory, including the `cache` subdirectory Next writes
+# its runtime incremental cache into (the fetch cache and ISR). Creating it at
+# build time means the non-root runtime user never has to mkdir inside /app:
+# that mkdir fails on a read-only root filesystem or when a volume is mounted
+# over .next, and Next surfaces the failure as an unhandled rejection rather
+# than a cache miss, so it is reported as a crash on a deployment that is only
+# running without a cache. Seen in the wild as
+# `EACCES: permission denied, mkdir '/app/.next/cache'` and the ENOENT variant.
+RUN mkdir -p .next/cache && chown -R nextjs:nodejs .next
 
 # Copy built application with correct permissions
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
@@ -116,7 +145,6 @@ COPY --from=builder --chown=nextjs:nodejs /app/tsconfig ./tsconfig
 # schema the bundled runtime cannot run.
 COPY --from=builder /app/package.json /tmp/package.json
 COPY --from=builder /app/pnpm-lock.yaml /tmp/pnpm-lock.yaml
-COPY --from=builder /app/vendor /tmp/vendor
 RUN --mount=type=cache,target=/root/.npm \
     set -e; \
     V() { node -p "require('/tmp/package.json').dependencies?.['$1'] || require('/tmp/package.json').devDependencies?.['$1']"; }; \
@@ -136,7 +164,7 @@ RUN --mount=type=cache,target=/root/.npm \
       "zod@$(V zod)" \
       "@t3-oss/env-nextjs@$(V @t3-oss/env-nextjs)" \
       "@codaco/protocol-validation@$(LV @codaco/protocol-validation)"; \
-    cp /tmp/vendor/codaco-interview-9.1.0.tgz /tmp/codaco-interview-vendored.tgz; \
+    npm pack --silent --pack-destination /tmp "@codaco/interview@$(LV @codaco/interview)"; \
     mkdir -p /tmp/interview-pack /tmp/runtime/node_modules/@codaco; \
     tar xzf /tmp/codaco-interview-*.tgz -C /tmp/interview-pack; \
     mv /tmp/interview-pack/package /tmp/runtime/node_modules/@codaco/interview; \

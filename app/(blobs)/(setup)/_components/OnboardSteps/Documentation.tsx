@@ -128,9 +128,11 @@ export default function Documentation() {
       </div>
 
       <div className="flex justify-end pt-12">
-        <Button onClick={completeSetup} color="primary">
-          {intl.formatMessage(messages.goToTheDashboard)}
-        </Button>
+        <form action={completeSetup}>
+          <Button type="submit" color="primary">
+            {intl.formatMessage(messages.goToTheDashboard)}
+          </Button>
+        </form>
       </div>
     </div>
   );

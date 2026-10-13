@@ -137,9 +137,22 @@ async function checkForUpdate() {
       'https://api.github.com/repos/complexdatacollective/fresco/releases/latest',
       { next: { revalidate: 3600 } },
     );
-    const data = await response.json();
-    const { latestVersion, releaseNotes, releaseUrl } =
-      GithubApiResponseSchema.parse(data);
+
+    // A non-2xx answer (typically a 403 from the unauthenticated rate limit)
+    // is an expected outcome, not a defect worth reporting.
+    if (!response.ok) {
+      return {
+        error: true,
+      };
+    }
+
+    const parsed = GithubApiResponseSchema.safeParse(await response.json());
+    if (!parsed.success) {
+      throw new Error(
+        `GitHub releases response did not match the expected shape: ${parsed.error.message}`,
+      );
+    }
+    const { latestVersion, releaseNotes, releaseUrl } = parsed.data;
 
     const updateType = getSemverUpdateType(currentVersion, latestVersion);
 

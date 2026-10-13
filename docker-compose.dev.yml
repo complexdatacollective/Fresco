@@ -1,0 +1,29 @@
+# The development object store's override of the self-hosted deployment.
+#
+#   docker compose -f docker-compose.prod.yml -f docker-compose.dev.yml ...
+#
+# `pnpm --filter fresco dev` applies it for you (scripts/dev-s3.ts) and starts
+# only `garage`, then gives its bucket the CORS rule `next dev` needs; the app
+# runs from source under `next dev`, and the database comes from
+# scripts/dev-db.sh. Garage is the deployment's own service, so a change to it
+# is felt here before a self-hoster feels it.
+#
+# Published on the host loopback only: these are development credentials, and
+# a `0.0.0.0` bind would put an open object store on whatever network the
+# laptop is on.
+
+services:
+  garage:
+    ports:
+      - '127.0.0.1:9000:3900'
+
+  # Never started in development, but Compose reads every service's `env_file`
+  # when a command loads the whole model (`config`, `down`), and a checkout has
+  # no deployment `.env`. `!reset` drops the deployment's entry rather than
+  # marking it optional: `required: false` needs Compose 2.24, newer than the
+  # 2.23.1 the deployment file supports.
+  fresco:
+    env_file: !reset []
+
+  postgres:
+    env_file: !reset []

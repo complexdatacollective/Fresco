@@ -13,6 +13,7 @@ import ToggleField from '@codaco/fresco-ui/form/fields/ToggleField';
 import FormStoreProvider from '@codaco/fresco-ui/form/store/formStoreProvider';
 import SubmitButton from '@codaco/fresco-ui/form/SubmitButton';
 import { disableTotp, regenerateRecoveryCodes } from '~/actions/totp';
+import FormDialog from '~/components/FormDialog';
 import RecoveryCodes from '~/components/RecoveryCodes';
 import SettingsField from '~/components/settings/SettingsField';
 import { useTwoFactorSetup } from '~/components/TwoFactorSetup';
@@ -197,16 +198,16 @@ export default function TwoFactorSettings({
       </SettingsField>
 
       <FormStoreProvider>
-        <Dialog
+        <FormDialog
           open={showDisable}
           closeDialog={() => setShowDisable(false)}
           title={intl.formatMessage(messages.disableTwoFactorAuthentication)}
           description={intl.formatMessage(
             messages.enterYourCurrentAuthenticatorCodeOrA,
           )}
-          footer={
+          footer={(heldOpen) => (
             <>
-              <Button onClick={() => setShowDisable(false)}>
+              <Button onClick={() => setShowDisable(false)} disabled={heldOpen}>
                 {intl.formatMessage(commonMessages.cancel)}
               </Button>
               <SubmitButton
@@ -217,7 +218,7 @@ export default function TwoFactorSettings({
                 {intl.formatMessage(messages.disable)}
               </SubmitButton>
             </>
-          }
+          )}
         >
           <Alert variant="info">
             <AlertDescription>
@@ -228,26 +229,32 @@ export default function TwoFactorSettings({
             formId="disable-2fa"
             onVerify={async (code) => {
               const result = await disableTotp({ code });
-              if (result.error) throw new Error(result.error);
+              if (result.error) {
+                return { success: false, formErrors: [result.error] };
+              }
               setHasTwoFactor(false);
               setShowDisable(false);
+              return { success: true };
             }}
             allowRecoveryCodes
           />
-        </Dialog>
+        </FormDialog>
       </FormStoreProvider>
 
       <FormStoreProvider>
-        <Dialog
+        <FormDialog
           open={showRegenerateVerify}
           closeDialog={() => setShowRegenerateVerify(false)}
           title={intl.formatMessage(messages.regenerateRecoveryCodes)}
           description={intl.formatMessage(
             messages.enterYourCurrentAuthenticatorCodeToGenerate,
           )}
-          footer={
+          footer={(heldOpen) => (
             <>
-              <Button onClick={() => setShowRegenerateVerify(false)}>
+              <Button
+                onClick={() => setShowRegenerateVerify(false)}
+                disabled={heldOpen}
+              >
                 {intl.formatMessage(commonMessages.cancel)}
               </Button>
               <SubmitButton
@@ -257,7 +264,7 @@ export default function TwoFactorSettings({
                 {intl.formatMessage(messages.regenerate)}
               </SubmitButton>
             </>
-          }
+          )}
         >
           <Alert variant="info">
             <AlertDescription>
@@ -268,15 +275,18 @@ export default function TwoFactorSettings({
             formId="regenerate-recovery-codes"
             onVerify={async (code) => {
               const result = await regenerateRecoveryCodes({ code });
-              if (result.error) throw new Error(result.error);
+              if (result.error) {
+                return { success: false, formErrors: [result.error] };
+              }
               if (result.data) {
                 setShowRegenerateVerify(false);
                 setRecoveryCodes(result.data.recoveryCodes);
                 setShowRecoveryCodes(true);
               }
+              return { success: true };
             }}
           />
-        </Dialog>
+        </FormDialog>
       </FormStoreProvider>
 
       <Dialog

@@ -8,7 +8,6 @@ import {
   verifyAuthenticationResponse,
   verifyRegistrationResponse,
   type AuthenticationResponseJSON,
-  type AuthenticatorTransportFuture,
   type RegistrationResponseJSON,
 } from '@simplewebauthn/server';
 import { cookies } from 'next/headers';
@@ -177,11 +176,9 @@ function isUserVerificationFailure(error: unknown): boolean {
   );
 }
 
-function splitTransports(
-  transports: string | null,
-): AuthenticatorTransportFuture[] | undefined {
+function splitTransports(transports: string | null): string[] | undefined {
   if (!transports) return undefined;
-  return transports.split(',') as AuthenticatorTransportFuture[];
+  return transports.split(',');
 }
 
 async function setChallengeCookie(challenge: string) {

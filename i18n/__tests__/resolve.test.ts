@@ -46,7 +46,7 @@ describe('Fresco request locale precedence', () => {
   it('uses a valid mirror when an account has a withdrawn locale', () => {
     expect(
       resolveFrescoLocale({
-        account: account('fr'),
+        account: account('ja'),
         mirror: 'en-GB',
         requested: ['es'],
       }),
