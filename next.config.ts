@@ -130,6 +130,11 @@ const posthogProjectId = process.env.POSTHOG_PROJECT_ID;
  * `.dockerignore`), so `release resolve` fails and takes `next build` with it.
  * It matches the version the client reports (`fresco.config.ts`), so uploaded
  * maps and captured errors share one release.
+ *
+ * `releaseMode: 'symbol-set'` makes the plugin run `sourcemap process`
+ * (inject chunk IDs, then upload). The default 'event' mode relies on
+ * Turbopack's native debug IDs and runs a bare `upload`, which fails on chunks
+ * built from the published `@codaco/*` dist ("Chunk ID not found").
  */
 export default withPostHogConfig(config, {
   personalApiKey: posthogPersonalApiKey ?? 'none',
@@ -138,6 +143,7 @@ export default withPostHogConfig(config, {
     enabled: !!posthogPersonalApiKey && !!posthogProjectId,
     releaseName: POSTHOG_APP_NAME,
     releaseVersion: POSTHOG_APP_VERSION,
+    releaseMode: 'symbol-set',
     deleteAfterUpload: true,
   },
 });
