@@ -4,7 +4,7 @@ import { withPostHogConfig } from '@posthog/nextjs-config';
 import type { NextConfig } from 'next';
 
 import './env.js';
-import { POSTHOG_APP_NAME } from './fresco.config';
+import { POSTHOG_APP_NAME, POSTHOG_APP_VERSION } from './fresco.config';
 import pkg from './package.json' with { type: 'json' };
 
 let commitHash = 'Unknown commit hash';
@@ -124,6 +124,12 @@ const posthogProjectId = process.env.POSTHOG_PROJECT_ID;
  *
  * Both variables are declared in turbo.json's `fresco#build` `env` so an
  * uploading build can never reuse a non-uploading cache entry.
+ *
+ * `releaseVersion` must be given explicitly. Without it posthog-cli derives
+ * the release from git, and the Dockerfile build has no `.git` (it is in
+ * `.dockerignore`), so `release resolve` fails and takes `next build` with it.
+ * It matches the version the client reports (`fresco.config.ts`), so uploaded
+ * maps and captured errors share one release.
  */
 export default withPostHogConfig(config, {
   personalApiKey: posthogPersonalApiKey ?? 'none',
@@ -131,6 +137,7 @@ export default withPostHogConfig(config, {
   sourcemaps: {
     enabled: !!posthogPersonalApiKey && !!posthogProjectId,
     releaseName: POSTHOG_APP_NAME,
+    releaseVersion: POSTHOG_APP_VERSION,
     deleteAfterUpload: true,
   },
 });
