@@ -3,6 +3,16 @@ publish = ".next"
 command = "pnpm build:platform"
 ignore = "bash scripts/netlify-should-build.sh"
 
+# Turbopack runs webpack loaders (Fresco's i18n loader) in pools of Node.js
+# processes, one pool per module context, each allowed as many processes as
+# the machine has CPUs. On Netlify's build machines (about six CPUs) those
+# pools, ~120 MB a process, pushed the compile past the memory limit and the
+# build was killed (exit 137). This variable is Turbopack's override for the
+# CPU count it plans with; two keeps the peak well clear of the limit at the
+# cost of a somewhat longer compile.
+[build.environment]
+TURBO_TASKS_AVAILABLE_PARALLELISM = "2"
+
 # Branch deploys and deploy previews never see the production database: the
 # site sets DATABASE_URL and DATABASE_URL_UNPOOLED for production alone. A pull
 # request's preview gets a Neon branch of its base's database

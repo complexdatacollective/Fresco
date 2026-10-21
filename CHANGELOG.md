@@ -1,5 +1,17 @@
 # fresco
 
+## 4.3.1
+
+### Interview changes
+
+These improvements to the interview are shared with Interviewer and Architect's Preview.
+
+- **Dragging on touch screens.** Dragging people out of a scrolling area now goes the way you'd expect. In the Sociogram's bin you can drag a person straight up or diagonally onto the canvas, and swiping sideways scrolls the bin. In the roster and name generator panels, swiping up and down scrolls and dragging sideways moves a person. To drag along the direction an area scrolls, hold the person still for a moment first.
+
+### Bug fixes
+
+- Building the Docker image no longer stops while uploading error-reporting source maps.
+
 ## 4.3.0
 
 ### Docker deployments

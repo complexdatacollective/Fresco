@@ -7,6 +7,17 @@ import './env.js';
 import { POSTHOG_APP_NAME, POSTHOG_APP_VERSION } from './fresco.config';
 import pkg from './package.json' with { type: 'json' };
 
+/**
+ * Source files the FormatJS transform in `@codaco/app-i18n/next-loader` can
+ * change: it rewrites only calls to `formatMessage`, `$t`, `$formatMessage`,
+ * `defineMessage(s)` and `<FormattedMessage>`, matched by name, so a file
+ * that never spells one of them comes back unchanged. Every file the loader
+ * sees is a round trip through one of Turbopack's Node.js loader processes,
+ * and each module context keeps its own pool of them, so sending only these
+ * files keeps the build within Netlify's memory (see netlify.toml).
+ */
+const I18N_SOURCE = /formatMessage|defineMessage|FormattedMessage|\$t\b/;
+
 let commitHash = 'Unknown commit hash';
 
 try {
@@ -42,7 +53,7 @@ const config: NextConfig = {
   turbopack: {
     rules: {
       '*.{js,jsx,ts,tsx}': {
-        condition: { not: 'foreign' },
+        condition: { all: [{ not: 'foreign' }, { content: I18N_SOURCE }] },
         loaders: ['@codaco/app-i18n/next-loader'],
       },
       '**/src/locales/*.json': {

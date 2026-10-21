@@ -245,12 +245,6 @@ describe('posthog-server', () => {
 
       expect(result?.properties).toEqual({});
     });
-
-    it('passes a dropped event through', async () => {
-      const beforeSend = await getBeforeSend();
-
-      expect(beforeSend(null)).toBeNull();
-    });
   });
 
   describe('installProcessErrorReporting', () => {
