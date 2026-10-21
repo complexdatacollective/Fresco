@@ -112,6 +112,25 @@ describe('Onboard Route Handler', () => {
       );
     });
 
+    it('sends no analytics event of its own for a started interview', async () => {
+      // createInterview reports the start through the activity feed; a second
+      // event here would count every interview twice.
+      mockCreateInterview.mockResolvedValue({
+        createdInterviewId: 'interview-123',
+        error: null,
+        errorType: null,
+      });
+
+      const request = new NextRequest(
+        'http://localhost:3000/onboard/test-protocol-id',
+      );
+      const params = Promise.resolve({ protocolId: 'test-protocol-id' });
+
+      await GET(request, { params });
+
+      expect(mockCaptureEvent).not.toHaveBeenCalled();
+    });
+
     it('should pass undefined when no participantIdentifier is provided', async () => {
       const protocolId = 'test-protocol-id';
       const createdInterviewId = 'interview-456';

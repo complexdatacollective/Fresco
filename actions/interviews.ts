@@ -396,10 +396,12 @@ export async function createInterview(
     const { label, identifier } = createdInterview.participant;
     const participantDisplay = label ? `${label} (${identifier})` : identifier;
 
+    // The deployment's one analytics event for a new interview.
     void addEvent(
       'Interview Started',
       `Participant "${participantDisplay}" started an interview`,
       { kind: 'interviewStarted', values: { participant: participantDisplay } },
+      { usingAnonymousParticipant: !participantIdentifier },
     );
 
     /**

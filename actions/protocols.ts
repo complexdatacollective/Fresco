@@ -283,6 +283,9 @@ export async function insertProtocol(
         kind: 'protocolInstalled',
         values: { username: session.user.username, protocol: protocolName },
       },
+      // The analytics copy carries the schema version only. The protocol's
+      // name is the researcher's own, so it stays in the feed.
+      { schemaVersion: protocol.schemaVersion },
     );
 
     safeUpdateTag('getProtocols');

@@ -85,13 +85,9 @@ const handler = async (
   // Note: the interview id is the unauthenticated access capability for the
   // participant flow, so it must never be written to logs (where it could leak
   // and let a third party read or tamper with the interview).
-
-  after(async () => {
-    await captureEvent('InterviewStarted', {
-      usingAnonymousParticipant: !participantIdentifier,
-    });
-    await flushPostHog();
-  });
+  //
+  // The start is reported to analytics by `createInterview`, through the
+  // activity feed, so nothing is captured here.
 
   // Redirect to the interview
   // Explicitly disable caching to prevent Netlify from caching this redirect

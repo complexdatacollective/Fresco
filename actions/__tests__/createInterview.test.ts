@@ -116,6 +116,7 @@ vi.mock('@codaco/interview/contract', () => ({
 }));
 
 // Import the function under test
+import { addEvent } from '~/lib/activityFeed';
 import { Prisma } from '~/lib/db/generated/client';
 
 import { createInterview } from '../interviews';
@@ -543,6 +544,51 @@ describe('createInterview', () => {
           [entityAttributesProperty]: {},
         },
       });
+    });
+  });
+
+  describe('analytics', () => {
+    const created: MockInterviewResult = {
+      id: 'interview-analytics',
+      participant: {
+        id: 'participant-id',
+        identifier: 'PARTICIPANT-001',
+        label: null,
+      },
+    };
+
+    it('records one Interview Started event for an identified participant', async () => {
+      mockPrismaCreate.mockResolvedValue(created);
+
+      await createInterview({
+        participantIdentifier: 'PARTICIPANT-001',
+        protocolId: 'protocol-123',
+      });
+
+      expect(vi.mocked(addEvent)).toHaveBeenCalledTimes(1);
+      expect(vi.mocked(addEvent)).toHaveBeenCalledWith(
+        'Interview Started',
+        expect.any(String),
+        expect.objectContaining({ kind: 'interviewStarted' }),
+        { usingAnonymousParticipant: false },
+      );
+    });
+
+    it('marks an anonymous participant on the Interview Started event', async () => {
+      mockGetAppSetting.mockResolvedValue(true);
+      mockPrismaCreate.mockResolvedValue(created);
+
+      await createInterview({
+        participantIdentifier: undefined,
+        protocolId: 'protocol-123',
+      });
+
+      expect(vi.mocked(addEvent)).toHaveBeenCalledWith(
+        'Interview Started',
+        expect.any(String),
+        expect.objectContaining({ kind: 'interviewStarted' }),
+        { usingAnonymousParticipant: true },
+      );
     });
   });
 });
