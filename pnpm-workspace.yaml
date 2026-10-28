@@ -31,6 +31,13 @@ allowBuilds:
 # Keep security-sensitive transitives on patched versions when upstream
 # manifests still pin vulnerable releases.
 overrides:
+  # Packages changed since fresco@4.3.2 (and their dependents), bundled by the hotfix lane (local tarballs).
+  '@codaco/fresco-ui@>=8.0.0-0': 'file:vendor/codaco-fresco-ui-8.1.0.tgz'
+  '@codaco/interview@>=11.0.0-0': 'file:vendor/codaco-interview-11.0.0.tgz'
+  '@codaco/network-exporters@>=4.0.0-0': 'file:vendor/codaco-network-exporters-4.0.0.tgz'
+  '@codaco/network-query@>=1.0.0-0': 'file:vendor/codaco-network-query-1.2.6.tgz'
+  '@codaco/protocol-utilities@>=5.0.0-0': 'file:vendor/codaco-protocol-utilities-5.0.0.tgz'
+  '@codaco/protocol-validation@>=15.0.0-0': 'file:vendor/codaco-protocol-validation-15.0.0.tgz'
   # @uploadthing/shared is written against the Effect 3 API. A literal, not the
   # root catalog's effect entry, which is on Effect 4.
   'effect@3.17.7': '^3.22.1'

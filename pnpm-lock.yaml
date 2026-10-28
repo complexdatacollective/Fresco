@@ -5,6 +5,12 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
+  '@codaco/fresco-ui@>=8.0.0-0': file:vendor/codaco-fresco-ui-8.1.0.tgz
+  '@codaco/interview@>=11.0.0-0': file:vendor/codaco-interview-11.0.0.tgz
+  '@codaco/network-exporters@>=4.0.0-0': file:vendor/codaco-network-exporters-4.0.0.tgz
+  '@codaco/network-query@>=1.0.0-0': file:vendor/codaco-network-query-1.2.6.tgz
+  '@codaco/protocol-utilities@>=5.0.0-0': file:vendor/codaco-protocol-utilities-5.0.0.tgz
+  '@codaco/protocol-validation@>=15.0.0-0': file:vendor/codaco-protocol-validation-15.0.0.tgz
   effect@3.17.7: ^3.22.1
   fast-uri: ^3.1.6
   find-my-way: ^9.7.0
@@ -29,20 +35,20 @@ importers:
         specifier: ^0.3.0
         version: 0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2)))
       '@codaco/fresco-ui':
-        specifier: ^8.1.0
-        version: 8.1.0(8674f8d71292b9c0970edd45c9f950d2)
+        specifier: file:vendor/codaco-fresco-ui-8.1.0.tgz
+        version: file:vendor/codaco-fresco-ui-8.1.0.tgz(190532ef0e9ce7e556bf64149aa8ea88)
       '@codaco/interview':
-        specifier: ^11.0.0
-        version: 11.0.0(3cd456ccaca31bf2ab91ebec8a8a3c4d)
+        specifier: file:vendor/codaco-interview-11.0.0.tgz
+        version: file:vendor/codaco-interview-11.0.0.tgz(94517f39a07c88ba5edf0277f473a1db)
       '@codaco/network-exporters':
-        specifier: ^4.0.0
-        version: 4.0.0(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))(effect@4.0.0)
+        specifier: file:vendor/codaco-network-exporters-4.0.0.tgz
+        version: file:vendor/codaco-network-exporters-4.0.0.tgz(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))(effect@4.0.0)
       '@codaco/protocol-utilities':
-        specifier: ^5.0.0
-        version: 5.0.0(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))
+        specifier: file:vendor/codaco-protocol-utilities-5.0.0.tgz
+        version: file:vendor/codaco-protocol-utilities-5.0.0.tgz(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))
       '@codaco/protocol-validation':
-        specifier: ^15.0.0
-        version: 15.0.0(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))
+        specifier: file:vendor/codaco-protocol-validation-15.0.0.tgz
+        version: file:vendor/codaco-protocol-validation-15.0.0.tgz(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))
       '@codaco/shared-consts':
         specifier: ^6.3.0
         version: 6.3.0
@@ -519,8 +525,9 @@ packages:
     peerDependencies:
       react: ^19.3.0
 
-  '@codaco/fresco-ui@8.1.0':
-    resolution: {integrity: sha512-p0uNe7vfFa07vCgakyeckrx3K89zod0zOIdzQUc3cGG9o7+1mIA18KzBuz7yxOjSht2u6aJdhIVKMt9NMstXXg==}
+  '@codaco/fresco-ui@file:vendor/codaco-fresco-ui-8.1.0.tgz':
+    resolution: {integrity: sha512-gcdKwAjSzMxlQ0LHQCSkQRSA6G5QlNYCZ9zl0utjGw7n0XrK0wo2yV3brW1u+wFuxSeK0hh8lasht6MboEeqgA==, tarball: file:vendor/codaco-fresco-ui-8.1.0.tgz}
+    version: 8.1.0
     peerDependencies:
       '@base-ui/react': ^1.4.0
       '@codaco/app-i18n': ^0.3.0
@@ -538,8 +545,9 @@ packages:
       '@codaco/protocol-validation':
         optional: true
 
-  '@codaco/interview@11.0.0':
-    resolution: {integrity: sha512-cv8M6tLfbvPZybIutfWE2SR4BMuEx2Dn4jBh6yF+iWnH7nEwnbLMeSVRvN7VYgyDgZZ157cw588cR8ODq+iimA==}
+  '@codaco/interview@file:vendor/codaco-interview-11.0.0.tgz':
+    resolution: {integrity: sha512-5HjjdGH6QNFkyf/6+IxxKXflQc3gPaqms+4gUsdRXUG51VaWux3eLqUIP/nuMRUqrVLy9f8E0dQt4J+eISfxvA==, tarball: file:vendor/codaco-interview-11.0.0.tgz}
+    version: 11.0.0
     peerDependencies:
       '@codaco/fresco-ui': ^8.1.0
       '@codaco/protocol-validation': ^15.0.0
@@ -551,8 +559,9 @@ packages:
       react-dom: ^19.3.0
       tailwindcss: ^4.3.3
 
-  '@codaco/network-exporters@4.0.0':
-    resolution: {integrity: sha512-lpue/u4GWhtSGq2fOLv6YNRHhezMyAQKyNe+q1uL4eJis1g8dK8W2JlsKQt6MCHQEB3cl5gwcCKq1ayV8zeeOw==}
+  '@codaco/network-exporters@file:vendor/codaco-network-exporters-4.0.0.tgz':
+    resolution: {integrity: sha512-vKF5d4+WAfyXiswXJsItH6TY6GgdJdDBbaIxpU9eW2BtYBZbxlEaPM6ODj2RKLqPLDzJzEuDaMubZfOtrsi2WQ==, tarball: file:vendor/codaco-network-exporters-4.0.0.tgz}
+    version: 4.0.0
     peerDependencies:
       '@codaco/app-i18n': ^0.3.0
       effect: ^4.0.0
@@ -560,19 +569,22 @@ packages:
       '@codaco/app-i18n':
         optional: true
 
-  '@codaco/network-query@1.2.6':
-    resolution: {integrity: sha512-si5YMnFGvr+fb5bHb833D90cwyLwYU3FbE41NZklsv1IVXm1bgZ8EpFbgUq9XYRq3K6n/vjEbIJgV2QLr844Cw==}
+  '@codaco/network-query@file:vendor/codaco-network-query-1.2.6.tgz':
+    resolution: {integrity: sha512-lfP33g4VbBOm7D+28IwjmuuCyfBHxyWU0Y7wSJ69DokqFdcSMSvbkqeAoyhCq43LVckC2tHHjwzBLfvvr/0Dog==, tarball: file:vendor/codaco-network-query-1.2.6.tgz}
+    version: 1.2.6
 
-  '@codaco/protocol-utilities@5.0.0':
-    resolution: {integrity: sha512-w3uiJelEL0Bj9soTv7LMQyPYQd4FDIsBNw/wWzNAgQqh30gFSN6lCZBGNGguV7+9XWQQHuSvl4Xb8bSeyYu7ng==}
+  '@codaco/protocol-utilities@file:vendor/codaco-protocol-utilities-5.0.0.tgz':
+    resolution: {integrity: sha512-EJMsGHzlwfSek+7VwKuilVLa/GU0LgiBRTpc2LDNZgMJy0x1fF1mGP9KIyYJ/12QUi/H+G4QPeQL3XhDEyvRlQ==, tarball: file:vendor/codaco-protocol-utilities-5.0.0.tgz}
+    version: 5.0.0
     peerDependencies:
       '@codaco/app-i18n': ^0.3.0
     peerDependenciesMeta:
       '@codaco/app-i18n':
         optional: true
 
-  '@codaco/protocol-validation@15.0.0':
-    resolution: {integrity: sha512-l4kT6VS+KGaLsm2rfTBwWbaq38NB3ERkF5RXVStwMkClhNSC2MsSRsiqKpBf/A+tGcXOP6vce59kH98QkTgrPQ==}
+  '@codaco/protocol-validation@file:vendor/codaco-protocol-validation-15.0.0.tgz':
+    resolution: {integrity: sha512-nKekyOaF9lutqXvT/ymIFfETuzpcyT/t1bqExJm3FeT+Dakz0ehI/CPl6RvzuEun1GiVsHlbAekrs1miftMVQg==, tarball: file:vendor/codaco-protocol-validation-15.0.0.tgz}
+    version: 15.0.0
     hasBin: true
     peerDependencies:
       '@codaco/app-i18n': ^0.3.0
@@ -6646,7 +6658,7 @@ snapshots:
       - vue
       - webpack
 
-  '@codaco/fresco-ui@8.1.0(8674f8d71292b9c0970edd45c9f950d2)':
+  '@codaco/fresco-ui@file:vendor/codaco-fresco-ui-8.1.0.tgz(190532ef0e9ce7e556bf64149aa8ea88)':
     dependencies:
       '@base-ui/react': 1.8.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@codaco/app-i18n': 0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2)))
@@ -6687,7 +6699,7 @@ snapshots:
       zod: 4.6.7
       zustand: 5.0.15(@types/react@19.3.0)(immer@11.2.3)(react@19.3.1)(use-sync-external-store@1.7.0(react@19.3.1))
     optionalDependencies:
-      '@codaco/protocol-validation': 15.0.0(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))
+      '@codaco/protocol-validation': file:vendor/codaco-protocol-validation-15.0.0.tgz(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))
     transitivePeerDependencies:
       - '@floating-ui/dom'
       - '@tiptap/extension-list'
@@ -6697,13 +6709,13 @@ snapshots:
       - supports-color
       - typescript
 
-  '@codaco/interview@11.0.0(3cd456ccaca31bf2ab91ebec8a8a3c4d)':
+  '@codaco/interview@file:vendor/codaco-interview-11.0.0.tgz(94517f39a07c88ba5edf0277f473a1db)':
     dependencies:
       '@base-ui/react': 1.8.0(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
       '@codaco/app-i18n': 0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2)))
-      '@codaco/fresco-ui': 8.1.0(8674f8d71292b9c0970edd45c9f950d2)
-      '@codaco/network-query': 1.2.6(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))
-      '@codaco/protocol-validation': 15.0.0(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))
+      '@codaco/fresco-ui': file:vendor/codaco-fresco-ui-8.1.0.tgz(190532ef0e9ce7e556bf64149aa8ea88)
+      '@codaco/network-query': file:vendor/codaco-network-query-1.2.6.tgz(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))
+      '@codaco/protocol-validation': file:vendor/codaco-protocol-validation-15.0.0.tgz(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))
       '@codaco/shared-consts': 6.3.0
       '@codaco/tailwind-config': 1.5.1(react-dom@19.3.1(react@19.3.1))(react@19.3.1)(tailwindcss@4.3.3)
       '@faker-js/faker': 10.6.0
@@ -6756,9 +6768,9 @@ snapshots:
       - vue
       - webpack
 
-  '@codaco/network-exporters@4.0.0(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))(effect@4.0.0)':
+  '@codaco/network-exporters@file:vendor/codaco-network-exporters-4.0.0.tgz(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))(effect@4.0.0)':
     dependencies:
-      '@codaco/protocol-validation': 15.0.0(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))
+      '@codaco/protocol-validation': file:vendor/codaco-protocol-validation-15.0.0.tgz(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))
       '@codaco/shared-consts': 6.3.0
       '@xmldom/xmldom': 0.9.12
       effect: 4.0.0
@@ -6770,18 +6782,18 @@ snapshots:
     optionalDependencies:
       '@codaco/app-i18n': 0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2)))
 
-  '@codaco/network-query@1.2.6(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))':
+  '@codaco/network-query@file:vendor/codaco-network-query-1.2.6.tgz(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))':
     dependencies:
-      '@codaco/protocol-validation': 15.0.0(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))
+      '@codaco/protocol-validation': file:vendor/codaco-protocol-validation-15.0.0.tgz(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))
       '@codaco/shared-consts': 6.3.0
       es-toolkit: 1.52.0
     transitivePeerDependencies:
       - '@codaco/app-i18n'
 
-  '@codaco/protocol-utilities@5.0.0(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))':
+  '@codaco/protocol-utilities@file:vendor/codaco-protocol-utilities-5.0.0.tgz(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))':
     dependencies:
-      '@codaco/network-query': 1.2.6(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))
-      '@codaco/protocol-validation': 15.0.0(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))
+      '@codaco/network-query': file:vendor/codaco-network-query-1.2.6.tgz(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))
+      '@codaco/protocol-validation': file:vendor/codaco-protocol-validation-15.0.0.tgz(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))
       '@codaco/shared-consts': 6.3.0
       '@faker-js/faker': 10.6.0
       es-toolkit: 1.52.0
@@ -6789,7 +6801,7 @@ snapshots:
     optionalDependencies:
       '@codaco/app-i18n': 0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2)))
 
-  '@codaco/protocol-validation@15.0.0(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))':
+  '@codaco/protocol-validation@file:vendor/codaco-protocol-validation-15.0.0.tgz(@codaco/app-i18n@0.3.0(@types/react@19.3.0)(esbuild@0.28.2)(react@19.3.1)(rolldown@1.2.14)(vite@8.3.4(@types/node@24.19.2)(esbuild@0.28.2)(jiti@2.7.0)(sass-embedded@1.105.2)(sass@1.105.2)(terser@5.51.2)(tsx@4.23.15)(yaml@2.9.1))(webpack@5.112.0(esbuild@0.28.2)(lightningcss@1.33.0)(postcss@8.5.31)(sharp@0.35.5(@types/node@24.19.2))))':
     dependencies:
       '@codaco/shared-consts': 6.3.0
       jszip: 3.10.2

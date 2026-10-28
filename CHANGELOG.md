@@ -1,5 +1,11 @@
 # fresco
 
+## 4.3.3
+
+### Bug fixes
+
+- Older protocols that failed to import with an "Unrecognized key: parameters" error now import. This happened when an attribute's type or input control had been changed in Architect Classic, which left behind settings the new attribute type cannot use. Importing the protocol now removes those settings.
+
 ## 4.3.2
 
 ### Bug fixes
